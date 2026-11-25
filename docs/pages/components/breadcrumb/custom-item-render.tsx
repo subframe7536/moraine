@@ -4,7 +4,7 @@ const TRAIL = [
   { label: 'Documentation', href: '/docs' },
   { label: 'Components', href: '/components' },
   { label: 'Breadcrumb' },
-] satisfies BreadcrumbT.Item[]
+] satisfies Array<BreadcrumbT.Item>
 
 export function CustomItemRender() {
   return (

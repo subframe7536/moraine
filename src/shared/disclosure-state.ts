@@ -309,7 +309,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
         return
       }
       measureRegistrations.splice(index, 1)
-      observeMeasureElement(measureRegistrations[measureRegistrations.length - 1]?.element)
+      observeMeasureElement(measureRegistrations.at(-1)?.element)
     }
   }
 

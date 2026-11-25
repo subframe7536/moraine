@@ -19,13 +19,13 @@ interface Person {
   role: string
 }
 
-const TEST_DATA: Person[] = [
+const TEST_DATA: Array<Person> = [
   { id: '1', name: 'Alice', age: 28, role: 'Engineer' },
   { id: '2', name: 'Bob', age: 34, role: 'Designer' },
   { id: '3', name: 'Charlie', age: 22, role: 'Intern' },
 ]
 
-const TEST_COLUMNS: DataTableT.Column<Person>[] = [
+const TEST_COLUMNS: Array<DataTableT.Column<Person>> = [
   {
     accessorKey: 'name',
     header: 'Name',
@@ -43,7 +43,7 @@ const TEST_COLUMNS: DataTableT.Column<Person>[] = [
   },
 ]
 
-function manyPeople(count: number): Person[] {
+function manyPeople(count: number): Array<Person> {
   return Array.from({ length: count }, (_, index) => ({
     id: String(index + 1),
     name: `Person ${index + 1}`,
@@ -384,8 +384,8 @@ describe('DataTable', () => {
   it('reacts when rowProps and headProps change and keeps hook calls single-run per index change', () => {
     const [rowProps, setRowProps] = createSignal<DataTableT.Base<Person>['rowProps']>(undefined)
     const [headProps, setHeadProps] = createSignal<DataTableT.Base<Person>['headProps']>(undefined)
-    const [sorting, setSorting] = createSignal<{ id: string; desc: boolean }[]>([])
-    const [columnOrder, setColumnOrder] = createSignal<string[]>(['name', 'age', 'role'])
+    const [sorting, setSorting] = createSignal<Array<{ id: string; desc: boolean }>>([])
+    const [columnOrder, setColumnOrder] = createSignal<Array<string>>(['name', 'age', 'role'])
     const rowSetup = vi.fn()
     const rowCleanup = vi.fn()
     const headSetup = vi.fn()
@@ -507,7 +507,7 @@ describe('DataTable', () => {
   })
 
   it('keeps the sort button outside the column label, so its name is the label alone', () => {
-    const columns: DataTableT.Column<Person>[] = [
+    const columns: Array<DataTableT.Column<Person>> = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'age', header: 'Age', meta: { align: 'end' } },
     ]
@@ -689,7 +689,7 @@ describe('DataTable', () => {
     interface Node {
       id: string
       name: string
-      children?: Node[]
+      children?: Array<Node>
     }
     let table!: DataTableT.Instance<Node>
     render(() => {
@@ -909,7 +909,7 @@ describe('DataTable', () => {
   })
 
   it('sticks the footer with sticky=true, and only the footer with sticky="footer"', () => {
-    const footerColumns: DataTableT.Column<Person>[] = [
+    const footerColumns: Array<DataTableT.Column<Person>> = [
       { accessorKey: 'name', header: 'Name', footer: 'Total' },
       { accessorKey: 'age', header: 'Age' },
     ]
@@ -939,7 +939,7 @@ describe('DataTable', () => {
   })
 
   it('pins start and end columns with sticky offsets and edge markers', () => {
-    const pinnedCols: DataTableT.Column<Person>[] = [
+    const pinnedCols: Array<DataTableT.Column<Person>> = [
       {
         accessorKey: 'name',
         header: 'Name',
@@ -983,7 +983,7 @@ describe('DataTable', () => {
   })
 
   it('only marks the innermost pinned column as the pinned edge', () => {
-    const columns: DataTableT.Column<Person>[] = [
+    const columns: Array<DataTableT.Column<Person>> = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'age', header: 'Age' },
       { accessorKey: 'role', header: 'Role' },
@@ -1002,7 +1002,7 @@ describe('DataTable', () => {
   })
 
   it('stacks sticky header cells above pinned body cells', () => {
-    const columns: DataTableT.Column<Person>[] = [
+    const columns: Array<DataTableT.Column<Person>> = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'age', header: 'Age' },
       { accessorKey: 'role', header: 'Role' },
@@ -1635,7 +1635,7 @@ describe('DataTable', () => {
   })
 
   describe('column groups, pinned edges, and select-all', () => {
-    const GROUPED_COLUMNS: DataTableT.Column<Person>[] = [
+    const GROUPED_COLUMNS: Array<DataTableT.Column<Person>> = [
       {
         id: 'grp',
         header: 'Group',
@@ -1718,7 +1718,7 @@ describe('DataTable', () => {
       interface Node {
         id: string
         name: string
-        children?: Node[]
+        children?: Array<Node>
       }
       let table!: DataTableT.Instance<Node>
       render(() => {
@@ -1781,7 +1781,7 @@ describe('DataTable', () => {
     type Wide = Record<string, string>
 
     const CENTER_COUNT = 20
-    const WIDE_COLUMNS: DataTableT.Column<Wide>[] = [
+    const WIDE_COLUMNS: Array<DataTableT.Column<Wide>> = [
       { accessorKey: 'id', header: 'ID', size: 60 },
       ...Array.from({ length: CENTER_COUNT }, (_, index) => ({
         accessorKey: `c${index}`,
@@ -1790,7 +1790,7 @@ describe('DataTable', () => {
       })),
       { accessorKey: 'actions', header: 'Actions', size: 80 },
     ]
-    const WIDE_ROWS: Wide[] = Array.from({ length: 30 }, (_, row) =>
+    const WIDE_ROWS: Array<Wide> = Array.from({ length: 30 }, (_, row) =>
       Object.fromEntries([
         ['id', `r${row}`],
         ['actions', `a${row}`],
@@ -1835,7 +1835,7 @@ describe('DataTable', () => {
       return container.querySelector<HTMLTableRowElement>('tbody tr[data-index="0"]')!
     }
 
-    function cellTexts(row: HTMLTableRowElement): string[] {
+    function cellTexts(row: HTMLTableRowElement): Array<string> {
       return [...row.cells].map((cell) =>
         cell.dataset.slot === 'data-table-cell-spacer' ? `<${cell.colSpan}>` : cell.textContent,
       )
@@ -1945,7 +1945,7 @@ describe('DataTable', () => {
 
     it('follows column size, order, and visibility changes', async () => {
       const [sizing, setSizing] = createSignal<Record<string, number>>({})
-      const [order, setOrder] = createSignal<string[]>([])
+      const [order, setOrder] = createSignal<Array<string>>([])
       const [visibility, setVisibility] = createSignal<Record<string, boolean>>({})
       const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
@@ -2201,10 +2201,10 @@ describe('DataTable', () => {
       id: string
       name: string
       kind: string
-      children?: TreeNode[]
+      children?: Array<TreeNode>
     }
 
-    const TREE: TreeNode[] = [
+    const TREE: Array<TreeNode> = [
       {
         id: 'src',
         name: 'src',
@@ -2221,7 +2221,7 @@ describe('DataTable', () => {
       { id: 'readme', name: 'README.md', kind: 'file' },
     ]
 
-    const TREE_COLUMNS: DataTableT.Column<TreeNode>[] = [
+    const TREE_COLUMNS: Array<DataTableT.Column<TreeNode>> = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'kind', header: 'Kind' },
     ]
@@ -2248,7 +2248,7 @@ describe('DataTable', () => {
       return row!
     }
 
-    function treeCells(row: HTMLTableRowElement): string[] {
+    function treeCells(row: HTMLTableRowElement): Array<string> {
       return [...row.querySelectorAll('td[data-tree]')].map((cell) => cell.textContent ?? '')
     }
 
@@ -2294,7 +2294,7 @@ describe('DataTable', () => {
     })
 
     it('moves the indent with column order and visibility', () => {
-      const [order, setOrder] = createSignal<string[]>([])
+      const [order, setOrder] = createSignal<Array<string>>([])
       const [visibility, setVisibility] = createSignal<Record<string, boolean>>({})
       const { container } = render(() => {
         const table = createTreeTable({

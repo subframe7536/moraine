@@ -109,5 +109,5 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     }),
   )
   const Root = dynamic<ValidComponent>(tag)
-  return <Root type={undefined} {...(binding as any)} />
+  return <Root type={undefined} {...(binding as Record<string, unknown>)} />
 }

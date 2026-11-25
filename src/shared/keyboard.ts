@@ -12,15 +12,15 @@ export type KeyEvent<TElement extends EventTarget = HTMLElement> = KeyboardEvent
   target: Element
 }
 
-export type KeyHandler<TElement extends EventTarget = HTMLElement, TArgs extends unknown[] = []> = (
-  event: KeyEvent<TElement>,
-  ...args: TArgs
-) => void
+export type KeyHandler<
+  TElement extends EventTarget = HTMLElement,
+  TArgs extends Array<unknown> = [],
+> = (event: KeyEvent<TElement>, ...args: TArgs) => void
 
 /** Declarative binding for one key. */
 export interface KeyBindingOptions<
   TElement extends EventTarget = HTMLElement,
-  TArgs extends unknown[] = [],
+  TArgs extends Array<unknown> = [],
 > {
   handle: KeyHandler<TElement, TArgs>
   /**
@@ -40,11 +40,10 @@ export interface KeyBindingOptions<
  * What a key maps to: a handler (auto-`preventDefault`), a `KeyBindingOptions`,
  * or a falsy value that leaves the key unbound (sparse computed maps).
  */
-export type KeyBinding<TElement extends EventTarget = HTMLElement, TArgs extends unknown[] = []> =
-  | KeyHandler<TElement, TArgs>
-  | KeyBindingOptions<TElement, TArgs>
-  | null
-  | undefined
+export type KeyBinding<
+  TElement extends EventTarget = HTMLElement,
+  TArgs extends Array<unknown> = [],
+> = KeyHandler<TElement, TArgs> | KeyBindingOptions<TElement, TArgs> | null | undefined
 
 /**
  * Normalized-key (`' '` is Space) → binding map.
@@ -60,17 +59,17 @@ export type KeyBinding<TElement extends EventTarget = HTMLElement, TArgs extends
  */
 export type KeyBindings<
   TElement extends EventTarget = HTMLElement,
-  TArgs extends unknown[] = [],
+  TArgs extends Array<unknown> = [],
 > = Record<string, KeyBinding<TElement, TArgs>>
 
-type EventOption<T, TElement extends EventTarget, TArgs extends unknown[]> = (
+type EventOption<T, TElement extends EventTarget, TArgs extends Array<unknown>> = (
   event: KeyEvent<TElement>,
   ...args: TArgs
 ) => T
 
 export interface KeyboardHandlerOptions<
   TElement extends EventTarget = HTMLElement,
-  TArgs extends unknown[] = [],
+  TArgs extends Array<unknown> = [],
 > {
   /** Skip the whole dispatch while it returns true. */
   disabled?: EventOption<boolean, TElement, TArgs>
@@ -81,7 +80,7 @@ export interface KeyboardHandlerOptions<
   /** Only handle events whose target is the host element itself. */
   currentTargetOnly?: boolean
   /** Skip while any of these modifiers are held. */
-  ignoreModifiers?: readonly KeyboardModifier[]
+  ignoreModifiers?: ReadonlyArray<KeyboardModifier>
   /** Orientation axis for `next` / `previous` / `open` / `close`. @default 'horizontal' */
   orientation?: Orientation | EventOption<Orientation | undefined, TElement, TArgs>
   /** Text direction for horizontal aliases; falls back to the host's computed direction. */
@@ -89,7 +88,7 @@ export interface KeyboardHandlerOptions<
   /** Key bindings, or a per-event map for computed keys. */
   keys?: KeyBindings<TElement, TArgs> | EventOption<KeyBindings<TElement, TArgs>, TElement, TArgs>
   /** Keys swallowed without preventDefault or `onUnhandled` (Space in a search input). */
-  ignore?: readonly string[]
+  ignore?: ReadonlyArray<string>
   /** Called when no binding matched after the guards. */
   onUnhandled?: KeyHandler<TElement, TArgs>
 }
@@ -107,7 +106,7 @@ export function normalizeKey(key: string): string {
   return key === 'Spacebar' ? ' ' : key
 }
 
-function keyAliases(key: string, orientation: Orientation, rtl: boolean): readonly string[] {
+function keyAliases(key: string, orientation: Orientation, rtl: boolean): ReadonlyArray<string> {
   const horizontal = orientation === 'horizontal'
   switch (key) {
     case 'ArrowRight':
@@ -146,7 +145,7 @@ function eventDirection(event: KeyboardEvent): 'ltr' | 'rtl' {
   return computedDirection(target instanceof Element ? target : undefined)
 }
 
-function toBindingOptions<TElement extends EventTarget, TArgs extends unknown[]>(
+function toBindingOptions<TElement extends EventTarget, TArgs extends Array<unknown>>(
   binding: KeyBinding<TElement, TArgs>,
 ): KeyBindingOptions<TElement, TArgs> | undefined {
   if (!binding) {
@@ -155,7 +154,7 @@ function toBindingOptions<TElement extends EventTarget, TArgs extends unknown[]>
   return typeof binding === 'function' ? { handle: binding } : binding
 }
 
-function createKeyboardHandler<TElement extends EventTarget, TArgs extends unknown[]>(
+function createKeyboardHandler<TElement extends EventTarget, TArgs extends Array<unknown>>(
   options: KeyboardHandlerOptions<TElement, TArgs> & {
     userHandler?: Accessor<JSX.EventHandlerUnion<TElement, KeyboardEvent> | undefined>
   },
@@ -217,7 +216,7 @@ function createKeyboardHandler<TElement extends EventTarget, TArgs extends unkno
 
 export interface CreateKeyDownHandlerOptions<
   TElement extends EventTarget = HTMLElement,
-  TArgs extends unknown[] = [],
+  TArgs extends Array<unknown> = [],
 > extends KeyboardHandlerOptions<TElement, TArgs> {
   /** User `onKeyDown` forwarded through `callHandler` first; a prevented event skips the rest. */
   onKeyDown?: Accessor<JSX.EventHandlerUnion<TElement, KeyboardEvent> | undefined>
@@ -229,7 +228,7 @@ export interface CreateKeyDownHandlerOptions<
  */
 export function createKeyDownHandler<
   TElement extends EventTarget = HTMLElement,
-  TArgs extends unknown[] = [],
+  TArgs extends Array<unknown> = [],
 >(
   options: CreateKeyDownHandlerOptions<TElement, TArgs>,
 ): (event: KeyboardEvent, ...args: TArgs) => void {
@@ -238,7 +237,7 @@ export function createKeyDownHandler<
 
 export interface CreateKeyUpHandlerOptions<
   TElement extends EventTarget = HTMLElement,
-  TArgs extends unknown[] = [],
+  TArgs extends Array<unknown> = [],
 > extends KeyboardHandlerOptions<TElement, TArgs> {
   /** User `onKeyUp` forwarded through `callHandler` first; a prevented event skips the rest. */
   onKeyUp?: Accessor<JSX.EventHandlerUnion<TElement, KeyboardEvent> | undefined>
@@ -247,7 +246,7 @@ export interface CreateKeyUpHandlerOptions<
 /** `keyup` variant of `createKeyDownHandler` for keys that activate on release (Space). */
 export function createKeyUpHandler<
   TElement extends EventTarget = HTMLElement,
-  TArgs extends unknown[] = [],
+  TArgs extends Array<unknown> = [],
 >(
   options: CreateKeyUpHandlerOptions<TElement, TArgs>,
 ): (event: KeyboardEvent, ...args: TArgs) => void {

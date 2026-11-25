@@ -119,5 +119,5 @@ export async function setup(): Promise<void> {
 
   mkdirSync(dirname(outputPath), { recursive: true })
   writeFileSync(outputPath, `${JSON.stringify([...tokens].sort(), null, 2)}\n`)
-  console.log(`Collected ${tokens.size} class tokens in ${outputPath}`)
+  process.stdout.write(`Collected ${tokens.size} class tokens in ${outputPath}\n`)
 }

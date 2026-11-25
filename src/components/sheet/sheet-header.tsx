@@ -26,7 +26,7 @@ function createSheetHeader(headerKind: 'explicit' | 'shorthand') {
       context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
     })
     const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
-    return <Root data-slot="sheet-header" {...headerSlot} {...(rest as any)} />
+    return <Root data-slot="sheet-header" {...headerSlot} {...(rest as Record<string, unknown>)} />
   }
 }
 

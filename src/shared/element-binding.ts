@@ -55,10 +55,11 @@ export function bindElement<T>(
       if (!current) {
         return
       }
-      if (!owner) {
+      const currentOwner = bindOwner
+      if (!owner || !currentOwner) {
         return untrack(() => bind(current, (fn) => fn()))
       }
-      const cleanup = untrack(() => bind(current, (fn) => runWithOwner(bindOwner!, fn)))
+      const cleanup = untrack(() => bind(current, (fn) => runWithOwner(currentOwner, fn)))
       return () => cleanup?.()
     },
   )

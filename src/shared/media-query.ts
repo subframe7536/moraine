@@ -9,6 +9,9 @@ export function createMediaQuery(
 ): Accessor<boolean> {
   const [matches, setMatches] = createSignal(defaultValue)
   const queryAccessor = typeof query === 'function' ? query : () => query
+  const onChange = (event: MediaQueryListEvent): void => {
+    settle(() => setMatches(event.matches))
+  }
   createEffect(queryAccessor, (query) => {
     const resolvedQuery = query.replace(/^@media( ?)/m, '')
 
@@ -26,10 +29,6 @@ export function createMediaQuery(
         }
       })
     })
-
-    const onChange = (event: MediaQueryListEvent): void => {
-      settle(() => setMatches(event.matches))
-    }
 
     const detach =
       typeof media.addEventListener === 'function'

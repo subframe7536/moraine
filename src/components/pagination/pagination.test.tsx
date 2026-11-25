@@ -47,7 +47,7 @@ describe('Pagination', () => {
     ))
 
     const status = screen.container.querySelector('[data-slot="pagination-status"]')
-    expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 1 of 1')
+    expect(status?.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('Page 1 of 1')
     expect(screen.container.textContent).not.toContain('Infinity')
     expect(screen.container.textContent).not.toContain('NaN')
   })
@@ -61,7 +61,7 @@ describe('Pagination', () => {
     const screen = render(() => <Pagination {...input} />)
     const status = screen.container.querySelector('[data-slot="pagination-status"]')
 
-    expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe(expected)
+    expect(status?.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe(expected)
   })
 
   test('bounds very large finite sibling counts without allocating an unbounded range', () => {
@@ -92,7 +92,7 @@ describe('Pagination', () => {
     const status = () =>
       screen.container
         .querySelector('[data-slot="pagination-status"]')
-        ?.textContent?.replace(/\s+/g, ' ')
+        ?.textContent?.replaceAll(/\s+/g, ' ')
         .trim()
 
     expect(status()).toBe('Page 8 of 10')
@@ -112,7 +112,7 @@ describe('Pagination', () => {
     const status = () =>
       screen.container
         .querySelector('[data-slot="pagination-status"]')
-        ?.textContent?.replace(/\s+/g, ' ')
+        ?.textContent?.replaceAll(/\s+/g, ' ')
         .trim()
 
     expect(status()).toBe('Page 2 of 2')
@@ -452,11 +452,11 @@ describe('Pagination', () => {
     expect(status?.getAttribute('role')).toBe('status')
     expect(status?.getAttribute('aria-live')).toBe('polite')
     expect(status?.getAttribute('aria-atomic')).toBe('true')
-    expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 1 of 5')
+    expect(status?.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('Page 1 of 5')
 
     fireEvent.click(screen.getByText('3'))
 
-    expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 3 of 5')
+    expect(status?.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('Page 3 of 5')
   })
 
   test('exposes target page in previous and next labels', () => {

@@ -30,7 +30,7 @@ const WIND_VERSIONS = [
 ] as const
 
 async function generate(
-  tokens: string[],
+  tokens: Array<string>,
   preflights = false,
   wind: typeof presetWind3 | typeof presetWind4 = presetWind4,
 ): Promise<string> {
@@ -376,14 +376,16 @@ describe('presetMoraine', () => {
       '.text-sm{font-size:var(--app-font-size);line-height:var(--un-leading, var(--app-line-height));letter-spacing:var(--app-tracking);}',
     )
     expect(css).toContain('.text-size-sm{font-size:var(--app-font-size);')
-    expect(css).toContain('.text-sm\\/7{font-size:var(--app-font-size);line-height:1.75rem;')
+    expect(css).toContain(
+      String.raw`.text-sm\/7{font-size:var(--app-font-size);line-height:1.75rem;`,
+    )
     expect(css).toContain(
       '.text-hero{font-size:calc(var(--app-font-size) * 2);line-height:var(--un-leading, 1.1);}',
     )
     expect(css).toContain('.rounded-md{border-radius:var(--app-radius);}')
     expect(css).toContain('.rounded-pill{border-radius:calc(var(--app-radius) * 2);}')
     expect(css).toContain('.rounded-ss-md{border-start-start-radius:var(--app-radius);}')
-    expect(css).toContain('.hover\\:rd-md:hover{border-radius:var(--app-radius);}')
+    expect(css).toContain(String.raw`.hover\:rd-md:hover{border-radius:var(--app-radius);}`)
   })
 
   test('preserves native Wind4 arbitrary typography and radius utilities', async () => {

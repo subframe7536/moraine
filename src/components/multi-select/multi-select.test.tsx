@@ -11,7 +11,7 @@ import { createForm } from '../index'
 
 import { MultiSelect } from './multi-select'
 import type { MultiSelectT } from './multi-select.types'
-const ITEMS: MultiSelectT.Item[] = [
+const ITEMS: Array<MultiSelectT.Item> = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
   { label: 'Cherry', value: 'cherry', disabled: true },
@@ -608,7 +608,7 @@ describe('MultiSelect', () => {
   })
 
   test('keeps controlled values authoritative', () => {
-    const [value, setValue] = createSignal<string[]>(['missing'])
+    const [value, setValue] = createSignal<Array<string>>(['missing'])
     const screen = render(() => (
       <MultiSelect items={ITEMS} value={value()} onValueChange={setValue} />
     ))
@@ -644,7 +644,7 @@ describe('MultiSelect', () => {
   })
 
   test('keeps a defined value authoritative over defaultValue and user selection', () => {
-    const [value, setValue] = createSignal<string[] | undefined>(['apple'])
+    const [value, setValue] = createSignal<Array<string> | undefined>(['apple'])
     const onChange = vi.fn()
     const screen = render(() => (
       <MultiSelect
@@ -669,7 +669,7 @@ describe('MultiSelect', () => {
   })
 
   test('hands back to the initial default when a defined value becomes undefined', () => {
-    const [value, setValue] = createSignal<string[] | undefined>(['apple'])
+    const [value, setValue] = createSignal<Array<string> | undefined>(['apple'])
     const screen = render(() => (
       <MultiSelect items={ITEMS} value={value()} defaultValue={['banana']} defaultOpen />
     ))

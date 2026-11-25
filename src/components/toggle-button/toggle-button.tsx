@@ -139,7 +139,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       data-slot="toggle-button"
       // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- Button renders the host; presentation is forwarded through overrides, so there is no slot binding to carry data.
       {...toggleButtonDataAttributes.root({ pressed })}
-      {...(rest as any)}
+      {...(rest as Record<string, unknown>)}
       as={local.as}
       aria-pressed={pressed() ? 'true' : 'false'}
       variant={pressed() ? variants.activeVariant : variants.variant}

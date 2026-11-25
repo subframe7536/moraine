@@ -116,7 +116,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   )
   const themeField = useFieldContext()
   const messages = useMessages('slider', defaultSliderMessages, () => local.translations)
-  let slider!: ReturnType<typeof createSlider<TValue>>
   const {
     slots: { root: rootSlot, track: trackSlot, range: rangeSlot },
     variants,
@@ -141,8 +140,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           if (values.length !== 1) {
             return false
           }
-          const val = values[0]!
-          return slider.getValuePercent(val) === 0
+          const val = values[0]
+          return val !== undefined && slider.getValuePercent(val) === 0
         },
         multiple: isMultiple,
         reversed: () => merged.reversed,
@@ -173,14 +172,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       return generatedId()
     },
   })
-  const inputEls: HTMLInputElement[] = []
+  const inputEls: Array<HTMLInputElement> = []
 
   const sliderProps = merge(merged, {
     get readOnly() {
       return field.readOnly()
     },
   })
-  slider = createSlider<TValue>(sliderProps, {
+  const slider = createSlider<TValue>(sliderProps, {
     disabled: field.disabled,
     onValueInput(value) {
       field.setFormValue(value)

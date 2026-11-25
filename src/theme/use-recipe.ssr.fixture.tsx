@@ -55,22 +55,23 @@ const bareRecipe = /* @__PURE__ */ defineRecipe<Slots>('useRecipeSsrBare', {
   base: { root: '', label: 'base-label' },
 })
 
+function UseRecipeDataSsrFixture() {
+  const { slots, slotWith } = useRecipe(
+    bareRecipe,
+    {},
+    { data: { root: states(() => ({ expanded: () => isOpen, disabled: false })) } },
+  )
+  const isOpen = true
+  return (
+    <div {...slots.root}>
+      <span {...slotWith('label', { data: states({ expanded: false, disabled: true }) })} />
+    </div>
+  )
+}
+
 /** Root has no class or style; both slots carry data attributes. */
 export function renderUseRecipeDataFixture(): string {
-  function Fixture() {
-    const { slots, slotWith } = useRecipe(
-      bareRecipe,
-      {},
-      { data: { root: states(() => ({ expanded: open, disabled: false })) } },
-    )
-    const open = () => true
-    return (
-      <div {...slots.root}>
-        <span {...slotWith('label', { data: states({ expanded: false, disabled: true }) })} />
-      </div>
-    )
-  }
-  return renderToString(() => <Fixture />)
+  return renderToString(() => <UseRecipeDataSsrFixture />)
 }
 
 export function renderUseRecipeThemedFixture(): string {

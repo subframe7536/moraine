@@ -35,12 +35,13 @@ export function renderBaseSelectShowTriggerFixture(): string {
   ))
 }
 
+function FixtureLabel() {
+  return <span>One</span>
+}
+
 export function renderBaseSelectItemFixture(): string {
-  function Label() {
-    return <span>One</span>
-  }
   return renderToString(() => {
-    const item = { value: 1, label: <Label /> }
+    const item = { value: 1, label: <FixtureLabel /> }
     return (
       <BaseSelect items={[{ value: 1, label: 'One' }]} defaultValue={[1]}>
         <BaseSelect.Listbox>

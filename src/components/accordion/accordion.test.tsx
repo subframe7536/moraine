@@ -204,7 +204,7 @@ describe('Accordion', () => {
   })
 
   test('keeps arrow navigation scoped to the owning accordion', async () => {
-    const items: AccordionT.Item[] = [
+    const items: Array<AccordionT.Item> = [
       {
         value: 'outer-one',
         label: 'Outer one',
@@ -701,7 +701,7 @@ describe('Accordion', () => {
   })
 
   test('restores focus to the trigger when a controlled update closes its panel', async () => {
-    let setValue: ((value: string[]) => void) | undefined
+    let setValue: ((value: Array<string>) => void) | undefined
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = iframe.contentDocument
@@ -711,7 +711,7 @@ describe('Accordion', () => {
     }
 
     const ControlledAccordion = () => {
-      const [value, setControlledValue] = createSignal<string[]>(['one'])
+      const [value, setControlledValue] = createSignal<Array<string>>(['one'])
       setValue = setControlledValue
 
       return (
@@ -746,7 +746,7 @@ describe('Accordion', () => {
 
   test('remeasures natural content height when an open item grows or shrinks', async () => {
     let naturalHeight = 48
-    const observers: { notify: () => void; disconnect: ReturnType<typeof vi.fn> }[] = []
+    const observers: Array<{ notify: () => void; disconnect: ReturnType<typeof vi.fn> }> = []
     vi.stubGlobal(
       'ResizeObserver',
       class {
@@ -822,7 +822,7 @@ describe('Accordion', () => {
 
     try {
       const ControlledAccordion = () => {
-        const [openValue, setOpenValue] = createSignal<string[]>([])
+        const [openValue, setOpenValue] = createSignal<Array<string>>([])
 
         return (
           <>

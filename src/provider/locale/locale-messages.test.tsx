@@ -230,6 +230,7 @@ describe('localized component text', () => {
         }),
       (form) => (
         <MoraineProvider messages={{ form: { unknownError: 'Erreur inconnue' } }}>
+          {/* oxlint-disable-next-line eslint/prefer-promise-reject-errors -- testing non-Error rejection fallback */}
           <form.Form onSubmit={() => Promise.reject(null)}>
             <button type="submit">Save</button>
           </form.Form>
@@ -480,6 +481,7 @@ describe('component translations prop', () => {
         }),
       (form) => (
         <form.Form
+          // oxlint-disable-next-line eslint/prefer-promise-reject-errors -- testing non-Error rejection fallback
           onSubmit={() => Promise.reject(null)}
           translations={{ unknownError: 'Custom error' }}
         >

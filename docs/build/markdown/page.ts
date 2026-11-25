@@ -56,7 +56,7 @@ function createMarkdownContent(
   markdownPath: string,
   frontmatter: unknown,
   apiDoc: unknown,
-  onThisPageEntries: readonly OnThisPageEntryLiteral[],
+  onThisPageEntries: ReadonlyArray<OnThisPageEntryLiteral>,
   metadata: DocsRouteMetadata,
 ): string {
   return `<components.Markdown
@@ -92,7 +92,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       const contextPath =
         pagesIndex >= 0 ? context.path.slice(pagesIndex + '/pages/'.length) : context.path
       const routeId = `/${contextPath
-        .replace(/(^|\/)\([^)]*\)\//g, '$1')
+        .replaceAll(/(^|\/)\([^)]*\)\//g, '$1')
         .replace(/\.[^./]+$/, '')
         .replace(/(^|\/)index$/, '$1')
         .replace(/\/$/, '')}`
@@ -104,7 +104,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)
       const componentKeys = new Set(loadApiDocIndex(projectRoot)?.components.map(({ key }) => key))
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
-        ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as OnThisPageEntryLiteral[])
+        ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as Array<OnThisPageEntryLiteral>)
         : []
       const sourceApiDoc = loadComponentApiDoc(sourcePath)
       if (page.surface === 'components' && page.routePath !== '/components') {

@@ -33,6 +33,10 @@ export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<strin
     })
   })
 
+  const apply = (): void => {
+    setDetected(readBrowserLocale())
+  }
+
   createEffect(
     () => [enabled(), ready()],
     ([isEnabled, isReady]) => {
@@ -44,9 +48,6 @@ export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<strin
         return
       }
 
-      const apply = (): void => {
-        setDetected(readBrowserLocale())
-      }
       apply()
       return attachEventListener(window, 'languagechange', apply)
     },

@@ -49,7 +49,7 @@ export function createEmptyPart<S extends EmptyPartSlot>(
 
     const Root = dynamic<ValidComponent>(() => local.as ?? fallback)
 
-    return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as any)} />
+    return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
   }
 }
 
@@ -68,5 +68,5 @@ export function EmptyPart(
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? local.fallback)
 
-  return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as any)} />
+  return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
 }

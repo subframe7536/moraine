@@ -18,7 +18,7 @@ interface EditingCell {
   columnId: EditableKey
 }
 
-const INITIAL_PRODUCTS: Product[] = [
+const INITIAL_PRODUCTS: Array<Product> = [
   { id: '1', name: 'Desk lamp', sku: 'LMP-204', stock: 18 },
   { id: '2', name: 'Monitor arm', sku: 'ARM-118', stock: 7 },
   { id: '3', name: 'USB-C dock', sku: 'DCK-330', stock: 42 },
@@ -51,6 +51,8 @@ export default function EditableCellsExample() {
     setLastChange(`Saved ${columnId} of ${name}: ${value}`)
   }
 
+  const cancel = () => setEditing(undefined)
+
   /** Renders a value that turns into an input on double-click, Enter, or F2. */
   function EditableCell(props: {
     context: CellContext<DataTableT.Features, Product>
@@ -67,7 +69,6 @@ export default function EditableCellsExample() {
       setDraft(initial())
       setEditing({ rowId: rowId(), columnId: props.columnId })
     }
-    const cancel = () => setEditing(undefined)
     const save = () => {
       // Removing the input fires `blur` after Enter or Escape has already finished the edit.
       if (!isEditing(rowId(), props.columnId) || error()) {
@@ -129,7 +130,7 @@ export default function EditableCellsExample() {
     )
   }
 
-  const columns: DataTableT.Column<Product>[] = [
+  const columns: Array<DataTableT.Column<Product>> = [
     {
       accessorKey: 'name',
       header: 'Product',

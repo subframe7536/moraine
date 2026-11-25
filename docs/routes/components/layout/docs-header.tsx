@@ -12,7 +12,7 @@ import type { ThemeMode } from '../../hooks/use-theme'
 import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.recipe'
 import { PageActions } from './page-actions'
 export interface DocsHeaderProps {
-  pages: DocsPageEntry[]
+  pages: Array<DocsPageEntry>
   paletteOpen: Accessor<boolean>
   setPaletteOpen: (open: boolean) => void
   onNavigate: (key: string) => void

@@ -21,8 +21,8 @@ interface DragCall {
 interface TestHandle {
   registration: SplitterHandleRegistration
   element: HTMLButtonElement
-  draggingEvents: boolean[]
-  dragCalls: DragCall[]
+  draggingEvents: Array<boolean>
+  dragCalls: Array<DragCall>
   getDragEndCount: () => number
   getStartIntersection: () => SplitterHandleRegistration | null
   getEndIntersection: () => SplitterHandleRegistration | null
@@ -50,7 +50,7 @@ function createTestHandle(input: {
   rect: RectInput
 }): TestHandle {
   const element = input.rootElement.ownerDocument.createElement('button')
-  input.rootElement.appendChild(element)
+  input.rootElement.append(element)
 
   Object.defineProperty(element, 'getBoundingClientRect', {
     value: () => createRect(input.rect),
@@ -59,8 +59,8 @@ function createTestHandle(input: {
 
   let startIntersection: SplitterHandleRegistration | null = null
   let endIntersection: SplitterHandleRegistration | null = null
-  const draggingEvents: boolean[] = []
-  const dragCalls: DragCall[] = []
+  const draggingEvents: Array<boolean> = []
+  const dragCalls: Array<DragCall> = []
   let dragEndCount = 0
 
   const registration: SplitterHandleRegistration = {
@@ -127,8 +127,8 @@ describe('splitter-manager', () => {
     const isolatedRoot = createRootElement()
     document.body.append(root, isolatedRoot)
 
-    const horizontals: TestHandle[] = []
-    const verticals: TestHandle[] = []
+    const horizontals: Array<TestHandle> = []
+    const verticals: Array<TestHandle> = []
     const unregisterList: Array<() => void> = []
     const pairCount = 12
 
@@ -150,8 +150,10 @@ describe('splitter-manager', () => {
 
       horizontals.push(horizontal)
       verticals.push(vertical)
-      unregisterList.push(registerSplitterHandle(horizontal.registration))
-      unregisterList.push(registerSplitterHandle(vertical.registration))
+      unregisterList.push(
+        registerSplitterHandle(horizontal.registration),
+        registerSplitterHandle(vertical.registration),
+      )
     }
 
     const isolated = createTestHandle({
@@ -187,7 +189,7 @@ describe('splitter-manager', () => {
 
     const parentRoot = createRootElement()
     const childRoot = createRootElement()
-    parentRoot.appendChild(childRoot)
+    parentRoot.append(childRoot)
     document.body.append(parentRoot)
 
     const outerHorizontal = createTestHandle({

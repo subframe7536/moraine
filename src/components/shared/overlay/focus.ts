@@ -24,19 +24,20 @@ const FOCUSABLE_SELECTOR_PARTS = [
 
 const FOCUSABLE_SELECTOR = /* @__PURE__ */ FOCUSABLE_SELECTOR_PARTS.join(',')
 
-export function getFocusableElements(container: HTMLElement): HTMLElement[] {
+export function getFocusableElements(container: HTMLElement): Array<HTMLElement> {
   const candidates = getComposedElementDescendants(container).filter(
     (element): element is HTMLElement =>
       isHTMLElement(element) &&
       element.matches(FOCUSABLE_SELECTOR) &&
       isSequentiallyFocusable(element),
   )
-  const radioGroups = new Map<string, Map<HTMLFormElement | null, HTMLInputElement[]>>()
+  const radioGroups = new Map<string, Map<HTMLFormElement | null, Array<HTMLInputElement>>>()
 
   for (const candidate of candidates) {
     if (isRadioInput(candidate) && candidate.name) {
       const forms =
-        radioGroups.get(candidate.name) ?? new Map<HTMLFormElement | null, HTMLInputElement[]>()
+        radioGroups.get(candidate.name) ??
+        new Map<HTMLFormElement | null, Array<HTMLInputElement>>()
       const group = forms.get(candidate.form) ?? []
       group.push(candidate)
       forms.set(candidate.form, group)
@@ -181,7 +182,7 @@ export function containFocusInContainer(
   }
 
   const firstFocusable = focusableElements[0]
-  const lastFocusable = focusableElements[focusableElements.length - 1]
+  const lastFocusable = focusableElements.at(-1)
 
   if (!firstFocusable || !lastFocusable) {
     event.preventDefault()

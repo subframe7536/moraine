@@ -48,7 +48,7 @@ export namespace KbdGroupT {
      * <KbdGroup items={['meta', { value: 'K', ariaLabel: 'letter K' }]} />
      * ```
      */
-    items: Item[]
+    items: Array<Item>
 
     /**
      * Plain text between keys (not an icon name), or a component rendered between each pair of

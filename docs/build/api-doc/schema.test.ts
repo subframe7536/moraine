@@ -21,7 +21,7 @@ describe('component-api.schema.json', () => {
       $id: string
       title: string
       type: string
-      required: string[]
+      required: Array<string>
       properties: Record<string, { type?: string; description?: string }>
       $defs: Record<string, unknown>
     }
@@ -62,8 +62,8 @@ describe('component-api.schema.json', () => {
           access: { kind: string; name?: string; root?: string; member?: string; factory?: string }
           props: Array<{ name: string; optional: boolean; type: string }>
         }>
-        slots: string[]
-        dataAttributes: Array<{ target: string; attributes: string[] }>
+        slots: Array<string>
+        dataAttributes: Array<{ target: string; attributes: Array<string> }>
       }
 
       expect(typeof data.key).toBe('string')

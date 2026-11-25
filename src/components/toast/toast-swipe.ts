@@ -26,6 +26,10 @@ function isAwaySwipe(
   return isTop ? y < 0 : y > 0
 }
 
+function getDampening(delta: number): number {
+  return 1 / (1.5 + Math.abs(delta) / 20)
+}
+
 export interface CreateToastSwipeOptions {
   element: () => HTMLElement | null | undefined
   align: Accessor<'start' | 'center' | 'end'>
@@ -73,7 +77,6 @@ export function createToastSwipe(options: CreateToastSwipeOptions) {
     if (!dragAxis && (Math.abs(xDelta) > 1 || Math.abs(yDelta) > 1)) {
       dragAxis = Math.abs(xDelta) > Math.abs(yDelta) ? 'x' : 'y'
     }
-    const getDampening = (delta: number) => 1 / (1.5 + Math.abs(delta) / 20)
     if (dragAxis === 'x') {
       const align = options.align()
       let movement = xDelta

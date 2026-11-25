@@ -27,7 +27,7 @@ export function HeaderFooterSlots() {
       icon: 'i-lucide:plus',
       onSelect: () => {},
     },
-  ] satisfies DropdownMenuT.Item[]
+  ] satisfies Array<DropdownMenuT.Item>
 
   const userItems = [
     { label: 'Account Settings', icon: 'i-lucide:settings' },
@@ -35,7 +35,7 @@ export function HeaderFooterSlots() {
     { label: 'Notifications', icon: 'i-lucide:bell' },
     { type: 'separator' as const },
     { label: 'Log out', icon: 'i-lucide:log-out', danger: true },
-  ] satisfies DropdownMenuT.Item[]
+  ] satisfies Array<DropdownMenuT.Item>
 
   const projects = [
     { name: 'Core Engine v2', role: 'Architecture Lead', icon: 'i-lucide:cpu', branch: 'main' },

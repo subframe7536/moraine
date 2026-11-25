@@ -20,7 +20,9 @@ export function AlertPublish() {
   }
 
   const publishRelease = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 800)
+    })
     setStage('published')
     setPublishedAt(new Date().toLocaleTimeString())
   }

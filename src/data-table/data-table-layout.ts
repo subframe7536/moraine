@@ -14,7 +14,7 @@ export type DataTableSection = 'header' | 'body' | 'footer'
 export type DataTablePinSide = 'start' | 'end' | false
 
 /** Pinned regions in visual order. Header and footer rows render one segment per region. */
-export const DATA_TABLE_PIN_SIDES: readonly DataTablePinSide[] = ['start', false, 'end']
+export const DATA_TABLE_PIN_SIDES: ReadonlyArray<DataTablePinSide> = ['start', false, 'end']
 
 /** Where a cell sits relative to the pinned regions. */
 export interface DataTableCellPin {
@@ -68,7 +68,7 @@ export function pinnedHeaderGroups<TData extends RowData>(
   table: DataTableT.Instance<TData>,
   section: 'header' | 'footer',
   side: DataTablePinSide,
-): HeaderGroup<DataTableFeatures, TData>[] {
+): Array<HeaderGroup<DataTableFeatures, TData>> {
   if (section === 'header') {
     return side === 'start'
       ? table.getStartHeaderGroups()
@@ -96,7 +96,7 @@ export function createHeaderPin<TRow extends RowData>(
         return side() === 'start' ? current.getStart() : 0
       }
       const siblings = current.headerGroup?.headers ?? []
-      const last = siblings[siblings.length - 1]
+      const last = siblings.at(-1)
       const regionSize = last ? last.getStart() + last.getSize() : 0
       return regionSize - current.getStart() - current.getSize()
     },
@@ -173,7 +173,7 @@ export function createDataTableLayout<TData extends RowData>(
         }
         // Hidden pinned columns render no cells, so the edge is the innermost visible one.
         const pinned = table().getPinnedVisibleLeafColumns(side)
-        const innermost = side === 'start' ? pinned[pinned.length - 1] : pinned[0]
+        const innermost = side === 'start' ? pinned.at(-1) : pinned[0]
         return innermost?.id === current.id
       },
     }),

@@ -28,7 +28,7 @@ describe('ToggleButton', () => {
   })
   test('toggles native button state after the caller click without submitting its form', () => {
     const onSubmit = vi.fn()
-    const events: string[] = []
+    const events: Array<string> = []
     const ref = vi.fn()
     const screen = render(() => (
       <form onSubmit={onSubmit}>

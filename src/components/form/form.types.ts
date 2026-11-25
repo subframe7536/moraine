@@ -26,7 +26,7 @@ type RootStore<TSchema extends Schema> = FormStore<never> & {
 }
 type ExactKeysOf<TValue> = 0 extends 1 & TValue
   ? never
-  : TValue extends readonly unknown[]
+  : TValue extends ReadonlyArray<unknown>
     ? number extends TValue['length']
       ? number
       : {
@@ -38,14 +38,14 @@ type ExactKeysOf<TValue> = 0 extends 1 & TValue
 type PropertiesOf<TValue> = {
   [TKey in ExactKeysOf<TValue>]: TValue extends Partial<Record<TKey, infer TItem>> ? TItem : never
 }
-type DeepFieldPath<TChild, TKey extends PathKey, TDepth extends 0[]> = TChild extends
-  | readonly unknown[]
+type DeepFieldPath<TChild, TKey extends PathKey, TDepth extends Array<0>> = TChild extends
+  | ReadonlyArray<unknown>
   | Record<PropertyKey, unknown>
   ? readonly [TKey, ...SchemaPath<TChild, [...TDepth, 0]>]
   : never
-type SchemaPath<TValue, TDepth extends 0[] = []> = TDepth['length'] extends 5
-  ? readonly [PathKey, ...PathKey[]]
-  : TValue extends readonly unknown[] | Record<PropertyKey, unknown>
+type SchemaPath<TValue, TDepth extends Array<0> = []> = TDepth['length'] extends 5
+  ? readonly [PathKey, ...Array<PathKey>]
+  : TValue extends ReadonlyArray<unknown> | Record<PropertyKey, unknown>
     ? {
         [TKey in ExactKeysOf<TValue>]:
           | readonly [TKey]

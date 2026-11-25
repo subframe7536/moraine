@@ -1,5 +1,20 @@
 import { Icon, Sidebar } from '@src'
 import { For, createSignal } from 'solid-js'
+function getIcon(type: string) {
+  switch (type) {
+    case 'folder':
+      return 'i-lucide:folder'
+    case 'folder-open':
+      return 'i-lucide:folder-open'
+    case 'file-json':
+      return 'i-lucide:file-json'
+    case 'file-text':
+      return 'i-lucide:file-text'
+    default:
+      return 'i-lucide:file-code'
+  }
+}
+
 function FileExplorerContent() {
   const files = [
     { name: 'src', type: 'folder-open', level: 0 },
@@ -11,21 +26,6 @@ function FileExplorerContent() {
     { name: 'package.json', type: 'file-json', level: 0 },
     { name: 'README.md', type: 'file-text', level: 0 },
   ]
-
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'folder':
-        return 'i-lucide:folder'
-      case 'folder-open':
-        return 'i-lucide:folder-open'
-      case 'file-json':
-        return 'i-lucide:file-json'
-      case 'file-text':
-        return 'i-lucide:file-text'
-      default:
-        return 'i-lucide:file-code'
-    }
-  }
 
   return (
     <>
@@ -39,16 +39,20 @@ function FileExplorerContent() {
         <For each={files}>
           {(file) => (
             <div
-              class={`text-xs px-2 py-1 rounded flex gap-2 cursor-pointer transition-colors items-center ${
+              class={[
+                'text-xs px-2 py-1 rounded flex gap-2 cursor-pointer transition-colors items-center',
                 file.active
                   ? 'bg-accent text-accent-foreground font-medium'
-                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-              }`}
+                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+              ]}
               style={{ 'padding-left': `${(file.level + 1) * 8}px` }}
             >
               <Icon
                 name={getIcon(file.type)}
-                class={`shrink-0 size-3.5 ${file.type.startsWith('folder') ? 'text-amber-500' : 'text-blue-500'}`}
+                class={[
+                  'shrink-0 size-3.5',
+                  file.type.startsWith('folder') ? 'text-amber-500' : 'text-blue-500',
+                ]}
               />
               <span class="truncate">{file.name}</span>
             </div>

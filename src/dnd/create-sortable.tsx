@@ -28,6 +28,8 @@ import type {
   SortableVirtualRange,
 } from './sortable.types'
 
+const noop = (): void => {}
+
 export interface SortableOptions {
   /**
    * Input sensors from `@dnd-kit/dom`, such as `PointerSensor` and `KeyboardSensor`. Pass an array
@@ -88,7 +90,7 @@ function prefersReducedMotion(): boolean {
 
 type PluginList = Exclude<
   NonNullable<DragDropManagerInput['plugins']>,
-  (...args: never[]) => unknown
+  (...args: Array<never>) => unknown
 >
 
 /**
@@ -104,17 +106,17 @@ function configureFeedback(plugins: PluginList): PluginList {
 }
 
 interface ItemData extends Record<string, unknown> {
-  positions: readonly SortableDropPosition[]
+  positions: ReadonlyArray<SortableDropPosition>
 }
 
-const DEFAULT_POSITIONS: readonly SortableDropPosition[] = ['before', 'after']
+const DEFAULT_POSITIONS: ReadonlyArray<SortableDropPosition> = ['before', 'after']
 
 const itemDataAttributes = /* @__PURE__ */ createDataAttributes('dragging', 'drop-position')
 
 /** Picks a drop position from where the source sits along the target, from 0 (start) to 1 (end). */
 function pickPosition(
   ratio: number,
-  positions: readonly SortableDropPosition[],
+  positions: ReadonlyArray<SortableDropPosition>,
 ): SortableDropPosition | undefined {
   const before = positions.includes('before')
   const after = positions.includes('after')
@@ -222,7 +224,7 @@ function createSaveElementPosition() {
     } else if (nextElement?.isConnected && element.nextElementSibling !== nextElement) {
       nextElement.insertAdjacentElement('beforebegin', element)
     } else if (parentElement?.isConnected) {
-      parentElement.appendChild(element)
+      parentElement.append(element)
     }
   }
   return {
@@ -390,7 +392,6 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     }
     const attributes = itemDataAttributes({ dragging, dropPosition }) as SortableItemAttributes
     if (isServer) {
-      const noop = (): void => {}
       return { ref: noop, handleRef: noop, targetRef: noop, dragging, dropPosition, attributes }
     }
     const manager = useContext(SortableContext)
@@ -501,10 +502,10 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     }
   }
 
-  const rangeExtractor = (range: SortableVirtualRange): number[] => {
+  const rangeExtractor = (range: SortableVirtualRange): Array<number> => {
     const start = Math.max(range.startIndex - range.overscan, 0)
     const end = Math.min(range.endIndex + range.overscan, range.count - 1)
-    const indexes: number[] = []
+    const indexes: Array<number> = []
     for (let index = start; index <= end; index++) {
       indexes.push(index)
     }

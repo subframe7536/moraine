@@ -31,8 +31,8 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   props: CollapsibleT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'disabled', 'class', 'style', 'ref' as any)
-  const rest = omit(props, 'as', 'disabled', 'class', 'style', 'ref' as any)
+  const local = pick(props as CollapsibleT.TriggerProps, 'as', 'disabled', 'class', 'style', 'ref')
+  const rest = omit(props as CollapsibleT.TriggerProps, 'as', 'disabled', 'class', 'style', 'ref')
   const context = useCollapsibleContext()
   if (!context) {
     throw new Error('Collapsible.Trigger must be used within Collapsible')
@@ -51,8 +51,10 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     },
     context: () => context.slotOverrides,
   })
-  const tag: Accessor<ValidComponent> = () =>
-    local.as ?? ((rest as any).href !== undefined && (rest as any).href !== null ? 'a' : 'button')
+  const tag: Accessor<ValidComponent> = () => {
+    const href = (rest as { href?: unknown }).href
+    return local.as ?? (href !== undefined && href !== null ? 'a' : 'button')
+  }
   const disabled = () => Boolean(disclosure.disabled() || local.disabled)
 
   const root = createPolymorphicRoot({

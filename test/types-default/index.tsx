@@ -163,7 +163,7 @@ focus(arrayForm, { path: [0] })
 // @ts-expect-error Root array paths require numeric indices.
 focus(arrayForm, { path: ['missing'] })
 setInput(arrayForm, { input: ['next'] })
-const arrayInput: (string | undefined)[] = getInput(arrayForm)
+const arrayInput: Array<string | undefined> = getInput(arrayForm)
 void arrayInput
 // @ts-expect-error Root array input is not an object.
 setInput(arrayForm, { input: { 0: 'next' } })
@@ -297,15 +297,15 @@ export type PublicEntryIsolation = [
   UtilsProvider,
   UtilsCn,
   UtilsStyleVarRecord,
-  Assert<UtilsSliderHook extends (...args: any[]) => any ? true : false>,
-  Assert<UtilsUseSliderProps extends {} ? true : false>,
-  Assert<UtilsUseSliderOptions extends {} ? true : false>,
+  Assert<UtilsSliderHook extends (...args: Array<any>) => any ? true : false>,
+  Assert<UtilsUseSliderProps extends object ? true : false>,
+  Assert<UtilsUseSliderOptions extends object ? true : false>,
   Assert<'onValueReset' extends keyof UtilsUseSliderOptions ? false : true>,
-  Assert<UtilsUseSliderReturn extends {} ? true : false>,
+  Assert<UtilsUseSliderReturn extends object ? true : false>,
   Assert<'resetValues' extends keyof UtilsUseSliderReturn ? true : false>,
-  Assert<UtilsCreateCopyHook extends (...args: any[]) => any ? true : false>,
-  Assert<UtilsCreateCopyOptions extends {} ? true : false>,
-  Assert<UtilsCreateCopyReturn extends {} ? true : false>,
+  Assert<UtilsCreateCopyHook extends (...args: Array<any>) => any ? true : false>,
+  Assert<UtilsCreateCopyOptions extends object ? true : false>,
+  Assert<UtilsCreateCopyReturn extends object ? true : false>,
   Assert<'isCopied' extends keyof UtilsCreateCopyReturn ? true : false>,
 ]
 
@@ -567,7 +567,7 @@ export type DataTableContracts = [
 ]
 
 const dataTableRows = [{ id: '1', name: 'Alice', spend: 100 }]
-const dataTableCols: DataTableT.Column<(typeof dataTableRows)[number]>[] = [
+const dataTableCols: Array<DataTableT.Column<(typeof dataTableRows)[number]>> = [
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'spend', header: 'Spend', meta: { align: 'end', truncated: true } },
 ]
@@ -1023,7 +1023,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 ;<FileUpload
   multiple
   onValueChange={(files) => {
-    const fileList: File[] = files
+    const fileList: Array<File> = files
     void fileList
   }}
 />

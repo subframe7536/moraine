@@ -36,7 +36,7 @@ import {
   NAVIGATION_MENU_CONTROL_ATTR,
   NAVIGATION_MENU_FOCUS_GUARD_ATTR,
 } from './navigation-menu.recipe'
-import type { NavigationMenuProps, NavigationMenuT } from './navigation-menu.types'
+import type { NavigationMenuProps } from './navigation-menu.types'
 export interface NavigationMenuItemContextValue {
   value: Accessor<string>
   disabled: Accessor<boolean>
@@ -44,9 +44,9 @@ export interface NavigationMenuItemContextValue {
   setTrigger: (element: HTMLButtonElement | undefined) => void
   content: Accessor<HTMLDivElement | undefined>
   setContent: (element: HTMLDivElement | undefined) => void
-  contentTrees: Accessor<JSX.Element[]>
+  contentTrees: Accessor<Array<JSX.Element>>
   registerContent: (tree: JSX.Element) => VoidFunction
-  setTriggerOptions: (options: NavigationMenuT.TriggerProps<any> | undefined) => void
+  setTriggerOptions: (options: { disabled?: boolean } | undefined) => void
 }
 
 export const [NavigationMenuItemProvider, useNavigationMenuItemContext] =
@@ -80,7 +80,7 @@ export function createNavigationMenuState(
     defaultValue: () => options.defaultValue ?? null,
     onChange: (next) => options.onValueChange?.(next),
   })
-  const [items, setItems] = createSignal<NavigationMenuItemContextValue[]>([], {
+  const [items, setItems] = createSignal<Array<NavigationMenuItemContextValue>>([], {
     ownedWrite: true,
   })
   const [rootElement, setRootElement] = createSignal<HTMLElement | undefined>(undefined, {
@@ -243,7 +243,7 @@ export function createNavigationMenuState(
       return
     }
     const focusable = getFocusableElements(content)
-    const target = last ? focusable[focusable.length - 1] : focusable[0]
+    const target = last ? focusable.at(-1) : focusable[0]
     focusWithoutScrolling(target ?? content)
     if (target) {
       scrollIntoViewWithin(target, content)

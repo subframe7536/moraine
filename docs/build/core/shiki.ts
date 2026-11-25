@@ -6,12 +6,19 @@ const GLOBAL_ON_CLASS_CHANGE_KEY = Symbol.for('moraine.docs.shikiOnClassChange')
 
 type OnClassCallback = (() => void) | undefined
 
+type ShikiGlobal = typeof globalThis & {
+  [GLOBAL_SHIKI_KEY]?: ReturnType<typeof transformerStyleToClass>
+  [GLOBAL_ON_CLASS_CHANGE_KEY]?: OnClassCallback
+}
+
+const shikiGlobal = globalThis as ShikiGlobal
+
 function getGlobalOnClassChange(): OnClassCallback {
-  return (globalThis as any)[GLOBAL_ON_CLASS_CHANGE_KEY]
+  return shikiGlobal[GLOBAL_ON_CLASS_CHANGE_KEY]
 }
 
 function setGlobalOnClassChange(cb: OnClassCallback) {
-  ;(globalThis as any)[GLOBAL_ON_CLASS_CHANGE_KEY] = cb
+  shikiGlobal[GLOBAL_ON_CLASS_CHANGE_KEY] = cb
 }
 
 export function onDocsShikiClass(cb: () => void): () => void {
@@ -23,16 +30,15 @@ export function onDocsShikiClass(cb: () => void): () => void {
   }
 }
 
-export const docsShikiStyleToClass = ((globalThis as any)[GLOBAL_SHIKI_KEY] ??=
-  transformerStyleToClass({
-    classPrefix: '__shiki_',
-    classReplacer(className) {
-      if (!docsShikiStyleToClass?.getClassRegistry().has(className)) {
-        getGlobalOnClassChange()?.()
-      }
-      return className
-    },
-  }))
+export const docsShikiStyleToClass = (shikiGlobal[GLOBAL_SHIKI_KEY] ??= transformerStyleToClass({
+  classPrefix: '__shiki_',
+  classReplacer(className) {
+    if (!docsShikiStyleToClass?.getClassRegistry().has(className)) {
+      getGlobalOnClassChange()?.()
+    }
+    return className
+  },
+}))
 
 export function getDocsShikiCss(): string {
   return docsShikiStyleToClass.getCSS()
@@ -77,13 +83,13 @@ async function getDocsHighlighter(): Promise<Highlighter> {
 export interface CodeBlockMeta {
   title?: string
   groupId?: string
-  highlightedLines: number[]
+  highlightedLines: Array<number>
   lineNumbers: boolean
 }
 
 export function parseHighlightedLines(
   meta?: string,
-  explicit?: number[] | string | Set<number>,
+  explicit?: Array<number> | string | Set<number>,
 ): Set<number> {
   const result = new Set<number>()
 
@@ -100,7 +106,7 @@ export function parseHighlightedLines(
     return result
   }
 
-  for (const part of (lines ?? '').replace(/[{}]/g, '').split(',')) {
+  for (const part of (lines ?? '').replaceAll(/[{}]/g, '').split(',')) {
     const trimmed = part.trim()
     if (trimmed.includes('-')) {
       const [start, end] = trimmed.split('-').map(Number)
@@ -158,7 +164,7 @@ export function parseCodeGroupId(meta?: string): string | undefined {
 export function parseCodeBlockMeta(
   meta?: string,
   overrides?: {
-    highlightedLines?: number[] | string | Set<number>
+    highlightedLines?: Array<number> | string | Set<number>
     lineNumbers?: boolean
   },
 ): CodeBlockMeta {
@@ -213,7 +219,7 @@ export interface HighlightCodeBlockOptions {
   meta?: string
   title?: string
   groupId?: string
-  highlightedLines?: number[] | string | Set<number>
+  highlightedLines?: Array<number> | string | Set<number>
   lineNumbers?: boolean
 }
 
@@ -223,7 +229,7 @@ export interface HighlightedCodeResult {
   lang: string
   title?: string
   groupId?: string
-  highlightedLines: number[]
+  highlightedLines: Array<number>
   lineNumbers: boolean
 }
 
@@ -237,7 +243,7 @@ export async function highlightCodeBlock(
   const loadedLangs = highlighter.getLoadedLanguages()
   if (!loadedLangs.includes(lang)) {
     try {
-      await highlighter.loadLanguage(lang as any)
+      await highlighter.loadLanguage(lang as Parameters<Highlighter['loadLanguage']>[0])
     } catch {
       lang = 'text'
     }
@@ -254,7 +260,7 @@ export async function highlightCodeBlock(
   const lineNumbers = options.lineNumbers ?? meta.lineNumbers
   const highlightedSet = new Set(highlightedLines)
 
-  const transformers: ShikiTransformer[] = []
+  const transformers: Array<ShikiTransformer> = []
 
   if (highlightedSet.size > 0) {
     transformers.push({
@@ -276,14 +282,15 @@ export async function highlightCodeBlock(
     })
   }
 
-  transformers.push({
-    name: 'moraine:no-tabindex',
-    pre(node) {
-      node.properties.tabIndex = -1
+  transformers.push(
+    {
+      name: 'moraine:no-tabindex',
+      pre(node) {
+        node.properties.tabIndex = -1
+      },
     },
-  })
-
-  transformers.push(docsShikiStyleToClass)
+    docsShikiStyleToClass,
+  )
 
   const html = highlighter.codeToHtml(options.code, {
     lang,
@@ -311,7 +318,7 @@ export interface DocsCodeRenderOptions {
   code: string
   language: string
   meta?: string
-  highlightedLines?: number[] | string | Set<number>
+  highlightedLines?: Array<number> | string | Set<number>
   lineNumbers?: boolean
 }
 

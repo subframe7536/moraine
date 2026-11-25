@@ -22,9 +22,10 @@ export function Autoresize() {
       <div class="text-xs flex items-center justify-between">
         <span class="text-muted-foreground">Auto-expands as you type up to 8 rows.</span>
         <span
-          class={`font-medium font-mono ${
-            post().length > maxLength ? 'text-danger' : 'text-muted-foreground'
-          }`}
+          class={[
+            'font-medium font-mono',
+            post().length > maxLength ? 'text-danger' : 'text-muted-foreground',
+          ]}
         >
           {post().length} / {maxLength}
         </span>

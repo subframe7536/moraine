@@ -16,7 +16,7 @@ export interface OverlayStackEntry {
   ownerDocument?: Document
 }
 
-const overlayStacks = new WeakMap<Document, OverlayStackEntry[]>()
+const overlayStacks = new WeakMap<Document, Array<OverlayStackEntry>>()
 
 function getOverlayDocument(entry: OverlayStackEntry): Document | undefined {
   return (
@@ -26,7 +26,7 @@ function getOverlayDocument(entry: OverlayStackEntry): Document | undefined {
   )
 }
 
-function getOverlayStack(entry: OverlayStackEntry): OverlayStackEntry[] {
+function getOverlayStack(entry: OverlayStackEntry): Array<OverlayStackEntry> {
   const ownerDocument = getOverlayDocument(entry)
   if (!ownerDocument) {
     return []
@@ -55,14 +55,16 @@ export function pushOverlayLayer(entry: OverlayStackEntry): () => void {
 
 export function isTopOverlay(entry: OverlayStackEntry): boolean {
   const overlayStack = getOverlayStack(entry)
-  return overlayStack[overlayStack.length - 1] === entry
+  return overlayStack.at(-1) === entry
 }
 
 /** Returns whether a target belongs to this layer, its trigger, or a nested layer above it. */
 export function isInsideOverlayLayer(entry: OverlayStackEntry, target: Node): boolean {
+  const contentElement = entry.contentElement()
+  const triggerElement = entry.triggerElement()
   if (
-    (entry.contentElement() && containsComposed(entry.contentElement()!, target)) ||
-    (entry.triggerElement() && containsComposed(entry.triggerElement()!, target))
+    (contentElement && containsComposed(contentElement, target)) ||
+    (triggerElement && containsComposed(triggerElement, target))
   ) {
     return true
   }

@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { MDXComponents } from 'solid-file-router/mdx'
-import type { Component } from 'solid-js'
+import type { Component, ComponentProps } from 'solid-js'
 import { dynamicComponent } from 'solid-js'
 
 import { Kbd, cn } from '../../../../src'
@@ -28,7 +28,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   button: (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />,
   label: (props: JSX.LabelHTMLAttributes<HTMLLabelElement>) => <label {...props} />,
   kbd: (props: JSX.IntrinsicElements['kbd']) => (
-    <Kbd variant="outline" value={props.children as any} />
+    <Kbd variant="outline" value={props.children as ComponentProps<typeof Kbd>['value']} />
   ),
   code: (props: JSX.HTMLAttributes<HTMLElement>) => (
     <code {...props} class={cn(DOCS_INLINE_CODE_CLASS, props.class)} />
@@ -54,7 +54,9 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
         code={toStringProp(props.code)}
         lang={toStringProp(props.lang)}
         title={toStringProp(props.title)}
-        highlightedLines={props.highlightedLines as any}
+        highlightedLines={
+          props.highlightedLines as ComponentProps<typeof CodeBlock>['highlightedLines']
+        }
       />
     )
   },
@@ -66,7 +68,9 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
         code={toStringProp(props.code)}
         lang={toStringProp(props.lang)}
         title={toStringProp(props.title)}
-        highlightedLines={props.highlightedLines as any}
+        highlightedLines={
+          props.highlightedLines as ComponentProps<typeof CodeBlock>['highlightedLines']
+        }
       />
     )
   },

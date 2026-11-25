@@ -56,7 +56,7 @@ export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>):
         },
       }}
     >
-      <Root data-slot="empty" {...rootSlot} {...(rest as any)} />
+      <Root data-slot="empty" {...rootSlot} {...(rest as Record<string, unknown>)} />
     </EmptyProvider>
   )
 }

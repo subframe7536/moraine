@@ -38,6 +38,10 @@ import {
 import { defaultPinInputMessages } from './pin-input.messages'
 import { pinInputDataAttributes, pinInputRecipe } from './pin-input.recipe'
 import type { PinInputProps } from './pin-input.types'
+function hasBoundaryModifier(event: KeyEvent<HTMLInputElement>): boolean {
+  return (event.ctrlKey || event.metaKey) && !event.altKey
+}
+
 /**
  * Row of single-character inputs for verification codes, OTPs, and numeric PINs. `validationType`
  * restricts the accepted characters, and `onComplete` fires once every slot is filled. The value is
@@ -156,7 +160,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
   const messages = useMessages('pinInput', defaultPinInputMessages, () => local.translations)
   const providerLocale = useLocale()
 
-  const inputEls: (HTMLInputElement | null)[] = []
+  const inputEls: Array<HTMLInputElement | null> = []
   let rootEl: HTMLDivElement | undefined
   let hiddenInputEl: HTMLInputElement | undefined
 
@@ -254,7 +258,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
       return
     }
     const len = length()
-    const filtered: HTMLInputElement[] = []
+    const filtered: Array<HTMLInputElement> = []
     for (let i = 0; i < len; i++) {
       const el = inputEls[i]
       if (el) {
@@ -426,9 +430,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
   // While an IME composition is active, intermediate text is exposed through `input`
   // as an accumulating string; committing per event would fill too many slots.
   const [composing, setComposing] = createSignal(false)
-
-  const hasBoundaryModifier = (event: KeyEvent<HTMLInputElement>) =>
-    (event.ctrlKey || event.metaKey) && !event.altKey
 
   const moveToStart = (event: KeyEvent<HTMLInputElement>) => {
     event.stopPropagation()
@@ -627,7 +628,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 autocomplete={idx === 0 && local.otp ? 'one-time-code' : 'off'}
                 autocorrect="off"
                 autocapitalize="off"
-                spellcheck={false}
+                spellcheck="false"
                 enterkeyhint={idx === length() - 1 ? 'done' : 'next'}
                 maxlength={idx === 0 ? length() : undefined}
                 tabindex={idx === tabbableIndex() ? 0 : -1}

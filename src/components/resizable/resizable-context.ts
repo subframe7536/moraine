@@ -47,9 +47,9 @@ export interface ResizableContext {
    */
   registerItem: (item: ResizableItem) => () => void
   /** Panels and handles in DOM order. */
-  orderedItems: () => ResizableItem[]
+  orderedItems: () => Array<ResizableItem>
   /** Panels only, in DOM order. */
-  orderedPanels: () => ResizablePanelRegistration[]
+  orderedPanels: () => Array<ResizablePanelRegistration>
   /** Index of the panel in `orderedPanels()`, or -1. */
   panelIndex: (panel: ResizablePanelRegistration) => number
   /** Resolved size of the panel in percent (0-100). */

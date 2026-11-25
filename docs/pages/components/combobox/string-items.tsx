@@ -1,6 +1,6 @@
 import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
-const MIXED_STATUSES: ComboboxT.Entry[] = [
+const MIXED_STATUSES: Array<ComboboxT.Entry> = [
   'Open',
   { value: 'progress', label: 'In progress', description: 'Someone is actively working this' },
   {

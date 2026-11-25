@@ -34,7 +34,7 @@ describe('render and polymorphic contracts', () => {
   })
 
   test('custom targets can wrap and programmatically invoke their click handler', () => {
-    const calls: string[] = []
+    const calls: Array<string> = []
     let invoke!: () => void
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => {
       const handler = untrack(() => props.onClick)

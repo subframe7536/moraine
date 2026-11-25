@@ -17,7 +17,7 @@ const ROLE_OPTIONS = [
   { label: 'Designer', value: 'designer' },
   { label: 'Product Manager', value: 'pm' },
   { label: 'Other', value: 'other' },
-] satisfies SelectT.Item[]
+] satisfies Array<SelectT.Item>
 
 export default function FormPlayground() {
   return (

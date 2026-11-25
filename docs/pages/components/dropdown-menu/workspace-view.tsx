@@ -18,7 +18,7 @@ export function WorkspaceView() {
       byName ? a.name.localeCompare(b.name) : b.updated - a.updated,
     )
   })
-  const items = createMemo<DropdownMenuT.Item[]>(() => [
+  const items = createMemo<Array<DropdownMenuT.Item>>(() => [
     {
       type: 'group',
       label: 'Visible fields',

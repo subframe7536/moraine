@@ -34,5 +34,11 @@ export function SidebarGroupLabel<T extends ValidComponent = 'div'>(
   } = useSidebarStyles('groupLabel', local)
   const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
 
-  return <Root data-slot="sidebar-group-label" {...groupLabelSlot} {...(rest as any)} />
+  return (
+    <Root
+      data-slot="sidebar-group-label"
+      {...groupLabelSlot}
+      {...(rest as Record<string, unknown>)}
+    />
+  )
 }

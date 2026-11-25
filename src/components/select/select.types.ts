@@ -114,7 +114,7 @@ export namespace SelectT {
      * />
      * ```
      */
-    items?: Entry<TItem>[]
+    items?: Array<Entry<TItem>>
     /**
      * Called with the new item `value` when the user changes the selection, or with `null` when
      * it is cleared. Not called for prop updates, when the same item is chosen again, or while

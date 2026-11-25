@@ -59,7 +59,7 @@ export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): J
         },
       }}
     >
-      <Root data-slot="card" {...rootSlot} {...(rest as any)} />
+      <Root data-slot="card" {...rootSlot} {...(rest as Record<string, unknown>)} />
     </CardProvider>
   )
 }

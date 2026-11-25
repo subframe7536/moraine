@@ -90,7 +90,7 @@ export function createDocsHastPlugin() {
 
           if (level >= 2 && level <= 5 && headingText) {
             const entries = (ctx.data[DOCS_ON_THIS_PAGE_DATA_KEY] ??=
-              []) as OnThisPageEntryLiteral[]
+              []) as Array<OnThisPageEntryLiteral>
             entries.push({
               id: slug,
               label: headingText,
@@ -217,7 +217,7 @@ export function createDocsCodePlugin() {
         meta: node.meta ?? undefined,
       })
 
-      const attributes: MdxJsxAttributeUnion[] = [
+      const attributes: Array<MdxJsxAttributeUnion> = [
         {
           type: 'mdxJsxAttribute',
           name: 'html',
@@ -302,7 +302,11 @@ async function groupCodeBlocks(node: MdastNode, ctx: MdastVisitorContext): Promi
   if ('children' in node && Array.isArray(node.children)) {
     let i = 0
     while (i < node.children.length) {
-      const child = node.children[i]!
+      const child = node.children[i]
+      if (!child) {
+        i++
+        continue
+      }
       if (child.type === 'code') {
         const groupId = parseCodeGroupId(child.meta ?? undefined)
         if (groupId) {
@@ -343,9 +347,12 @@ async function groupCodeBlocks(node: MdastNode, ctx: MdastVisitorContext): Promi
             children: [],
           }
 
-          ctx.replaceNode(group[0]!, codeTabsNode)
-          for (let k = 1; k < group.length; k++) {
-            ctx.removeNode(group[k]!)
+          const [first, ...rest] = group
+          if (first) {
+            ctx.replaceNode(first, codeTabsNode)
+          }
+          for (const extra of rest) {
+            ctx.removeNode(extra)
           }
 
           i = j

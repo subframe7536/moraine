@@ -69,11 +69,12 @@ export function Collapsible() {
               <For each={NAV_ITEMS}>
                 {(item) => (
                   <div
-                    class={`text-xs px-2.5 py-1.5 rounded-lg flex gap-2.5 cursor-pointer transition-colors items-center ${
+                    class={[
+                      'text-xs px-2.5 py-1.5 rounded-lg flex gap-2.5 cursor-pointer transition-colors items-center',
                       item.label === 'Dashboard'
                         ? 'bg-accent text-accent-foreground font-medium'
-                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                    }`}
+                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                    ]}
                   >
                     <Icon name={item.icon} class="shrink-0 size-4" />
                     <span class="flex-1 truncate">{item.label}</span>

@@ -11,7 +11,7 @@ interface Employee {
   location: string
 }
 
-const DATA: Employee[] = [
+const DATA: Array<Employee> = [
   {
     id: '1',
     name: 'Alice Johnson',
@@ -46,7 +46,7 @@ const DATA: Employee[] = [
   },
 ]
 
-const COLUMNS: DataTableT.Column<Employee>[] = [
+const COLUMNS: Array<DataTableT.Column<Employee>> = [
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'email', header: 'Email' },
   { accessorKey: 'role', header: 'Role' },

@@ -564,7 +564,7 @@ describe('RadioGroup', () => {
   })
 
   test('moves focus to the next tab stop when a focused item is removed', async () => {
-    const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+    const [items, setItems] = createSignal<Array<string | { value: string; label: string }>>([
       'A',
       'B',
       'C',
@@ -584,7 +584,7 @@ describe('RadioGroup', () => {
     const shadow = host.attachShadow({ mode: 'open' })
     document.body.append(host)
     try {
-      const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+      const [items, setItems] = createSignal<Array<string | { value: string; label: string }>>([
         'A',
         'B',
       ])
@@ -613,7 +613,7 @@ describe('RadioGroup', () => {
     }
 
     try {
-      const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+      const [items, setItems] = createSignal<Array<string | { value: string; label: string }>>([
         'A',
         'B',
       ])

@@ -1,5 +1,3 @@
-import { fileURLToPath } from 'node:url'
-
 import solid from '@solidjs/vite-plugin'
 import uno from '@subf/unocss/vite'
 import path from 'pathe'
@@ -11,7 +9,7 @@ import { variantGroupPlugin } from '../build/vite-plugin-variant-group.ts'
 import { DocsFileSystemRouter } from './build/docs-router.ts'
 import { createDocsMdxOptions, DOCS_SITE, docsBuildPlugin, llmsTxtPlugin } from './build/index.ts'
 import unocfg from './unocss.config.ts'
-const docsRoot = fileURLToPath(new URL('.', import.meta.url))
+const docsRoot = import.meta.dirname
 const projectRoot = path.resolve(docsRoot, '..')
 const sourceRoot = path.resolve(projectRoot, 'src')
 

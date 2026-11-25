@@ -17,13 +17,13 @@ export interface DocsPageEntry {
   label: string
   description: string
   order: number
-  tags: string[]
+  tags: Array<string>
   surface: DocsSurface
   section: string
   markdownPath: string
   badge?: string
   path: string
-  sections: DocsRouteSection[]
+  sections: Array<DocsRouteSection>
 }
 
 function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
@@ -45,7 +45,7 @@ function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
   )
 }
 
-function normalizeSections(value: unknown): DocsRouteSection[] {
+function normalizeSections(value: unknown): Array<DocsRouteSection> {
   if (!Array.isArray(value)) {
     return []
   }
@@ -70,7 +70,7 @@ function normalizeSections(value: unknown): DocsRouteSection[] {
   })
 }
 
-export function getDocsPages(): DocsPageEntry[] {
+export function getDocsPages(): Array<DocsPageEntry> {
   return Object.entries(routeInfo ?? {})
     .map(([, info]) => {
       if (!isDocsRouteInfo(info)) {

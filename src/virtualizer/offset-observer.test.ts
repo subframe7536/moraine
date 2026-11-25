@@ -71,7 +71,7 @@ describe('createSharedElementOffsetObserver', () => {
     observe(fakeInstance(element), (offset) => setTop(offset))
     observe(fakeInstance(element, { horizontal: true }), (offset) => setLeft(offset))
 
-    const seen: string[] = []
+    const seen: Array<string> = []
     const dispose = createRoot((dispose) => {
       createRenderEffect(
         () => `${top()},${left()}`,

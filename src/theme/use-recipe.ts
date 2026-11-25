@@ -181,7 +181,7 @@ function sameSlotValue(prev: SlotValue | undefined, next: SlotValue | undefined)
 }
 
 /** Later sources win; `undefined` / `null` values never overwrite earlier ones. */
-function mergeStyles(...sources: (object | undefined)[]): JSX.CSSProperties {
+function mergeStyles(...sources: Array<object | undefined>): JSX.CSSProperties {
   const style: Style = {}
   for (const source of sources) {
     for (const key in source) {
@@ -210,7 +210,7 @@ function isEmptyStyle(style: JSX.CSSProperties): boolean {
 function binding(
   cls: Accessor<string | undefined>,
   style: Accessor<JSX.CSSProperties>,
-  data: (DataAttributeBag | undefined)[],
+  data: Array<DataAttributeBag | undefined>,
 ): SlotBinding {
   const target = {
     get class() {
@@ -355,7 +355,7 @@ export function useRecipe<R extends RecipeDefinition>(
   }
 
   const slots = {} as { [K in Slots]: SlotBinding }
-  for (const slot of definition.slots as Slots[]) {
+  for (const slot of definition.slots as Array<Slots>) {
     slots[slot] = createSlot(slot)
   }
 

@@ -5,14 +5,14 @@ export interface DocsRouteInfo {
   title: string
   description: string
   order: number
-  tags: string[]
+  tags: Array<string>
   surface: DocsSurface
   section: string
   routePath: string
   markdownPath: string
   badge?: string
   api?: string
-  sections?: DocsRouteSection[]
+  sections?: Array<DocsRouteSection>
 }
 
 export interface DocsRouteSection {

@@ -15,6 +15,7 @@ export function loadApiDocIndex(projectRoot: string): IndexDoc | null {
   } catch (error) {
     throw new Error(
       `[api-doc] Malformed index document at ${jsonPath}:\n${(error as Error).message}`,
+      { cause: error },
     )
   }
 }
@@ -31,6 +32,7 @@ export function loadComponentApiDoc(pagePath: string): ComponentApi | null {
   } catch (error) {
     throw new Error(
       `[api-doc] Malformed component API doc at ${jsonPath}:\n${(error as Error).message}`,
+      { cause: error },
     )
   }
 }

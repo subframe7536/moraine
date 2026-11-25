@@ -1,7 +1,7 @@
 import type { Orientation } from '../../theme/style-types'
 export type SliderEdge = 'left' | 'right' | 'top' | 'bottom'
 
-export type SliderValue = number | number[]
+export type SliderValue = number | Array<number>
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
@@ -35,20 +35,20 @@ export function snapValueToStep(value: number, min: number, max: number, step: n
 }
 
 export function getNextSortedValues(
-  prevValues: number[],
+  prevValues: Array<number>,
   nextValue: number,
   atIndex: number,
-): number[] {
+): Array<number> {
   const nextValues = [...prevValues]
   nextValues[atIndex] = nextValue
   return nextValues.sort((a, b) => a - b)
 }
 
 export function moveSortedValue(
-  prevValues: number[],
+  prevValues: Array<number>,
   nextValue: number,
   fromIndex: number,
-): { nextIndex: number; nextValues: number[] } {
+): { nextIndex: number; nextValues: Array<number> } {
   const currentValue = prevValues[fromIndex]
   if (currentValue === undefined || currentValue === nextValue) {
     return {
@@ -84,11 +84,14 @@ export function moveSortedValue(
   }
 }
 
-function getStepsBetweenValues(values: number[]): number[] {
+function getStepsBetweenValues(values: Array<number>): Array<number> {
   return values.slice(0, -1).map((value, index) => (values[index + 1] ?? value) - value)
 }
 
-export function hasMinStepsBetweenValues(values: number[], minStepsBetweenValues: number): boolean {
+export function hasMinStepsBetweenValues(
+  values: Array<number>,
+  minStepsBetweenValues: number,
+): boolean {
   if (minStepsBetweenValues > 0) {
     const stepsBetweenValues = getStepsBetweenValues(values)
     const actualMinStepsBetweenValues = Math.min(...stepsBetweenValues)
@@ -98,7 +101,7 @@ export function hasMinStepsBetweenValues(values: number[], minStepsBetweenValues
   return true
 }
 
-export function getClosestValueIndex(values: number[], nextValue: number): number {
+export function getClosestValueIndex(values: Array<number>, nextValue: number): number {
   if (values.length === 1) {
     return 0
   }
@@ -131,7 +134,7 @@ export function normalizeSliderValues(
   fallback: number,
   min: number,
   max: number,
-): number[] | undefined {
+): Array<number> | undefined {
   if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) {
     throw new RangeError('Slider `max` must be a finite number greater than `min`.')
   }

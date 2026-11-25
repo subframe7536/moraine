@@ -17,14 +17,14 @@ export function decodeHashAnchor(hash: string): string {
 }
 
 export function useTableOfContents(
-  getEntries: Accessor<OnThisPageEntry[]>,
+  getEntries: Accessor<Array<OnThisPageEntry>>,
   getHash: Accessor<string>,
   getScrollRoot: Accessor<HTMLElement | undefined>,
 ) {
-  const [activeIds, setActiveIds] = createSignal<string[]>([])
+  const [activeIds, setActiveIds] = createSignal<Array<string>>([])
   const [entryIds, setEntryIds] = createSignal<Set<string>>(new Set())
 
-  const update = (next: string[]) => {
+  const update = (next: Array<string>) => {
     setActiveIds((current) =>
       current.length === next.length && current.every((id, index) => id === next[index])
         ? current
@@ -57,14 +57,14 @@ export function useTableOfContents(
 
         const top = root.getBoundingClientRect().top + DOCS_HEADER_OFFSET
         let nearest: { id: string; distance: number } | undefined
-        for (let index = 0; index < entries.length; index++) {
+        for (const [index, entry] of entries.entries()) {
           const target = targets[index]
           if (!target) {
             continue
           }
           const distance = Math.abs(target.getBoundingClientRect().top - top)
           if (!nearest || distance < nearest.distance) {
-            nearest = { id: entries[index]!.id, distance }
+            nearest = { id: entry.id, distance }
           }
         }
         update(nearest ? [nearest.id] : [])

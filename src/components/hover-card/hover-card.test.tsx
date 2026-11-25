@@ -5,7 +5,7 @@ import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { HoverCard } from './hover-card'
 const floatingMocks = vi.hoisted(() => ({
-  middlewareNames: [] as string[],
+  middlewareNames: [] as Array<string>,
 }))
 
 vi.mock('@floating-ui/dom', async (importOriginal) => {

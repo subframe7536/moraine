@@ -11,7 +11,7 @@ function getOnThisPageIndentStyle(level: number) {
   return { 'padding-inline-start': `${indentLevel * 0.75}rem` }
 }
 
-export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }) {
+export function OnThisPage(props: { entries: Array<OnThisPageEntry>; class?: string }) {
   const location = useLocation()
   const [nav, setNav] = createSignal<HTMLElement>()
   const [list, setList] = createSignal<HTMLElement>()
@@ -34,7 +34,10 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
   const measure = (element: HTMLElement) => {
     const next = new Map<string, [number, number]>()
     for (const anchor of element.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')) {
-      next.set(anchor.dataset.tocId!, [anchor.offsetTop, anchor.offsetTop + anchor.offsetHeight])
+      const tocId = anchor.dataset.tocId
+      if (tocId) {
+        next.set(tocId, [anchor.offsetTop, anchor.offsetTop + anchor.offsetHeight])
+      }
     }
     setPositions(next)
     setListHeight(element.offsetHeight)
@@ -61,8 +64,10 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
   const blockStyle = createMemo((): JSX.CSSProperties | undefined => {
     const ids = activeIds()
     const cached = positions()
-    const first = ids.length ? cached.get(ids[0]!) : undefined
-    const last = ids.length ? cached.get(ids[ids.length - 1]!) : undefined
+    const firstId = ids[0]
+    const lastId = ids.at(-1)
+    const first = firstId ? cached.get(firstId) : undefined
+    const last = lastId ? cached.get(lastId) : undefined
     const height = listHeight()
     if (!first || !last || height <= 0) {
       return undefined

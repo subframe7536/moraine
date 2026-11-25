@@ -181,7 +181,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const expandIcon = createMemo(() => merged.expandIcon)
   const headingTag = () => `h${merged.headingLevel}` as const
   const Heading = dynamic(headingTag)
-  const [selectedValues, setSelectedValues] = createControllableValue<string[]>({
+  const [selectedValues, setSelectedValues] = createControllableValue<Array<string>>({
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? [],
   })
@@ -204,11 +204,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
   let lastFocusedValue: string | undefined
   let focusRecoveryVersion = 0
 
-  function getEnabledItems(): string[] {
+  function getEnabledItems(): Array<string> {
     if (merged.disabled) {
       return []
     }
-    const result: string[] = []
+    const result: Array<string> = []
     for (const item of items()) {
       if (!item.disabled && triggerRefs.has(item.value)) {
         result.push(item.value)
@@ -217,7 +217,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     return result
   }
 
-  function setValue(nextValue: string[]): void {
+  function setValue(nextValue: Array<string>): void {
     setSelectedValues(nextValue)
     merged.onValueChange?.(nextValue)
   }
@@ -247,7 +247,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
   function focusTriggerByOffset(currentKey: string, offset: number): void {
     const enabled = getEnabledItems()
-    const currentIndex = enabled.findIndex((key) => key === currentKey)
+    const currentIndex = enabled.indexOf(currentKey)
 
     if (currentIndex === -1) {
       return

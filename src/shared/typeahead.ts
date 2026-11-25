@@ -3,13 +3,15 @@ import { onCleanup } from 'solid-js'
 import { collatorStartsWith, createSearchCollator } from '../provider/locale/collator'
 import { useLocale } from '../provider/locale/locale-context'
 export interface CreateTypeaheadOptions<T> {
-  getItems: () => readonly T[]
+  getItems: () => ReadonlyArray<T>
   getStartIndex: () => number
   getText: (item: T) => string | undefined
   isDisabled?: (item: T) => boolean
   onMatch: (item: T, index: number) => void
   timeout?: number
 }
+
+const normalize = (value: string): string => value.normalize('NFKC')
 
 /** Incremental Unicode-aware typeahead with repeated-character cycling. */
 export function createTypeahead<T>(options: CreateTypeaheadOptions<T>): {
@@ -23,7 +25,6 @@ export function createTypeahead<T>(options: CreateTypeaheadOptions<T>): {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const timeout = options.timeout ?? 500
   const collator = () => createSearchCollator(locale())
-  const normalize = (value: string): string => value.normalize('NFKC')
 
   function reset(): void {
     search = ''
@@ -33,7 +34,7 @@ export function createTypeahead<T>(options: CreateTypeaheadOptions<T>): {
     timeoutId = undefined
   }
 
-  function findMatch(items: readonly T[], value: string, initialIndex: number): number {
+  function findMatch(items: ReadonlyArray<T>, value: string, initialIndex: number): number {
     for (let offset = 0; offset < items.length; offset += 1) {
       const index = (initialIndex + offset) % items.length
       const item = items[index]

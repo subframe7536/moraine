@@ -6,7 +6,7 @@ declare module 'virtual:api-doc' {
   }
 
   interface IndexDoc {
-    components: ComponentIndexEntry[]
+    components: Array<ComponentIndexEntry>
   }
 
   const data: IndexDoc

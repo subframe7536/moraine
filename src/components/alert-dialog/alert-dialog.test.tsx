@@ -19,7 +19,7 @@ function setup(): void {
   ))
 }
 
-function dialogs(): HTMLElement[] {
+function dialogs(): Array<HTMLElement> {
   return Array.from(document.body.querySelectorAll<HTMLElement>('[role="alertdialog"]'))
 }
 
@@ -140,7 +140,9 @@ describe('AlertDialog', () => {
     const result = AlertDialog.confirm({ title: 'Stay', onClose })
     await waitForTitle('Stay')
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(document.body.querySelector('[data-testid="outside"]')!)
     await Promise.resolve()
     expect(onClose).not.toHaveBeenCalled()
@@ -171,7 +173,9 @@ describe('AlertDialog', () => {
     expect(onClose).not.toHaveBeenCalled()
     expect(dialogs()).toHaveLength(1)
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(document.body.querySelector('[data-testid="outside"]')!)
     await expect(blocked.result()).resolves.toBe('dismiss')
     expect(onClose).toHaveBeenCalledTimes(1)

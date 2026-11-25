@@ -42,7 +42,13 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
     })
     const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
 
-    return <Root data-slot={`input-group-${part}`} {...partSlot} {...(rest as any)} />
+    return (
+      <Root
+        data-slot={`input-group-${part}`}
+        {...partSlot}
+        {...(rest as Record<string, unknown>)}
+      />
+    )
   }
 }
 

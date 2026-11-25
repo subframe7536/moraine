@@ -136,7 +136,10 @@ export function isAndroidUserAgent(): boolean {
  * same segment.
  */
 export function toIdSegment(value: string): string {
-  return value.replace(/[^a-zA-Z0-9-]/g, (char) => `_${char.codePointAt(0)!.toString(16)}_`)
+  return value.replaceAll(
+    /[^a-zA-Z0-9-]/g,
+    (char) => `_${(char.codePointAt(0) ?? 0).toString(16)}_`,
+  )
 }
 
 /**
@@ -162,7 +165,7 @@ export function callRef<T>(ref: () => unknown, element: T): void {
  * present without evaluating it — reading `props.children` during key collection
  * would re-render the tree. Only static data keys holding `undefined` are hidden.
  */
-export function pick<T extends object, K extends readonly (keyof T)[]>(
+export function pick<T extends object, K extends ReadonlyArray<keyof T>>(
   props: T,
   ...keys: K
 ): Pick<T, K[number]> {
@@ -197,7 +200,7 @@ export function pick<T extends object, K extends readonly (keyof T)[]>(
       }
     },
     ownKeys() {
-      return keys.filter((key) => present(key)) as (string | symbol)[]
+      return keys.filter((key) => present(key)) as Array<string | symbol>
     },
   })
 }

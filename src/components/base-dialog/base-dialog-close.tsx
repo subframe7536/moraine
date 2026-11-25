@@ -33,8 +33,8 @@ import type { BaseDialogT } from './base-dialog.types'
 export function BaseDialogClose<T extends ValidComponent = 'button'>(
   props: BaseDialogT.CloseProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'disabled', 'ref' as any)
-  const rest = omit(props, 'as', 'disabled', 'ref' as any)
+  const local = pick(props as BaseDialogT.CloseProps, 'as', 'disabled', 'ref')
+  const rest = omit(props as BaseDialogT.CloseProps, 'as', 'disabled', 'ref')
   const context = useBaseDialogContext()
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })

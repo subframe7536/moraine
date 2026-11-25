@@ -1,7 +1,7 @@
 import { FACTORY_COMPONENTS } from './registry.ts'
 import type { ComponentApi } from './types.ts'
-function validateComponentApi(component: ComponentApi): string[] {
-  const issues: string[] = []
+function validateComponentApi(component: ComponentApi): Array<string> {
+  const issues: Array<string> = []
   const addError = (message: string, partId?: string) =>
     issues.push(
       `[ERROR] Component "${component.key}"${partId ? ` (part "${partId}")` : ''}: ${message}`,
@@ -83,7 +83,7 @@ function validateComponentApi(component: ComponentApi): string[] {
   return issues
 }
 
-export function validateAllComponentApis(components: ComponentApi[]): void {
+export function validateAllComponentApis(components: Array<ComponentApi>): void {
   const issues = components.flatMap(validateComponentApi)
   if (issues.length) {
     throw new Error(`API Documentation validation failed:\n${issues.join('\n')}`)

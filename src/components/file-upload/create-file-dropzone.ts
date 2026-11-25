@@ -11,7 +11,7 @@ export interface CreateFileDropzoneOptions {
   onDragOver: Accessor<JSX.EventHandlerUnion<HTMLButtonElement, DragEvent> | undefined>
   onDragLeave: Accessor<JSX.EventHandlerUnion<HTMLButtonElement, DragEvent> | undefined>
   onDrop: Accessor<JSX.EventHandlerUnion<HTMLButtonElement, DragEvent> | undefined>
-  onFiles: (files: File[]) => void
+  onFiles: (files: Array<File>) => void
 }
 
 export function createFileDropzone(options: CreateFileDropzoneOptions): {

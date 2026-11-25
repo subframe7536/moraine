@@ -24,8 +24,9 @@ export function useHashScrolling(options: HashScrollingOptions) {
     typeof window === 'undefined' ? '' : window.location.hash,
   )
 
+  const handleHashChange = () => setHistoryHash(window.location.hash)
+
   onSettled(() => {
-    const handleHashChange = () => setHistoryHash(window.location.hash)
     window.addEventListener('hashchange', handleHashChange)
     return () => window.removeEventListener('hashchange', handleHashChange)
   })

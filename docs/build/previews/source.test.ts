@@ -11,7 +11,7 @@ async function parsePreviewCode(code: string) {
   return (await parse('preview.tsx', code, PREVIEW_PARSE_OPTIONS)).program
 }
 
-function collectTsxFiles(directory: string): string[] {
+function collectTsxFiles(directory: string): Array<string> {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const filePath = path.join(directory, entry.name)
     return entry.isDirectory()
@@ -24,7 +24,7 @@ function collectTsxFiles(directory: string): string[] {
 
 test('documentation previews are self-contained in one file', async () => {
   const pagesRoot = path.resolve(__dirname, '../../pages')
-  const localImports: string[] = []
+  const localImports: Array<string> = []
 
   // `playground.tsx` hosts the docs-only Playground UI and is never a Preview source.
   const previewFiles = collectTsxFiles(pagesRoot).filter(

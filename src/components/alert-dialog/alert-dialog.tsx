@@ -26,21 +26,6 @@ interface AlertDialogController extends FeedbackHost {
 
 const registry = createHostRegistry<AlertDialogController>('AlertDialog')
 
-function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
-  return {
-    closable: props.closable,
-    transition: props.transition,
-    closeOnEscape: props.closeOnEscape,
-    closeOnOutsideClick: props.closeOnOutsideClick,
-    align: props.align,
-    variant: props.variant,
-    type: props.type ?? undefined,
-    maxWidth: props.maxWidth,
-    classes: props.classes,
-    styles: props.styles,
-    translations: props.translations,
-  }
-}
 function openAlertDialog(
   mode: 'confirm' | 'standard',
   options: AlertDialogT.Options,
@@ -89,7 +74,7 @@ function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): Alert
  */
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const owner = getOwner()
-  const [dialogs, setDialogs] = createSignal<AlertDialogRecord[]>([], {
+  const [dialogs, setDialogs] = createSignal<Array<AlertDialogRecord>>([], {
     ownedWrite: true,
   })
   const removeDialog = (record: AlertDialogRecord): void => {
@@ -99,7 +84,19 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
     dialogs().find((item) => item.id === id && item.open())
   const controller: AlertDialogController = {
     id: () => props.id,
-    defaults: () => readHostDefaults(props),
+    defaults: () => ({
+      closable: props.closable,
+      transition: props.transition,
+      closeOnEscape: props.closeOnEscape,
+      closeOnOutsideClick: props.closeOnOutsideClick,
+      align: props.align,
+      variant: props.variant,
+      type: props.type ?? undefined,
+      maxWidth: props.maxWidth,
+      classes: props.classes,
+      styles: props.styles,
+      translations: props.translations,
+    }),
     dialogRender: () => props.dialogRender,
     open(mode, options, render) {
       if (options.id !== undefined) {

@@ -9,7 +9,7 @@ export function ComponentsIndex() {
     const pages = getDocsPages().filter(
       (page) => page.surface === 'components' && page.path !== '/components',
     )
-    const map = new Map<string, DocsPageEntry[]>()
+    const map = new Map<string, Array<DocsPageEntry>>()
     for (const page of pages) {
       const list = map.get(page.section)
       if (list) {

@@ -6,7 +6,7 @@ export function ResponsiveUsage() {
     { label: 'Acme Cloud', href: '#' },
     { label: 'Platform', href: '#' },
     { label: 'Deployments' },
-  ] satisfies BreadcrumbT.Item[]
+  ] satisfies Array<BreadcrumbT.Item>
 
   const navPlatform = [
     { label: 'Dashboard', icon: 'i-lucide:layout-dashboard', href: '#' },

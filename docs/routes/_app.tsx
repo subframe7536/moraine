@@ -25,7 +25,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const [mainEl, setMainEl] = createSignal<HTMLElement>()
 
   const activePage = createMemo(() => {
-    const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/$/g, '')
+    const normalizedPath =
+      location.pathname === '/' ? '/' : location.pathname.replaceAll(/\/$/g, '')
     return pages.find((page) => page.path === normalizedPath)?.path ?? ''
   })
 

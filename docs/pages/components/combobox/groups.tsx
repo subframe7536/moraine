@@ -1,6 +1,6 @@
 import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
-const TECH_GROUPS: ComboboxT.Entry[] = [
+const TECH_GROUPS: Array<ComboboxT.Entry> = [
   {
     type: 'group',
     label: 'Frontend Frameworks',

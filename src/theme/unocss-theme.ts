@@ -34,16 +34,16 @@ function defaultSelector(name: string): string {
   if (name === 'dark') {
     return '.dark'
   }
-  const escaped = name.replace(
+  const escaped = name.replaceAll(
     /[\p{Cc}"\\]/gu,
-    (character) => `\\${character.codePointAt(0)!.toString(16)} `,
+    (character) => `\\${(character.codePointAt(0) ?? 0).toString(16)} `,
   )
   return `[data-theme="${escaped}"]`
 }
 
 type ResolvedTheme = [selector: string, theme: MorainePresetTheme]
 
-export function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
+export function resolveThemes(options: PresetMoraineOptions): Array<ResolvedTheme> {
   const light = options.override?.light
   const dark = options.override?.dark
   const lightSelector = light?.selector ?? ':root'
@@ -62,7 +62,7 @@ export function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
       : {},
     shared,
   )
-  const themes: ResolvedTheme[] = [
+  const themes: Array<ResolvedTheme> = [
     [':root', lightSelector === ':root' ? mergeTheme(defaultLight, light) : defaultLight],
   ]
   if (lightSelector !== ':root') {
@@ -99,7 +99,7 @@ export function assertMixValue(value: unknown, label: string): string {
   throw new TypeError(`[preset-moraine] ${label} must be a number or string.`)
 }
 
-export function createThemeCSS(themes: ResolvedTheme[]): string {
+export function createThemeCSS(themes: Array<ResolvedTheme>): string {
   const supportedCSS = `@supports (color: color-mix(in oklch, red, white)) {\n  *, ::before, ::after {\n${Object.entries(
     createGatedColorDeclarations(),
   )
@@ -108,7 +108,7 @@ export function createThemeCSS(themes: ResolvedTheme[]): string {
 
   const themeCSS = themes
     .map(([selector, theme]) => {
-      const declarations: string[] = []
+      const declarations: Array<string> = []
       const emit = (name: string, value: string | undefined) => {
         if (value !== undefined) {
           declarations.push(`  --${name}: ${value};`)

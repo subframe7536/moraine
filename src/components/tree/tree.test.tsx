@@ -10,11 +10,11 @@ import type { TreeT } from './tree.types'
 interface Node {
   id: string
   name: string
-  children?: Node[]
+  children?: Array<Node>
   disabled?: boolean
 }
 
-const DATA: Node[] = [
+const DATA: Array<Node> = [
   {
     id: 'src',
     name: 'src',
@@ -36,7 +36,7 @@ const DATA: Node[] = [
 ]
 
 interface HarnessProps {
-  items?: () => readonly Node[]
+  items?: () => ReadonlyArray<Node>
   options?: Partial<TreeT.Options<Node>>
   treeProps?: Partial<TreeT.Props<Node>>
   onTree?: (tree: TreeT.Instance<Node>) => void
@@ -64,7 +64,7 @@ function guideList(element: HTMLElement): HTMLElement | null {
   )
 }
 
-function guides(element: HTMLElement): HTMLElement[] {
+function guides(element: HTMLElement): Array<HTMLElement> {
   return [...(guideList(element)?.querySelectorAll<HTMLElement>('[data-slot="tree-guide"]') ?? [])]
 }
 
@@ -76,7 +76,7 @@ function item(container: HTMLElement, label: string): HTMLElement {
   return element
 }
 
-function labels(container: HTMLElement): string[] {
+function labels(container: HTMLElement): Array<string> {
   return Array.from(container.querySelectorAll('[role="treeitem"]')).map(
     (element) => element.getAttribute('aria-label') ?? '',
   )
@@ -166,7 +166,7 @@ describe('createTree', () => {
     })
 
     test('reacts to item changes', () => {
-      const [items, setItems] = createSignal<readonly Node[]>(DATA)
+      const [items, setItems] = createSignal<ReadonlyArray<Node>>(DATA)
       const { container } = render(() => <Harness items={items} />)
 
       flush(() => setItems([{ id: 'only', name: 'only.md' }]))
@@ -340,8 +340,8 @@ describe('createTree', () => {
     })
 
     test('supports controlled expanded keys and retains focus when a subtree collapses', () => {
-      const [keys, setKeys] = createSignal<string[]>([])
-      const onExpandedKeysChange = vi.fn((next: string[]) => setKeys(next))
+      const [keys, setKeys] = createSignal<Array<string>>([])
+      const onExpandedKeysChange = vi.fn((next: Array<string>) => setKeys(next))
       const { container } = render(() => (
         <Harness
           options={{
@@ -567,7 +567,7 @@ describe('createTree', () => {
 
     test('expandAll, *, and expandTo do not expand disabled branches and collapseAll preserves them', () => {
       let tree!: TreeT.Instance<Node>
-      const nodes: Node[] = [
+      const nodes: Array<Node> = [
         {
           id: 'enabled-branch',
           name: 'enabled-branch',
@@ -779,7 +779,7 @@ describe('createTree', () => {
     })
 
     test('skips disabled ancestors on Left arrow', () => {
-      const nodes: Node[] = [
+      const nodes: Array<Node> = [
         {
           id: 'root',
           name: 'root',
@@ -806,7 +806,7 @@ describe('createTree', () => {
     test('does not collapse, check, or activate disabled items from keyboard or focus', () => {
       let tree!: TreeT.Instance<Node>
       const onAction = vi.fn()
-      const nodes: Node[] = [
+      const nodes: Array<Node> = [
         {
           id: 'branch',
           name: 'branch',
@@ -928,7 +928,7 @@ describe('createTree', () => {
     })
 
     test('supports controlled selection', () => {
-      const [keys, setKeys] = createSignal<string[]>(['docs'])
+      const [keys, setKeys] = createSignal<Array<string>>(['docs'])
       const { container } = render(() => (
         <Harness
           options={{
@@ -1179,7 +1179,7 @@ describe('createTree', () => {
     test('reports checked keys changes and ignores disabled items in check and cascade', () => {
       const onCheckedKeysChange = vi.fn()
       let tree!: TreeT.Instance<Node>
-      const nodes: Node[] = [
+      const nodes: Array<Node> = [
         {
           id: 'folder',
           name: 'folder',
@@ -1218,11 +1218,11 @@ describe('createTree', () => {
       id: string
       name: string
       lazy?: boolean
-      children?: LazyNode[]
+      children?: Array<LazyNode>
     }
 
     function LazyHarness(props: {
-      loadChildren: (node: LazyNode) => Promise<readonly LazyNode[]>
+      loadChildren: (node: LazyNode) => Promise<ReadonlyArray<LazyNode>>
       onTree?: (tree: TreeT.Instance<LazyNode>) => void
       options?: Partial<TreeT.Options<LazyNode>>
     }) {
@@ -1246,10 +1246,10 @@ describe('createTree', () => {
     }
 
     test('treats unloaded items as branches and loads them on expand', async () => {
-      let resolve!: (children: LazyNode[]) => void
+      let resolve!: (children: Array<LazyNode>) => void
       const loadChildren = vi.fn(
         () =>
-          new Promise<LazyNode[]>((done) => {
+          new Promise<Array<LazyNode>>((done) => {
             resolve = done
           }),
       )
@@ -1338,7 +1338,7 @@ describe('createTree', () => {
     })
 
     test('drops cached lazy children when a key gets a new source item', async () => {
-      const [items, setItems] = createSignal<readonly LazyNode[]>([
+      const [items, setItems] = createSignal<ReadonlyArray<LazyNode>>([
         { id: 'remote', name: 'remote', lazy: true },
       ])
       const loadChildren = vi.fn((node: LazyNode) =>
@@ -1358,7 +1358,7 @@ describe('createTree', () => {
     })
 
     test('prefers getChildren over cached lazy children when items update', async () => {
-      const [items, setItems] = createSignal<readonly LazyNode[]>([
+      const [items, setItems] = createSignal<ReadonlyArray<LazyNode>>([
         { id: 'remote', name: 'remote', lazy: true },
       ])
       const loadChildren = () => Promise.resolve([{ id: 'loaded', name: 'loaded.txt' }])
@@ -1607,7 +1607,7 @@ describe('createTree', () => {
 
     test('keeps item handles stable across rerenders', () => {
       let tree!: TreeT.Instance<Node>
-      const [items, setItems] = createSignal<readonly Node[]>(DATA)
+      const [items, setItems] = createSignal<ReadonlyArray<Node>>(DATA)
       render(() => <Harness items={items} onTree={(value) => (tree = value)} />)
 
       const before = tree.getItem('docs')
@@ -1629,7 +1629,7 @@ describe('createTree', () => {
   })
 
   describe('virtual mode', () => {
-    const MANY: Node[] = Array.from({ length: 200 }, (_, index) => ({
+    const MANY: Array<Node> = Array.from({ length: 200 }, (_, index) => ({
       id: `file-${index}`,
       name: `file-${index}`,
     }))

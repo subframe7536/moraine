@@ -28,7 +28,7 @@ const MEMBERS = [
     alt: 'Jane Wilson',
     text: 'JW',
   },
-] satisfies AvatarGroupT.Item[]
+] satisfies Array<AvatarGroupT.Item>
 
 export default function AvatarGroupPlayground() {
   return (

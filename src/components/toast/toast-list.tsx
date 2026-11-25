@@ -14,7 +14,7 @@ const TOAST_FALLBACK_HEIGHT = 58
 
 export interface ToastListProps {
   positionKey: string
-  filteredToasts: ToastRecord[]
+  filteredToasts: Array<ToastRecord>
   host: ToastHostDefaults
   store: ToastStore
   expanded?: boolean

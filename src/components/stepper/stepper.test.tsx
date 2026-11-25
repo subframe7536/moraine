@@ -568,7 +568,7 @@ describe('Stepper', () => {
   })
 
   test('keeps the no-request fallback dynamic until the user selects a step', () => {
-    const [items, setItems] = createSignal<StepperT.Item[]>([
+    const [items, setItems] = createSignal<Array<StepperT.Item>>([
       { ...ITEMS[0], disabled: true },
       { ...ITEMS[1] },
       { ...ITEMS[2] },

@@ -94,10 +94,10 @@ export function createAlertDialogRecord(
         return icon()
       },
       get action() {
-        return call.action
+        return current().action
       },
       get cancel() {
-        return call.cancel
+        return current().cancel
       },
       ariaLabel: call.ariaLabel,
       onClose: call.onClose,

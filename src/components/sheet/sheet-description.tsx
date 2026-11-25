@@ -45,5 +45,12 @@ export function SheetDescription<T extends ValidComponent = 'p'>(
     context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? 'p')
-  return <Root data-slot="sheet-description" {...descriptionSlot} {...(rest as any)} id={id()} />
+  return (
+    <Root
+      data-slot="sheet-description"
+      {...descriptionSlot}
+      {...(rest as Record<string, unknown>)}
+      id={id()}
+    />
+  )
 }

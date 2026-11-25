@@ -103,15 +103,15 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
 
     if (index >= 0) {
       for (let i = index - 1; i >= 0; i -= 1) {
-        const entry = list[i]!
-        if (entry.kind === 'panel') {
+        const entry = list[i]
+        if (entry?.kind === 'panel') {
           preceding = entry.panel
           break
         }
       }
       for (let i = index + 1; i < list.length; i += 1) {
-        const entry = list[i]!
-        if (entry.kind === 'panel') {
+        const entry = list[i]
+        if (entry?.kind === 'panel') {
           following = entry.panel
           break
         }

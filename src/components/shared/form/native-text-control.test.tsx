@@ -89,7 +89,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
   })
 
   test('normalizes once before field and original native event notifications', () => {
-    const calls: string[] = []
+    const calls: Array<string> = []
     const binding: FieldBinding = {
       name: 'message',
       path: ['message'],

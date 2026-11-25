@@ -3,10 +3,10 @@ import { createSignal } from 'solid-js'
 interface Section {
   id: string
   title: string
-  children?: Section[]
+  children?: Array<Section>
 }
 
-const SECTIONS: Section[] = [
+const SECTIONS: Array<Section> = [
   {
     id: 'guides',
     title: 'Guides',
@@ -33,7 +33,7 @@ const SECTIONS: Section[] = [
 ]
 
 export function Expanded() {
-  const [expanded, setExpanded] = createSignal<string[]>(['components'])
+  const [expanded, setExpanded] = createSignal<Array<string>>(['components'])
   const tree = createTree<Section>({
     items: () => SECTIONS,
     getKey: (node) => node.id,

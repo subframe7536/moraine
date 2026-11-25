@@ -8,7 +8,7 @@ const COUNTRIES = [
   { label: 'Japan', value: 'jp' },
   { label: 'United Kingdom', value: 'uk' },
   { label: 'Canada', value: 'ca' },
-] satisfies SelectT.Item[]
+] satisfies Array<SelectT.Item>
 
 export function FormIntegration() {
   const [submittedCountry, setSubmittedCountry] = createSignal<string | null>(null)

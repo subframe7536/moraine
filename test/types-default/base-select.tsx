@@ -21,7 +21,7 @@ interface BusinessItem extends BaseSelectT.Item<string> {
   type: 'group'
   department: string
 }
-const items: UserItem[] = [{ value: 1, label: 'One', email: 'one@example.com' }]
+const items: Array<UserItem> = [{ value: 1, label: 'One', email: 'one@example.com' }]
 const group: SelectT.Group<UserItem> = { type: 'group', label: 'Users', children: items }
 const divRef = (element: HTMLDivElement) => element.focus()
 const inputRef = (element: HTMLInputElement) => element.focus()
@@ -63,7 +63,7 @@ export type SelectFamilyPropAliases = [
 ;<BaseSelect<UserItem>
   items={items}
   onValueChange={(value) => {
-    const numbers: number[] = value
+    const numbers: Array<number> = value
     void numbers
   }}
   getItemLabel={(item) => item.email}
@@ -72,7 +72,7 @@ export type SelectFamilyPropAliases = [
   items={items}
   multiple
   onValueChange={(values) => {
-    const numbers: number[] = values
+    const numbers: Array<number> = values
     void numbers
   }}
 />
@@ -249,7 +249,7 @@ export type StringItemNormalization = [
   Assert<Equal<SelectT.NormalizedItem<'Apple'>, { value: 'Apple'; label: 'Apple' }>>,
   Assert<Equal<ComboboxT.NormalizedItem<UserItem>, UserItem>>,
 ]
-const stringItems: string[] = ['Apple', 'Banana']
+const stringItems: Array<string> = ['Apple', 'Banana']
 ;<Select
   items={stringItems}
   onValueChange={(value) => {
@@ -290,7 +290,7 @@ const stringItems: string[] = ['Apple', 'Banana']
   items={stringItems}
   filterMethod={(query, item) => item.value.includes(query)}
   onValueChange={(values) => {
-    const texts: string[] = values
+    const texts: Array<string> = values
     void texts
   }}
 />

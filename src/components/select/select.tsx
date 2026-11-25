@@ -91,7 +91,10 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
 
   function Control(): JSX.Element {
     const state = useSelectContext<SelectT.NormalizedItem<T>>()
-    const selectedItem = () => source().byValue.get(state.value()[0]!)
+    const selectedItem = () => {
+      const first = state.value()[0]
+      return first !== undefined ? source().byValue.get(first) : undefined
+    }
     const hasValue = () => state.value().length > 0
     const valueSlot = slotWith('value', {
       data: selectDataAttributes.value({ placeholder: () => !hasValue() }),

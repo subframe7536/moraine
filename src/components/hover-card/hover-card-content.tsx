@@ -34,7 +34,10 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
   const local = pick(props, 'children', 'class', 'style')
   const rest = omit(props, 'children', 'class', 'style')
 
-  const behavior = useHoverCardContext()!
+  const behavior = useHoverCardContext()
+  if (!behavior) {
+    throw new Error('HoverCard.Content must be used within HoverCard')
+  }
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
     onPointerEnter: (event) => {
       if (event.pointerType === 'mouse' || !event.pointerType) {

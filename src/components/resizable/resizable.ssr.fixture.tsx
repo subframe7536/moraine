@@ -12,9 +12,10 @@ export function renderResizableFixture(): string {
   ))
 }
 
+// A dynamic `when` keeps the `<!--$-->` boundary markers a client `Show` needs to hydrate.
+const shown = () => true
+
 export function renderResizableShowHandleFixture(): string {
-  // A dynamic `when` keeps the `<!--$-->` boundary markers a client `Show` needs to hydrate.
-  const shown = () => true
   return renderToString(() => (
     <Resizable>
       <Resizable.Panel>Navigation</Resizable.Panel>

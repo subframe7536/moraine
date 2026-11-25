@@ -45,5 +45,12 @@ export function DialogTitle<T extends ValidComponent = 'h2'>(
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? 'h2')
-  return <Root data-slot="dialog-title" {...titleSlot} {...(rest as any)} id={id()} />
+  return (
+    <Root
+      data-slot="dialog-title"
+      {...titleSlot}
+      {...(rest as Record<string, unknown>)}
+      id={id()}
+    />
+  )
 }

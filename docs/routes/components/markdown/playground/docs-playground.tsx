@@ -20,7 +20,7 @@ import type {
 } from './docs-playground-controls'
 
 /** Compact, controlled primitive inputs for an interactive docs example. */
-export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>(
+export function DocsPlayground<const C extends ReadonlyArray<DocsPlaygroundControl>>(
   props: DocsPlaygroundProps<C>,
 ) {
   const api = useContext(ComponentDocContext)?.api
@@ -84,7 +84,7 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                       <DocsPlaygroundControlField
                         control={control}
                         controlId={getControlId(control)}
-                        value={values[control.prop]!}
+                        value={values[control.prop] ?? control.defaultValue}
                         onChange={(val) =>
                           setValues((values) => {
                             values[control.prop] = val
@@ -102,7 +102,7 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                       <DocsPlaygroundControlField
                         control={control}
                         controlId={getControlId(control)}
-                        value={values[control.prop]!}
+                        value={values[control.prop] ?? control.defaultValue}
                         onChange={(val) =>
                           setValues((values) => {
                             values[control.prop] = val

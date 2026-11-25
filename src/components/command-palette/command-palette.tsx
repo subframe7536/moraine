@@ -52,7 +52,7 @@ interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.I
   id: string
   source: CommandPaletteT.Group<TItem>
   label: string
-  items: NormalizedItem<TItem>[]
+  items: Array<NormalizedItem<TItem>>
 }
 
 function buildItemLabel(item: CommandPaletteT.Item): string {
@@ -80,10 +80,10 @@ function isGroup<TItem extends CommandPaletteT.Item>(
 
 /** Collects each run of loose items into one unlabelled group, so every item has a group. */
 function toGroups<TItem extends CommandPaletteT.Item>(
-  entries: CommandPaletteT.Entry<TItem>[],
-): CommandPaletteT.Group<TItem>[] {
-  const groups: CommandPaletteT.Group<TItem>[] = []
-  let loose: TItem[] | undefined
+  entries: Array<CommandPaletteT.Entry<TItem>>,
+): Array<CommandPaletteT.Group<TItem>> {
+  const groups: Array<CommandPaletteT.Group<TItem>> = []
+  let loose: Array<TItem> | undefined
 
   for (const entry of entries) {
     if (isGroup(entry)) {
@@ -103,10 +103,10 @@ function toGroups<TItem extends CommandPaletteT.Item>(
 }
 
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
-  groups: CommandPaletteT.Group<TItem>[],
+  groups: Array<CommandPaletteT.Group<TItem>>,
   getItemSearchText: ((item: TItem) => string) | undefined,
   warnDuplicateValue: (value: string) => void,
-): NormalizedGroup<TItem>[] {
+): Array<NormalizedGroup<TItem>> {
   const seenValues = new Set<string>()
   const seenKeys = new Set<string>()
 
@@ -372,7 +372,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     },
   )
 
-  const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => toGroups(merged.items ?? []))
+  const groups = createMemo<Array<CommandPaletteT.Group<TItem>>>(() => toGroups(merged.items ?? []))
 
   const normalizedGroups = createMemo(() =>
     createNormalizedGroups<TItem>(groups(), merged.getItemSearchText, warnDuplicateValue),
@@ -403,8 +403,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const visibleItemPositionByKey = createMemo(
     () => new Map(visibleItems().map((item, index) => [item.key, index + 1])),
   )
-  const virtualEntries = createMemo<CommandPaletteT.VirtualEntry<TItem>[]>(() => {
-    const entries: CommandPaletteT.VirtualEntry<TItem>[] = []
+  const virtualEntries = createMemo<Array<CommandPaletteT.VirtualEntry<TItem>>>(() => {
+    const entries: Array<CommandPaletteT.VirtualEntry<TItem>> = []
 
     for (const group of visibleGroups()) {
       if (group.label) {

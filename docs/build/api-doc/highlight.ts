@@ -8,7 +8,9 @@ const MARKDOWN_CODE_OR_ANGLE = /(```[\s\S]*?```|`[^`\n]*`)|</g
 
 /** Escape `<` outside code so JSDoc prose never becomes raw HTML. */
 function escapeRawHtml(markdown: string): string {
-  return markdown.replace(MARKDOWN_CODE_OR_ANGLE, (match, code?: string) => (code ? match : '&lt;'))
+  return markdown.replaceAll(MARKDOWN_CODE_OR_ANGLE, (match, code?: string) =>
+    code ? match : '&lt;',
+  )
 }
 
 /** Render a JSDoc description as HTML. Inline code gets the docs inline-code class. */

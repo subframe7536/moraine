@@ -643,11 +643,11 @@ describe('Tabs', () => {
 
   test('disconnects and rebinds ResizeObserver when selection changes', async () => {
     const originalResizeObserver = globalThis.ResizeObserver
-    const instances: Array<{ disconnect: ReturnType<typeof vi.fn>; observed: Element[] }> = []
+    const instances: Array<{ disconnect: ReturnType<typeof vi.fn>; observed: Array<Element> }> = []
 
     class MockResizeObserver {
       disconnect = vi.fn()
-      observed: Element[] = []
+      observed: Array<Element> = []
 
       constructor() {
         instances.push(this)
@@ -789,7 +789,9 @@ describe('Tabs', () => {
 
     flush(() => setItems([initialItems[2]!, initialItems[1]!, initialItems[0]!]))
     // Focus recovery runs on the effect continuation's microtask chain.
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
 
     const reorderedTwo = screen.getByRole('tab', { name: 'Two' })
     expect(document.activeElement).toBe(reorderedTwo)
@@ -929,7 +931,7 @@ describe('Tabs', () => {
         return show() ? 'Shown' : 'Hidden'
       },
     }
-    const [items, setItems] = createSignal<TabsT.Item[]>([panel])
+    const [items, setItems] = createSignal<Array<TabsT.Item>>([panel])
     const screen = render(() => <Tabs items={items()} value="account" />)
 
     expect(screen.getByRole('tabpanel').textContent).toBe('Shown')

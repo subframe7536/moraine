@@ -4,7 +4,7 @@ const MENU_ITEMS = [
   { label: 'Back', icon: 'i-lucide:arrow-left' },
   { label: 'Forward', icon: 'i-lucide:arrow-right', disabled: true },
   { label: 'Reload', icon: 'i-lucide:rotate-cw' },
-] satisfies ContextMenuT.Item[]
+] satisfies Array<ContextMenuT.Item>
 
 export function TriggerUsage() {
   return (

@@ -27,7 +27,7 @@ export function mergeMessagesInput(
   }
 
   const result: MoraineMessagesInput = { ...parent }
-  for (const key of Object.keys(patch) as (keyof MoraineMessagesInput)[]) {
+  for (const key of Object.keys(patch) as Array<keyof MoraineMessagesInput>) {
     const parentGroup = parent[key]
     const patchGroup = patch[key]
     if (parentGroup && patchGroup) {

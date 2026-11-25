@@ -63,7 +63,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     variants,
   } = useRecipe(kbdGroupRecipe, local)
 
-  const normalizedItems = createMemo<NormalizedKbdItem[]>((previous = []) => {
+  const normalizedItems = createMemo<Array<NormalizedKbdItem>>((previous = []) => {
     const rawItems = local.items ?? []
     const occurrences = new Map<KbdGroupT.Item, number>()
     const prevMap = new Map<string, NormalizedKbdItem>()

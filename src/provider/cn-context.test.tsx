@@ -7,8 +7,8 @@ import { BaseDialog } from '../components/base-dialog/base-dialog'
 import { Button } from '../components/button/button'
 import { Input } from '../components/input/input'
 import { Sidebar } from '../components/sidebar/sidebar'
+import { cn, createCn } from '../theme/cn'
 import type { Cn, CnConfig } from '../theme/cn'
-import * as cnModule from '../theme/cn'
 import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 
@@ -48,21 +48,21 @@ describe('scoped cn', () => {
       </>
     ))
     const nested = screen.getByTestId('nested')
-    expect(screen.getByTestId('default').className).toBe(cnModule.cn(classes))
+    expect(screen.getByTestId('default').className).toBe(cn(classes))
     expect(nested.className).toBe('p-4 density-compact')
     flush(() => setInner(keepPadding))
     expect(nested.className).toBe(classes)
     flush(() => setOuter({}))
     expect(nested.className).toBe(classes)
     flush(() => setInner(undefined))
-    expect(nested.className).toBe(cnModule.cn(classes))
+    expect(nested.className).toBe(cn(classes))
     flush(() => setOuter(densityConfig))
     expect(nested.className).toBe('p-4 density-compact')
-    expect(screen.getByTestId('reset').className).toBe(cnModule.cn(classes))
+    expect(screen.getByTestId('reset').className).toBe(cn(classes))
     expect(screen.getByTestId('sibling').className).toBe(classes)
-    expect(cnModule.cn(classes)).toBe('p-4 density-roomy density-compact')
+    expect(cn(classes)).toBe('p-4 density-roomy density-compact')
     screen.unmount()
-    expect(cnModule.cn(classes)).toBe('p-4 density-roomy density-compact')
+    expect(cn(classes)).toBe('p-4 density-roomy density-compact')
   })
 
   test('keeps captured handles current in events and async continuations', async () => {
@@ -216,5 +216,5 @@ test('preserves recipe merge boundaries with non-transitive conflicts', () => {
     </MoraineProvider>
   ))
   expect(screen.getByRole('button').className).toContain('app-a')
-  expect(cnModule.createCn(config)('app-c app-b app-a')).toBe('app-c app-a')
+  expect(createCn(config)('app-c app-b app-a')).toBe('app-c app-a')
 })

@@ -53,7 +53,9 @@ describe('Form SSR Hydration', () => {
         fireEvent.input(input, { target: { value: 'Changed' } })
       }
       fireEvent.click(reset)
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
       expect(control.getAttribute('aria-checked')).toBe('true')
       expect(checkbox.checked).toBe(true)
       expect(input.value).toBe('Server value')

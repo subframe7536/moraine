@@ -982,7 +982,7 @@ describe('NumberInput', () => {
       expect(incrementButton.disabled).toBe(true)
       expect(incrementButton.getAttribute('data-active')).toBeNull()
 
-      await vi.advanceTimersByTimeAsync(1_000)
+      await vi.advanceTimersByTimeAsync(1000)
 
       expect(spinbutton.value).toBe('1')
       expect(onValueChange).toHaveBeenCalledOnce()
@@ -1016,7 +1016,7 @@ describe('NumberInput', () => {
 
         expect(increment.getAttribute('data-active')).toBeNull()
         expect(document.body.style.getPropertyValue('user-select')).toBe(previousUserSelect)
-        await vi.advanceTimersByTimeAsync(1_000)
+        await vi.advanceTimersByTimeAsync(1000)
         expect(onValueChange).not.toHaveBeenCalled()
         screen.unmount()
       } finally {
@@ -1133,7 +1133,7 @@ describe('NumberInput', () => {
       expect(document.body.style.getPropertyValue('user-select')).toBe('none')
 
       screen.unmount()
-      await vi.advanceTimersByTimeAsync(1_000)
+      await vi.advanceTimersByTimeAsync(1000)
 
       expect(onValueChange).not.toHaveBeenCalled()
       expect(document.body.style.getPropertyValue('user-select')).toBe('text')
@@ -1663,8 +1663,8 @@ describe('NumberInput', () => {
 
     test.each([
       ['fa-IR', '۱۲٫۳۴', 12.34],
-      ['ar-EG', '١٢٬٣٤٥٫٦', 12345.6],
-      ['ja-JP-u-nu-fullwide', '１２，３４５．６', 12345.6],
+      ['ar-EG', '١٢٬٣٤٥٫٦', 12_345.6],
+      ['ja-JP-u-nu-fullwide', '１２，３４５．６', 12_345.6],
     ])('commits localized numerals for %s', (locale, localizedValue, expectedValue) => {
       const onValueChange = vi.fn()
       const screen = render(() => (

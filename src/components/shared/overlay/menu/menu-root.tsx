@@ -55,7 +55,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
                 ? [index]
                 : [],
             )
-            const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
+            const triggerIndex = triggerIndexes.at(-1)
             if (triggerIndex !== undefined) {
               focusWithoutScrolling(focusableElements[triggerIndex + 1])
             }

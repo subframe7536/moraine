@@ -7,7 +7,7 @@ import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 import { KbdHydrationFixture } from './kbd.ssr.fixture'
 test('hydrates semantic KbdGroup output and reacts to item changes', () => {
   const [keyName, setKeyName] = createSignal('escape')
-  const [items, setItems] = createSignal<KbdGroupT.Item[]>(['ctrl', 'k'])
+  const [items, setItems] = createSignal<Array<KbdGroupT.Item>>(['ctrl', 'k'])
   const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>()
   const { container } = hydrateFixture(
     '/src/components/kbd/kbd.ssr.fixture.tsx',

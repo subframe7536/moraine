@@ -33,7 +33,7 @@ function sortComponentApi(component: ComponentApi): ComponentApi {
 
 export async function writeJsonFiles(
   pagesRoot: string,
-  pages: readonly DocsPageSource[],
+  pages: ReadonlyArray<DocsPageSource>,
   result: GenerationResult,
 ): Promise<void> {
   const allComponents = [...result.componentDocs.values()].map(sortComponentApi)
@@ -111,7 +111,7 @@ export async function writeJsonFiles(
     }
   }
 
-  console.log(
-    `[api-doc] Generated ${filesToWrite.length - 1} colocated component api docs to ${pagesRoot}`,
+  process.stdout.write(
+    `[api-doc] Generated ${filesToWrite.length - 1} colocated component api docs to ${pagesRoot}\n`,
   )
 }

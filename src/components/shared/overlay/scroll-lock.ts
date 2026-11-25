@@ -16,7 +16,7 @@ function hasScrollableOverflow(element: HTMLElement): boolean {
   )
 }
 
-function saveInlineStyles(element: HTMLElement, properties: string[]): () => void {
+function saveInlineStyles(element: HTMLElement, properties: Array<string>): () => void {
   const saved = properties.map((property) => ({
     property,
     value: element.style.getPropertyValue(property),
@@ -115,7 +115,10 @@ export function acquireBodyScrollLock(referenceElement?: HTMLElement): () => voi
 
     released = true
     for (const element of elements) {
-      const state = scrollLocks.get(element)!
+      const state = scrollLocks.get(element)
+      if (!state) {
+        continue
+      }
       state.count -= 1
       if (state.count === 0) {
         state.restore()

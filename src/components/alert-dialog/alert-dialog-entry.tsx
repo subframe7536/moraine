@@ -95,6 +95,8 @@ function AlertDialogDefault(props: {
   record: AlertDialogRecord
   recipe: AlertDialogRecipe
 }): JSX.Element {
+  // `recipe` is created once per AlertDialogEntry and exposes reactive slot memos.
+  // oxlint-disable-next-line subf/solid-reactivity
   const recipe = props.recipe
   const {
     slots: { header: headerSlot, icon: iconSlot, wrapper: wrapperSlot, footer: footerSlot },

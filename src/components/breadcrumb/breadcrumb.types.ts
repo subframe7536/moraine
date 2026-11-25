@@ -110,7 +110,7 @@ export namespace BreadcrumbT {
      * />
      * ```
      */
-    items?: Item[]
+    items?: Array<Item>
 
     /**
      * Icon rendered between consecutive items: an icon name, an element, or a component. The

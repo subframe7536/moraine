@@ -7,7 +7,7 @@ import type { ValidComponent } from '../../shared/types'
 import { callHandler, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItemContext } from './tree-context'
+import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { TREE_TRIGGER_ICON_CLASS, treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 /**
@@ -55,7 +55,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     'onClick',
   )
   const context = useTreeContext()
-  const itemContext = useTreeItemContext()!
+  const itemContext = requireTreeItemContext()
   // The treeitem is the only tab stop. Keep custom hosts out of the tab order, and stop a button
   // host from acting as a form's implicit submit button.
   const ownedHostAttributes = () => {

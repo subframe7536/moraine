@@ -49,7 +49,7 @@ export function createCardPart<S extends CardPartSlot>(slot: S, fallback: ValidC
 
     const Root = dynamic<ValidComponent>(() => local.as ?? fallback)
 
-    return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as any)} />
+    return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
   }
 }
 
@@ -71,5 +71,5 @@ export function CardPart(
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? local.fallback)
 
-  return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as any)} />
+  return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
 }

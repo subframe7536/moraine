@@ -13,7 +13,7 @@ import { createDataAttributes } from './style-contract'
 import type { MoraineTheme } from './types'
 import { useRecipe } from './use-recipe'
 // Hoisted by Vitest above the imports; records every default-merger result.
-const merges = vi.hoisted(() => ({ log: [] as string[] }))
+const merges = vi.hoisted(() => ({ log: [] as Array<string> }))
 vi.mock('./cn', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./cn')>()
   return {

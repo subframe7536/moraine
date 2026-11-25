@@ -90,7 +90,7 @@ export namespace DrawerT {
      * </Drawer>
      * ```
      */
-    snapPoints?: SnapPoint[]
+    snapPoints?: Array<SnapPoint>
 
     /**
      * Controlled active snap point, normally one of the `snapPoints` entries. `null` selects the

@@ -12,7 +12,7 @@ import { PinInput } from './pin-input'
 describe('PinInput', () => {
   test('renders correct number of inputs and forwards refs', () => {
     let rootEl: HTMLDivElement | undefined
-    let inputs: HTMLInputElement[] = []
+    let inputs: Array<HTMLInputElement> = []
 
     render(() => (
       <PinInput
@@ -206,7 +206,7 @@ describe('PinInput', () => {
     )
 
     expect(inputs[0]?.inputMode).toBe('numeric')
-    expect(inputs[0]?.pattern).toBe('\\d{1}')
+    expect(inputs[0]?.pattern).toBe(String.raw`\d{1}`)
 
     fireEvent.input(inputs[0]!, { target: { value: 'a' } })
     expect(inputs[0]?.value).toBe('')
@@ -887,7 +887,7 @@ describe('PinInput', () => {
 
     expect(hidden.minLength).toBe(4)
     expect(hidden.maxLength).toBe(4)
-    expect(hidden.pattern).toBe('\\d{4}')
+    expect(hidden.pattern).toBe(String.raw`\d{4}`)
     expect(hidden.required).toBe(true)
     expect(hidden.inputMode).toBe('numeric')
     expect(hidden.autocomplete).toBe('one-time-code')

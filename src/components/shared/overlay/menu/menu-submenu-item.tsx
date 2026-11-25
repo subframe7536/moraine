@@ -393,7 +393,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
               closeRoot={layerProps.closeRoot}
               depth={layerProps.depth + 1}
               items={
-                'children' in itemProps.item ? (itemProps.item.children as TItem[]) : undefined
+                'children' in itemProps.item ? (itemProps.item.children as Array<TItem>) : undefined
               }
               getReferenceElement={() => triggerElement()}
               placement={

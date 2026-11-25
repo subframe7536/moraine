@@ -8,7 +8,7 @@ const FRAMEWORKS = [
   { label: 'React', value: 'react' },
   { label: 'Svelte', value: 'svelte' },
   { label: 'Astro', value: 'astro' },
-] satisfies ComboboxT.Item[]
+] satisfies Array<ComboboxT.Item>
 
 export function FormIntegration() {
   const [submitted, setSubmitted] = createSignal<string | null>(null)

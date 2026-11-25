@@ -34,8 +34,8 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style', 'ref' as any)
-  const rest = omit(props, 'as', 'class', 'style', 'ref' as any)
+  const local = pick(props as CollapsibleT.ContentProps, 'as', 'class', 'style', 'ref')
+  const rest = omit(props as CollapsibleT.ContentProps, 'as', 'class', 'style', 'ref')
   const context = useCollapsibleContext()
   if (!context) {
     throw new Error('Collapsible.Content must be used within Collapsible')

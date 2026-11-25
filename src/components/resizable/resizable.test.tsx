@@ -47,11 +47,11 @@ afterAll(() => {
   })
 })
 
-function panelsOf(container: HTMLElement): HTMLElement[] {
+function panelsOf(container: HTMLElement): Array<HTMLElement> {
   return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="resizable-panel"]'))
 }
 
-function handlesOf(container: HTMLElement): HTMLElement[] {
+function handlesOf(container: HTMLElement): Array<HTMLElement> {
   return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="resizable-handle"]'))
 }
 
@@ -64,7 +64,9 @@ function expectPanelBasis(panel: HTMLElement | null | undefined, percent: number
 }
 
 async function waitForLayout(): Promise<void> {
-  await new Promise<void>((resolve) => queueMicrotask(resolve))
+  await new Promise<void>((resolve) => {
+    queueMicrotask(resolve)
+  })
 }
 
 interface TwoPanelProps {

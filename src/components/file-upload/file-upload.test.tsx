@@ -27,20 +27,20 @@ function getFileInput(container: HTMLElement): HTMLInputElement {
   return input as HTMLInputElement
 }
 
-async function setInputFiles(input: HTMLInputElement, files: File[]): Promise<void> {
+async function setInputFiles(input: HTMLInputElement, files: Array<File>): Promise<void> {
   fireEvent.change(input, {
     target: { files },
     currentTarget: { files },
   })
 }
 
-async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
+async function dropFiles(target: HTMLElement, files: Array<File>): Promise<void> {
   let dataTransfer:
     | DataTransfer
     | {
-        files: File[] | FileList
+        files: Array<File> | FileList
         items: Array<{ kind: string; type: string; getAsFile: () => File }>
-        types: string[]
+        types: Array<string>
         dropEffect: string
       }
 

@@ -1,6 +1,9 @@
 import { flush } from 'solid-js'
 
-const scheduled = new WeakMap<Event, { controls: VoidFunction[]; forms: VoidFunction[] }>()
+const scheduled = new WeakMap<
+  Event,
+  { controls: Array<VoidFunction>; forms: Array<VoidFunction> }
+>()
 
 export function scheduleFormReset(
   event: Event,

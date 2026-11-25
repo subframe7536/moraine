@@ -15,7 +15,7 @@ export interface UseTextControlValueOptions<
   defaultValue: Accessor<TValue | undefined>
   getElement: Accessor<TextControlElement | undefined>
   getFormValue: Accessor<unknown>
-  getFormPath?: Accessor<readonly (string | number)[] | undefined>
+  getFormPath?: Accessor<ReadonlyArray<string | number> | undefined>
   modifiers: Accessor<TModifiers | undefined>
   onValueChange: Accessor<((value: ModifierValue<TModifiers>) => void) | undefined>
   setFormValue: (value: unknown) => void

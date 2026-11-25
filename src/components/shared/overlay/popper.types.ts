@@ -158,7 +158,7 @@ export interface PopperContentOptions
    * </Popover>
    * ```
    */
-  flip?: boolean | Placement[]
+  flip?: boolean | Array<Placement>
 
   /**
    * Whether the content stays in the DOM while closed, hidden and marked with `data-closed`, for

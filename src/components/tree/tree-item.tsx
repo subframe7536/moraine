@@ -172,7 +172,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
 
 /** Renders the given items through the tree's item renderer. */
 export function TreeItemList(props: {
-  items: readonly TreeT.ItemInstance<unknown>[]
+  items: ReadonlyArray<TreeT.ItemInstance<unknown>>
 }): JSX.Element {
   const context = useTreeContext()
   return <For each={props.items}>{(item) => <context.RenderItem item={item} />}</For>

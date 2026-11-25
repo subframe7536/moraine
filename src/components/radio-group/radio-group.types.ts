@@ -84,7 +84,7 @@ export namespace RadioGroupT {
      * />
      * ```
      */
-    items?: (string | Item)[]
+    items?: Array<string | Item>
 
     /**
      * Whether arrow-key navigation wraps from the last item to the first and back. Disabled items are skipped.

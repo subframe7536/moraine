@@ -12,8 +12,8 @@ interface PreviewExport {
   default: boolean
 }
 
-function collectPreviewExports(program: ProgramNode, id: string): PreviewExport[] {
-  const exports: PreviewExport[] = []
+function collectPreviewExports(program: ProgramNode, id: string): Array<PreviewExport> {
+  const exports: Array<PreviewExport> = []
 
   for (const statement of program.body) {
     if (statement.type === 'ExportDefaultDeclaration') {
@@ -66,12 +66,13 @@ function collectPreviewExports(program: ProgramNode, id: string): PreviewExport[
 
 function resolvePreviewExport(program: ProgramNode, id: string): PreviewExport {
   const exports = collectPreviewExports(program, id)
-  if (exports.length !== 1) {
+  const [first] = exports
+  if (!first || exports.length !== 1) {
     throw new Error(
       `[preview] expected exactly one component export in ${id}, found ${exports.length}`,
     )
   }
-  return exports[0]!
+  return first
 }
 
 export function resolvePreviewExportName(program: ProgramNode, id: string): string {

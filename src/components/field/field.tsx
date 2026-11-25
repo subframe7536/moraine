@@ -117,7 +117,7 @@ export function Field<T extends ValidComponent = 'div'>(
 
   const ariaId = createId(() => local.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
-    { id: () => string; labelFor: () => boolean; key: symbol }[]
+    Array<{ id: () => string; labelFor: () => boolean; key: symbol }>
   >([], { ownedWrite: true })
 
   const standalonePath = createMemo<FieldPath | undefined>(() => {
@@ -233,7 +233,7 @@ export function Field<T extends ValidComponent = 'div'>(
     })
 
     return (
-      <Root data-slot="field" {...rootSlot} {...(rest as any)}>
+      <Root data-slot="field" {...rootSlot} {...(rest as Record<string, unknown>)}>
         <div data-slot="field-wrapper" {...wrapperSlot}>
           <Show when={showLabel()}>
             <div data-slot="field-label-wrapper" {...labelWrapperSlot}>

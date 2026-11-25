@@ -129,7 +129,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   const warnedDuplicateValues = new Set<StepperT.Value>()
   let headerRef: HTMLDivElement | undefined
 
-  const normalizedItems = createMemo<NormalizedStepperItem[]>(() => {
+  const normalizedItems = createMemo<Array<NormalizedStepperItem>>(() => {
     const occurrences = new Map<StepperT.Value, number>()
     return (merged.items ?? []).map((item, index) => {
       const value = item.value ?? ''

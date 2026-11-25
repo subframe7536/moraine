@@ -560,7 +560,7 @@ describe('CheckboxGroup', () => {
 
   test('uses the initial default snapshot and preserves a controlled value on reset', async () => {
     const [defaultValue, setDefaultValue] = createSignal(['A'])
-    const [controlledValue, setControlledValue] = createSignal<string[] | undefined>()
+    const [controlledValue, setControlledValue] = createSignal<Array<string> | undefined>()
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
@@ -594,7 +594,7 @@ describe('CheckboxGroup', () => {
   })
 
   test('synchronizes external controlled values into Field submission', async () => {
-    const [value, setValue] = createSignal<string[]>([])
+    const [value, setValue] = createSignal<Array<string>>([])
     const onSubmit = vi.fn()
     const { screen } = renderWithOwner(
       () =>

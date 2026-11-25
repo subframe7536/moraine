@@ -3,5 +3,5 @@ export function dataSlotName(owner: string, slot: string): string {
   if (slot === 'root') {
     return owner
   }
-  return `${owner}-${slot.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`
+  return `${owner}-${slot.replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`
 }

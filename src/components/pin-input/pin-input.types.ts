@@ -96,7 +96,7 @@ export namespace PinInputT {
      * gives `[X][X][X] • [X] • [X][X][X]`). Sizes that do not fit inside `length` add no
      * separator.
      */
-    groupSize?: number | readonly number[]
+    groupSize?: number | ReadonlyArray<number>
 
     /**
      * Text or component rendered between groups, replacing the default `•`. The component
@@ -234,7 +234,7 @@ export namespace PinInputT {
      * Receives the array of the slot `<input>` elements, in order, after mount and whenever
      * `length` changes.
      */
-    inputsRef?: Ref<HTMLInputElement[]>
+    inputsRef?: Ref<Array<HTMLInputElement>>
   }
 
   /**

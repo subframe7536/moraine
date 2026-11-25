@@ -208,7 +208,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   const fade = (): boolean => variants.fade ?? false
   const scrollbarWidth = (): ScrollbarWidth => variants.scrollbarWidth ?? 'normal'
   const scrollbarMode = (): ScrollbarMode => variants.scrollbarMode ?? 'hover'
-  const axes = (): readonly ScrollAreaT.Axis[] => AXES[orientation()]
+  const axes = (): ReadonlyArray<ScrollAreaT.Axis> => AXES[orientation()]
   const axisMetrics = (axis: ScrollAreaT.Axis): AxisMetrics =>
     axes().includes(axis) ? metrics()[axis] : EMPTY_AXIS_METRICS
   const customScrollbar = () => scrollbarMode() !== 'native' && scrollbarMode() !== 'hidden'

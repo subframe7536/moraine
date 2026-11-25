@@ -190,7 +190,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   let groupEl: HTMLFieldSetElement | undefined
   let pressedSpaceItemId: string | undefined
 
-  const normalizedItems = createMemo<NormalizedRadioGroupItem[]>(() => {
+  const normalizedItems = createMemo<Array<NormalizedRadioGroupItem>>(() => {
     const valueOccurrences = new Map<string, number>()
 
     return items().map((item, index) => {

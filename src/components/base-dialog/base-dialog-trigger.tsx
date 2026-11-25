@@ -30,8 +30,8 @@ import type { BaseDialogT } from './base-dialog.types'
 export function BaseDialogTrigger<T extends ValidComponent = 'button'>(
   props: BaseDialogT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'disabled', 'ref' as any)
-  const rest = omit(props, 'as', 'disabled', 'ref' as any)
+  const local = pick(props as BaseDialogT.TriggerProps, 'as', 'disabled', 'ref')
+  const rest = omit(props as BaseDialogT.TriggerProps, 'as', 'disabled', 'ref')
   const context = useBaseDialogContext()
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({

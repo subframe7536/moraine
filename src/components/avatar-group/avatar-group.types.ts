@@ -35,7 +35,7 @@ export namespace AvatarGroupT {
      * />
      * ```
      */
-    items?: Item[]
+    items?: Array<Item>
 
     /**
      * Maximum number of avatars shown. The remaining ones are replaced by a single `+N` count

@@ -20,7 +20,7 @@ export interface CreatePinInputOptions {
   resetNativeInvalid?: () => void
   emitChange?: () => void
   emitInput?: () => void
-  inputEls: (HTMLInputElement | null)[]
+  inputEls: Array<HTMLInputElement | null>
 }
 
 export function createPinInput(options: CreatePinInputOptions) {
@@ -48,13 +48,13 @@ export function createPinInput(options: CreatePinInputOptions) {
     )
   })
 
-  const [uncontrolledChars, setUncontrolledChars] = createSignal<string[]>(initialChars)
+  const [uncontrolledChars, setUncontrolledChars] = createSignal<Array<string>>(initialChars)
 
   // The last slot array `setChars` produced. The joined string keeps no hole positions, so a
   // controlled parent echoing it must not re-pack the slots; only a different string derives them.
-  let emittedChars: string[] | undefined
+  let emittedChars: Array<string> | undefined
 
-  const chars = createMemo<string[]>(
+  const chars = createMemo<Array<string>>(
     (prev = []) => {
       const controlled = options.value?.()
       const emitted = emittedChars
@@ -159,14 +159,14 @@ export function createPinInput(options: CreatePinInputOptions) {
   )
 
   function setChars(
-    update: string[] | ((prev: string[]) => string[]),
+    update: Array<string> | ((prev: Array<string>) => Array<string>),
     completeOnUnchanged = false,
   ): void {
     settle(() => setCharsInner(update, completeOnUnchanged))
   }
 
   function setCharsInner(
-    update: string[] | ((prev: string[]) => string[]),
+    update: Array<string> | ((prev: Array<string>) => Array<string>),
     completeOnUnchanged = false,
   ): void {
     options.resetNativeInvalid?.()
@@ -183,11 +183,12 @@ export function createPinInput(options: CreatePinInputOptions) {
     }
 
     emittedChars = next
-    if (options.value?.() === undefined) {
+    const controlledValue = options.value?.()
+    if (controlledValue === undefined) {
       setUncontrolledChars(() => next)
       options.setFormFieldValue(nextJoined)
     } else {
-      options.setFormFieldValue(options.value()!)
+      options.setFormFieldValue(controlledValue)
     }
 
     options.onValueChange?.()?.(nextJoined)
@@ -206,7 +207,8 @@ export function createPinInput(options: CreatePinInputOptions) {
 
   function resetChars(): void {
     options.resetNativeInvalid?.()
-    if (options.value?.() === undefined) {
+    const controlledValue = options.value?.()
+    if (controlledValue === undefined) {
       const resetValue = normalizeChars(
         options.defaultValue,
         options.length(),
@@ -216,7 +218,7 @@ export function createPinInput(options: CreatePinInputOptions) {
       setUncontrolledChars(() => resetValue)
       options.setFormFieldValue(resetValue.join(''))
     } else {
-      options.setFormFieldValue(options.value()!)
+      options.setFormFieldValue(controlledValue)
     }
     const current = chars()
     const len = options.length()

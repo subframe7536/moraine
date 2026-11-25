@@ -16,7 +16,7 @@ const originalNaturalWidth = Object.getOwnPropertyDescriptor(
   'naturalWidth',
 )!
 const outcomesBySrc = new Map<string, MockImageOutcome>()
-const mockImages: HTMLImageElement[] = []
+const mockImages: Array<HTMLImageElement> = []
 let imageObserver: MutationObserver
 
 function queueImageOutcome(image: HTMLImageElement): void {

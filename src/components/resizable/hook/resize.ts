@@ -37,9 +37,9 @@ export function isPanelCollapsed(
 }
 
 function withCollapsedPanelMinOverride(
-  panels: ResizableResolvedPanel[],
-  initialSizes: number[],
-): ResizableResolvedPanel[] {
+  panels: Array<ResizableResolvedPanel>,
+  initialSizes: Array<number>,
+): Array<ResizableResolvedPanel> {
   let changed = false
   const nextPanels = panels.map((panel, index) => {
     const size = initialSizes[index] ?? 0
@@ -89,8 +89,8 @@ function distributePercentage(input: {
   desiredPercentage: number
   side: ResizeSide
   range: IndexSpan
-  sizes: number[]
-  panels: ResizableResolvedPanel[]
+  sizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
 }): number {
   const desiredPercentage = fixToPrecision(input.desiredPercentage)
   const { start, end } = input.range
@@ -140,9 +140,9 @@ function distributePercentage(input: {
 
 function getDistributablePercentage(input: {
   desiredPercentage: number
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
-  actions: ResizeAction[]
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
+  actions: Array<ResizeAction>
 }): number {
   if (input.actions.length === 0) {
     return 0
@@ -191,10 +191,10 @@ function getDistributablePercentage(input: {
 
 function applyResize(input: {
   distributablePercentage: number
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
-  actions: ResizeAction[]
-}): number[] {
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
+  actions: Array<ResizeAction>
+}): Array<number> {
   const nextSizes = [...input.initialSizes]
 
   for (const action of input.actions) {
@@ -224,10 +224,10 @@ function applyResize(input: {
 
 function computeResize(input: {
   desiredPercentage: number
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
-  actions: ResizeAction[]
-}): number[] {
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
+  actions: Array<ResizeAction>
+}): Array<number> {
   const distributablePercentage = getDistributablePercentage(input)
 
   return applyResize({
@@ -242,9 +242,9 @@ export function resizeFromHandle(input: {
   handleIndex: number
   deltaPercentage: number
   altKey: boolean
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
-}): number[] {
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
+}): Array<number> {
   const panels = withCollapsedPanelMinOverride(input.panels, input.initialSizes)
   const panelCount = panels.length
 
@@ -272,7 +272,10 @@ export function resizeFromHandle(input: {
       deltaPercentage = -deltaPercentage
     }
 
-    const panel = panels[panelIndex]!
+    const panel = panels[panelIndex]
+    if (!panel) {
+      return input.initialSizes
+    }
     const panelSize = input.initialSizes[panelIndex] ?? 0
     const minDelta = panel.min - panelSize
     const maxDelta = panel.max - panelSize
@@ -313,9 +316,9 @@ function resizePanelByDelta(input: {
   panelIndex: number
   deltaPercentage: number
   strategy: ResizeStrategy
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
-}): number[] {
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
+}): Array<number> {
   const panelCount = input.panels.length
   const targetPanel = input.panels[input.panelIndex]
 
@@ -377,9 +380,9 @@ export function resizePanelToSize(input: {
   panelIndex: number
   size: number
   strategy: ResizeStrategy
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
-}): number[] {
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
+}): Array<number> {
   const panel = input.panels[input.panelIndex]
   if (!panel) {
     return normalizeSizeVector(input.initialSizes)
@@ -399,19 +402,19 @@ export function resizePanelToSize(input: {
 }
 
 function withPanelMinOverride(
-  panels: ResizableResolvedPanel[],
+  panels: Array<ResizableResolvedPanel>,
   panelIndex: number,
   min: number,
-): ResizableResolvedPanel[] {
+): Array<ResizableResolvedPanel> {
   return panels.map((panel, index) => (index === panelIndex ? { ...panel, min } : panel))
 }
 
 export function collapsePanel(input: {
   panelIndex: number
   strategy: ResizeStrategy
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
-}): number[] {
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
+}): Array<number> {
   const panel = input.panels[input.panelIndex]
   if (!panel) {
     return normalizeSizeVector(input.initialSizes)
@@ -435,8 +438,8 @@ export function collapsePanel(input: {
 
 function resolveExpandedTargetSize(input: {
   panelIndex: number
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
   expandedSize?: number
 }): number {
   const panel = input.panels[input.panelIndex]
@@ -453,10 +456,10 @@ function resolveExpandedTargetSize(input: {
 export function expandPanel(input: {
   panelIndex: number
   strategy: ResizeStrategy
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
   expandedSize?: number
-}): number[] {
+}): Array<number> {
   const panel = input.panels[input.panelIndex]
   if (!panel) {
     return normalizeSizeVector(input.initialSizes)
@@ -479,7 +482,7 @@ export function expandPanel(input: {
 }
 
 function resolveCollapsiblePanelIndex(
-  panels: ResizableResolvedPanel[],
+  panels: Array<ResizableResolvedPanel>,
   handleIndex: number,
 ): number {
   const precedingPanel = panels[handleIndex]
@@ -499,10 +502,10 @@ function resolveCollapsiblePanelIndex(
 export function togglePanel(input: {
   panelIndex: number
   strategy: ResizeStrategy
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
   expandedSize?: number
-}): number[] {
+}): Array<number> {
   const panel = input.panels[input.panelIndex]
   if (!panel?.collapsible) {
     return normalizeSizeVector(input.initialSizes)
@@ -519,10 +522,10 @@ export function togglePanel(input: {
 
 export function toggleHandleNearestPanel(input: {
   handleIndex: number
-  initialSizes: number[]
-  panels: ResizableResolvedPanel[]
+  initialSizes: Array<number>
+  panels: Array<ResizableResolvedPanel>
   expandedSizes?: Array<number | undefined>
-}): number[] {
+}): Array<number> {
   const panelIndex = resolveCollapsiblePanelIndex(input.panels, input.handleIndex)
 
   if (panelIndex < 0) {

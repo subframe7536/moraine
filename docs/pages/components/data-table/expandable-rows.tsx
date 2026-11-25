@@ -18,10 +18,10 @@ interface Order {
   fulfillment: 'delivered' | 'in_transit' | 'processing'
   shippingAddress: string
   tracking: string
-  items: OrderItem[]
+  items: Array<OrderItem>
 }
 
-const ORDERS: Order[] = [
+const ORDERS: Array<Order> = [
   {
     id: 'ORD-2026-9041',
     customer: 'Catherine Vance',
@@ -112,7 +112,7 @@ const FULFILLMENT = {
   processing: { label: 'Processing', tone: 'warning' },
 } as const
 
-const COLUMNS: DataTableT.Column<Order>[] = [
+const COLUMNS: Array<DataTableT.Column<Order>> = [
   {
     accessorKey: 'id',
     header: 'Order #',

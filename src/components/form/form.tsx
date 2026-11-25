@@ -11,6 +11,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, pick } from '../../shared/utils'
+import type { FieldProps } from '../field'
 import { Field as FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form/form-reset-scheduler'
 
@@ -133,7 +134,7 @@ export function createForm<TSchema extends Schema>(
       store as FormStore,
       () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,
     )
-    return <FieldInternal {...(props as any)} binding={binding} />
+    return <FieldInternal {...(props as unknown as FieldProps<T>)} binding={binding} />
   }
 
   return Object.assign(store, {

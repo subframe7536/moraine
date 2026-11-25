@@ -271,7 +271,7 @@ export function ComponentRadar() {
                   value={value()}
                   min={0}
                   max={100}
-                  onValueChange={(next) => setValue(Array.isArray(next) ? next[0]! : next)}
+                  onValueChange={(next) => setValue(Array.isArray(next) ? (next[0] ?? 0) : next)}
                 />
               </div>
               <BoldSlider

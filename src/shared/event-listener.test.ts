@@ -94,7 +94,7 @@ describe('createEventListener', () => {
     const parent = document.createElement('div')
     const child = document.createElement('button')
     parent.append(child)
-    const order: string[] = []
+    const order: Array<string> = []
 
     createRoot((dispose) => {
       createEventListener(parent, 'click', () => order.push('parent'), true)
@@ -135,7 +135,7 @@ describe('createEventListener', () => {
 
   test('dispatches the latest reactive state without duplicate registration', () => {
     const target = document.createElement('button')
-    const seen: string[] = []
+    const seen: Array<string> = []
 
     createRoot((dispose) => {
       const [value, setValue] = createSignal('first', { ownedWrite: true })
@@ -185,7 +185,7 @@ describe('createEventListenerMap', () => {
     const target = document.createElement('div')
     const child = document.createElement('button')
     target.append(child)
-    const order: string[] = []
+    const order: Array<string> = []
 
     createRoot((dispose) => {
       createEventListenerMap(

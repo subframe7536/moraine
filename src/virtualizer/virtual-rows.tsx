@@ -13,13 +13,16 @@ export interface VirtualRowEntry<TItem> {
  */
 export function createVirtualRow<TItem>(
   virtualItem: VirtualItem,
-  entries: () => readonly TItem[],
+  entries: () => ReadonlyArray<TItem>,
 ): Accessor<VirtualRowEntry<TItem> | undefined> {
   const row = createMemo(
     () => {
       const current = entries()
       const index = virtualItem.index
-      return index < current.length ? { index, item: current[index]! } : undefined
+      if (index >= current.length) {
+        return undefined
+      }
+      return { index, item: current[index] as TItem }
     },
     {
       equals: (
@@ -56,8 +59,8 @@ export function attachRowMeasurement<
  */
 export function VirtualRows<TItem, TItemElement extends HTMLElement, TRowProps>(props: {
   virtualizer: Virtualizer<HTMLElement, TItemElement>
-  virtualItems: readonly VirtualItem[]
-  entries: readonly TItem[]
+  virtualItems: ReadonlyArray<VirtualItem>
+  entries: ReadonlyArray<TItem>
   render: (item: TItem, index: number, rowProps: TRowProps) => JSX.Element
   /** Builds the row attributes; it must pass `measure` on as the row `ref`. */
   rowProps: (

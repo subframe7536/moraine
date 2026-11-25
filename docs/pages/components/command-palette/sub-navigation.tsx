@@ -2,7 +2,7 @@ import { Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createMemo, createSignal } from 'solid-js'
 export function SubNavigation() {
-  const ROOT_GROUPS: CommandPaletteT.Group[] = [
+  const ROOT_GROUPS: Array<CommandPaletteT.Group> = [
     {
       type: 'group',
       label: 'Commands',
@@ -27,7 +27,7 @@ export function SubNavigation() {
       ],
     },
   ]
-  const CREATE_GROUPS: CommandPaletteT.Group[] = [
+  const CREATE_GROUPS: Array<CommandPaletteT.Group> = [
     {
       type: 'group',
       label: 'Create',
@@ -50,7 +50,7 @@ export function SubNavigation() {
       ],
     },
   ]
-  const SHARE_GROUPS: CommandPaletteT.Group[] = [
+  const SHARE_GROUPS: Array<CommandPaletteT.Group> = [
     {
       type: 'group',
       label: 'Share',

@@ -41,7 +41,7 @@ function normalizeInteger(value: number | undefined, fallback: number, min: numb
   return Math.min(Math.max(Math.trunc(value), min), max)
 }
 
-function createRange(start: number, end: number): number[] {
+function createRange(start: number, end: number): Array<number> {
   if (end < start) {
     return []
   }
@@ -219,7 +219,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
   const currentPage = createMemo(() => clampPage(page(), pageCount()))
 
-  const items = createMemo((previous: PaginationEntry[] | undefined) => {
+  const items = createMemo((previous: Array<PaginationEntry> | undefined) => {
     const next = getPaginationItems(
       currentPage(),
       pageCount(),

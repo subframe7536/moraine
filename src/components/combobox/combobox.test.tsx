@@ -527,7 +527,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
 test('updates mixed string groups and passes normalized objects to row callbacks', () => {
   const object = { value: 1, label: 'One', extra: true }
   const [keys, setKeys] = createSignal(['Apple', 'Banana'])
-  const seen: unknown[] = []
+  const seen: Array<unknown> = []
   const screen = render(() => (
     <Combobox<string | typeof object>
       items={[object, { type: 'group', label: 'Fruit', children: keys() }]}
@@ -674,12 +674,14 @@ test('combobox clearable provides non-tabbable button without focus ring and key
 })
 
 test('scrolls a distant initial selection into view once the virtualizer mounts', async () => {
-  const items: ComboboxT.Item<string>[] = Array.from({ length: 1000 }, (_, index) => ({
+  const items: Array<ComboboxT.Item<string>> = Array.from({ length: 1000 }, (_, index) => ({
     label: `Item ${index}`,
     value: `item-${index}`,
   }))
   // jsdom has no layout; TanStack clamps scroll offsets to `scrollHeight - clientHeight`.
-  const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(32000)
+  const scrollHeight = vi
+    .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+    .mockReturnValue(32_000)
   const clientHeight = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(160)
   onTestFinished(() => {
     scrollHeight.mockRestore()
@@ -702,13 +704,13 @@ test('scrolls a distant initial selection into view once the virtualizer mounts'
   await Promise.resolve()
 
   // Row 999 ends at 32,000 px; aligning its end to a 160 px viewport gives 31,840.
-  expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 31840 }))
+  expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 31_840 }))
 })
 
 test('custom emptyRender shows the selected value and its close action dismisses the popup', () => {
   const screen = render(() => (
     <Combobox
-      items={[] as string[]}
+      items={[] as Array<string>}
       defaultValue="Banana"
       defaultOpen
       emptyRender={(props) => (

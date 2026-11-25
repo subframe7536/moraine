@@ -16,7 +16,11 @@ export function LoadingUsage() {
       <Button
         autoLoading
         variant="outline"
-        onClick={() => new Promise((resolve) => setTimeout(resolve, 1500))}
+        onClick={() =>
+          new Promise<void>((resolve) => {
+            setTimeout(resolve, 1500)
+          })
+        }
       >
         Auto Promise Loading
       </Button>

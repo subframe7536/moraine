@@ -14,8 +14,8 @@ const PENDING_FOCUS_TIMEOUT = 1000
 export interface TreeNavigationDeps<T> {
   options: TreeT.Options<T>
   registry: Accessor<TreeRegistry<T>>
-  flattenedKeys: Accessor<readonly string[]>
-  selectedKeys: Accessor<readonly string[]>
+  flattenedKeys: Accessor<ReadonlyArray<string>>
+  selectedKeys: Accessor<ReadonlyArray<string>>
   getFocusedKey: () => string | undefined
   setFocusedKey: (key: string | undefined) => void
   isExpanded: (key: string) => boolean
@@ -139,7 +139,11 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   function moveRelative(from: string, offset: 1 | -1, extend: boolean): void {
     const keys = deps.flattenedKeys()
     let index = keys.indexOf(from) + offset
-    while (index >= 0 && index < keys.length && isDisabled(keys[index]!)) {
+    while (index >= 0 && index < keys.length) {
+      const candidate = keys[index]
+      if (candidate === undefined || !isDisabled(candidate)) {
+        break
+      }
       index += offset
     }
     const target = keys[index]

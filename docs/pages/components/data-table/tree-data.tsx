@@ -7,10 +7,10 @@ interface FileNode {
   kind: 'folder' | 'file'
   size: number
   modified: string
-  children?: FileNode[]
+  children?: Array<FileNode>
 }
 
-const FILES: FileNode[] = [
+const FILES: Array<FileNode> = [
   {
     path: 'src',
     name: 'src',
@@ -29,21 +29,21 @@ const FILES: FileNode[] = [
             path: 'src/components/button.tsx',
             name: 'button.tsx',
             kind: 'file',
-            size: 4_812,
+            size: 4812,
             modified: '2026-10-27',
           },
           {
             path: 'src/components/table.tsx',
             name: 'table.tsx',
             kind: 'file',
-            size: 9_340,
+            size: 9340,
             modified: '2026-10-28',
           },
           {
             path: 'src/components/tree.tsx',
             name: 'tree.tsx',
             kind: 'file',
-            size: 7_115,
+            size: 7115,
             modified: '2026-10-21',
           },
         ],
@@ -64,11 +64,11 @@ const FILES: FileNode[] = [
           },
         ],
       },
-      { path: 'src/index.ts', name: 'index.ts', kind: 'file', size: 1_204, modified: '2026-10-28' },
+      { path: 'src/index.ts', name: 'index.ts', kind: 'file', size: 1204, modified: '2026-10-28' },
     ],
   },
-  { path: 'package.json', name: 'package.json', kind: 'file', size: 2_310, modified: '2026-10-26' },
-  { path: 'README.md', name: 'README.md', kind: 'file', size: 5_902, modified: '2026-10-12' },
+  { path: 'package.json', name: 'package.json', kind: 'file', size: 2310, modified: '2026-10-26' },
+  { path: 'README.md', name: 'README.md', kind: 'file', size: 5902, modified: '2026-10-12' },
 ]
 
 /** Folders report the total size of their files. */
@@ -79,7 +79,7 @@ function totalSize(node: FileNode): number {
 const formatSize = (bytes: number) =>
   bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`
 
-const COLUMNS: DataTableT.Column<FileNode>[] = [
+const COLUMNS: Array<DataTableT.Column<FileNode>> = [
   {
     accessorKey: 'name',
     header: 'Name',

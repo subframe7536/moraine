@@ -698,7 +698,7 @@ describe('DropdownMenu', () => {
     const [rootContent, middleContent, deepestContent] = Array.from(
       document.body.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-content"]'),
     ) as [HTMLElement, HTMLElement, HTMLElement]
-    const closeOrder: HTMLElement[] = []
+    const closeOrder: Array<HTMLElement> = []
     const observer = new MutationObserver((records) => {
       for (const record of records) {
         const content = record.target as HTMLElement

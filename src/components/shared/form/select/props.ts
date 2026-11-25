@@ -54,13 +54,13 @@ export const BASE_SELECT_FORWARD_PROP_KEYS = [
   'closeOnEscape',
   'closeOnOutsideClick',
   'onClosePrevented',
-] as const satisfies readonly SharedBaseSelectForwardProp[]
+] as const satisfies ReadonlyArray<SharedBaseSelectForwardProp>
 
 /** Single-value Select wrappers may additionally configure closing after selection. */
 export const SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS = [
   ...BASE_SELECT_FORWARD_PROP_KEYS,
   'closeOnSelect',
-] as const satisfies readonly (SharedBaseSelectForwardProp | 'closeOnSelect')[]
+] as const satisfies ReadonlyArray<SharedBaseSelectForwardProp | 'closeOnSelect'>
 
 /** Local props intercepted by Select. */
 export const SELECT_LOCAL_PROP_KEYS = [
@@ -132,10 +132,12 @@ export const BASE_SELECT_SHARED_SLOTS = [
   'groupLabel',
   'separator',
   'empty',
-] as const satisfies readonly (keyof Pick<
-  BaseSelectT.Slot,
-  'content' | 'listbox' | 'item' | 'group' | 'groupLabel' | 'separator' | 'empty'
->)[]
+] as const satisfies ReadonlyArray<
+  keyof Pick<
+    BaseSelectT.Slot,
+    'content' | 'listbox' | 'item' | 'group' | 'groupLabel' | 'separator' | 'empty'
+  >
+>
 
 /** Maps resolved Select-family popup slots to reactive BaseSelect style props. */
 export function createBaseSelectStyleProps(

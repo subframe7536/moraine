@@ -30,11 +30,15 @@ import type { PopoverT } from './popover.types'
 export function PopoverClose<T extends ValidComponent = 'button'>(
   props: PopoverT.CloseProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'disabled', 'ref' as any)
-  const rest = omit(props, 'as', 'disabled', 'ref' as any)
+  const refKey = 'ref' as keyof PopoverT.CloseProps<T>
+  const local = pick(props, 'as', 'disabled', refKey)
+  const rest = omit(props, 'as', 'disabled', refKey)
   const behavior = usePopoverContext()
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
-  const root = createPolymorphicRoot({ tag, ref: () => local.ref })
+  const root = createPolymorphicRoot({
+    tag,
+    ref: () => (local as { ref?: (el: HTMLElement) => void }).ref,
+  })
   const interaction = useButtonInteraction(
     {
       disabled: () => Boolean(local.disabled),

@@ -16,7 +16,7 @@ const packageExports: ExportsOptions = {
         if (chunk.type !== 'chunk' || !chunk.isEntry || !chunk.fileName.endsWith('.jsx')) {
           continue
         }
-        jsxEntries.add(chunk.fileName.replace(/\\/g, '/').replace(/\.jsx$/, ''))
+        jsxEntries.add(chunk.fileName.replaceAll('\\', '/').replace(/\.jsx$/, ''))
       }
     }
 

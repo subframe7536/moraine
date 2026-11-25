@@ -26,8 +26,8 @@ import type { DialogT } from './dialog.types'
 export function DialogTrigger<T extends ValidComponent = 'button'>(
   props: DialogT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'class', 'style')
-  const rest = omit(props, 'class', 'style')
+  const local = pick(props as DialogT.TriggerProps, 'class', 'style')
+  const rest = omit(props as DialogT.TriggerProps, 'class', 'style')
   const dialog = useDialogContext()
   const {
     slots: { trigger: triggerSlot },
@@ -35,5 +35,5 @@ export function DialogTrigger<T extends ValidComponent = 'button'>(
     slot: 'trigger',
     context: () => dialog.slotOverrides,
   })
-  return <BaseDialog.Trigger data-slot="dialog-trigger" {...triggerSlot} {...(rest as any)} />
+  return <BaseDialog.Trigger data-slot="dialog-trigger" {...triggerSlot} {...rest} />
 }

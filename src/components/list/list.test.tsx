@@ -18,7 +18,7 @@ describe('List', () => {
 
   test('keeps keyed rows and reactive indexes across reorders, then disposes removed rows', () => {
     const [items, setItems] = createSignal(['Alpha', 'Beta'])
-    const disposed: string[] = []
+    const disposed: Array<string> = []
     const screen = render(() => (
       <List
         items={items()}

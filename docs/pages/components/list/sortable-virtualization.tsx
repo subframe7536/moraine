@@ -4,7 +4,7 @@ import { createListVirtualizer } from '@src/virtualizer'
 import { createSignal } from 'solid-js'
 export function SortableVirtualization() {
   const [items, setItems] = createSignal(
-    Array.from({ length: 5_000 }, (_, index) => ({ id: index + 1, label: `Track ${index + 1}` })),
+    Array.from({ length: 5000 }, (_, index) => ({ id: index + 1, label: `Track ${index + 1}` })),
   )
 
   type Item = ReturnType<typeof items>[number]

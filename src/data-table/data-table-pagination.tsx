@@ -36,7 +36,7 @@ export function DataTablePagination<TData extends RowData>(props: {
   const pageIndex = () => pagination()?.pageIndex ?? 0
   const pageSize = () => pagination()?.pageSize ?? 10
 
-  const pageSizeChoices = createMemo((): readonly number[] | false => {
+  const pageSizeChoices = createMemo((): ReadonlyArray<number> | false => {
     const choices = props.pageSizes
     if (choices === false || choices.includes(pageSize())) {
       return choices

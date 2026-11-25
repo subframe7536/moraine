@@ -42,7 +42,7 @@ interface DragHandleSnapshot {
 
 interface DragSession {
   ownerDocument: Document
-  handles: DragHandleSnapshot[]
+  handles: Array<DragHandleSnapshot>
   startX: number
   startY: number
   lastX: number
@@ -271,7 +271,7 @@ function resolveDragHandles(
   baseHandle: SplitterHandleRegistration,
   target: SplitterIntersectionTarget,
   event: PointerEvent,
-): SplitterHandleRegistration[] {
+): Array<SplitterHandleRegistration> {
   const ownerDocument = resolveHandleOwnerDocument(baseHandle)
   const secondaryHandle = resolveSecondaryDragHandle(baseHandle, target, event)
   if (
@@ -313,7 +313,7 @@ function setIntersection(
   }
 }
 
-function assignIntersections(snapshots: HandleSnapshot[]): void {
+function assignIntersections(snapshots: Array<HandleSnapshot>): void {
   for (const primary of snapshots) {
     for (const secondary of snapshots) {
       if (primary.orientation === secondary.orientation) {
@@ -369,7 +369,7 @@ export function refreshSplitterIntersections(): void {
     entry.handle.setEndIntersection(null)
   }
 
-  const snapshotsByDocument = new Map<Document, Map<HTMLElement, HandleSnapshot[]>>()
+  const snapshotsByDocument = new Map<Document, Map<HTMLElement, Array<HandleSnapshot>>>()
 
   for (const entry of registeredHandles.values()) {
     const element = entry.handle.getElement()
@@ -468,7 +468,7 @@ export function startSplitterDrag(
     clearDragSession(ownerDocument, event)
   }
 
-  const dragHandles: DragHandleSnapshot[] = handles.map((dragHandle) => ({
+  const dragHandles: Array<DragHandleSnapshot> = handles.map((dragHandle) => ({
     handle: dragHandle,
     orientation: dragHandle.getOrientation(),
   }))

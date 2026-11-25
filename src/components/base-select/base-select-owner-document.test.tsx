@@ -11,7 +11,7 @@ const ITEMS = [
   { label: 'Banana', value: 'banana' },
 ]
 
-const fixtures: [string, () => JSX.Element][] = [
+const fixtures: Array<[string, () => JSX.Element]> = [
   ['Select', () => <Select items={ITEMS} defaultOpen />],
   ['Combobox', () => <Combobox items={ITEMS} defaultOpen />],
   ['MultiSelect', () => <MultiSelect items={ITEMS} defaultOpen />],

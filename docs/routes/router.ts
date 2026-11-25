@@ -4,12 +4,14 @@ import { createFileRouter } from 'solid-file-router'
 import { pageRoutes } from 'virtual:routes'
 import type { FileRouteTreeEntry } from 'virtual:routes'
 
+// oxlint-disable-next-line import/no-namespace
 import * as appRouteModule from './_app'
 import { registerDocsRouteInfo } from './docs-route'
 
+// oxlint-disable-next-line import/no-namespace
 import * as indexRouteModule from './index'
 
-function makeRootEager(entries: readonly FileRouteTreeEntry[]): FileRouteTreeEntry[] {
+function makeRootEager(entries: ReadonlyArray<FileRouteTreeEntry>): Array<FileRouteTreeEntry> {
   return entries.map((entry) => {
     if (entry.id === '/(app)') {
       return {

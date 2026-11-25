@@ -104,7 +104,7 @@ export namespace TooltipT {
      * </Tooltip>
      * ```
      */
-    kbds?: KbdT.Key[]
+    kbds?: Array<KbdT.Key>
 
     /**
      * Tooltip text or element. A string is wrapped in the `text` slot; other nodes render as given.

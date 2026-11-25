@@ -61,7 +61,7 @@ async function loadDesignSystem() {
   })
 }
 
-async function compileCSS(candidates: string[], includeAutoStates = false) {
+async function compileCSS(candidates: Array<string>, includeAutoStates = false) {
   const { build } = await compile(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
     loadModule: moraineLoadModule(),
   })
@@ -72,7 +72,7 @@ async function compileCSS(candidates: string[], includeAutoStates = false) {
   return withoutAutoStateBase(css)
 }
 
-async function compileCSSWithIconify(candidates: string[]) {
+async function compileCSSWithIconify(candidates: Array<string>) {
   const inputCSS = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
   const { build } = await compile(inputCSS, {
     loadModule: combinedLoadModule(),
@@ -385,10 +385,10 @@ describe('animations', () => {
       'data-expanded:enter-scale-95',
       'data-closed:exit-scale-95',
     ])
-    expect(css).toContain('.data-expanded\\:enter-opacity-0[data-expanded]')
-    expect(css).toContain('.data-closed\\:exit-opacity-0[data-closed]')
-    expect(css).toContain('.data-expanded\\:enter-scale-95[data-expanded]')
-    expect(css).toContain('.data-closed\\:exit-scale-95[data-closed]')
+    expect(css).toContain(String.raw`.data-expanded\:enter-opacity-0[data-expanded]`)
+    expect(css).toContain(String.raw`.data-closed\:exit-opacity-0[data-closed]`)
+    expect(css).toContain(String.raw`.data-expanded\:enter-scale-95[data-expanded]`)
+    expect(css).toContain(String.raw`.data-closed\:exit-scale-95[data-closed]`)
   })
 })
 
@@ -479,7 +479,9 @@ describe('attribute variants', () => {
   })
 
   test('data-leaf compiles tree item utilities', async () => {
-    expect(await compileCSS(['data-leaf:invisible'])).toContain('.data-leaf\\:invisible[data-leaf]')
+    expect(await compileCSS(['data-leaf:invisible'])).toContain(
+      String.raw`.data-leaf\:invisible[data-leaf]`,
+    )
   })
 
   test('the button press selector applies only to the active, non-popup state', async () => {
@@ -617,7 +619,7 @@ describe('iconify integration (docs config)', () => {
   test('iconify icons work with variants', async () => {
     const css = await compileCSSWithIconify(['hover:lucide--arrow-down'])
     expect(css).toContain('@media (hover: hover)')
-    expect(css).toContain('.hover\\:lucide--arrow-down:hover')
+    expect(css).toContain(String.raw`.hover\:lucide--arrow-down:hover`)
   })
 })
 

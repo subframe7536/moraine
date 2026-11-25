@@ -108,7 +108,7 @@ export namespace ComboboxT {
      * />
      * ```
      */
-    items?: Entry<TItem>[]
+    items?: Array<Entry<TItem>>
     /**
      * Called with the new item `value` when the user commits a different item, or with `null`
      * when the selection is cleared. Typing alone does not call it (see `onSearchValueChange`).

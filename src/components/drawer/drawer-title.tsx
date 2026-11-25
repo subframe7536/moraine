@@ -44,5 +44,12 @@ export function DrawerTitle<T extends ValidComponent = 'h2'>(
     context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? 'h2')
-  return <Root data-slot="drawer-title" {...titleSlot} {...(rest as any)} id={id()} />
+  return (
+    <Root
+      data-slot="drawer-title"
+      {...titleSlot}
+      {...(rest as Record<string, unknown>)}
+      id={id()}
+    />
+  )
 }

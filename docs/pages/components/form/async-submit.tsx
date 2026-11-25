@@ -4,7 +4,9 @@ import * as v from 'valibot'
 const schema = v.object({ title: v.pipe(v.string(), v.nonEmpty('A title is required.')) })
 
 function saveDraft(): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, 2000))
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, 2000)
+  })
 }
 
 export function AsyncSubmit() {

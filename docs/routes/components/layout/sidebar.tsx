@@ -8,7 +8,7 @@ import type { DocsPageEntry } from '../../docs-route'
 export type SidebarPage = DocsPageEntry
 
 export interface DocsSidebarProps {
-  pages: SidebarPage[]
+  pages: Array<SidebarPage>
   activePage: Accessor<string>
 }
 
@@ -35,7 +35,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
   const currentSurface = createMemo(() => getCurrentSurface(location.pathname))
   const surfaces = createMemo(() => {
     return SURFACES.filter((surface) => surface.value === currentSurface()).map((surface) => {
-      const groups = new Map<string, SidebarPage[]>()
+      const groups = new Map<string, Array<SidebarPage>>()
       for (const page of props.pages) {
         if (page.surface !== surface.value) {
           continue

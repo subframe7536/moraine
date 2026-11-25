@@ -64,14 +64,18 @@ export function snapPointHeightCss(snapPoint: DrawerT.SnapPoint): string {
  * Returns the index of the point whose offset is closest to `offset`, or `-1` if `points` is empty.
  */
 export function closestSnapPointIndex(
-  points: readonly ResolvedDrawerSnapPoint[],
+  points: ReadonlyArray<ResolvedDrawerSnapPoint>,
   offset: number,
 ): number {
   let closestIndex = -1
   let closestDistance = Infinity
 
   for (let index = 0; index < points.length; index += 1) {
-    const distance = Math.abs(points[index]!.offset - offset)
+    const point = points[index]
+    if (!point) {
+      continue
+    }
+    const distance = Math.abs(point.offset - offset)
     if (distance < closestDistance) {
       closestDistance = distance
       closestIndex = index
@@ -86,21 +90,24 @@ export function closestSnapPointIndex(
  * `min(popupHeight, viewportHeight)` and deduplicated within 1px (later entries win).
  */
 export function resolveSnapPoints(
-  snapPoints: readonly DrawerT.SnapPoint[] | undefined,
+  snapPoints: ReadonlyArray<DrawerT.SnapPoint> | undefined,
   popupHeight: number,
   viewportHeight: number,
   rootFontSize: number,
-): ResolvedDrawerSnapPoint[] {
+): Array<ResolvedDrawerSnapPoint> {
   if (!snapPoints || snapPoints.length === 0 || viewportHeight <= 0 || popupHeight <= 0) {
     return []
   }
 
   const maxHeight = Math.min(popupHeight, viewportHeight)
-  const deduped: ResolvedDrawerSnapPoint[] = []
+  const deduped: Array<ResolvedDrawerSnapPoint> = []
 
   // Iterate backwards so later entries take precedence when heights match within 1px
   for (let index = snapPoints.length - 1; index >= 0; index -= 1) {
-    const value = snapPoints[index]!
+    const value = snapPoints[index]
+    if (value === undefined) {
+      continue
+    }
     const resolvedHeight = resolveSnapPointValue(value, viewportHeight, rootFontSize)
     if (resolvedHeight === null) {
       continue

@@ -13,10 +13,10 @@ function createFile(
 }
 
 function filter(
-  files: File[],
+  files: Array<File>,
   options: Partial<{
     accept: string
-    existingFiles: File[]
+    existingFiles: Array<File>
     minSize: number
     maxSize: number
   }> = {},

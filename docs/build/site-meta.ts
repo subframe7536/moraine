@@ -25,7 +25,7 @@ function resolveAbsoluteUrl(siteUrl: string, value: string): string {
   return new URL(value, normalizeSiteUrl(siteUrl)).toString()
 }
 
-export function buildSiteMetaTags(options: DocsSiteMetaOptions): HtmlTagDescriptor[] {
+export function buildSiteMetaTags(options: DocsSiteMetaOptions): Array<HtmlTagDescriptor> {
   const title = options.title
   const description = options.description
   const canonicalUrl = normalizeSiteUrl(options.siteUrl)

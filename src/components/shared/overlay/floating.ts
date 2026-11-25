@@ -18,13 +18,20 @@ import { settle } from '../../../shared/utils'
 
 import { resolveDirection } from './direction'
 import { getTransformOrigin } from './transform-origin'
+
+function setStyleProperty(element: HTMLElement, property: string, value: string): void {
+  if (element.style.getPropertyValue(property) !== value) {
+    element.style.setProperty(property, value)
+  }
+}
+
 export interface FloatingPositionOptions {
   contentElement?: Accessor<HTMLElement | undefined>
   detachedPadding?: Accessor<number>
   deferPositioned?: boolean
   fitViewport?: Accessor<boolean>
   floatingElement: Accessor<HTMLElement | undefined>
-  flip?: Accessor<boolean | Placement[]>
+  flip?: Accessor<boolean | Array<Placement>>
   getReferenceElement: () => ReferenceElement | undefined
   gutter: Accessor<number>
   hideWhenDetached?: Accessor<boolean>
@@ -99,28 +106,21 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
             }
             ownedStyles.delete(property)
           }
-          const setStyleProperty = (
-            element: HTMLElement,
-            property: string,
-            value: string,
-          ): void => {
-            if (element.style.getPropertyValue(property) !== value) {
-              element.style.setProperty(property, value)
-            }
-          }
           const writeStyle = (element: HTMLElement, property: string, value: string): void => {
-            if (!ownedStyles.has(property)) {
-              ownedStyles.set(property, {
+            let entry = ownedStyles.get(property)
+            if (!entry) {
+              entry = {
                 element,
                 value: element.style.getPropertyValue(property),
                 priority: element.style.getPropertyPriority(property),
                 applied: value,
-              })
+              }
+              ownedStyles.set(property, entry)
             }
             if (element.style.getPropertyValue(property) !== value) {
               element.style.setProperty(property, value)
             }
-            ownedStyles.get(property)!.applied = element.style.getPropertyValue(property)
+            entry.applied = element.style.getPropertyValue(property)
           }
           const cancelPositioned = (): void => {
             if (positionedFrame !== undefined) {
@@ -221,7 +221,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                   floating.isConnected &&
                   (!('isConnected' in reference) || reference.isConnected) &&
                   (!referenceContext || referenceContext.isConnected)
-                const middleware: Middleware[] = [
+                const middleware: Array<Middleware> = [
                   offset({
                     mainAxis: gutter,
                     crossAxis: crossAxisOffset,

@@ -29,6 +29,23 @@ function isCheckboxGroupItemDisabled(item: string | CheckboxGroupT.Item): boolea
   return typeof item !== 'string' && Boolean(item.disabled)
 }
 
+function isVisualControl(
+  fieldset: HTMLFieldSetElement,
+  target: EventTarget | null,
+): target is HTMLElement {
+  const HTMLElement = fieldset.ownerDocument.defaultView?.HTMLElement
+  return (
+    HTMLElement !== undefined &&
+    target instanceof HTMLElement &&
+    target.matches('[data-slot="checkbox-control"]')
+  )
+}
+
+function isFocusWithinFieldset(fieldset: HTMLFieldSetElement, target: EventTarget | null): boolean {
+  const Node = fieldset.ownerDocument.defaultView?.Node
+  return Node !== undefined && target instanceof Node && fieldset.contains(target)
+}
+
 function normalizeCheckboxGroupItem(
   item: string | CheckboxGroupT.Item,
   index: number,
@@ -150,7 +167,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
 
   const merged = merge(
     {
-      defaultValue: [] as string[],
+      defaultValue: [] as Array<string>,
     },
 
     local,
@@ -201,7 +218,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     },
   )
 
-  const [selectedValues, setSelectedValues, resetSelectedValues] = useFormValue<string[]>({
+  const [selectedValues, setSelectedValues, resetSelectedValues] = useFormValue<Array<string>>({
     value: () => (Array.isArray(merged.value) ? merged.value : undefined),
     defaultValue: () => initialDefaultValue,
     onValueChange: (val) => merged.onValueChange?.(val),
@@ -267,26 +284,6 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
       resetSelectedValues()
     },
   )
-
-  function isVisualControl(
-    fieldset: HTMLFieldSetElement,
-    target: EventTarget | null,
-  ): target is HTMLElement {
-    const HTMLElement = fieldset.ownerDocument.defaultView?.HTMLElement
-    return (
-      HTMLElement !== undefined &&
-      target instanceof HTMLElement &&
-      target.matches('[data-slot="checkbox-control"]')
-    )
-  }
-
-  function isFocusWithinFieldset(
-    fieldset: HTMLFieldSetElement,
-    target: EventTarget | null,
-  ): boolean {
-    const Node = fieldset.ownerDocument.defaultView?.Node
-    return Node !== undefined && target instanceof Node && fieldset.contains(target)
-  }
 
   function onFieldsetFocusIn(event: FocusEvent): void {
     const fieldset = event.currentTarget as HTMLFieldSetElement

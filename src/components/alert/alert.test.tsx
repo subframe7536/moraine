@@ -116,7 +116,7 @@ describe('Alert', () => {
     const view1 = render(() => (
       <Alert title="Custom close icon" closable closeIcon="icon-panel-close" />
     ))
-    let closeBtn = view1.getByRole('button', { name: 'Close alert' })
+    const closeBtn = view1.getByRole('button', { name: 'Close alert' })
     expect(closeBtn.firstElementChild?.className).toContain('icon-panel-close')
     view1.unmount()
 

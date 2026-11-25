@@ -134,7 +134,7 @@ export namespace TabsT {
      * />
      * ```
      */
-    items?: Item[]
+    items?: Array<Item>
   }
 
   /**

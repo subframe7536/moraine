@@ -55,8 +55,8 @@ describe('useOverlayInteraction', () => {
     const onPointerOutside = vi.fn()
     const content = document.createElement('div')
     const outside = document.createElement('div')
-    document.body.appendChild(content)
-    document.body.appendChild(outside)
+    document.body.append(content)
+    document.body.append(outside)
 
     const screen = render(() => {
       useOverlayInteraction({

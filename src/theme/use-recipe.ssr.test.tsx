@@ -10,8 +10,8 @@ function parse(markup: string) {
   return {
     root,
     label: root.querySelector('span')!,
-    reads: JSON.parse(root.dataset.reads!) as string[],
-    styles: JSON.parse(root.dataset.styles!) as Record<string, unknown>[],
+    reads: JSON.parse(root.dataset.reads!) as Array<string>,
+    styles: JSON.parse(root.dataset.styles!) as Array<Record<string, unknown>>,
   }
 }
 

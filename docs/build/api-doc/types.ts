@@ -29,12 +29,12 @@ export interface PropApi {
   /** Build-time HTML of the markdown description, for the web reference only. */
   descriptionHtml?: string
   /** Build-time highlighted HTML of each example, for the web reference only. */
-  examplesHtml?: string[]
+  examplesHtml?: Array<string>
   /** Markdown description. */
   description?: string
   default?: DefaultValue
   /** Code of each `@example` tag. */
-  examples?: string[]
+  examples?: Array<string>
 }
 
 export interface PartApi {
@@ -42,20 +42,20 @@ export interface PartApi {
   name: string
   access: AccessApi
   description?: string
-  generics?: GenericParameterApi[]
+  generics?: Array<GenericParameterApi>
   defaultElement?: string
-  props: PropApi[]
+  props: Array<PropApi>
 }
 
 export interface ItemApi {
   description?: string
-  generics?: GenericParameterApi[]
-  props: PropApi[]
+  generics?: Array<GenericParameterApi>
+  props: Array<PropApi>
 }
 
 export interface DataAttributeTargetApi {
   target: string
-  attributes: string[]
+  attributes: Array<string>
 }
 
 export interface ComponentApi {
@@ -64,10 +64,10 @@ export interface ComponentApi {
   name: string
   description?: string
   kind: 'single' | 'composite'
-  parts: PartApi[]
+  parts: Array<PartApi>
   item?: ItemApi
-  slots: string[]
-  dataAttributes: DataAttributeTargetApi[]
+  slots: Array<string>
+  dataAttributes: Array<DataAttributeTargetApi>
 }
 
 export interface ComponentIndexEntry {
@@ -77,7 +77,7 @@ export interface ComponentIndexEntry {
 }
 
 export interface IndexDoc {
-  components: ComponentIndexEntry[]
+  components: Array<ComponentIndexEntry>
 }
 
 export interface GenerationResult {

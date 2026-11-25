@@ -1,7 +1,7 @@
 import { CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
-const COMMAND_GROUPS: CommandPaletteT.Group[] = [
+const COMMAND_GROUPS: Array<CommandPaletteT.Group> = [
   {
     type: 'group',
     label: 'Workspace sections',

@@ -9,7 +9,7 @@ function query<T extends HTMLElement = HTMLElement>(container: HTMLElement, sele
   return container.querySelector<T>(selector)!
 }
 
-function queryAll(container: HTMLElement, selector: string): HTMLElement[] {
+function queryAll(container: HTMLElement, selector: string): Array<HTMLElement> {
   return Array.from(container.querySelectorAll<HTMLElement>(selector))
 }
 

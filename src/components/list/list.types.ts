@@ -41,7 +41,7 @@ export namespace ListT {
      */
     emptyRender?: JSX.Element | Component<EmptyRenderProps>
     /** Collection to render, one `itemRender` call per entry. Treated as empty when `undefined`. */
-    items?: readonly TItem[]
+    items?: ReadonlyArray<TItem>
     /**
      * Renders one row for an item. Receives the `item`, its `index` in the complete `items`
      * collection, and, when a `virtualizer` is set, `rowProps` to spread onto the row's outer element.

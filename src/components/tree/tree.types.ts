@@ -29,7 +29,7 @@ export namespace TreeT {
      * Reactive accessor returning the root items. Called inside a tracking scope, so a signal or
      * store read here re-indexes the tree when it changes.
      */
-    items: () => readonly T[]
+    items: () => ReadonlyArray<T>
 
     /**
      * Returns the unique, stable key of an item. Keys identify items in every `*Keys` option and
@@ -58,7 +58,7 @@ export namespace TreeT {
      * <tree.Tree />
      * ```
      */
-    getChildren?: (item: T) => readonly T[] | undefined
+    getChildren?: (item: T) => ReadonlyArray<T> | undefined
 
     /**
      * Returns the text used for the item's accessible name (`aria-label`), the default label, and
@@ -103,13 +103,13 @@ export namespace TreeT {
      * <tree.Tree />
      * ```
      */
-    loadChildren?: (item: T) => Promise<readonly T[]>
+    loadChildren?: (item: T) => Promise<ReadonlyArray<T>>
 
     /**
      * Called after `loadChildren` resolved for an item, with the item and its loaded children
      * (possibly empty).
      */
-    onLoadChildrenSuccess?: (details: { item: T; children: readonly T[] }) => void
+    onLoadChildrenSuccess?: (details: { item: T; children: ReadonlyArray<T> }) => void
 
     /** Called when `loadChildren` rejected or threw for an item, with the item and the error. */
     onLoadChildrenError?: (details: { item: T; error: unknown }) => void
@@ -135,19 +135,19 @@ export namespace TreeT {
      * <tree.Tree />
      * ```
      */
-    expandedKeys?: readonly string[]
+    expandedKeys?: ReadonlyArray<string>
 
     /**
      * Keys expanded initially (uncontrolled). Ignored while `expandedKeys` is set.
      * @default []
      */
-    defaultExpandedKeys?: readonly string[]
+    defaultExpandedKeys?: ReadonlyArray<string>
 
     /**
      * Called with the full list of expanded keys whenever it changes, through user interaction,
      * tree methods, or a lazy branch that failed to load or turned out empty.
      */
-    onExpandedKeysChange?: (keys: string[]) => void
+    onExpandedKeysChange?: (keys: Array<string>) => void
 
     /**
      * Whether clicking a branch row also toggles it. When `false`, only the trigger toggles.
@@ -168,16 +168,16 @@ export namespace TreeT {
      * Keys of the selected items (controlled). Leave `undefined` for uncontrolled usage and
      * update it from `onSelectedKeysChange`. Pass a getter so changes are read reactively.
      */
-    selectedKeys?: readonly string[]
+    selectedKeys?: ReadonlyArray<string>
 
     /**
      * Keys selected initially (uncontrolled). Ignored while `selectedKeys` is set.
      * @default []
      */
-    defaultSelectedKeys?: readonly string[]
+    defaultSelectedKeys?: ReadonlyArray<string>
 
     /** Called with the full list of selected keys whenever it changes. */
-    onSelectedKeysChange?: (keys: string[]) => void
+    onSelectedKeysChange?: (keys: Array<string>) => void
 
     /**
      * Whether items expose a check state rendered with `tree.ItemCheckbox`, which renders
@@ -198,20 +198,20 @@ export namespace TreeT {
      * Keys of the checked items (controlled). Leave `undefined` for uncontrolled usage and
      * update it from `onCheckedKeysChange`. Pass a getter so changes are read reactively.
      */
-    checkedKeys?: readonly string[]
+    checkedKeys?: ReadonlyArray<string>
 
     /**
      * Keys checked initially (uncontrolled). Ignored while `checkedKeys` is set.
      * @default []
      */
-    defaultCheckedKeys?: readonly string[]
+    defaultCheckedKeys?: ReadonlyArray<string>
 
     /**
      * Called with the full list of checked keys whenever it changes. With `checkCascade`, the
      * list contains every checked item including descendants, plus checked keys of items that
      * are not loaded yet.
      */
-    onCheckedKeysChange?: (keys: string[]) => void
+    onCheckedKeysChange?: (keys: Array<string>) => void
 
     /**
      * Whether typing characters moves focus to the next visible, enabled item whose text value
@@ -231,18 +231,18 @@ export namespace TreeT {
   /** Reactive state of a tree. Fields update through the instance methods. */
   export interface State {
     /** Keys of expanded branches. */
-    readonly expandedKeys: readonly string[]
+    readonly expandedKeys: ReadonlyArray<string>
     /** Keys of selected items. */
-    readonly selectedKeys: readonly string[]
+    readonly selectedKeys: ReadonlyArray<string>
     /**
      * Keys whose check state is `checked`, followed by checked keys of items that are not loaded
      * yet. Matches the keys passed to `onCheckedKeysChange`.
      */
-    readonly checkedKeys: readonly string[]
+    readonly checkedKeys: ReadonlyArray<string>
     /** Key of the item that currently holds focus; `undefined` while focus is outside the tree. */
     readonly focusedKey: string | undefined
     /** Keys of branches that are loading their children. */
-    readonly loadingKeys: readonly string[]
+    readonly loadingKeys: ReadonlyArray<string>
   }
 
   /**
@@ -319,7 +319,7 @@ export namespace TreeT {
     /** Key of the parent item; `undefined` for root items. */
     readonly parentKey: string | undefined
     /** Direct children, whether or not the item is expanded. */
-    readonly children: readonly ItemInstance<T>[]
+    readonly children: ReadonlyArray<ItemInstance<T>>
     /** Text from `getItemLabel`, used as the accessible name, label, and typeahead text. */
     readonly label: string
     /** Whether the branch is expanded. */
@@ -562,7 +562,7 @@ export namespace TreeT {
     Methods<T> &
     Parts<T> & {
       /** Visible items in pre-order. */
-      readonly flattenedItems: readonly ItemInstance<T>[]
+      readonly flattenedItems: ReadonlyArray<ItemInstance<T>>
     }
 }
 

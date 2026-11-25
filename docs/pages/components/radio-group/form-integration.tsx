@@ -6,7 +6,7 @@ const ENV_OPTIONS = [
   { label: 'Development', value: 'dev' },
   { label: 'Staging', value: 'staging' },
   { label: 'Production', value: 'prod' },
-] satisfies RadioGroupT.Item[]
+] satisfies Array<RadioGroupT.Item>
 
 export function FormIntegration() {
   const [submittedEnv, setSubmittedEnv] = createSignal('staging')

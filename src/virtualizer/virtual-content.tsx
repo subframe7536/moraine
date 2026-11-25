@@ -10,7 +10,7 @@ import type { ListVirtualizer, VirtualRowProps } from './virtualizer.types'
  */
 export function VirtualContent<TEntry>(props: {
   virtualizer: ListVirtualizer<TEntry> | undefined
-  entries: readonly TEntry[]
+  entries: ReadonlyArray<TEntry>
   scrollElement: HTMLElement | undefined
   render: (entry: TEntry, index: number, rowProps: VirtualRowProps) => JSX.Element
   /** Non-virtual content. */

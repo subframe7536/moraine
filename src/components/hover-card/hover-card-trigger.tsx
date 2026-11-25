@@ -32,7 +32,10 @@ import type { HoverCardT } from './hover-card.types'
 export function HoverCardTrigger<T extends ValidComponent = 'a'>(
   props: HoverCardT.TriggerProps<T>,
 ): JSX.Element {
-  const context = useHoverCardContext()!
+  const context = useHoverCardContext()
+  if (!context) {
+    throw new Error('HoverCard.Trigger must be used within HoverCard')
+  }
   const local = pick(props, 'value')
   const rest = omit(props, 'value')
   const { slots } = useRecipe(hoverCardRecipe, props, {

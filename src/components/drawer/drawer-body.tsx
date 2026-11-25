@@ -48,5 +48,5 @@ export function DrawerBody<T extends ValidComponent = 'div'>(
     context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
-  return <Root data-slot="drawer-body" {...bodySlot} {...(rest as any)} />
+  return <Root data-slot="drawer-body" {...bodySlot} {...(rest as Record<string, unknown>)} />
 }

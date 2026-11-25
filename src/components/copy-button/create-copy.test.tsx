@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { createCopy } from './create-copy'
 const writeText = vi.fn<(text: string) => Promise<void>>()
-const write = vi.fn<(items: ClipboardItem[]) => Promise<void>>()
+const write = vi.fn<(items: Array<ClipboardItem>) => Promise<void>>()
 let dispose: () => void
 
 beforeEach(() => {

@@ -429,7 +429,9 @@ describe('Popper primitives', () => {
     ))
 
     fireEvent.pointerDown(outside, { pointerType: 'mouse' })
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerUp(outside, { pointerType: 'mouse' })
     fireEvent.click(outside, { detail: 1 })
 
@@ -591,7 +593,9 @@ describe('Popper primitives', () => {
     fireEvent.compositionEnd(content)
     fireEvent.keyDown(content, { key: 'Escape' })
     expect(onOpenChange).not.toHaveBeenCalled()
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 100)
+    })
     fireEvent.keyDown(content, { key: 'Escape' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()
@@ -937,7 +941,7 @@ describe('Popper native event composition', () => {
   test('lets a reactive click handler cancel hover-mode activation', () => {
     const [cancel, setCancel] = createSignal(true)
     const changes = vi.fn()
-    const events: MouseEvent[] = []
+    const events: Array<MouseEvent> = []
     const screen = render(() => (
       <Popover openOnHover onOpenChange={changes}>
         <Popover.Trigger

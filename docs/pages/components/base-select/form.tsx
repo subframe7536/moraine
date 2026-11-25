@@ -5,7 +5,7 @@ const FRAMEWORKS = [
   { value: 'solid', label: 'Solid' },
   { value: 'react', label: 'React' },
   { value: 'vue', label: 'Vue' },
-] satisfies BaseSelectT.Item[]
+] satisfies Array<BaseSelectT.Item>
 
 export default function Example() {
   const [submitted, setSubmitted] = createSignal('Not submitted')

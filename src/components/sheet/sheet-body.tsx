@@ -40,5 +40,5 @@ export function SheetBody<T extends ValidComponent = 'div'>(
     context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
-  return <Root data-slot="sheet-body" {...bodySlot} {...(rest as any)} />
+  return <Root data-slot="sheet-body" {...bodySlot} {...(rest as Record<string, unknown>)} />
 }

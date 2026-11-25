@@ -16,7 +16,7 @@ test('hydrates a styled placeholder and updates forwarded props and children in 
       <Skeleton
         id="loading-placeholder"
         animation={animation()}
-        class={`h-4 w-24 ${rounded()}`}
+        class={['h-4 w-24', rounded()]}
         style={{ width: width() }}
       >
         <span>{label()}</span>

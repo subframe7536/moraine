@@ -166,13 +166,13 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
 
   test('puts icon masks in the components layer so size utilities override them', () => {
     const iconAsset = readFileSync(join(consumer.packageDir, 'dist/icon.css'), 'utf8')
-    const rules = iconAsset.replace(/\/\*[\s\S]*?\*\//g, '').trim()
+    const rules = iconAsset.replaceAll(/\/\*[\s\S]*?\*\//g, '').trim()
 
     expect(rules.startsWith('@layer components')).toBe(true)
     // Every rule sits inside an `@layer components { ... }` block.
     expect(
       rules
-        .replace(/@layer components\{[\s\S]*?\n\}/g, '')
+        .replaceAll(/@layer components\{[\s\S]*?\n\}/g, '')
         .replace(/@layer[^;]*;/, '')
         .trim(),
     ).toBe('')

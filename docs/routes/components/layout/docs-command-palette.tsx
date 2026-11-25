@@ -12,7 +12,7 @@ import type { SidebarPage } from './sidebar'
 export type DocsCommandPaletteVariant = 'responsive' | 'desktop' | 'mobile'
 
 export interface DocsCommandPaletteProps {
-  pages: SidebarPage[]
+  pages: Array<SidebarPage>
   onNavigate: (path: string) => void
   open: Accessor<boolean>
   setOpen: (open: boolean) => void
@@ -25,11 +25,11 @@ interface DocsCommandItem extends CommandPaletteT.Item {
 }
 
 export function buildDocsCommandItems(
-  pages: SidebarPage[],
+  pages: Array<SidebarPage>,
   includeSections = true,
-): CommandPaletteT.Group<DocsCommandItem>[] {
-  const pageItems: DocsCommandItem[] = []
-  const sectionItems: DocsCommandItem[] = []
+): Array<CommandPaletteT.Group<DocsCommandItem>> {
+  const pageItems: Array<DocsCommandItem> = []
+  const sectionItems: Array<DocsCommandItem> = []
   const destinations = new Set<string>()
 
   for (const page of pages) {
@@ -72,7 +72,7 @@ export function buildDocsCommandItems(
     }
   }
 
-  const groups: CommandPaletteT.Group<DocsCommandItem>[] = [
+  const groups: Array<CommandPaletteT.Group<DocsCommandItem>> = [
     {
       type: 'group',
       label: 'Pages',
@@ -185,26 +185,27 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
 
   const items = createMemo(() => buildDocsCommandItems(props.pages, Boolean(searchValue().trim())))
 
-  onSettled(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null
-      const isEditable =
-        target?.tagName === 'INPUT' ||
-        target?.tagName === 'TEXTAREA' ||
-        target?.isContentEditable === true
+  const handleKeyDown = (event: KeyboardEvent) => {
+    const target = event.target as HTMLElement | null
+    const isEditable =
+      target?.tagName === 'INPUT' ||
+      target?.tagName === 'TEXTAREA' ||
+      target?.isContentEditable === true
 
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        props.setOpen(!props.open())
-        return
-      }
-
-      if (event.key === '/' && !isEditable && !props.open()) {
-        event.preventDefault()
-        props.setOpen(true)
-      }
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      props.setOpen(!props.open())
+      return
     }
+
+    if (event.key === '/' && !isEditable && !props.open()) {
+      event.preventDefault()
+      props.setOpen(true)
+    }
+  }
+
+  onSettled(() => {
     window.addEventListener('keydown', handleKeyDown, true)
     return () => window.removeEventListener('keydown', handleKeyDown, true)
   })

@@ -23,19 +23,19 @@ function resolveInputSize(size: number | undefined): number {
   return isFiniteNumber(size) ? Math.max(0, size) : 0
 }
 
-function correctRemainder(sizes: number[], total: number): void {
+function correctRemainder(sizes: Array<number>, total: number): void {
   const lastIndex = sizes.length - 1
   const remainder = fixToPrecision(1 - total)
   sizes[lastIndex] = fixToPrecision((sizes[lastIndex] ?? 0) + remainder)
 }
 
-export function normalizeSizeVector(sizes: number[]): number[] {
+export function normalizeSizeVector(sizes: Array<number>): Array<number> {
   const sizeCount = sizes.length
   if (sizeCount === 0) {
     return []
   }
 
-  const normalized: number[] = []
+  const normalized: Array<number> = []
   let total = 0
 
   for (let index = 0; index < sizeCount; index += 1) {
@@ -62,7 +62,7 @@ export function normalizeSizeVector(sizes: number[]): number[] {
   let normalizedTotal = 0
 
   for (let index = 0; index < sizeCount; index += 1) {
-    const nextSize = fixToPrecision(normalized[index]! / total)
+    const nextSize = fixToPrecision((normalized[index] ?? 0) / total)
     normalized[index] = nextSize
     normalizedTotal += nextSize
   }
@@ -78,7 +78,7 @@ function clampSize(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
-function sumSizes(sizes: number[]): number {
+function sumSizes(sizes: Array<number>): number {
   let total = 0
   for (const size of sizes) {
     total += size
@@ -88,11 +88,11 @@ function sumSizes(sizes: number[]): number {
 
 function resolvePanelBounds(input: {
   panelCount: number
-  panelMinSizes?: number[]
-  panelMaxSizes?: number[]
-}): { minSizes: number[]; maxSizes: number[] } {
-  const minSizes: number[] = []
-  const maxSizes: number[] = []
+  panelMinSizes?: Array<number>
+  panelMaxSizes?: Array<number>
+}): { minSizes: Array<number>; maxSizes: Array<number> } {
+  const minSizes: Array<number> = []
+  const maxSizes: Array<number> = []
 
   for (let index = 0; index < input.panelCount; index += 1) {
     const rawMin = input.panelMinSizes?.[index]
@@ -109,16 +109,16 @@ function resolvePanelBounds(input: {
 }
 
 function redistributeByPriority(input: {
-  sizes: number[]
-  minSizes: number[]
-  maxSizes: number[]
-  priorities: SizePriority[]
-}): number[] {
+  sizes: Array<number>
+  minSizes: Array<number>
+  maxSizes: Array<number>
+  priorities: Array<SizePriority>
+}): Array<number> {
   const nextSizes = input.sizes.map((size, index) =>
     clampSize(size, input.minSizes[index] ?? 0, input.maxSizes[index] ?? 1),
   )
 
-  const priorityOrder: SizePriority[] = [0, 1, 2]
+  const priorityOrder: Array<SizePriority> = [0, 1, 2]
   let remainder = fixToPrecision(1 - sumSizes(nextSizes))
   let guard = 0
 
@@ -130,7 +130,7 @@ function redistributeByPriority(input: {
       let pending = Math.abs(remainder)
 
       while (pending > EPSILON) {
-        const candidates: number[] = []
+        const candidates: Array<number> = []
 
         for (let index = 0; index < nextSizes.length; index += 1) {
           if ((input.priorities[index] ?? 0) !== priority) {
@@ -204,10 +204,10 @@ function redistributeByPriority(input: {
 export function normalizePanelSizes(input: {
   panelCount: number
   panelInitialSizes: Array<number | undefined>
-  panelMinSizes?: number[]
-  panelMaxSizes?: number[]
+  panelMinSizes?: Array<number>
+  panelMaxSizes?: Array<number>
   controlledSizes?: Array<number | undefined>
-}): number[] {
+}): Array<number> {
   const { panelCount, panelInitialSizes, controlledSizes } = input
 
   if (panelCount === 0) {
@@ -219,10 +219,10 @@ export function normalizePanelSizes(input: {
     panelMinSizes: input.panelMinSizes,
     panelMaxSizes: input.panelMaxSizes,
   })
-  const priorities: SizePriority[] = []
+  const priorities: Array<SizePriority> = []
 
   if (controlledSizes && controlledSizes.length > 0) {
-    const aligned: number[] = []
+    const aligned: Array<number> = []
     let preferredSum = 0
     let undefinedCount = 0
 
@@ -269,7 +269,7 @@ export function normalizePanelSizes(input: {
     })
   }
 
-  const resolved: number[] = []
+  const resolved: Array<number> = []
   let definedSum = 0
   let undefinedCount = 0
 

@@ -7,10 +7,10 @@ interface FileNode {
   id: string
   name: string
   disabled?: boolean
-  children?: FileNode[]
+  children?: Array<FileNode>
 }
 
-const FILES: FileNode[] = [
+const FILES: Array<FileNode> = [
   {
     id: 'src',
     name: 'src',

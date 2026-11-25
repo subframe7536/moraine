@@ -6,7 +6,7 @@ import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { pick } from '../../shared/utils'
 
-import { useTreeContext, useTreeItemContext } from './tree-context'
+import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 /**
@@ -34,7 +34,7 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
 ): JSX.Element {
   const local = pick(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
   const rest = omit(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
-  const itemContext = useTreeItemContext()!
+  const itemContext = requireTreeItemContext()
   const context = useTreeContext()
   const {
     slots: { label: labelSlot },

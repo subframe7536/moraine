@@ -742,7 +742,7 @@ test('uses raw BaseSelect items to recognize an empty-string Form.Field value', 
 })
 
 test('normalizes controlled multiple values before synchronizing Form.Field', () => {
-  const [controlled, setControlled] = createSignal<readonly string[]>(['a', 'a'], {
+  const [controlled, setControlled] = createSignal<ReadonlyArray<string>>(['a', 'a'], {
     equals: false,
   })
   const [fieldValue, setFieldValue] = createSignal<unknown>(['a', 'a'])

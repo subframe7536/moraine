@@ -1,6 +1,6 @@
 import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
-const TEAM_MEMBERS: MultiSelectT.Item[] = [
+const TEAM_MEMBERS: Array<MultiSelectT.Item> = [
   {
     label: 'Sarah Connor',
     value: 'sarah',

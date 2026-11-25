@@ -52,14 +52,14 @@ function fireTouch(
     touches = [],
     changedTouches = touches,
     cancelable = true,
-  }: { touches?: TouchPoint[]; changedTouches?: TouchPoint[]; cancelable?: boolean },
+  }: { touches?: Array<TouchPoint>; changedTouches?: Array<TouchPoint>; cancelable?: boolean },
 ): void {
   const event = new TouchEvent(type, {
     bubbles: true,
     cancelable,
     // jsdom converts plain touch descriptors; no `Touch` global exists there.
-    touches: touches as Touch[],
-    changedTouches: changedTouches as Touch[],
+    touches: touches as Array<Touch>,
+    changedTouches: changedTouches as Array<Touch>,
   })
   Object.defineProperty(event, 'timeStamp', { value: now })
   target.dispatchEvent(event)
@@ -591,7 +591,7 @@ describe('Drawer', () => {
     const ignored = document.body.querySelector('[data-swipe-ignore]')!
     const body = document.body.querySelector('[data-slot="drawer-body"]')!
 
-    for (const target of [button, ignored, body] as HTMLElement[]) {
+    for (const target of [button, ignored, body] as Array<HTMLElement>) {
       dragPointer(target, { x: 0, y: 100 }, { x: 0, y: 400 }, { steps: 4, stepMs: 100 })
     }
 
@@ -2249,7 +2249,7 @@ describe('Drawer', () => {
     }
 
     const ANDROID_UA = 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36'
-    let watchers: FakeWatcher[]
+    let watchers: Array<FakeWatcher>
 
     function stubAndroidAndWatcher(): void {
       vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(ANDROID_UA)
@@ -2381,7 +2381,7 @@ describe('Drawer', () => {
       )
       expect(watchers.length).toBeGreaterThanOrEqual(2)
 
-      watchers[watchers.length - 1]!.requestClose()
+      watchers.at(-1)!.requestClose()
       expect(onChildChange).toHaveBeenCalledWith(false)
       expect(onParentChange).not.toHaveBeenCalled()
     })

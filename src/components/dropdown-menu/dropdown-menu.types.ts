@@ -92,7 +92,7 @@ export namespace DropdownMenuT {
      * </DropdownMenu>
      * ```
      */
-    items?: (Item | Item[])[]
+    items?: Array<Item | Array<Item>>
     /**
      * Replaces the inner content of every item row (icon, label, shortcut keys, submenu
      * indicator and checkmark); the row keeps its role, keyboard handling and selection. It is

@@ -3,10 +3,10 @@ import { createSignal } from 'solid-js'
 interface Folder {
   id: string
   name: string
-  children?: Folder[]
+  children?: Array<Folder>
 }
 
-const FOLDERS: Folder[] = [
+const FOLDERS: Array<Folder> = [
   {
     id: 'inbox',
     name: 'Inbox',
@@ -27,7 +27,7 @@ const FOLDERS: Folder[] = [
 ]
 
 export function Selection() {
-  const [selected, setSelected] = createSignal<string[]>(['moraine'])
+  const [selected, setSelected] = createSignal<Array<string>>(['moraine'])
   const tree = createTree<Folder>({
     items: () => FOLDERS,
     getKey: (node) => node.id,

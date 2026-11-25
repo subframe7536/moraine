@@ -45,5 +45,5 @@ export function DialogFooter<T extends ValidComponent = 'div'>(
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
-  return <Root data-slot="dialog-footer" {...footerSlot} {...(rest as any)} />
+  return <Root data-slot="dialog-footer" {...footerSlot} {...(rest as Record<string, unknown>)} />
 }

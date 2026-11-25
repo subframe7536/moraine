@@ -71,7 +71,7 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
   const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
 
   return (
-    <Root data-slot="badge" {...rootSlot} {...(rest as any)}>
+    <Root data-slot="badge" {...rootSlot} {...(rest as Record<string, unknown>)}>
       <Show when={leading()}>
         {(leading) => <Icon name={leading()} data-slot="badge-leading" {...leadingSlot} />}
       </Show>

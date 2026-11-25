@@ -4,10 +4,10 @@ import { createListVirtualizer } from '@src/virtualizer'
 interface Row {
   id: string
   name: string
-  children?: Row[]
+  children?: Array<Row>
 }
 
-const GROUPS: Row[] = Array.from({ length: 200 }, (_, group) => ({
+const GROUPS: Array<Row> = Array.from({ length: 200 }, (_, group) => ({
   id: `group-${group}`,
   name: `Group ${group + 1}`,
   children: Array.from({ length: 50 }, (_, index) => ({

@@ -117,22 +117,22 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
     }
   }
 
+  const handleScroll = () => {
+    if (restoring) {
+      return
+    }
+    if (saveTimer !== undefined) {
+      clearTimeout(saveTimer)
+    }
+    saveTimer = setTimeout(saveScroll, 100)
+  }
+
   createEffect(options.element, (el) => {
     if (!el) {
       return
     }
 
     restoreScroll()
-
-    const handleScroll = () => {
-      if (restoring) {
-        return
-      }
-      if (saveTimer !== undefined) {
-        clearTimeout(saveTimer)
-      }
-      saveTimer = setTimeout(saveScroll, 100)
-    }
 
     el.addEventListener('scroll', handleScroll, { passive: true })
     el.addEventListener('wheel', stopRestoring, { passive: true })
@@ -150,6 +150,11 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
     }
   })
 
+  const handleHotUpdateComplete = () => {
+    hotUpdating = false
+    scheduleRestore()
+  }
+
   onSettled(() => {
     window.addEventListener('beforeunload', saveScroll)
     const handleHotUpdate = () => {
@@ -158,10 +163,6 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
         saveScroll()
         restoreScroll()
       }
-    }
-    const handleHotUpdateComplete = () => {
-      hotUpdating = false
-      scheduleRestore()
     }
     import.meta.hot?.on('vite:beforeUpdate', handleHotUpdate)
     import.meta.hot?.on('vite:afterUpdate', handleHotUpdateComplete)

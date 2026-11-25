@@ -35,6 +35,6 @@ export function createRegion<S extends RegionSlot>(
       slots: { [slot]: regionSlot },
     } = useSidebarStyles(slot, local)
     const Root = dynamic<ValidComponent>(() => local.as ?? defaultTag)
-    return <Root data-slot={dataSlot} {...regionSlot} {...(rest as any)} />
+    return <Root data-slot={dataSlot} {...regionSlot} {...(rest as Record<string, unknown>)} />
   }
 }

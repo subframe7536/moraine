@@ -5,7 +5,7 @@ interface TeamCommand extends CommandPaletteT.Item {
   status: 'ready' | 'blocked'
 }
 
-const GROUPS: CommandPaletteT.Group<TeamCommand>[] = [
+const GROUPS: Array<CommandPaletteT.Group<TeamCommand>> = [
   {
     type: 'group',
     label: 'Projects',

@@ -134,7 +134,7 @@ describe('useFormValue', () => {
       const onValueChange = vi.fn()
       const field = createMockField()
 
-      const [value, setValue] = useFormValue<string[]>({
+      const [value, setValue] = useFormValue<Array<string>>({
         defaultValue: () => ['a', 'b'],
         onValueChange,
         field,

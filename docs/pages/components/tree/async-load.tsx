@@ -3,10 +3,10 @@ interface Directory {
   id: string
   name: string
   hasChildren?: boolean
-  children?: Directory[]
+  children?: Array<Directory>
 }
 
-const REMOTE: Record<string, Directory[]> = {
+const REMOTE: Record<string, Array<Directory>> = {
   root: [
     { id: 'design', name: 'Design', hasChildren: true },
     { id: 'engineering', name: 'Engineering', hasChildren: true },
@@ -23,13 +23,15 @@ const REMOTE: Record<string, Directory[]> = {
   brand: [{ id: 'logo', name: 'logo.svg' }],
 }
 
-function fetchChildren(id: string): Promise<Directory[]> {
-  return new Promise((resolve) => setTimeout(() => resolve(REMOTE[id] ?? []), 900))
+function fetchChildren(id: string): Promise<Array<Directory>> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(REMOTE[id] ?? []), 900)
+  })
 }
 
 export function AsyncLoad() {
   const tree = createTree<Directory>({
-    items: () => REMOTE.root!,
+    items: () => REMOTE.root ?? [],
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
     getItemLabel: (node) => node.name,

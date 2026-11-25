@@ -266,7 +266,7 @@ export type ButtonProps = ButtonT.Props
       const unoMod = await server.moduleGraph.ensureEntryFromUrl('/uno.css')
       unoMod.id = '/project/docs/uno.css'
 
-      const hotUpdates: unknown[] = []
+      const hotUpdates: Array<unknown> = []
       server.hot.send = (payload: unknown) => {
         hotUpdates.push(payload)
       }
@@ -296,7 +296,9 @@ export type ButtonProps = ButtonT.Props
       expect(previewSourceModule?.code).toMatch(/["']?html["']?:/)
       expect(previewSourceModule?.code).toMatch(/["']?code["']?:/)
 
-      await new Promise((resolve) => setTimeout(resolve, 50))
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 50)
+      })
 
       expect(hotUpdates).toContainEqual({
         type: 'update',

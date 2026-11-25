@@ -30,14 +30,14 @@ interface ClickBridge {
 // before an outer trigger toggles, regardless of reactive apply order.
 const clickBridgeRegistries = new WeakMap<
   Document,
-  { bridges: ClickBridge[]; release: VoidFunction }
+  { bridges: Array<ClickBridge>; release: VoidFunction }
 >()
 let clickBridgeSeq = 0
 
 function attachClickBridge(document: Document, seq: number, handler: (event: MouseEvent) => void) {
   let registry = clickBridgeRegistries.get(document)
   if (!registry) {
-    const bridges: ClickBridge[] = []
+    const bridges: Array<ClickBridge> = []
     registry = {
       bridges,
       release: attachEventListener(document, 'click', (event) => {
@@ -90,7 +90,7 @@ export function createPolymorphicRoot(options: {
   bindElement(element, (root) => {
     const bridgeCustomClick = options.bridgeClick && typeof options.tag() !== 'string'
     let bridgeDocument: Document | undefined
-    let releaseDocument: VoidFunction = () => {}
+    let releaseDocument: VoidFunction | undefined
     const bridgeClick = (event: MouseEvent) => {
       // A custom root can unmount its element without telling this root; ignore it once detached.
       if (element() !== root || !root.isConnected || !event.composedPath().includes(root)) {
@@ -112,14 +112,14 @@ export function createPolymorphicRoot(options: {
       if (bridgeDocument === root.ownerDocument) {
         return
       }
-      releaseDocument()
+      releaseDocument?.()
       bridgeDocument = root.ownerDocument
       // Let Solid dispatch the target's handlers before trigger behavior, including in iframes.
       delegateEvents(DELEGATED_EVENTS)
       registerDelegatedContainer(bridgeDocument)
       releaseDocument = bridgeCustomClick
         ? attachClickBridge(bridgeDocument, seq, bridgeClick)
-        : () => {}
+        : undefined
     }
     registerDocument()
     // A root may be adopted after mounting. Register on its new document before bubbling.
@@ -128,7 +128,7 @@ export function createPolymorphicRoot(options: {
     )
     return () => {
       releases.forEach((dispose) => dispose())
-      releaseDocument()
+      releaseDocument?.()
     }
   })
 

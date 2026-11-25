@@ -27,7 +27,7 @@ function createDrawerHeader(headerKind: 'explicit' | 'shorthand') {
       context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
     })
     const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
-    return <Root data-slot="drawer-header" {...headerSlot} {...(rest as any)} />
+    return <Root data-slot="drawer-header" {...headerSlot} {...(rest as Record<string, unknown>)} />
   }
 }
 

@@ -5,7 +5,7 @@ interface RepoItem extends ComboboxT.Item {
   label: string
 }
 
-const ALL_REPOS: RepoItem[] = [
+const ALL_REPOS: Array<RepoItem> = [
   { label: 'subframe7536/moraine', value: 'moraine', icon: 'i-lucide:box' },
   { label: 'solidjs/solid', value: 'solid', icon: 'i-lucide:box' },
   { label: 'tailwindlabs/tailwindcss', value: 'tailwind', icon: 'i-lucide:box' },
@@ -16,7 +16,7 @@ const ALL_REPOS: RepoItem[] = [
 export function AsyncSearch() {
   const [query, setQuery] = createSignal('')
   const [loading, setLoading] = createSignal(false)
-  const [items, setItems] = createSignal<ComboboxT.Item[]>(ALL_REPOS)
+  const [items, setItems] = createSignal<Array<ComboboxT.Item>>(ALL_REPOS)
 
   let timer: ReturnType<typeof setTimeout> | undefined
 

@@ -72,7 +72,7 @@ function toQuotedSpecifier(code: string, node: NodeRange, newSpecifier: string):
 }
 
 function transformSourceImports(code: string, program: ProgramNode): string {
-  const replacements: Replacement[] = []
+  const replacements: Array<Replacement> = []
 
   for (const statement of program.body) {
     if (
@@ -106,7 +106,7 @@ function transformSourceImports(code: string, program: ProgramNode): string {
 }
 
 function convertFallbackImports(code: string): string {
-  return code.replace(/(['"])@src(\/[^'"]*)?\1/g, (_match, quote: string, subpath?: string) => {
+  return code.replaceAll(/(['"])@src(\/[^'"]*)?\1/g, (_match, quote: string, subpath?: string) => {
     const specifier = `@src${subpath ?? ''}`
     return `${quote}${convertSrcImport(specifier)}${quote}`
   })

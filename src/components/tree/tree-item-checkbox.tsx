@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider'
 import { pick } from '../../shared/utils'
 import { CheckControl } from '../shared/check-control/check-control'
 
-import { useTreeContext, useTreeItemContext } from './tree-context'
+import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 /**
@@ -38,7 +38,7 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
   const local = pick(props, 'checkedIcon', 'indeterminateIcon', 'class', 'style')
   const rest = omit(props, 'checkedIcon', 'indeterminateIcon', 'class', 'style')
   const context = useTreeContext()
-  const itemContext = useTreeItemContext()!
+  const itemContext = requireTreeItemContext()
   const {
     slots: { checkbox: checkboxSlot },
   } = useRecipe(treeRecipe, local, {

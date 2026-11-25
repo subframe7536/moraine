@@ -6,7 +6,7 @@ const PLAN_OPTIONS = [
   { label: 'Hobby', value: 'hobby', description: 'Free forever for personal projects' },
   { label: 'Pro', value: 'pro', description: '$20/month for growing teams' },
   { label: 'Enterprise', value: 'enterprise', description: 'Custom scale and security' },
-] satisfies RadioGroupT.Item[]
+] satisfies Array<RadioGroupT.Item>
 
 export default function RadioGroupPlayground() {
   return (

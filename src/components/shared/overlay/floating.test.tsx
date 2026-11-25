@@ -84,7 +84,7 @@ describe('useFloatingPosition', () => {
           pending.push(resolve)
         }),
     )
-    const [open] = createSignal(true)
+    const open = () => true
     const onPositionedChange = vi.fn()
 
     const screen = render(() => (
@@ -125,7 +125,7 @@ describe('useFloatingPosition', () => {
       y: 2,
     })
     const [point, setPoint] = createSignal<{ x: number; y: number } | undefined>()
-    const [open] = createSignal(true)
+    const open = () => true
     const onPositionedChange = vi.fn()
 
     render(() => (
@@ -316,7 +316,10 @@ describe('useFloatingPosition', () => {
     const ready = vi.fn()
     const pending: Array<(position: DeferredPosition) => void> = []
     floatingMocks.computePosition.mockImplementation(
-      () => new Promise<DeferredPosition>((resolve) => pending.push(resolve)),
+      () =>
+        new Promise<DeferredPosition>((resolve) => {
+          pending.push(resolve)
+        }),
     )
     const screen = render(() => (
       <FloatingFixture
@@ -496,7 +499,13 @@ describe('floating geometry and style ownership', () => {
 
   test('does not apply size constraints from a superseded request after configuration changes', async () => {
     const releases: Array<() => void> = []
-    await useGeometry(500, () => new Promise<void>((resolve) => releases.push(resolve)))
+    await useGeometry(
+      500,
+      () =>
+        new Promise<void>((resolve) => {
+          releases.push(resolve)
+        }),
+    )
     const [constraints, setConstraints] = createSignal(true)
     const ready = vi.fn()
     const screen = render(() => (

@@ -14,14 +14,14 @@ export interface ParsedSource {
   fileName: string
   text: string
   program: ProgramNode
-  comments: SourceComment[]
+  comments: Array<SourceComment>
 }
 
 export interface JsDoc {
   description?: string
   defaultValue?: string
   /** Code of each `@example` tag, without fences. */
-  examples?: string[]
+  examples?: Array<string>
 }
 
 const PARSE_OPTIONS = {
@@ -64,7 +64,7 @@ export function nodeText(source: ParsedSource, node: Pick<AstNode, 'start' | 'en
   return source.text.slice(node.start, node.end)
 }
 
-function cleanJsDocValue(value: string): string[] {
+function cleanJsDocValue(value: string): Array<string> {
   const lines = value.replace(/^\*/, '').split(/\r?\n/g)
   return lines.map((line) => line.replace(/^\s*\* ?/, '').trimEnd())
 }
@@ -75,14 +75,18 @@ interface JsDocTag {
 }
 
 /** Split JSDoc text into its description and `@tag` sections, ignoring `@` inside code fences. */
-function splitJsDocTags(text: string): { description: string; tags: JsDocTag[] } {
+function splitJsDocTags(text: string): { description: string; tags: Array<JsDocTag> } {
   const fences = [...text.matchAll(/```[\s\S]*?(?:```|$)/g)].map(
     (match) => [match.index, match.index + match[0].length] as const,
   )
   const inFence = (index: number) => fences.some(([from, to]) => index >= from && index < to)
   const starts = [...text.matchAll(/(?:^|\s)@(\w+)/g)]
     .filter((match) => !inFence(match.index + match[0].indexOf('@')))
-    .map((match) => ({ name: match[1]!, at: match.index, bodyAt: match.index + match[0].length }))
+    .map((match) => ({
+      name: match[1] ?? '',
+      at: match.index,
+      bodyAt: match.index + match[0].length,
+    }))
   const tags = starts.map((start, index) => ({
     name: start.name,
     body: text.slice(start.bodyAt, starts[index + 1]?.at ?? text.length).trim(),
@@ -93,7 +97,7 @@ function splitJsDocTags(text: string): { description: string; tags: JsDocTag[] }
 /** The code of an `@example` tag: the fenced block when present, otherwise the tag body. */
 function exampleCode(body: string): string {
   const fenced = body.match(/```[^\n]*\n([\s\S]*?)\n?```/)
-  return (fenced ? fenced[1]! : body).trim()
+  return (fenced?.[1] ?? body).trim()
 }
 
 export function getJsDoc(source: ParsedSource, node: Pick<AstNode, 'start'>): JsDoc {

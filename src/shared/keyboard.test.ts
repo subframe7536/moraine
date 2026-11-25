@@ -14,7 +14,7 @@ function createMockKeyboardEvent(key: string, init: Partial<KeyboardEvent> = {})
 
 function createHost(): { element: HTMLElement; eventInit: Partial<KeyboardEvent> } {
   const element = document.createElement('button')
-  document.body.appendChild(element)
+  document.body.append(element)
   return { element, eventInit: { currentTarget: element, target: element } }
 }
 
@@ -381,7 +381,7 @@ describe('createKeyDownHandler logical aliases', () => {
   test('direction falls back to the host computed direction', () => {
     const element = document.createElement('div')
     element.dir = 'rtl'
-    document.body.appendChild(element)
+    document.body.append(element)
     const next = vi.fn()
     const onKeyDown = createKeyDownHandler({ keys: { next } })
 

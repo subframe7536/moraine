@@ -14,8 +14,8 @@ import { contextMenuDataAttributes } from './context-menu.recipe'
 import type { ContextMenuProps } from './context-menu.types'
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 const CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE = 10
-const CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY = 1_000
-const CONTEXT_MENU_SUPPRESSION_DELAY = 1_000
+const CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY = 1000
+const CONTEXT_MENU_SUPPRESSION_DELAY = 1000
 
 function isTouchOrPen(pointerType: string): boolean {
   return pointerType === 'touch' || pointerType === 'pen'
@@ -255,9 +255,9 @@ export function createContextMenu(props: ContextMenuProps) {
             return
           }
 
+          const trigger = triggerElement()
           const targetInsideTrigger =
-            isNode(event.target) &&
-            Boolean(triggerElement() && containsComposed(triggerElement()!, event.target))
+            isNode(event.target) && Boolean(trigger && containsComposed(trigger, event.target))
           const pointerInsideTrigger = isPointerInsideTrigger(event)
 
           // Let the trigger handler compose user callbacks for events targeted inside the trigger.
@@ -361,6 +361,8 @@ export function createContextMenu(props: ContextMenuProps) {
       return
     }
     longPressWindow = currentWindow
+    // Cross-realm ownerWindow timer; @subf/oxlint-plugin@0.4.0 only recognizes window/globalThis/self.
+    // oxlint-disable-next-line subf/solid-reactivity
     longPressTimeoutId = currentWindow.setTimeout(() => {
       longPressTimeoutId = 0
       longPressWindow = undefined

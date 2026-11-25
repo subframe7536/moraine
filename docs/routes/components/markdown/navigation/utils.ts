@@ -5,7 +5,7 @@ export interface AdjacentDocsPages {
 }
 
 export function getAdjacentDocsPages(
-  pages: DocsPageEntry[],
+  pages: Array<DocsPageEntry>,
   currentPageKey: string,
 ): AdjacentDocsPages {
   const currentIndex = pages.findIndex((page) => page.path === currentPageKey)

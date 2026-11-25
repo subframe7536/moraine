@@ -1,6 +1,6 @@
 import { Tabs } from '@src'
 import type { TabsT } from '@src'
-const SETTINGS_TABS: TabsT.Item[] = [
+const SETTINGS_TABS: Array<TabsT.Item> = [
   {
     label: 'General',
     value: 'general',

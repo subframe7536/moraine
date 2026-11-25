@@ -6,7 +6,7 @@ import { createListVirtualizer, createTableVirtualizer } from 'moraine/virtualiz
 // match a host by hand.
 
 type Item = { id: number; label: string }
-const items: Item[] = []
+const items: Array<Item> = []
 
 ;<List
   items={items}
@@ -23,7 +23,7 @@ const tree = createTree<Item>({
   virtualizer={createListVirtualizer<TreeT.ItemInstance<Item>>({ estimateSize: () => 32 })}
 />
 
-const options: SelectT.Item<string>[] = []
+const options: Array<SelectT.Item<string>> = []
 // Select has no virtualizer; use Combobox for collections large enough to need one.
 ;<Select<SelectT.Item<string>>
   items={options}

@@ -36,7 +36,7 @@ export type TableVirtualRowProps = VirtualRowProps<HTMLTableRowElement> & {
 /** Props a host component passes to a list virtualizer's `virtualRender`. */
 export interface VirtualRenderProps<TEntry> {
   /** Complete reactive collection, including structural entries such as group labels. */
-  readonly entries: readonly TEntry[]
+  readonly entries: ReadonlyArray<TEntry>
   /** Scroll container, or undefined while it is not mounted. */
   readonly scrollElement?: HTMLElement
   render: (entry: TEntry, index: number, props: VirtualRowProps) => JSX.Element
@@ -60,7 +60,7 @@ export interface TableVirtualColumn {
  * is above 0, so every row still spans every column of the header.
  */
 export interface TableVirtualColumnWindow {
-  readonly items: readonly TableVirtualColumn[]
+  readonly items: ReadonlyArray<TableVirtualColumn>
   /** Number of virtualized columns before the first rendered one. */
   readonly skippedBefore: number
   /** Number of virtualized columns after the last rendered one. */
@@ -83,7 +83,7 @@ export interface TableVirtualColumnLayout {
 /** Props a host component passes to a table virtualizer's `virtualRender`. */
 export interface TableVirtualRenderProps<TEntry, TColumn = unknown> {
   /** Complete reactive collection of body rows. */
-  readonly entries: readonly TEntry[]
+  readonly entries: ReadonlyArray<TEntry>
   /**
    * Scroll container for the rows; defaults to the adapter's host `tbody`. Pass an ancestor
    * element only when scrolling happens outside the table body. The adapter then measures the
@@ -96,7 +96,7 @@ export interface TableVirtualRenderProps<TEntry, TColumn = unknown> {
    * Columns to virtualize horizontally, in display order. Used only when the virtualizer was
    * created with the `columns` option.
    */
-  readonly columns?: readonly TColumn[]
+  readonly columns?: ReadonlyArray<TColumn>
   /** Width in px of a column, used when `columns.estimateSize` is not set. */
   columnSize?: (column: TColumn, index: number) => number
   /** Geometry of columns outside the virtualized range. */

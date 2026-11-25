@@ -48,14 +48,14 @@ interface DragState {
   /** True once the session produced a layout change; survives re-basing. */
   started: boolean
   /** Layout before the session's first change; survives re-basing. */
-  commitBaseline: number[]
+  commitBaseline: Array<number>
   deltaPx: number
   panelSpacePx: number
-  initialSizes: number[]
-  lastSizes: number[]
+  initialSizes: Array<number>
+  lastSizes: Array<number>
 }
 
-function hasSizeChange(previous: number[], next: number[]): boolean {
+function hasSizeChange(previous: Array<number>, next: Array<number>): boolean {
   if (previous.length !== next.length) {
     return true
   }
@@ -80,6 +80,131 @@ function createResizableMemo<T>(fn: () => T): () => T {
     return fn
   }
   return createMemo(fn)
+}
+
+/** Minimum bound used for normalization: collapsed panels floor at collapsedSize. */
+function normalizedMinFraction(
+  panel: ResizablePanelRegistration,
+  layout: ResizableT.Layout | undefined,
+): number {
+  const collapsedSize = collapsedSizeFraction(panel)
+  const entry = layout?.[panel.id()]
+  if (panel.collapsible() && entry !== undefined && entry / 100 <= collapsedSize + EPSILON) {
+    return collapsedSize
+  }
+  return panel.min() / 100
+}
+
+function resolveLayoutFractions(
+  panels: Array<ResizablePanelRegistration>,
+  layout: ResizableT.Layout | undefined,
+): Array<number> {
+  const panelCount = panels.length
+  if (panelCount === 0) {
+    return []
+  }
+
+  const controlled: Array<number | undefined> = []
+  let knownSum = 0
+  let missingCount = 0
+
+  for (const panel of panels) {
+    const entry = layout?.[panel.id()]
+    if (entry === undefined) {
+      controlled.push(undefined)
+      missingCount += 1
+    } else {
+      const fraction = entry / 100
+      controlled.push(fraction)
+      knownSum += fraction
+    }
+  }
+
+  const remainder = 1 - knownSum
+  const missingShare =
+    missingCount === 0 ? 0 : remainder > EPSILON ? remainder / missingCount : 1 / panelCount
+
+  return normalizePanelSizes({
+    panelCount,
+    panelInitialSizes: controlled.map((entry) => (entry === undefined ? missingShare : undefined)),
+    panelMinSizes: panels.map((panel) => normalizedMinFraction(panel, layout)),
+    panelMaxSizes: panels.map((panel) => Math.max(panel.min(), panel.max()) / 100),
+    controlledSizes: controlled,
+  })
+}
+
+/**
+ * Applies the live collapse threshold: a collapsible panel collapses to
+ * `collapsedSize` once the candidate drops below `(min + collapsedSize) / 2`,
+ * and a collapsed panel expands back to `min` past the same midpoint.
+ */
+function resolveThresholdedSizes(
+  candidate: Array<number>,
+  previousSizes: Array<number>,
+  specs: Array<ResizableResolvedPanel>,
+): Array<number> {
+  let sizes = candidate
+
+  for (let guard = 0; guard < 4; guard += 1) {
+    const pins = new Map<number, number>()
+
+    specs.forEach((panel, index) => {
+      if (!panel.collapsible || panel.min <= panel.collapsedSize + EPSILON) {
+        return
+      }
+
+      const midpoint = (panel.min + panel.collapsedSize) / 2
+      const wasCollapsed = (previousSizes[index] ?? 0) <= panel.collapsedSize + EPSILON
+      const value = sizes[index] ?? 0
+
+      if (wasCollapsed) {
+        if (value <= midpoint + EPSILON) {
+          pins.set(index, panel.collapsedSize)
+        } else if (value < panel.min - EPSILON) {
+          pins.set(index, panel.min)
+        }
+      } else if (value < midpoint - EPSILON) {
+        pins.set(index, panel.collapsedSize)
+      } else if (value < panel.min - EPSILON) {
+        pins.set(index, panel.min)
+      }
+    })
+
+    if (pins.size === 0) {
+      return sizes
+    }
+
+    const floorSpecs = specs.map((panel) => ({
+      ...panel,
+      min: panel.collapsible ? panel.collapsedSize : panel.min,
+    }))
+    const pinned = floorSpecs.map((panel, index) => {
+      const pin = pins.get(index)
+      if (pin !== undefined) {
+        panel.min = pin
+        panel.max = pin
+      }
+      return panel
+    })
+
+    let next = sizes
+    for (const [index, pin] of pins) {
+      next = resizePanelToSize({
+        panelIndex: index,
+        size: pin,
+        strategy: RESIZE_FLAG_FOLLOWING,
+        initialSizes: next,
+        panels: pinned,
+      })
+    }
+
+    if (!hasSizeChange(sizes, next)) {
+      return next
+    }
+    sizes = next
+  }
+
+  return sizes
 }
 
 /**
@@ -155,9 +280,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   const [settled, setSettled] = createSignal(false)
   const [resizing, setResizing] = createSignal(false)
-  const [transitioningIds, setTransitioningIds] = createSignal<string[]>([])
-  const [clientItems, setClientItems] = createSignal<ResizableItem[]>([], { ownedWrite: true })
-  const serverItems: ResizableItem[] = []
+  const [transitioningIds, setTransitioningIds] = createSignal<Array<string>>([])
+  const [clientItems, setClientItems] = createSignal<Array<ResizableItem>>([], { ownedWrite: true })
+  const serverItems: Array<ResizableItem> = []
   const items = isServer ? () => serverItems : clientItems
   const [uncontrolledLayout, setUncontrolledLayout] = createSignal<ResizableT.Layout | undefined>(
     local.defaultValue ? { ...local.defaultValue } : undefined,
@@ -175,7 +300,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
   // The server evaluates createMemo eagerly before children register,
   // so SSR uses plain accessors while the client memoizes to avoid sorting
   // and layout recalculation on every panel read during drag sessions.
-  const rawOrderedItems = (): ResizableItem[] => {
+  const rawOrderedItems = (): Array<ResizableItem> => {
     const list = items()
     if (!settled() || list.length < 2) {
       return list
@@ -193,7 +318,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     })
   }
 
-  const rawOrderedPanels = (): ResizablePanelRegistration[] =>
+  const rawOrderedPanels = (): Array<ResizablePanelRegistration> =>
     orderedItems().flatMap((item) => (item.kind === 'panel' ? [item.panel] : []))
 
   const orderedItems = createResizableMemo(rawOrderedItems)
@@ -201,65 +326,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   const sourceLayout = () => local.value ?? uncontrolledLayout()
 
-  /** Minimum bound used for normalization: collapsed panels floor at collapsedSize. */
-  function normalizedMinFraction(
-    panel: ResizablePanelRegistration,
-    layout: ResizableT.Layout | undefined,
-  ): number {
-    const collapsedSize = collapsedSizeFraction(panel)
-    const entry = layout?.[panel.id()]
-    if (panel.collapsible() && entry !== undefined && entry / 100 <= collapsedSize + EPSILON) {
-      return collapsedSize
-    }
-    return panel.min() / 100
-  }
-
-  function resolveLayoutFractions(
-    panels: ResizablePanelRegistration[],
-    layout: ResizableT.Layout | undefined,
-  ): number[] {
-    const panelCount = panels.length
-    if (panelCount === 0) {
-      return []
-    }
-
-    const controlled: Array<number | undefined> = []
-    let knownSum = 0
-    let missingCount = 0
-
-    for (const panel of panels) {
-      const entry = layout?.[panel.id()]
-      if (entry === undefined) {
-        controlled.push(undefined)
-        missingCount += 1
-      } else {
-        const fraction = entry / 100
-        controlled.push(fraction)
-        knownSum += fraction
-      }
-    }
-
-    const remainder = 1 - knownSum
-    const missingShare =
-      missingCount === 0 ? 0 : remainder > EPSILON ? remainder / missingCount : 1 / panelCount
-
-    return normalizePanelSizes({
-      panelCount,
-      panelInitialSizes: controlled.map((entry) =>
-        entry === undefined ? missingShare : undefined,
-      ),
-      panelMinSizes: panels.map((panel) => normalizedMinFraction(panel, layout)),
-      panelMaxSizes: panels.map((panel) => Math.max(panel.min(), panel.max()) / 100),
-      controlledSizes: controlled,
-    })
-  }
-
   /** Resolved panel sizes as fractions (0..1), aligned with `orderedPanels()`. */
-  const rawResolved = (): number[] => resolveLayoutFractions(orderedPanels(), sourceLayout())
+  const rawResolved = (): Array<number> => resolveLayoutFractions(orderedPanels(), sourceLayout())
   const resolved = createResizableMemo(rawResolved)
 
   /** Panel constraints for the resize algorithms; `collapsedFloor` lowers every collapsible min to collapsedSize. */
-  function panelSpecs(collapsedFloor = false): ResizableResolvedPanel[] {
+  function panelSpecs(collapsedFloor = false): Array<ResizableResolvedPanel> {
     return orderedPanels().map((panel) => {
       const min = panel.min() / 100
       const collapsedSize = collapsedSizeFraction(panel)
@@ -274,7 +346,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     })
   }
 
-  function toLayoutRecord(fractions: number[]): ResizableT.Layout {
+  function toLayoutRecord(fractions: Array<number>): ResizableT.Layout {
     const record: ResizableT.Layout = {}
     orderedPanels().forEach((panel, index) => {
       record[panel.id()] = fixToPrecision((fractions[index] ?? 0) * 100)
@@ -283,7 +355,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
   }
 
   /** Emits `onValueChange` and updates uncontrolled state when the layout changed. */
-  function applyLayout(next: number[]): boolean {
+  function applyLayout(next: Array<number>): boolean {
     if (!hasSizeChange(resolved(), next)) {
       return false
     }
@@ -296,7 +368,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     return true
   }
 
-  function commitLayout(next: number[]): void {
+  function commitLayout(next: Array<number>): void {
     local.onValueCommit?.(toLayoutRecord(next))
   }
 
@@ -327,80 +399,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
       total += orientation() === 'horizontal' ? rect.width : rect.height
     }
     return total
-  }
-
-  /**
-   * Applies the live collapse threshold: a collapsible panel collapses to
-   * `collapsedSize` once the candidate drops below `(min + collapsedSize) / 2`,
-   * and a collapsed panel expands back to `min` past the same midpoint.
-   */
-  function resolveThresholdedSizes(
-    candidate: number[],
-    previousSizes: number[],
-    specs: ResizableResolvedPanel[],
-  ): number[] {
-    let sizes = candidate
-
-    for (let guard = 0; guard < 4; guard += 1) {
-      const pins = new Map<number, number>()
-
-      specs.forEach((panel, index) => {
-        if (!panel.collapsible || panel.min <= panel.collapsedSize + EPSILON) {
-          return
-        }
-
-        const midpoint = (panel.min + panel.collapsedSize) / 2
-        const wasCollapsed = (previousSizes[index] ?? 0) <= panel.collapsedSize + EPSILON
-        const value = sizes[index] ?? 0
-
-        if (wasCollapsed) {
-          if (value <= midpoint + EPSILON) {
-            pins.set(index, panel.collapsedSize)
-          } else if (value < panel.min - EPSILON) {
-            pins.set(index, panel.min)
-          }
-        } else if (value < midpoint - EPSILON) {
-          pins.set(index, panel.collapsedSize)
-        } else if (value < panel.min - EPSILON) {
-          pins.set(index, panel.min)
-        }
-      })
-
-      if (pins.size === 0) {
-        return sizes
-      }
-
-      const floorSpecs = specs.map((panel) => ({
-        ...panel,
-        min: panel.collapsible ? panel.collapsedSize : panel.min,
-      }))
-      const pinned = floorSpecs.map((panel, index) => {
-        const pin = pins.get(index)
-        if (pin !== undefined) {
-          panel.min = pin
-          panel.max = pin
-        }
-        return panel
-      })
-
-      let next = sizes
-      for (const [index, pin] of pins) {
-        next = resizePanelToSize({
-          panelIndex: index,
-          size: pin,
-          strategy: RESIZE_FLAG_FOLLOWING,
-          initialSizes: next,
-          panels: pinned,
-        })
-      }
-
-      if (!hasSizeChange(sizes, next)) {
-        return next
-      }
-      sizes = next
-    }
-
-    return sizes
   }
 
   function dragHandle(precedingIndex: number, deltaPx: number, altKey: boolean): void {
@@ -512,8 +510,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
       (spec, index) =>
         isPanelCollapsed(current[index] ?? 0, spec) !== isPanelCollapsed(next[index] ?? 0, spec),
     )
-    if (toggled >= 0) {
-      markTransitioning(specs[toggled]!.panelId)
+    const toggledSpec = toggled >= 0 ? specs[toggled] : undefined
+    if (toggledSpec) {
+      markTransitioning(toggledSpec.panelId)
     }
     commitLayout(next)
     return true
@@ -591,12 +590,16 @@ export function Resizable(props: ResizableProps): JSX.Element {
     }
 
     const specs = panelSpecs()
+    const spec = specs[index]
+    if (!spec) {
+      return
+    }
     const next = expandPanelSizes({
       panelIndex: index,
       strategy: RESIZE_FLAG_FOLLOWING,
       initialSizes: resolved(),
       panels: specs,
-      expandedSize: lastExpandedSizes.get(id) ?? specs[index]!.min,
+      expandedSize: lastExpandedSizes.get(id) ?? spec.min,
     })
     if (!applyLayout(next)) {
       return

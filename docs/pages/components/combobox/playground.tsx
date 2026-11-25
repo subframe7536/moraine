@@ -2,7 +2,7 @@ import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-const FRAMEWORK_ITEMS: ComboboxT.Entry[] = [
+const FRAMEWORK_ITEMS: Array<ComboboxT.Entry> = [
   {
     type: 'group',
     label: 'Client frameworks',

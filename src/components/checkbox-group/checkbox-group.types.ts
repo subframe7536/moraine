@@ -55,13 +55,13 @@ export namespace CheckboxGroupT {
      * The `value` of every selected item (controlled). Leave it `undefined` for uncontrolled
      * state and update it from `onValueChange`.
      */
-    value?: string[]
+    value?: Array<string>
     /**
      * Initially selected item values when uncontrolled; also the selection restored when the
      * surrounding native form is reset.
      * @default []
      */
-    defaultValue?: string[]
+    defaultValue?: Array<string>
 
     /**
      * Legend that labels the group (rendered as a `<legend>` inside the `<fieldset>`). A `Field`
@@ -93,7 +93,7 @@ export namespace CheckboxGroupT {
      * />
      * ```
      */
-    items?: (string | Item)[]
+    items?: Array<string | Item>
 
     /** Checked icon for all items; an item's own `checkedIcon` takes precedence. */
     checkedIcon?: CheckboxProps['checkedIcon']
@@ -106,7 +106,7 @@ export namespace CheckboxGroupT {
      * (previous values plus or minus the toggled one, in toggle order). Not called while the group
      * is `disabled` or `readOnly`.
      */
-    onValueChange?: (value: string[]) => void
+    onValueChange?: (value: Array<string>) => void
 
     /**
      * Focus event when focus enters the checkbox group from outside, called before the `Field`

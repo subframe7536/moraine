@@ -33,9 +33,8 @@ describe('style contract helpers', () => {
 
   test('reads accessor state lazily on every attribute read', () => {
     const [open, setOpen] = createSignal(false)
-    let state: { expanded: () => boolean } | undefined
-    const attributes = createDataAttributes('expanded')(() => state!)
-    state = { expanded: open }
+    const attributes = createDataAttributes('expanded')(() => state)
+    const state = { expanded: open }
 
     expect(attributes['data-expanded']).toBeUndefined()
     flush(() => setOpen(true))

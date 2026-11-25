@@ -73,7 +73,7 @@ export function DataTableHeader<TData extends RowData>(props: {
                   <DataTableHeadCell
                     table={props.table}
                     header={header}
-                    side={sides().get(header)!}
+                    side={sides().get(header) ?? false}
                     index={index()}
                     headProps={props.headProps}
                   />

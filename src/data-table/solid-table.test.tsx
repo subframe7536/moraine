@@ -22,12 +22,12 @@ const features = tableFeatures({
   sortFns: { alphanumeric: sortFn_alphanumeric },
 })
 
-const columns: ColumnDef<typeof features, TestRow>[] = [
+const columns: Array<ColumnDef<typeof features, TestRow>> = [
   { accessorKey: 'a', header: 'A' },
   { accessorKey: 'b', header: 'B' },
 ]
 
-const data: TestRow[] = [
+const data: Array<TestRow> = [
   { a: '2', b: 'x' },
   { a: '1', b: 'y' },
 ]
@@ -39,7 +39,7 @@ describe('createSolidReactivity', () => {
       set: (value: number) => void
       subscribe: (cb: (value: number) => void) => unknown
     }
-    const seen: number[] = []
+    const seen: Array<number> = []
 
     atom.subscribe((value) => seen.push(value))
     atom.set(1)
@@ -110,7 +110,7 @@ describe('createTable', () => {
       b: string
       c: string
     }
-    const groupColumns: ColumnDef<typeof features, NestedRow>[] = [
+    const groupColumns: Array<ColumnDef<typeof features, NestedRow>> = [
       {
         header: 'Group',
         columns: [

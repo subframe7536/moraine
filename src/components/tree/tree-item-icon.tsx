@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider'
 import { pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItemContext } from './tree-context'
+import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 /**
@@ -32,7 +32,7 @@ import type { TreeT } from './tree.types'
 export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
   const local = pick(props, 'icon', 'class', 'style')
   const rest = omit(props, 'icon', 'class', 'style')
-  const itemContext = useTreeItemContext()!
+  const itemContext = requireTreeItemContext()
   const context = useTreeContext()
   const {
     slots: { icon: iconSlot },

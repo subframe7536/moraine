@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs'
 import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 
+// oxlint-disable-next-line import/no-namespace
 import * as MoraineDataTable from '../../../src/data-table/index.ts'
+// oxlint-disable-next-line import/no-namespace
 import * as MoraineMain from '../../../src/index.ts'
 import { scanDocsPages } from '../routes.ts'
 
@@ -19,7 +21,7 @@ describe('generateApiDoc', () => {
   test('generates the frontmatter registry from types and recipes', async () => {
     const result = await generateApiDoc(projectRoot, scanDocsPages(projectRoot))
 
-    const publicNames: string[] = []
+    const publicNames: Array<string> = []
     for (const entryFile of COMPONENT_ENTRIES) {
       const entryPath = path.join(projectRoot, entryFile)
       const entry = await parseTypeScript(entryPath, readFileSync(entryPath, 'utf8'), 'ts')
@@ -129,7 +131,7 @@ describe('generateApiDoc', () => {
     const keyboardItems = result.componentDocs
       .get('kbd-group')
       ?.parts[0]?.props.find((prop) => prop.name === 'items')
-    expect(keyboardItems?.type).toBe('Item[]')
+    expect(keyboardItems?.type).toBe('Array<Item>')
     expect(keyboardItems?.typeDetails).toContain('string & {}')
     expect(keyboardItems?.typeDetails).toContain('value: KbdT.Key;')
     expect(keyboardItems?.typeDetails).toContain('ariaLabel?: string;')
@@ -154,7 +156,7 @@ describe('generateApiDoc', () => {
       const itemsType = props.find((prop) => prop.name === 'items')?.typeDetails
       expect(itemsType).toContain('value: string | number;')
       expect(itemsType).toContain("type: 'group';")
-      expect(itemsType).toMatch(/children: \(?(?:string \| )?\{/)
+      expect(itemsType).toMatch(/children: Array<(?:string \| )?\{/)
       expect(itemsType).not.toContain('TItem')
       if (key !== 'multi-select') {
         expect(itemsType).toContain('string | {')

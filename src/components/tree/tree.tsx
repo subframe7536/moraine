@@ -100,9 +100,9 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
   }
 
   const context: TreeContext = {
-    state,
-    options: state.options,
-    props: local,
+    state: state as unknown as TreeContext['state'],
+    options: state.options as unknown as TreeContext['options'],
+    props: local as unknown as TreeContext['props'],
     get variants() {
       return {
         size: variants.size,

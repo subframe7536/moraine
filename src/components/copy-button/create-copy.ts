@@ -3,7 +3,7 @@ import type { Accessor } from 'solid-js'
 import { createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { settle } from '../../shared/utils'
-export type CopyData = string | ClipboardItem | ClipboardItem[]
+export type CopyData = string | ClipboardItem | Array<ClipboardItem>
 
 export type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)
 
@@ -104,7 +104,7 @@ export function copyWithCommand(text: string, ownerDocument?: Document): boolean
   const selection = doc.getSelection()
   const originalRange = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null
   const container = doc.body ?? doc.documentElement
-  container.appendChild(element)
+  container.append(element)
   element.select()
   element.setSelectionRange(0, text.length)
 
@@ -144,7 +144,7 @@ export async function fallbackToCommand(
           typeof item === 'object' &&
           'types' in item &&
           Array.isArray((item as Record<string, unknown>).types)
-        ? (item as { types: readonly string[] }).types
+        ? (item as { types: ReadonlyArray<string> }).types
         : undefined
 
     if (types) {
@@ -199,6 +199,19 @@ export async function writeClipboardWithFallback(
   return fallbackToCommand(data, ownerDocument)
 }
 
+function isCopySupported(): boolean {
+  if (isServer || typeof window === 'undefined') {
+    return false
+  }
+  return (
+    (typeof navigator !== 'undefined' &&
+      Boolean(navigator.clipboard) &&
+      (typeof navigator.clipboard.writeText === 'function' ||
+        typeof navigator.clipboard.write === 'function')) ||
+    (typeof document !== 'undefined' && typeof document.execCommand === 'function')
+  )
+}
+
 export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   const [status, setStatus] = createSignal<CopyStatus>('idle')
   const [error, setError] = createSignal<unknown>(undefined)
@@ -234,18 +247,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
     return val ?? 2000
   }
 
-  const isSupported = () => {
-    if (isServer || typeof window === 'undefined') {
-      return false
-    }
-    return (
-      (typeof navigator !== 'undefined' &&
-        Boolean(navigator.clipboard) &&
-        (typeof navigator.clipboard.writeText === 'function' ||
-          typeof navigator.clipboard.write === 'function')) ||
-      (typeof document !== 'undefined' && typeof document.execCommand === 'function')
-    )
-  }
+  const isSupported = isCopySupported
 
   async function copy(source?: CopySource): Promise<boolean> {
     if (disposed || isServer) {
@@ -295,14 +297,14 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
       }, duration)
 
       return true
-    } catch (err) {
+    } catch (error_) {
       if (disposed || currentAttempt !== attempt) {
         return false
       }
 
-      settle(() => setError(err))
+      settle(() => setError(error_))
       notifyStatus('error')
-      options.onCopyError?.(err)
+      options.onCopyError?.(error_)
 
       const duration = resolveDuration()
       timer = setTimeout(() => {

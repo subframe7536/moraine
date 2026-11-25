@@ -70,17 +70,15 @@ export function createOutsidePressHandlers(options: OutsidePressOptions): Outsid
       }
 
       clearPointer(event)
-      let pending: PendingPointer
-      const timeoutId = setTimeout(() => {
-        if (pendingPointers.get(event.pointerId) === pending) {
-          pendingPointers.delete(event.pointerId)
-        }
-      }, 1000)
-      pending = {
+      const pending: PendingPointer = {
         event,
         startX: event.clientX,
         startY: event.clientY,
-        timeoutId,
+        timeoutId: setTimeout(() => {
+          if (pendingPointers.get(event.pointerId) === pending) {
+            pendingPointers.delete(event.pointerId)
+          }
+        }, 1000),
         valid: !event.defaultPrevented,
       }
       pendingPointers.set(event.pointerId, pending)

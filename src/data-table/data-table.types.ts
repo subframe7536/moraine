@@ -81,7 +81,7 @@ export namespace DataTableT {
     /** Whether the `paginated` option is enabled. */
     readonly paginated: boolean
     /** Page size choices of the toolbar dropdown, or `false` when the dropdown is hidden. */
-    readonly pageSizes: readonly number[] | false
+    readonly pageSizes: ReadonlyArray<number> | false
   }
 
   /**
@@ -120,7 +120,7 @@ export namespace DataTableT {
      * The current page size is added to the list when it is missing.
      * @default [5, 10, 20, 50]
      */
-    pageSizes?: readonly number[] | false
+    pageSizes?: ReadonlyArray<number> | false
   }
 
   export interface State {
@@ -148,13 +148,13 @@ export namespace DataTableT {
      * (`get data() { return rows() }`). A plain array is static; the two other forms let the
      * table follow changes. With `manual`, pass only the rows of the current page.
      */
-    data: readonly TData[] | (() => readonly TData[])
+    data: ReadonlyArray<TData> | (() => ReadonlyArray<TData>)
     /**
      * Column definitions (TanStack `ColumnDef`s, such as `{ accessorKey, header }`): a plain
      * array, an accessor, or a getter for reactive columns. Generated `select` and `expand`
      * columns are prepended to these.
      */
-    columns: readonly Column<TData>[] | (() => readonly Column<TData>[])
+    columns: ReadonlyArray<Column<TData>> | (() => ReadonlyArray<Column<TData>>)
     /**
      * Derives a stable unique ID for each row, used as the key of `rowSelection` and `expanded`
      * state. Defaults to the row index. Nested rows are automatically prefixed with their parent

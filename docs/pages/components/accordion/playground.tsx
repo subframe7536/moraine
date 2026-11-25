@@ -24,7 +24,7 @@ const FAQ_ITEMS = [
     content:
       'Components expose root class/style props and named slot classes/styles where applicable.',
   },
-] satisfies AccordionT.Item[]
+] satisfies Array<AccordionT.Item>
 
 export default function AccordionPlayground() {
   return (

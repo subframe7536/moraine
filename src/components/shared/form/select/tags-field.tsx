@@ -21,15 +21,15 @@ export interface TagsFieldEntry<TValue> {
 type TagSlot = 'tag' | 'tagLabel' | 'tagRemove'
 
 export interface TagsFieldOptions<TValue> {
-  values: Accessor<readonly TValue[]>
+  values: Accessor<ReadonlyArray<TValue>>
   resolve: (value: TValue) => TagsFieldEntry<TValue>
-  change: (values: TValue[]) => void
+  change: (values: Array<TValue>) => void
   getFocusOwner: Accessor<HTMLElement | undefined>
   maxVisible?: Accessor<number | undefined>
   query: Accessor<string>
   setQuery: (value: string) => string
   commitInput: (input: string) => boolean
-  tokenSeparators: Accessor<readonly string[] | undefined>
+  tokenSeparators: Accessor<ReadonlyArray<string> | undefined>
   locked: Accessor<boolean>
   slot: (name: TagSlot) => SlotBinding
   slotName: (name: TagSlot) => string

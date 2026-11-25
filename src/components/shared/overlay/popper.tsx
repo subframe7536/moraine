@@ -171,30 +171,15 @@ export function createPopper(
 export function PopperTrigger<T extends ValidComponent = 'button'>(
   props: PopperTriggerProps<T> & { context: PopperTriggerState },
 ): JSX.Element {
-  const local = pick(
-    props,
-    'context',
-    'as',
-    'disabled',
-    'ariaRelation',
-    'toggleOnClick',
-    'ref' as any,
-  )
-  const rest = omit(
-    props,
-    'context',
-    'as',
-    'disabled',
-    'ariaRelation',
-    'toggleOnClick',
-    'ref' as any,
-  )
+  const refKey = 'ref' as keyof (PopperTriggerProps<T> & { context: PopperTriggerState })
+  const local = pick(props, 'context', 'as', 'disabled', 'ariaRelation', 'toggleOnClick', refKey)
+  const rest = omit(props, 'context', 'as', 'disabled', 'ariaRelation', 'toggleOnClick', refKey)
   const context = untrack(() => props.context)
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
     bridgeClick: true,
-    ref: () => local.ref,
+    ref: () => (local as { ref?: (el: HTMLElement) => void }).ref,
     registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
   const disabled = () => Boolean(local.disabled || context.options.disabled)

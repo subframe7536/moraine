@@ -220,7 +220,9 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
     // Initial activation capture when the overlay opens and enters the stack.
     onActivate: (context) => {
       restoreFocusOnDeactivate = false
-      syncModalRestoreFocus(isModal(), context.entry.ownerDocument!)
+      if (context.entry.ownerDocument) {
+        syncModalRestoreFocus(isModal(), context.entry.ownerDocument)
+      }
       lastFocusedElement = undefined
     },
     onPointerDownInside: (event, context) => {

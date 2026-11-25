@@ -83,13 +83,13 @@ export namespace AccordionT {
      * Controlled list of expanded item values. Always an array, even when `multiple` is `false`.
      * Leave it `undefined` for uncontrolled usage; when set, update it from `onValueChange`.
      */
-    value?: string[]
+    value?: Array<string>
 
     /**
      * Item values expanded on first render when `value` is not provided. Read once at creation.
      * @default []
      */
-    defaultValue?: string[]
+    defaultValue?: Array<string>
 
     /**
      * Whether several items can be expanded at once. When `false`, opening an item replaces the
@@ -123,7 +123,7 @@ export namespace AccordionT {
      * />
      * ```
      */
-    onValueChange?: (value: string[]) => void
+    onValueChange?: (value: Array<string>) => void
 
     /**
      * Whether `ArrowDown` and `ArrowUp` focus wraps from the last enabled trigger to the first and
@@ -149,7 +149,7 @@ export namespace AccordionT {
      * />
      * ```
      */
-    items?: Item[]
+    items?: Array<Item>
 
     /**
      * Whether every item is disabled, regardless of each item's own `disabled`. No trigger can be

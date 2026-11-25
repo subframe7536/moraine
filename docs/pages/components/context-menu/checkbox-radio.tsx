@@ -4,7 +4,7 @@ import { createMemo, createSignal } from 'solid-js'
 export function CheckboxRadio() {
   const [pinned, setPinned] = createSignal(false)
   const [priority, setPriority] = createSignal('normal')
-  const items = createMemo<ContextMenuT.Item[]>(() => [
+  const items = createMemo<Array<ContextMenuT.Item>>(() => [
     { type: 'checkbox', label: 'Pin item', checked: pinned(), onCheckedChange: setPinned },
     { type: 'separator' },
     {

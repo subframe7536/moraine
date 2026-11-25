@@ -54,18 +54,18 @@ export type CreateSliderOptions<TValue extends SliderValue = SliderValue> = {
 
 export type CreateSliderReturn<TValue extends SliderValue = SliderValue> = {
   activeThumbIndexState: () => number | undefined
-  currentValues: () => number[]
+  currentValues: () => Array<number>
   definedStep: () => number | undefined
   dragging: () => boolean
   focusVisibleThumbIndex: () => number | undefined
   getMarkerStyle: (index: number) => JSX.CSSProperties
   isMarkerInRange: (index: number) => boolean
-  getPublicValue: (values: number[]) => TValue
+  getPublicValue: (values: Array<number>) => TValue
   getThumbMaxValue: (index: number) => number
   getThumbMinValue: (index: number) => number
   getThumbValueText: (index: number) => string
   getValuePercent: (value: number) => number
-  markerIndexes: () => number[]
+  markerIndexes: () => Array<number>
   onPointerCancel: (event: PointerEvent) => void
   onThumbBlur: (event: FocusEvent) => void
   onThumbFocus: (index: number, event: FocusEvent) => void
@@ -78,11 +78,65 @@ export type CreateSliderReturn<TValue extends SliderValue = SliderValue> = {
   onTrackPointerMove: (event: PointerEvent) => void
   onTrackPointerUp: (event: PointerEvent) => void
   rangeStyle: () => JSX.CSSProperties
-  resetValues: (values?: number[]) => void
+  resetValues: (values?: Array<number>) => void
   setThumbRefs: Setter<Array<HTMLDivElement | undefined>>
   setTrackRef: (element: HTMLDivElement | undefined) => void
   startEdge: () => 'left' | 'right' | 'top' | 'bottom'
-  thumbStyles: () => JSX.CSSProperties[]
+  thumbStyles: () => Array<JSX.CSSProperties>
+}
+
+function resolveDirection(
+  track: HTMLDivElement | undefined,
+  explicit: 'ltr' | 'rtl' | undefined,
+): 'ltr' | 'rtl' {
+  const ownerDocument = track?.ownerDocument
+  const ownDirection = track?.closest<HTMLElement>('[data-slot="slider"]')?.getAttribute('dir')
+  if (ownDirection === 'ltr' || ownDirection === 'rtl') {
+    return ownDirection
+  }
+
+  if (explicit === 'ltr' || explicit === 'rtl') {
+    return explicit
+  }
+
+  const localDirection = track?.closest<HTMLElement>('[dir]')?.getAttribute('dir')
+  if (localDirection === 'ltr' || localDirection === 'rtl') {
+    return localDirection
+  }
+
+  const direction = track && ownerDocument?.defaultView?.getComputedStyle(track).direction
+  if (direction === 'ltr' || direction === 'rtl') {
+    return direction
+  }
+
+  return (ownerDocument?.dir || ownerDocument?.documentElement?.dir || 'ltr') === 'rtl'
+    ? 'rtl'
+    : 'ltr'
+}
+
+function areValuesEqual(left: Array<number>, right: Array<number>): boolean {
+  return (
+    left.length === right.length && left.every((value, index) => Object.is(value, right[index]))
+  )
+}
+
+function parseBorderWidth(value: string | undefined): number {
+  return Number.parseFloat(value ?? '') || 0
+}
+
+function getThumbGrabOffset(
+  thumb: HTMLElement,
+  pointerPosition: number,
+  vertical: boolean,
+): number {
+  const rect = thumb.getBoundingClientRect()
+  const size = vertical ? rect.height : rect.width
+  if (size <= 0) {
+    return 0
+  }
+
+  const midpoint = vertical ? rect.top + rect.height / 2 : rect.left + rect.width / 2
+  return pointerPosition - midpoint
 }
 
 export function createSlider<TValue extends SliderValue = SliderValue>(
@@ -105,7 +159,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   const normalizeValues = (value: SliderValue | undefined) =>
     normalizeSliderValues(value, merged.min, merged.min, merged.max)
   const getInitialValues = () => normalizeValues(merged.defaultValue) ?? [merged.min]
-  const [currentValues, setCurrentValues] = createControllableValue<number[]>({
+  const [currentValues, setCurrentValues] = createControllableValue<Array<number>>({
     value: () => normalizeValues(merged.value),
     defaultValue: getInitialValues,
   })
@@ -141,7 +195,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   const [activeThumbIndexState, setActiveThumbIndexState] = createSignal<number | undefined>(
     undefined,
   )
-  let pendingValues: number[] | undefined
+  let pendingValues: Array<number> | undefined
   let activePointerId: number | undefined
   let activePointerTarget: HTMLDivElement | undefined
   let activeThumbIndex: number | undefined
@@ -158,35 +212,6 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     setActiveThumbIndexState(index)
   }
 
-  function resolveDirection(
-    track: HTMLDivElement | undefined,
-    explicit: 'ltr' | 'rtl' | undefined,
-  ): 'ltr' | 'rtl' {
-    const ownerDocument = track?.ownerDocument
-    const ownDirection = track?.closest<HTMLElement>('[data-slot="slider"]')?.getAttribute('dir')
-    if (ownDirection === 'ltr' || ownDirection === 'rtl') {
-      return ownDirection
-    }
-
-    if (explicit === 'ltr' || explicit === 'rtl') {
-      return explicit
-    }
-
-    const localDirection = track?.closest<HTMLElement>('[dir]')?.getAttribute('dir')
-    if (localDirection === 'ltr' || localDirection === 'rtl') {
-      return localDirection
-    }
-
-    const direction = track && ownerDocument?.defaultView?.getComputedStyle(track).direction
-    if (direction === 'ltr' || direction === 'rtl') {
-      return direction
-    }
-
-    return (ownerDocument?.dir || ownerDocument?.documentElement?.dir || 'ltr') === 'rtl'
-      ? 'rtl'
-      : 'ltr'
-  }
-
   createEffect(
     () => [trackElement(), providerDirection()] as const,
     ([track, explicit]) => {
@@ -199,7 +224,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   )
   const isActionDisabled = createMemo(() => options.disabled?.() || merged.readOnly)
   const interactionValues = () => pendingValues ?? currentValues()
-  const thumbStyles = createMemo<JSX.CSSProperties[]>(() => {
+  const thumbStyles = createMemo<Array<JSX.CSSProperties>>(() => {
     const { startEdge } = getSliderEdges()
     const contain = merged.thumbAlignment === 'contain'
 
@@ -308,18 +333,12 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     pendingValues = undefined
   })
 
-  function resetValues(values?: number[]): void {
+  function resetValues(values?: Array<number>): void {
     pendingValues = undefined
     setCurrentValues([...(values ?? getInitialValues())])
   }
 
-  function areValuesEqual(left: number[], right: number[]): boolean {
-    return (
-      left.length === right.length && left.every((value, index) => Object.is(value, right[index]))
-    )
-  }
-
-  function getPublicValue(values: number[]): TValue {
+  function getPublicValue(values: Array<number>): TValue {
     if (Array.isArray(merged.value) || Array.isArray(merged.defaultValue)) {
       return [...values] as TValue
     }
@@ -327,14 +346,14 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     return (values[0] ?? merged.min) as TValue
   }
 
-  function getThumbMinValueFor(values: number[], index: number): number {
+  function getThumbMinValueFor(values: Array<number>, index: number): number {
     const thumbGap = merged.minStepsBetweenThumbs * keyboardStep()
     return index === 0
       ? merged.min
       : clamp((values[index - 1] ?? merged.min) + thumbGap, merged.min, merged.max)
   }
 
-  function getThumbMaxValueFor(values: number[], index: number): number {
+  function getThumbMaxValueFor(values: Array<number>, index: number): number {
     const thumbGap = merged.minStepsBetweenThumbs * keyboardStep()
     return index === values.length - 1
       ? merged.max
@@ -353,10 +372,15 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   // track border (such as BoldSlider's start inset) moves pointer mapping with the visuals.
   function getTrackBorders(track: HTMLElement): { start: number; end: number } {
     const style = track.ownerDocument.defaultView?.getComputedStyle(track)
-    const read = (value: string | undefined) => Number.parseFloat(value ?? '') || 0
     return merged.orientation === 'vertical'
-      ? { start: read(style?.borderTopWidth), end: read(style?.borderBottomWidth) }
-      : { start: read(style?.borderLeftWidth), end: read(style?.borderRightWidth) }
+      ? {
+          start: parseBorderWidth(style?.borderTopWidth),
+          end: parseBorderWidth(style?.borderBottomWidth),
+        }
+      : {
+          start: parseBorderWidth(style?.borderLeftWidth),
+          end: parseBorderWidth(style?.borderRightWidth),
+        }
   }
 
   function getValueFromPointer(pointerPosition: number): number {
@@ -372,7 +396,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       (orientation === 'vertical' ? rect.height : rect.width) - borders.start - borders.end
     const input: [number, number] = [0, Math.max(size, 0)]
 
-    let output: [number, number] =
+    const output: [number, number] =
       orientation === 'vertical'
         ? merged.reversed
           ? [merged.min, merged.max]
@@ -385,21 +409,6 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     const offset = (orientation === 'vertical' ? rect.top : rect.left) + borders.start
 
     return clamp(value(pointerPosition - grabOffset - offset), merged.min, merged.max)
-  }
-
-  function getThumbGrabOffset(
-    thumb: HTMLElement,
-    pointerPosition: number,
-    vertical: boolean,
-  ): number {
-    const rect = thumb.getBoundingClientRect()
-    const size = vertical ? rect.height : rect.width
-    if (size <= 0) {
-      return 0
-    }
-
-    const midpoint = vertical ? rect.top + rect.height / 2 : rect.left + rect.width / 2
-    return pointerPosition - midpoint
   }
 
   function startInteraction(index: number, event: PointerEvent): boolean {
@@ -451,10 +460,10 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   }
 
   function getResolvedThumbValues(
-    values: number[],
+    values: Array<number>,
     index: number,
     candidateValue: number,
-  ): { nextIndex: number; nextValues: number[] } | undefined {
+  ): { nextIndex: number; nextValues: Array<number> } | undefined {
     const allowsThumbCrossing = merged.allowThumbCrossing && merged.minStepsBetweenThumbs === 0
     const minValue = allowsThumbCrossing ? merged.min : getThumbMinValueFor(values, index)
     const maxValue = allowsThumbCrossing ? merged.max : getThumbMaxValueFor(values, index)
@@ -463,7 +472,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       ? snapValueToStep(candidateValue, minValue, maxValue, step)
       : clamp(candidateValue, minValue, maxValue)
 
-    let nextValues: number[]
+    let nextValues: Array<number>
     let nextIndex = index
 
     if (allowsThumbCrossing) {
@@ -543,7 +552,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     }
   }
 
-  function getClosestThumbIndex(values: number[], pointerValue: number): number {
+  function getClosestThumbIndex(values: Array<number>, pointerValue: number): number {
     // Match established slider behavior: when stacked thumbs are equally close,
     // keep manipulating the thumb the user most recently focused or dragged.
     const closestIndex = getClosestValueIndex(values, pointerValue)

@@ -54,7 +54,7 @@ function readDefault(
 }
 
 /** Lists every public theme color role, expanding grouped colors into their variants. */
-export function listDocsColorTokens(): DocsColorToken[] {
+export function listDocsColorTokens(): Array<DocsColorToken> {
   return THEME_COLOR_ROLES.flatMap((color) => {
     const schema = MORAINE_COLORS[color]
     const entries: Array<[string | undefined, string]> =

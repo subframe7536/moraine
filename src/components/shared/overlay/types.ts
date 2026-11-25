@@ -93,7 +93,7 @@ export interface OverlayPositionProps {
    * of fallback placements to constrain which sides it tries.
    * @default true
    */
-  flip?: boolean | Placement[]
+  flip?: boolean | Array<Placement>
 
   /**
    * Whether the content slides along the trigger edge to stay within the viewport.

@@ -6,7 +6,7 @@ import { hydrateFixture } from '../../test-util/ssr-test'
 import { CheckboxGroup } from './checkbox-group'
 describe('CheckboxGroup SSR Hydration', () => {
   test('hydrates duplicate items with stable ids and DOM order before interaction', () => {
-    const [value, setValue] = createSignal<string[]>(['same'])
+    const [value, setValue] = createSignal<Array<string>>(['same'])
 
     const { container } = hydrateFixture(
       '/src/components/checkbox-group/checkbox-group.ssr.fixture.tsx',

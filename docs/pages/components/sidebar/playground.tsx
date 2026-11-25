@@ -69,14 +69,14 @@ const userMenuItems = [
   { label: 'Notifications', icon: 'i-lucide:bell' },
   { type: 'separator' as const },
   { label: 'Log out', icon: 'i-lucide:log-out', danger: true },
-] satisfies DropdownMenuT.Item[]
+] satisfies Array<DropdownMenuT.Item>
 
 const projectMenuItems = [
   { label: 'View Project', icon: 'i-lucide:folder' },
   { label: 'Share Project', icon: 'i-lucide:forward' },
   { type: 'separator' as const },
   { label: 'Delete Project', icon: 'i-lucide:trash-2', danger: true },
-] satisfies DropdownMenuT.Item[]
+] satisfies Array<DropdownMenuT.Item>
 
 export default function SidebarPlayground() {
   return (

@@ -4,7 +4,7 @@ import { createEffect, createSignal, onCleanup } from 'solid-js'
 import { createObjectUrl, revokeObjectUrl } from './file-input-sync'
 import { isImageFile } from './file-validation'
 export function createFilePreviews(options: {
-  files: Accessor<File[]>
+  files: Accessor<Array<File>>
   enabled: Accessor<boolean>
 }): Accessor<Map<File, string>> {
   const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())

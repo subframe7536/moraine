@@ -26,7 +26,7 @@ export function NavigationMenuPanel(): JSX.Element {
       if (!positioner || !reference || !reference.isConnected) {
         return
       }
-      const detaches: VoidFunction[] = [
+      const detaches: Array<VoidFunction> = [
         attachEventListener(positioner, 'pointerenter', (event) => {
           if (isMousePointer(event)) {
             context.keepOpen()
@@ -66,7 +66,11 @@ export function NavigationMenuPanel(): JSX.Element {
     if (!content || !panel) {
       return
     }
-    const computed = panel.ownerDocument.defaultView!.getComputedStyle(panel)
+    const view = panel.ownerDocument.defaultView
+    if (!view) {
+      return
+    }
+    const computed = view.getComputedStyle(panel)
     const width =
       content.offsetWidth +
       Number.parseFloat(computed.borderLeftWidth || '0') +

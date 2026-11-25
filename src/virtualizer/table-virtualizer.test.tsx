@@ -11,7 +11,7 @@ type TableVirtualizer = ReturnType<typeof createTableVirtualizer<string>>
 
 function renderInTbody(
   virtualizer: TableVirtualizer,
-  entries: readonly string[],
+  entries: ReadonlyArray<string>,
   options?: {
     scrollElement?: HTMLDivElement
     renderRow?: (item: string, index: number, props?: Record<string, unknown>) => JSX.Element
@@ -295,7 +295,7 @@ describe('createTableVirtualizer', () => {
     const [entries, setEntries] = createSignal(
       Array.from({ length: 50 }, (_, index) => `Item ${index}`),
     )
-    const rendered: unknown[] = []
+    const rendered: Array<unknown> = []
 
     const screen = render(() => (
       <table>
@@ -747,7 +747,7 @@ describe('createTableVirtualizer', () => {
     function renderColumns(
       virtualizer: ReturnType<typeof createTableVirtualizer<string, string>>,
       props: {
-        columns?: () => readonly string[]
+        columns?: () => ReadonlyArray<string>
         columnSize?: (column: string, index: number) => number
         columnLayout?: { scrollMargin?: number }
         tableProps?: Record<string, string>
@@ -859,7 +859,7 @@ describe('createTableVirtualizer', () => {
     })
 
     test('skips window entries past the end when columns shrink', async () => {
-      const [columns, setColumns] = createSignal<readonly string[]>(COLUMNS)
+      const [columns, setColumns] = createSignal<ReadonlyArray<string>>(COLUMNS)
       const { virtualizer } = createColumnVirtualizer()
       const { cleanup } = renderColumns(virtualizer, { columns })
       await Promise.resolve()

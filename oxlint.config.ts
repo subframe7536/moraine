@@ -9,15 +9,50 @@ export default subfLint({
         // Lazy accessors (useRecipe `data`, `own`, `enforced`) may reference later declarations;
         // same-scope reads before the declaration are still reported.
         'no-use-before-define': ['error', { classes: false, functions: false, variables: false }],
-        // Disabled: @subf/oxlint-plugin models the Solid 1 tracked-scope API (its createEffect /
-        // createSelector branches only mark the first argument), so the Solid 2
-        // createEffect(compute, apply) signature is always misreported. Re-enable once the plugin
-        // understands Solid 2 signatures.
+        // Library dev-mode diagnostics legitimately use console.warn / console.error.
+        'no-console': ['warn', { allow: ['warn', 'error'] }],
+        // Valibot's official idiomatic import is `import * as v from 'valibot'`.
+        'import/no-namespace': ['error', { ignore: ['valibot'] }],
+        // Public `*Base {}` and `MoraineTypeConfig {}` interfaces are intentional augmentation targets.
+        'typescript/no-empty-object-type': ['error', { allowInterfaces: 'always' }],
+        'subf/solid-reactivity': [
+          'warn',
+          {
+            customReactiveFunctions: [
+              'bindElement',
+              'publishElement',
+              'bindSelectableItemHandlers',
+              'settle',
+              'attachEventListener',
+              'callRef',
+              // Workaround: @subf/oxlint-plugin@0.4.0 omits queueMicrotask from async callbacks.
+              'queueMicrotask',
+            ],
+          },
+        ],
+      },
+    },
+    {
+      // Workaround: @subf/config@0.6.0 vitest.files uses extglob `?([cm])[jt]s?(x)` which
+      // oxlint's globset does not match. Remove once @subf/config uses `{ts,tsx,mts,cts}`.
+      files: ['**/*.{test,spec}.{ts,tsx,mts,cts}'],
+      rules: {
+        'no-unused-expressions': 'off',
         'subf/solid-reactivity': 'off',
-        // Disabled: the rule enforces Solid 1 import locations — it rewrites store APIs
-        // (`createStore`, `reconcile`) to the `solid-js/store` subpath, which does not
-        // exist in Solid 2 where they are exported from the main `solid-js` entry.
-        'subf/solid-imports': 'off',
+        'typescript/no-explicit-any': 'off',
+        'typescript/no-non-null-assertion': 'off',
+        'unicorn/consistent-function-scoping': 'off',
+      },
+    },
+    {
+      // Type-only fixture files assert @ts-expect-error on invalid JSX namespaces and
+      // module-scope signals; they are never executed at runtime.
+      files: ['test/types-*/**/*.{ts,tsx}'],
+      rules: {
+        'subf/solid-no-unknown-namespaces': 'off',
+        'subf/solid-no-module-scope-reactive-primitive': 'off',
+        'typescript/no-explicit-any': 'off',
+        'typescript/no-non-null-assertion': 'off',
       },
     },
     {

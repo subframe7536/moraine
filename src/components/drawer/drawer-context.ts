@@ -110,7 +110,7 @@ export interface DrawerContextValue {
   closeIcon?: DrawerT.Base['closeIcon']
   handle?: boolean
   translations?: DrawerT.Translations
-  snapPoints?: DrawerT.SnapPoint[]
+  snapPoints?: Array<DrawerT.SnapPoint>
   snapToSequentialPoints?: boolean
   closeOnEscape?: boolean
   onClosePrevented?: () => void

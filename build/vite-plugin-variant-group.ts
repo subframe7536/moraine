@@ -19,7 +19,7 @@ export function variantGroupPlugin(): Plugin {
       },
       async handler(code, id) {
         const transformed = new MagicString(code)
-        await transformer.transform(transformed, id, undefined as any)
+        await transformer.transform(transformed, id, undefined as never)
         if (!transformed.hasChanged()) {
           return null
         }

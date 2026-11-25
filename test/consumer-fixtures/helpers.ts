@@ -94,8 +94,8 @@ export function removeIsolatedConsumer(consumer: IsolatedConsumer): void {
 }
 
 /** Reads distribution classes collected by the consumer test setup. */
-export function readBuiltClassTokens(): string[] {
-  return JSON.parse(readFileSync(CLASS_TOKENS_PATH, 'utf8')) as string[]
+export function readBuiltClassTokens(): Array<string> {
+  return JSON.parse(readFileSync(CLASS_TOKENS_PATH, 'utf8')) as Array<string>
 }
 
 export function verifyConsumerPackageExports(consumer: IsolatedConsumer): void {

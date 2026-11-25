@@ -22,7 +22,7 @@ function bodyRow(container: HTMLElement, text: string): HTMLTableRowElement {
   )!
 }
 
-function priorities(container: HTMLElement): string[] {
+function priorities(container: HTMLElement): Array<string> {
   return [...container.querySelectorAll('[data-slot="data-table-sort-index"]')].map(
     (element) => element.textContent ?? '',
   )

@@ -131,7 +131,7 @@ export namespace StepperT {
      * />
      * ```
      */
-    items?: Item[]
+    items?: Array<Item>
 
     /**
      * How users move between steps. `none` keeps only the active step enabled, `linear` also allows

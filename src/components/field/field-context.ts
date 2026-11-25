@@ -6,7 +6,7 @@ import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'soli
 import { createContextProvider } from '../../shared/create-context-provider'
 import { hasContent } from '../../shared/jsx-content'
 import type { ComponentSize } from '../../theme/style-types'
-export type FieldPath = readonly (string | number)[]
+export type FieldPath = ReadonlyArray<string | number>
 export type FieldName = string | FieldPath
 export type FieldBindingEvent = 'blur' | 'change' | 'focus' | 'input'
 

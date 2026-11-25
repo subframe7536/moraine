@@ -117,7 +117,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     'tabindex',
   )
   const themeField = useFieldContext()
-  let indicatorPosition!: () => string | undefined
+  const indicatorPositionRef: { current?: () => string | undefined } = {}
   const {
     slots: {
       root: rootSlot,
@@ -159,11 +159,11 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     context: () => ({ variants: { size: themeField?.size } }),
     enforced: {
       control: () => ({
-        class: indicatorPosition() === 'hidden' ? VISUALLY_HIDDEN_CLASS : undefined,
+        class: indicatorPositionRef.current?.() === 'hidden' ? VISUALLY_HIDDEN_CLASS : undefined,
       }),
     },
   })
-  indicatorPosition = () => variants.indicatorPosition
+  indicatorPositionRef.current = () => variants.indicatorPosition
 
   const merged = merge(
     {

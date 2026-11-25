@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest'
 import { bindElement, publishElement } from './element-binding'
 describe('bindElement', () => {
   test('binds each element and cleans up on change and disposal', async () => {
-    const log: string[] = []
+    const log: Array<string> = []
     const [element, setElement] = createSignal<string>()
     const dispose = createRoot((dispose) => {
       bindElement(element, (value) => {
@@ -33,7 +33,7 @@ describe('bindElement', () => {
   })
 
   test('registers elements created inside a Show branch for the branch lifetime', async () => {
-    const mounted: HTMLElement[] = []
+    const mounted: Array<HTMLElement> = []
     const [open, setOpen] = createSignal(true)
 
     const screen = render(() => (

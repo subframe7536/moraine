@@ -19,7 +19,7 @@ const PROJECT_ROOT = path.resolve(__dirname, '../..')
 const CACHE_DIR = path.resolve(__dirname, '../node_modules/.cache/moraine/usage-check')
 const ALLOWED_HEADINGS = new Set(['Usage', 'Anatomy', 'Examples'])
 
-function componentPages(): string[] {
+function componentPages(): Array<string> {
   return collectMarkdownFiles(PAGES_ROOT).filter(
     (file) => file.endsWith('/index.mdx') && file !== path.join(PAGES_ROOT, 'index.mdx'),
   )
@@ -135,7 +135,7 @@ test('copyable Usage examples compile against the public component API', async (
     const rawOutput =
       (execError.stdout ?? '') + (execError.stderr ?? '') || execError.message || String(error)
 
-    const remapped = rawOutput.replace(
+    const remapped = rawOutput.replaceAll(
       /(?:[\\/][^()]+[\\/])?([a-zA-Z0-9_-]+\.tsx)\((\d+),(\d+)\):/g,
       (match, fileName, line, col) => {
         const snippet = snippets.get(fileName)
@@ -152,7 +152,7 @@ test('copyable Usage examples compile against the public component API', async (
 }, 30_000)
 
 test('component pages follow the shared content and anatomy contract', async () => {
-  const failures: string[] = []
+  const failures: Array<string> = []
   for (const page of componentPages()) {
     const source = readFileSync(page, 'utf8')
     const name = path.relative(PAGES_ROOT, page)

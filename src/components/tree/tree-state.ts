@@ -68,7 +68,7 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   get parentKey(): string | undefined {
     return this.node.parentKey
   }
-  get children(): readonly TreeT.ItemInstance<T>[] {
+  get children(): ReadonlyArray<TreeT.ItemInstance<T>> {
     return this.node.childrenKeys.flatMap((key) => this.state.getItem(key) ?? [])
   }
   get label(): string {
@@ -119,13 +119,13 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
 export interface TreeState<T> extends TreeT.Methods<T> {
   options: TreeT.Options<T>
   registry: Accessor<TreeRegistry<T>>
-  expandedKeys: Accessor<readonly string[]>
-  selectedKeys: Accessor<readonly string[]>
-  checkedKeys: Accessor<readonly string[]>
-  loadingKeys: Accessor<readonly string[]>
-  flattenedKeys: Accessor<readonly string[]>
-  flattenedItems: Accessor<readonly TreeT.ItemInstance<T>[]>
-  rootItems: () => readonly TreeT.ItemInstance<T>[]
+  expandedKeys: Accessor<ReadonlyArray<string>>
+  selectedKeys: Accessor<ReadonlyArray<string>>
+  checkedKeys: Accessor<ReadonlyArray<string>>
+  loadingKeys: Accessor<ReadonlyArray<string>>
+  flattenedKeys: Accessor<ReadonlyArray<string>>
+  flattenedItems: Accessor<ReadonlyArray<TreeT.ItemInstance<T>>>
+  rootItems: () => ReadonlyArray<TreeT.ItemInstance<T>>
   selectionMode: () => TreeT.SelectionMode
   navigation: TreeNavigation
   isExpanded: (key: string) => boolean
@@ -138,11 +138,10 @@ export interface TreeState<T> extends TreeT.Methods<T> {
 
 export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   const [focusedKey, setFocusedKey] = createSignal<string | undefined>()
-  const [loadingKeys, setLoadingKeys] = createSignal<readonly string[]>([])
+  const [loadingKeys, setLoadingKeys] = createSignal<ReadonlyArray<string>>([])
   const [loaded, setLoaded] = createSignal<Readonly<Record<string, LoadedChildren<T>>>>({})
   const inFlight = new Map<string, Promise<boolean>>()
   const handles = new Map<string, TreeItemHandle<T>>()
-  let state!: TreeState<T>
 
   // Memoized so lazy loads rebuild the registry against the same source items.
   const items = createMemo(() => options.items())
@@ -162,9 +161,9 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   async function runLoad(
     key: string,
     item: T,
-    loadChildren: (item: T) => Promise<readonly T[]>,
+    loadChildren: (item: T) => Promise<ReadonlyArray<T>>,
   ): Promise<boolean> {
-    let children: readonly T[]
+    let children: ReadonlyArray<T>
     try {
       children = await loadChildren(item)
     } catch (error) {
@@ -199,7 +198,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   }
 
   // Expansion
-  const [expandedKeys, setExpandedKeys] = createControllableValue<readonly string[]>({
+  const [expandedKeys, setExpandedKeys] = createControllableValue<ReadonlyArray<string>>({
     value: () => options.expandedKeys,
     defaultValue: () => options.defaultExpandedKeys ?? [],
     onChange: (keys) => options.onExpandedKeysChange?.([...keys]),
@@ -209,7 +208,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     set.has(key),
   )
 
-  function addExpanded(keys: readonly string[]): void {
+  function addExpanded(keys: ReadonlyArray<string>): void {
     setExpandedKeys((previous) => {
       const existing = new Set(previous)
       const added = keys.filter((key) => !existing.has(key))
@@ -250,7 +249,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   }
 
   function expandAll(): void {
-    const branches: string[] = []
+    const branches: Array<string> = []
     for (const node of registry().nodes.values()) {
       if (node.hasChildren && !node.disabled) {
         branches.push(node.key)
@@ -279,7 +278,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
 
   // Selection
   const selectionMode = (): TreeT.SelectionMode => options.selectionMode ?? 'single'
-  const [selectedKeys, setSelectedKeys] = createControllableValue<readonly string[]>({
+  const [selectedKeys, setSelectedKeys] = createControllableValue<ReadonlyArray<string>>({
     value: () => options.selectedKeys,
     defaultValue: () => options.defaultSelectedKeys ?? [],
     onChange: (keys) => options.onSelectedKeysChange?.([...keys]),
@@ -341,7 +340,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     if (selectionMode() !== 'multiple') {
       return
     }
-    const keys: string[] = []
+    const keys: Array<string> = []
     for (const node of registry().nodes.values()) {
       if (!node.disabled) {
         keys.push(node.key)
@@ -383,8 +382,8 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     const max = Math.max(from, to)
     const next = new Set(rangeSnapshot)
     for (let i = min; i <= max; i++) {
-      const candidate = visible[i]!
-      if (!isDisabled(candidate)) {
+      const candidate = visible[i]
+      if (candidate !== undefined && !isDisabled(candidate)) {
         next.add(candidate)
       }
     }
@@ -392,7 +391,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   }
 
   // Checked
-  const [storedCheckedKeys, setStoredCheckedKeys] = createControllableValue<readonly string[]>({
+  const [storedCheckedKeys, setStoredCheckedKeys] = createControllableValue<ReadonlyArray<string>>({
     value: () => options.checkedKeys,
     defaultValue: () => options.defaultCheckedKeys ?? [],
     onChange: (keys) => options.onCheckedKeysChange?.([...keys]),
@@ -402,7 +401,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   )
   // Stored keys outside the current registry, such as unloaded lazy children, stay checked so
   // they apply once their items load. `checkedKeys` reports them so it matches `onCheckedKeysChange`.
-  const unknownCheckedKeys = (): string[] => {
+  const unknownCheckedKeys = (): Array<string> => {
     const nodes = registry().nodes
     return storedCheckedKeys().filter((storedKey) => !nodes.has(storedKey))
   }
@@ -434,7 +433,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     const subtree = [
       key,
       ...getDescendantKeys(current, key).filter(
-        (childKey) => !current.nodes.get(childKey)!.disabled,
+        (childKey) => !current.nodes.get(childKey)?.disabled,
       ),
     ]
     if (checked) {
@@ -543,7 +542,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   const rootItems = createMemo(() => registry().rootKeys.flatMap((key) => getItem(key) ?? []))
   const flattenedItems = createMemo(() => flattenedKeys().flatMap((key) => getItem(key) ?? []))
 
-  state = {
+  const state: TreeState<T> = {
     options,
     registry,
     expandedKeys,

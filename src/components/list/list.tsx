@@ -111,7 +111,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
       role="list"
       data-slot="list"
       {...rootSlot}
-      {...(rest as any)}
+      {...(rest as Record<string, unknown>)}
       ref={(element: HTMLElement) => {
         setScrollElement(() => element)
         callRef(() => local.ref, element)
@@ -144,7 +144,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
           />
         }
       >
-        {renderWithProps(local.emptyRender!, {})}
+        {local.emptyRender !== undefined ? renderWithProps(local.emptyRender, {}) : null}
       </Show>
     </Root>
   )

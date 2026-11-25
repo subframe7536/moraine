@@ -83,26 +83,30 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
     schedule: (fn: () => void) => queueMicrotask(fn),
     batch: flush,
     untrack,
-    createReadonlyAtom: <T>(fn: () => T, options?: TableAtomOptions<T>): any => {
+    createReadonlyAtom: <T>(fn: () => T, options?: TableAtomOptions<T>) => {
       const memo = createMemo(fn, {
         equals: options?.compare,
         name: options?.debugName,
       })
+      // Returned function is a reactive accessor wrapper for TanStack Table atoms.
+      // oxlint-disable-next-line subf/solid-reactivity
       return Object.assign(() => memo(), {
         get: () => memo(),
         subscribe: (observerOrFn: Observer<T>) =>
           subscribeToSignal(memo, observerOrFn, subscriptions),
       })
     },
-    createWritableAtom: <T>(initialValue: T, options?: TableAtomOptions<T>): any => {
-      const [signal, setSignal] = createSignal<Exclude<T, (...args: never[]) => unknown>>(
-        () => initialValue as Exclude<T, (...args: never[]) => unknown>,
+    createWritableAtom: <T>(initialValue: T, options?: TableAtomOptions<T>) => {
+      const [signal, setSignal] = createSignal<Exclude<T, (...args: Array<never>) => unknown>>(
+        () => initialValue as Exclude<T, (...args: Array<never>) => unknown>,
         {
           equals: options?.compare,
           name: options?.debugName,
           ownedWrite: true,
         },
       )
+      // Returned function is a reactive accessor wrapper for TanStack Table atoms.
+      // oxlint-disable-next-line subf/solid-reactivity
       return Object.assign(() => signal(), {
         get: () => signal(),
         set: (updater: T | ((prev: T) => T)) => {
@@ -112,11 +116,11 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
             if (typeof updater === 'function') {
               setSignal(
                 updater as (
-                  prev: Exclude<T, (...args: never[]) => unknown>,
-                ) => Exclude<T, (...args: never[]) => unknown>,
+                  prev: Exclude<T, (...args: Array<never>) => unknown>,
+                ) => Exclude<T, (...args: Array<never>) => unknown>,
               )
             } else {
-              setSignal(() => updater as Exclude<T, (...args: never[]) => unknown>)
+              setSignal(() => updater as Exclude<T, (...args: Array<never>) => unknown>)
             }
           })
         },
@@ -149,7 +153,8 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
   })
   const resolvedOptions = merge(
     {
-      mergeOptions: (defaultOptions: any, options: any) => merge(defaultOptions, options),
+      mergeOptions: (defaultOptions: Record<string, unknown>, options: Record<string, unknown>) =>
+        merge(defaultOptions, options),
     },
     mergedOptions,
   )
@@ -165,19 +170,23 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
   // invalidation discards the claimed nodes, so it is deferred past the claim.
   const hydrating = isHydrating()
   return untrack(() => {
-    const table = constructTable(resolvedOptions as any) as unknown as Table<TFeatures, TData>
-    const defaultOptions = Object.values(table._features).reduce((obj, feature) => {
-      return Object.assign(obj, feature.getDefaultTableOptions?.(table))
-    }, {} as any)
+    const table = constructTable(resolvedOptions as unknown as TableOptions<TFeatures, TData>)
+    const defaultOptions = Object.values(table._features).reduce<Record<string, unknown>>(
+      (obj, feature) => {
+        return Object.assign(obj, feature.getDefaultTableOptions?.(table))
+      },
+      {},
+    )
 
     const liveOptions = merge(defaultOptions, resolvedOptions)
-    Object.defineProperties((table as any).options, Object.getOwnPropertyDescriptors(liveOptions))
+    const mutableTable = table as unknown as { options: Record<string, unknown> }
+    Object.defineProperties(mutableTable.options, Object.getOwnPropertyDescriptors(liveOptions))
     if (hydrating) {
       queueMicrotask(() => {
-        ;(table as any).options = liveOptions
+        mutableTable.options = liveOptions
       })
     } else if (!isServer) {
-      ;(table as any).options = liveOptions
+      mutableTable.options = liveOptions
     }
     return table
   })

@@ -9,10 +9,11 @@ import { flush } from 'solid-js'
 
 import { fireEvent as domFireEvent } from '#tl'
 
+// oxlint-disable-next-line import/export -- #tl is a Vitest alias to @solidjs/testing-library
 export * from '#tl'
 
 export const fireEvent = new Proxy(domFireEvent, {
-  apply(target, thisArg, args: unknown[]) {
+  apply(target, thisArg, args: Array<unknown>) {
     const result: unknown = Reflect.apply(target, thisArg, args)
     flush()
     return result
@@ -22,8 +23,8 @@ export const fireEvent = new Proxy(domFireEvent, {
     if (typeof value !== 'function') {
       return value
     }
-    return (...args: unknown[]) => {
-      const result: unknown = (value as (...args: unknown[]) => unknown).apply(target, args)
+    return (...args: Array<unknown>) => {
+      const result: unknown = (value as (...args: Array<unknown>) => unknown).apply(target, args)
       flush()
       return result
     }

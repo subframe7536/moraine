@@ -33,14 +33,14 @@ function resolveColumnId(column: object): string | undefined {
 
 /** Finds a column definition, at any group depth, whose resolved id is `id`. */
 function findColumnById(
-  columns: readonly object[],
+  columns: ReadonlyArray<object>,
   id: string,
 ): { readonly id?: string } | undefined {
   for (const column of columns) {
     if (resolveColumnId(column) === id) {
       return column
     }
-    const children = (column as { columns?: readonly object[] }).columns
+    const children = (column as { columns?: ReadonlyArray<object> }).columns
     const nested = children ? findColumnById(children, id) : undefined
     if (nested) {
       return nested
@@ -98,16 +98,14 @@ export function createDataTable<TData extends RowData = RowData>(
     }
   })
 
-  let table!: DataTableT.Instance<TData>
-
   const expandCol = buildExpandColumn<TData>()
   const warnedIds = DEV ? new Set<string>() : undefined
   // A user column whose resolved id is reserved replaces the generated column, so ids never
   // collide. Derived ids (`accessorKey`, string `header`) replacing it are usually accidental.
-  const hasUserColumn = (columns: readonly DataTableT.Column<TData>[], id: string): boolean => {
+  const hasUserColumn = (columns: ReadonlyArray<DataTableT.Column<TData>>, id: string): boolean => {
     const match = findColumnById(columns, id)
-    if (DEV && match && match.id !== id && !warnedIds!.has(id)) {
-      warnedIds!.add(id)
+    if (DEV && warnedIds && match && match.id !== id && !warnedIds.has(id)) {
+      warnedIds.add(id)
       console.warn(
         `[moraine] A DataTable column derives the reserved id "${id}" and replaces the generated "${id}" column. Set an explicit \`id\` on that column to keep both.`,
       )
@@ -123,7 +121,7 @@ export function createDataTable<TData extends RowData = RowData>(
   )
   const memoizedColumns = createMemo(() => {
     const userColumns = typeof options.columns === 'function' ? options.columns() : options.columns
-    const prefix: DataTableT.Column<TData>[] = []
+    const prefix: Array<DataTableT.Column<TData>> = []
     if (options.selectionMode && !hasUserColumn(userColumns, SELECT_COLUMN_ID)) {
       prefix.push(buildSelectColumn<TData>(options.selectionMode))
     }
@@ -174,6 +172,7 @@ export function createDataTable<TData extends RowData = RowData>(
       : (own ?? null)
   })
 
+  const userGetRowId = options.getRowId
   const features = getDataTableFeatures()
   // `merge` treats `undefined` as "fall back to a previous source". The
   // initial options snapshot is captured once by `constructTable`, so a getter
@@ -201,9 +200,9 @@ export function createDataTable<TData extends RowData = RowData>(
       get columns() {
         return memoizedColumns()
       },
-      getRowId: options.getRowId
+      getRowId: userGetRowId
         ? (originalRow: TData, index: number, parent?: Row<DataTableFeatures, TData>): string => {
-            const leafId = options.getRowId!(originalRow, index, parent)
+            const leafId = userGetRowId(originalRow, index, parent)
             return parent ? `${parent.id}.${leafId}` : leafId
           }
         : undefined,
@@ -268,7 +267,7 @@ export function createDataTable<TData extends RowData = RowData>(
   // otherwise the deferred invalidation re-runs insert regions and replaces
   // server-rendered nodes during hydration.
   const resolvedTable = () => createTable(resolvedTableOptions)
-  table = (isServer ? resolvedTable() : flush(resolvedTable)) as DataTableT.Instance<TData>
+  const table = (isServer ? resolvedTable() : flush(resolvedTable)) as DataTableT.Instance<TData>
 
   const paginationSettings: DataTableT.PaginationSettings = {
     get paginated() {

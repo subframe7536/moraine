@@ -9,7 +9,7 @@ const PLAN_OPTIONS = [
     description: 'Advanced collaboration and unlimited bandwidth.',
   },
   { label: 'Enterprise', value: 'enterprise', description: 'Dedicated support and custom SLA.' },
-] satisfies RadioGroupT.Item[]
+] satisfies Array<RadioGroupT.Item>
 
 export function Selection() {
   const [plan, setPlan] = createSignal('pro')

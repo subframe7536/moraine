@@ -32,7 +32,7 @@ export interface Payment {
   client: string
 }
 
-const INITIAL_DATA: Payment[] = [
+const INITIAL_DATA: Array<Payment> = [
   {
     id: 'm5gr84i9',
     amount: 316,
@@ -116,7 +116,6 @@ const features = tableFeatures({
 })
 
 export function TanStackTable() {
-  const [data] = createSignal<Payment[]>(INITIAL_DATA)
   const [sorting, setSorting] = createSignal<SortingState>([])
   const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = createSignal<ColumnVisibilityState>({})
@@ -126,7 +125,7 @@ export function TanStackTable() {
     pageSize: 4,
   })
 
-  const columns: ColumnDef<typeof features, Payment>[] = [
+  const columns: Array<ColumnDef<typeof features, Payment>> = [
     {
       id: 'select',
       header: (props) => (
@@ -235,7 +234,7 @@ export function TanStackTable() {
       id: 'actions',
       enableHiding: false,
       cell: (props) => {
-        const actionItems: DropdownMenuT.Item[] = [
+        const actionItems: Array<DropdownMenuT.Item> = [
           {
             label: 'Copy payment ID',
             onSelect: () => navigator.clipboard.writeText(props.row.original.id),
@@ -264,9 +263,7 @@ export function TanStackTable() {
   const table = createTable({
     features,
     columns,
-    get data() {
-      return data()
-    },
+    data: INITIAL_DATA,
     state: {
       get sorting() {
         return sorting()
@@ -291,10 +288,10 @@ export function TanStackTable() {
     onPaginationChange: setPagination,
   })
 
-  const visibilityItems = createMemo<DropdownMenuT.Item[]>(() =>
+  const visibilityItems = createMemo<Array<DropdownMenuT.Item>>(() =>
     table
       .getAllColumns()
-      .filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
+      .filter((column) => column.accessorFn !== undefined && column.getCanHide())
       .map((column) => ({
         type: 'checkbox',
         label: column.id,

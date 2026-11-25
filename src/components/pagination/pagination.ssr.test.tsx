@@ -45,6 +45,6 @@ describe('Pagination SSR Hydration', () => {
     expect(container.querySelectorAll('[data-slot="pagination-ellipsis"]')).toHaveLength(2)
 
     fireEvent.click(container.querySelector('[data-slot="pagination-next"]')!)
-    expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 6 of 10')
+    expect(status?.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('Page 6 of 10')
   })
 })

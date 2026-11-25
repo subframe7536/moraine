@@ -48,7 +48,7 @@ function getLocaleNumberSymbols(
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   })
-  const parts = formatter.formatToParts(-1234567.8)
+  const parts = formatter.formatToParts(-1_234_567.8)
   const plusParts = createNumberFormat(locale, {
     ...options,
     signDisplay: 'always',
@@ -241,10 +241,10 @@ export function parseLocaleNumber(
   // Strip a compact marker once (longest first, so `万亿` wins over `万`); its
   // scale applies to the parsed mantissa. Unknown markers stay and fail the parse.
   if (symbols.compactScales.size > 0) {
-    const markers = [...symbols.compactScales.keys()].sort((a, b) => b.length - a.length)
-    for (const marker of markers) {
+    const markers = [...symbols.compactScales.entries()].sort((a, b) => b[0].length - a[0].length)
+    for (const [marker, scale] of markers) {
       if (normalized.includes(marker)) {
-        scaleExponent += symbols.compactScales.get(marker)!
+        scaleExponent += scale
         normalized = normalized.replace(marker, '')
         break
       }

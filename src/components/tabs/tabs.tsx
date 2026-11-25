@@ -95,7 +95,6 @@ export function Tabs(props: TabsProps): JSX.Element {
     'aria-label',
     'aria-labelledby',
   )
-  let indicatorStyle!: () => JSX.CSSProperties
   const {
     slots: {
       root: rootSlot,
@@ -134,7 +133,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   let previousCache = new Map<string, NormalizedTabItem>()
   const warnedDuplicateValues = new Set<string>()
 
-  const normalizedItems = createMemo<NormalizedTabItem[]>(() => {
+  const normalizedItems = createMemo<Array<NormalizedTabItem>>(() => {
     const nextCache = new Map<string, NormalizedTabItem>()
     const occurrences = new Map<string, number>()
 
@@ -226,12 +225,11 @@ export function Tabs(props: TabsProps): JSX.Element {
 
     return selectedKey()
   })
-  const [indicatorStyleSignal, setIndicatorStyle] = createSignal<JSX.CSSProperties>({
+  const [indicatorStyle, setIndicatorStyle] = createSignal<JSX.CSSProperties>({
     transform: undefined,
     width: undefined,
     height: undefined,
   })
-  indicatorStyle = indicatorStyleSignal
   const [listRef, setListRef] = createSignal<HTMLDivElement>()
   const { onNavigationKeyDown } = createSelectableCollectionNavigation<NormalizedTabItem, string>({
     items: normalizedItems,

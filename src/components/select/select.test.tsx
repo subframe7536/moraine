@@ -603,7 +603,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
 test('updates mixed string groups and passes normalized objects to row callbacks', () => {
   const object = { value: 1, label: 'One', extra: true }
   const [keys, setKeys] = createSignal(['Apple', 'Banana'])
-  const seen: unknown[] = []
+  const seen: Array<unknown> = []
   const screen = render(() => (
     <Select<string | typeof object>
       items={[object, { type: 'group', label: 'Fruit', children: keys() }]}

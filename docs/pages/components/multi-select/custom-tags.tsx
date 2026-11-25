@@ -4,7 +4,7 @@ interface LabelItem extends MultiSelectT.Item {
   color: string
 }
 
-const LABELS: LabelItem[] = [
+const LABELS: Array<LabelItem> = [
   {
     label: 'bug',
     value: 'bug',
@@ -46,7 +46,10 @@ export function CustomTags() {
           const color = () => props.item?.color ?? 'bg-muted border-border text-foreground'
           return (
             <span
-              class={`text-xs font-medium px-2 py-0.5 border rounded-full inline-flex gap-1.5 items-center ${color()}`}
+              class={[
+                'text-xs font-medium px-2 py-0.5 border rounded-full inline-flex gap-1.5 items-center',
+                color(),
+              ]}
             >
               <span class="rounded-full bg-current opacity-70 h-1.5 w-1.5" />
               <span>{props.label}</span>

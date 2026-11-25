@@ -203,7 +203,7 @@ export function DataTable<TData extends RowData = RowData>(
   })
   // Virtual tables show every row in one scroll, so they read the rows before pagination.
   // Otherwise `pagination` would still slice the rows while its toolbar is hidden.
-  const rows = (): DataTableT.Row<TData>[] =>
+  const rows = (): Array<DataTableT.Row<TData>> =>
     virtual() ? table().getPrePaginatedRowModel().rows : table().getRowModel().rows
 
   // A detail row is a second `<tr>` per entry that the virtualizer cannot measure or index,
@@ -215,11 +215,11 @@ export function DataTable<TData extends RowData = RowData>(
     // Client-only and transparent so this dev-only owner never occupies a hydration id slot:
     // the server build may or may not be a dev build, and server effects never run anyway.
     createEffect(
-      (): VirtualConflict[] => {
+      (): Array<VirtualConflict> => {
         if (!virtual()) {
           return []
         }
-        const conflicts: VirtualConflict[] = []
+        const conflicts: Array<VirtualConflict> = []
         if (pagination()?.paginated) {
           conflicts.push('pagination')
         }

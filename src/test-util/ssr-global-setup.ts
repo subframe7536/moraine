@@ -6,13 +6,13 @@ import type { TestProject } from 'vitest/node'
 type SsrFixture = () => unknown
 type SsrFixtureModule = Record<string, unknown>
 
-const getFixtureModules = (): string[] =>
+const getFixtureModules = (): Array<string> =>
   Object.keys(import.meta.glob('/src/**/*.ssr.fixture.tsx')).sort()
 
 export async function renderFixtures(
   project: TestProject,
   createViteServer: typeof createServer = createServer,
-  modules: string[] = getFixtureModules(),
+  modules: Array<string> = getFixtureModules(),
 ): Promise<void> {
   const server = await createViteServer({
     appType: 'custom',

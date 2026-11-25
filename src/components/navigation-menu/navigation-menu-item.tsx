@@ -52,12 +52,13 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
     ownedWrite: true,
   })
   const [content, setContent] = createSignal<HTMLDivElement>()
-  const [contentTrees, setContentTrees] = createSignal<JSX.Element[]>([], {
+  const [contentTrees, setContentTrees] = createSignal<Array<JSX.Element>>([], {
     ownedWrite: true,
   })
-  const [triggerOptions, setTriggerOptions] = createSignal<
-    NavigationMenuT.TriggerProps | undefined
-  >(undefined, { ownedWrite: true })
+  const [triggerOptions, setTriggerOptions] = createSignal<{ disabled?: boolean } | undefined>(
+    undefined,
+    { ownedWrite: true },
+  )
   const item: NavigationMenuItemContextValue = {
     value,
     disabled: () =>

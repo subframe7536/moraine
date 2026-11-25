@@ -108,7 +108,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
     context: () => ({ variants: { size: field?.size } }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(slots)
-  const [created, setCreated] = createSignal<Item[]>([])
+  const [created, setCreated] = createSignal<Array<Item>>([])
   const source = createMemo((prev: ReturnType<typeof createSource<Item>> | undefined) =>
     createSource(normalizeSelectEntries<T>(local.items ?? []), created(), prev),
   )
@@ -120,24 +120,24 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
     () => baseSelectProps.getItemLabel,
   )
 
+  function resolveInputItem(input: string): Item | undefined {
+    const normalized = input.trim()
+    if (!normalized) {
+      return undefined
+    }
+    const collator = createSearchCollator(locale())
+    return source().items.find((candidate) => {
+      const label = labelString(candidate, baseSelectProps.getItemLabel)
+      return (
+        collatorEquals(collator, label, normalized) ||
+        collatorEquals(collator, String(candidate.value), normalized)
+      )
+    })
+  }
+
   function Control(): JSX.Element {
     const state = useSelectContext<Item>()
     const atMax = () => local.maxValues !== undefined && state.value().length >= local.maxValues
-
-    function resolveInputItem(input: string): Item | undefined {
-      const normalized = input.trim()
-      if (!normalized) {
-        return undefined
-      }
-      const collator = createSearchCollator(locale())
-      return source().items.find((candidate) => {
-        const label = labelString(candidate, baseSelectProps.getItemLabel)
-        return (
-          collatorEquals(collator, label, normalized) ||
-          collatorEquals(collator, String(candidate.value), normalized)
-        )
-      })
-    }
 
     function commitInput(input: string): boolean {
       if (state.locked()) {
@@ -240,7 +240,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       },
     })
     const overflowTags = () => tags.tags().slice(tags.visible().length)
-    const overflowRenderTags = (): readonly MultiSelectT.TagOverflowEntry<T>[] =>
+    const overflowRenderTags = (): ReadonlyArray<MultiSelectT.TagOverflowEntry<T>> =>
       overflowTags().map((tag) => ({
         item: source().byValue.get(tag.value),
         value: tag.value,

@@ -118,7 +118,7 @@ describe('ContextMenu', () => {
         clientY: 30,
       })
       await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'), {
-        timeout: 2_000,
+        timeout: 2000,
       })
       fireEvent.pointerUp(trigger, { pointerId: 42, pointerType: 'touch' })
     } finally {
@@ -783,7 +783,7 @@ describe('ContextMenu', () => {
       })
       await vi.advanceTimersByTimeAsync(700)
       fireEvent.pointerUp(row, { pointerId: 11, pointerType: 'touch' })
-      await vi.advanceTimersByTimeAsync(1_000)
+      await vi.advanceTimersByTimeAsync(1000)
       fireEvent.contextMenu(row, { clientX: 40, clientY: 50 })
 
       expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true, false])
@@ -1277,7 +1277,7 @@ describe('ContextMenu', () => {
     const [rootContent, middleContent, deepestContent] = Array.from(
       document.body.querySelectorAll<HTMLElement>('[data-slot="context-menu-content"]'),
     ) as [HTMLElement, HTMLElement, HTMLElement]
-    const closeOrder: HTMLElement[] = []
+    const closeOrder: Array<HTMLElement> = []
     const observer = new MutationObserver((records) => {
       for (const record of records) {
         const content = record.target as HTMLElement

@@ -4,7 +4,7 @@ const ACTIONS = [
   { label: 'Edit profile', icon: 'i-lucide:user' },
   { label: 'Billing details', icon: 'i-lucide:credit-card' },
   { label: 'Keyboard shortcuts', icon: 'i-lucide:keyboard' },
-] satisfies DropdownMenuT.Item[]
+] satisfies Array<DropdownMenuT.Item>
 
 export function TriggerItems() {
   return (

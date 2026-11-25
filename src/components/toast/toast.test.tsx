@@ -604,7 +604,7 @@ describe('Toast', () => {
       expect(screen.getByText('Still loading...')).not.toBeNull()
 
       // Advancing past standard duration should NOT dismiss the loading toast
-      await vi.advanceTimersByTimeAsync(10000)
+      await vi.advanceTimersByTimeAsync(10_000)
       expect(screen.getByText('Still loading...')).not.toBeNull()
 
       resolvePromise!()

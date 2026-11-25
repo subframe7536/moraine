@@ -665,7 +665,7 @@ describe('Form', () => {
   test.each([false, true])(
     'resets native controls and Formisch state with enabled initially %s',
     async (enabled) => {
-      const resetSnapshots: unknown[] = []
+      const resetSnapshots: Array<unknown> = []
       const onChange = vi.fn()
       const { screen, value: form } = renderWithOwner(
         () =>
@@ -749,7 +749,9 @@ describe('Form', () => {
 
     fireEvent.input(input, { target: { value: 'Changed' } })
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
 
     expect(input.value).toBe('Changed')
     expect(getInput(form)).toEqual({ value: 'Changed' })

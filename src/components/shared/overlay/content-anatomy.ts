@@ -23,8 +23,8 @@ export function useRegisteredContentId(
 export function createContentAnatomy() {
   const [headers, setHeaders] = createSignal(0, { ownedWrite: true })
   const [explicitHeaders, setExplicitHeaders] = createSignal(0, { ownedWrite: true })
-  const [titles, setTitles] = createSignal<string[]>([], { ownedWrite: true })
-  const [descriptions, setDescriptions] = createSignal<string[]>([], { ownedWrite: true })
+  const [titles, setTitles] = createSignal<Array<string>>([], { ownedWrite: true })
+  const [descriptions, setDescriptions] = createSignal<Array<string>>([], { ownedWrite: true })
 
   const registerHeader = (kind: 'explicit' | 'shorthand') => {
     setHeaders((count) => count + 1)

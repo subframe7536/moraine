@@ -920,7 +920,9 @@ describe('Dialog', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
@@ -953,7 +955,9 @@ describe('Dialog', () => {
 
     expect(window.getSelection()?.toString()).toContain('Dialog title')
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await finishExitMotion()
@@ -990,7 +994,9 @@ describe('Dialog', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
@@ -1044,7 +1050,9 @@ describe('Dialog', () => {
       expect(onOpenChange).not.toHaveBeenCalled()
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
     await finishExitMotion()
 
@@ -1202,7 +1210,7 @@ describe('Dialog', () => {
     const contents = document.body.querySelectorAll('[data-slot="dialog-content"]')
     expect(contents.length).toBe(2)
 
-    const innerContent = contents[contents.length - 1] as HTMLElement
+    const innerContent = [...contents].at(-1) as HTMLElement
     innerContent.focus()
     fireEvent.keyDown(innerContent, { key: 'Escape' })
 
@@ -1246,7 +1254,9 @@ describe('Dialog', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
 
     const innerButton = document.body.querySelector('[data-testid="inner-button"]')!
     fireEvent.pointerDown(innerButton)

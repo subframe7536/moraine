@@ -198,7 +198,7 @@ describe('Input', () => {
   })
 
   test('preserves native input ordering during IME and change commits', async () => {
-    const calls: string[] = []
+    const calls: Array<string> = []
     const screen = render(() => (
       <Input
         onInput={() => calls.push('input')}

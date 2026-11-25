@@ -33,9 +33,10 @@ export default function SliderPlayground() {
             }
           >
             <div
-              class={`text-xs text-muted-foreground flex items-center justify-between ${
-                props.vertical ? 'flex-col gap-1' : 'w-full'
-              }`}
+              class={[
+                'text-xs text-muted-foreground flex items-center justify-between',
+                props.vertical ? 'flex-col gap-1' : 'w-full',
+              ]}
             >
               <span>Volume</span>
               <span class="text-foreground font-medium font-mono">{value().toFixed(2)}%</span>

@@ -369,7 +369,7 @@ describe('Breadcrumb', () => {
   })
 
   test('keeps one current page while items are inserted, reordered, and removed', () => {
-    const [items, setItems] = createSignal<BreadcrumbT.Item[]>([
+    const [items, setItems] = createSignal<Array<BreadcrumbT.Item>>([
       { label: 'Home', href: '/', active: true },
       { label: 'Docs', href: '/docs', active: true },
       { label: 'API', href: '/api' },
@@ -407,7 +407,7 @@ describe('Breadcrumb', () => {
 
   test('keeps item and separator nodes stable while native item state changes', () => {
     const [activeIndex, setActiveIndex] = createSignal(1)
-    const items: BreadcrumbT.Item[] = [
+    const items: Array<BreadcrumbT.Item> = [
       {
         label: 'Home',
         href: '/',

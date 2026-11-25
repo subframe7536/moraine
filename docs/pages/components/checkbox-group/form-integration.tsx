@@ -6,10 +6,10 @@ const ROLE_OPTIONS = [
   { label: 'Read repository', value: 'read' },
   { label: 'Write changes', value: 'write' },
   { label: 'Admin access', value: 'admin' },
-] satisfies CheckboxGroupT.Item[]
+] satisfies Array<CheckboxGroupT.Item>
 
 export function FormIntegration() {
-  const [submitted, setSubmitted] = createSignal<string[]>([])
+  const [submitted, setSubmitted] = createSignal<Array<string>>([])
   const form = createForm({
     schema: v.object({
       permissions: v.pipe(

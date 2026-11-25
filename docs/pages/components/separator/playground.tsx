@@ -18,7 +18,7 @@ export default function SeparatorPlayground() {
       ]}
     >
       {(props) => (
-        <div class={`flex gap-4 ${props.orientation === 'vertical' ? 'h-4' : 'flex-col'}`}>
+        <div class={['flex gap-4', props.orientation === 'vertical' ? 'h-4' : 'flex-col']}>
           <div class="text-xs text-muted-foreground">Section Header</div>
           <Separator orientation={props.orientation} />
           <div class="text-xs text-muted-foreground">Content Section</div>

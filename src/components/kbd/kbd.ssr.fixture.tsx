@@ -14,7 +14,7 @@ function KbdSeparator(props: KbdGroupT.SeparatorRenderProps) {
 
 export function KbdHydrationFixture(props: {
   keyName?: string
-  items?: KbdGroupT.Item[]
+  items?: Array<KbdGroupT.Item>
   separator?: KbdGroupT.Base['separator']
 }) {
   return (

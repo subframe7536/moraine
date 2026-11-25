@@ -170,7 +170,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
             role={defaultRole()}
             aria-live={defaultAriaLive()}
             {...rootSlot}
-            {...(rest as any)}
+            {...(rest as Record<string, unknown>)}
             ref={(element: HTMLElement) => {
               setElement(element)
               callRef(() => local.ref, element)

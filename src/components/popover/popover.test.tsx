@@ -12,7 +12,7 @@ import { Popover } from './popover'
 describe('Popover', () => {
   test('ignores a detached custom trigger root and rebinds its replacement', async () => {
     let setVisible!: (value: boolean) => void
-    const errors: string[] = []
+    const errors: Array<string> = []
     const handleError = (event: ErrorEvent) => {
       errors.push(event.message)
       event.preventDefault()
@@ -804,7 +804,9 @@ describe('Popover', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
@@ -855,7 +857,9 @@ describe('Popover', () => {
       expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
     await finishExitMotion()
 
@@ -887,7 +891,9 @@ describe('Popover', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     const event = new PointerEvent('pointerdown', {
       bubbles: true,
       cancelable: true,
@@ -926,7 +932,9 @@ describe('Popover', () => {
 
     const outside = screen.getByTestId('outside')
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(outside)
     fireEvent.focusIn(outside)
 
@@ -1134,7 +1142,9 @@ describe('Popover', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     const outside = screen.getByTestId('outside')
     fireEvent.pointerDown(outside, { pointerType: 'mouse' })
     outside.focus()

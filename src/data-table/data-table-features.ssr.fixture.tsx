@@ -11,10 +11,10 @@ interface FileNode {
   name: string
   kind: string
   size: number
-  children?: FileNode[]
+  children?: Array<FileNode>
 }
 
-const FILES: FileNode[] = [
+const FILES: Array<FileNode> = [
   {
     id: 'src',
     name: 'src',
@@ -33,7 +33,7 @@ const FILES: FileNode[] = [
   { id: 'readme', name: 'README.md', kind: 'file', size: 2 },
 ]
 
-const FILE_COLUMNS: DataTableT.Column<FileNode>[] = [
+const FILE_COLUMNS: Array<DataTableT.Column<FileNode>> = [
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'kind', header: 'Kind' },
   { accessorKey: 'size', header: 'Size' },
@@ -68,7 +68,7 @@ type WideRow = Record<string, string>
 
 const WIDE_CENTER_COUNT = 12
 
-const WIDE_COLUMNS: DataTableT.Column<WideRow>[] = [
+const WIDE_COLUMNS: Array<DataTableT.Column<WideRow>> = [
   { accessorKey: 'id', header: 'ID', size: 60 },
   ...Array.from({ length: WIDE_CENTER_COUNT }, (_, index) => ({
     accessorKey: `c${index}`,
@@ -77,7 +77,7 @@ const WIDE_COLUMNS: DataTableT.Column<WideRow>[] = [
   })),
 ]
 
-const WIDE_ROWS: WideRow[] = Array.from({ length: 20 }, (_, row) =>
+const WIDE_ROWS: Array<WideRow> = Array.from({ length: 20 }, (_, row) =>
   Object.fromEntries([
     ['id', `r${row}`],
     ...Array.from({ length: WIDE_CENTER_COUNT }, (_, index) => [`c${index}`, `r${row}c${index}`]),

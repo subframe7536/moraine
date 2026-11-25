@@ -26,7 +26,7 @@ const REVIEWERS = [
     alt: 'Jane Wilson',
     text: 'JW',
   },
-] satisfies AvatarGroupT.Item[]
+] satisfies Array<AvatarGroupT.Item>
 
 export function OverflowCount() {
   return (

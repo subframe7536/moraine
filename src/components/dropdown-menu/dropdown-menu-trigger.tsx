@@ -31,8 +31,8 @@ import type { DropdownMenuT } from './dropdown-menu.types'
 export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   props: DropdownMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style', 'disabled', 'ref' as any)
-  const rest = omit(props, 'as', 'class', 'style', 'disabled', 'ref' as any)
+  const local = pick(props as DropdownMenuT.TriggerProps, 'as', 'class', 'style', 'disabled', 'ref')
+  const rest = omit(props as DropdownMenuT.TriggerProps, 'as', 'class', 'style', 'disabled', 'ref')
   const context = useDropdownMenuContext()
 
   const {
@@ -48,7 +48,7 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     ref: () => local.ref,
     registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
-  const disabled = () => Boolean(local.disabled ?? context.disabled())
+  const disabled = () => local.disabled ?? context.disabled()
   const userEvents = rest as Record<string, unknown>
   let keyboardActivation = false
   const events = merge(rest, {

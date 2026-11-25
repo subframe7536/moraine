@@ -18,7 +18,7 @@ interface OrderQuery {
 }
 
 interface OrderPage {
-  rows: Order[]
+  rows: Array<Order>
   total: number
 }
 
@@ -26,15 +26,17 @@ const CUSTOMERS = ['Acme', 'Globex', 'Initech', 'Umbrella', 'Hooli', 'Stark', 'W
 const STATUSES = ['Pending', 'Shipped', 'Delivered'] as const
 
 // Stands in for a server: the client never holds these 240 rows.
-const SERVER_ORDERS: Order[] = Array.from({ length: 240 }, (_, index) => ({
+const SERVER_ORDERS: Array<Order> = Array.from({ length: 240 }, (_, index) => ({
   id: `ORD-${String(index + 1).padStart(4, '0')}`,
-  customer: CUSTOMERS[index % CUSTOMERS.length]!,
-  status: STATUSES[index % STATUSES.length]!,
+  customer: CUSTOMERS[index % CUSTOMERS.length] ?? 'Acme',
+  status: STATUSES[index % STATUSES.length] ?? STATUSES[0],
   total: ((index * 7919) % 90_000) / 100 + 10,
 }))
 
 async function fetchOrders(query: OrderQuery): Promise<OrderPage> {
-  await new Promise((resolve) => setTimeout(resolve, 400))
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 400)
+  })
   const search = query.search.trim().toLowerCase()
   let rows = search
     ? SERVER_ORDERS.filter((order) =>
@@ -55,7 +57,7 @@ async function fetchOrders(query: OrderQuery): Promise<OrderPage> {
   return { rows: rows.slice(start, start + query.pageSize), total: rows.length }
 }
 
-const COLUMNS: DataTableT.Column<Order>[] = [
+const COLUMNS: Array<DataTableT.Column<Order>> = [
   { accessorKey: 'id', header: 'Order' },
   { accessorKey: 'customer', header: 'Customer' },
   { accessorKey: 'status', header: 'Status' },
@@ -95,7 +97,9 @@ export default function ServerDataExample() {
   }))
   const page = createMemo(() => fetchOrders(query()))
   // Keep the previous page on screen while the next one loads; start empty before the first one.
-  const rows = createMemo<Order[]>(() => latest(() => page()?.rows) ?? [], { loadingValue: [] })
+  const rows = createMemo<Array<Order>>(() => latest(() => page()?.rows) ?? [], {
+    loadingValue: [],
+  })
   const total = createMemo<number>(() => latest(() => page()?.total) ?? 0, { loadingValue: 0 })
 
   const table = createDataTable({

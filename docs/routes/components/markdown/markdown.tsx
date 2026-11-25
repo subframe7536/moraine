@@ -27,7 +27,7 @@ export interface RenderExampleMarkdownPageInput {
   markdownPath: string
   apiDoc?: ExamplePageApiDoc
   frontmatter: FrontmatterData
-  onThisPageEntries?: OnThisPageEntry[]
+  onThisPageEntries?: Array<OnThisPageEntry>
   metadata?: DocsRouteMetadata
   children?: JSX.Element
 }

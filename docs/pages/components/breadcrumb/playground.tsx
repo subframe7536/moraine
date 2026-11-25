@@ -7,7 +7,7 @@ const TRAIL_ITEMS = [
   { label: 'Projects', href: '#' },
   { label: 'Design System', href: '#' },
   { label: 'Components' },
-] satisfies BreadcrumbT.Item[]
+] satisfies Array<BreadcrumbT.Item>
 
 export default function BreadcrumbPlayground() {
   return (

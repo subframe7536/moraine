@@ -11,7 +11,7 @@ import { createForm } from '../form'
 
 import { createSlider } from './hook'
 import { Slider } from './slider'
-function getThumbs(container: HTMLElement): HTMLElement[] {
+function getThumbs(container: HTMLElement): Array<HTMLElement> {
   return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="slider-thumb"]'))
 }
 
@@ -23,7 +23,7 @@ test('formats aria-valuetext with formatOptions', () => {
   expect(getThumbs(screen.container)[0]?.getAttribute('aria-valuetext')).toBe('50%')
 })
 
-function getInputs(container: HTMLElement): HTMLInputElement[] {
+function getInputs(container: HTMLElement): Array<HTMLInputElement> {
   return Array.from(container.querySelectorAll<HTMLInputElement>('input[type="range"]'))
 }
 
@@ -937,7 +937,7 @@ describe('Slider', () => {
 
   test('controlled range keeps the moved thumb focused and styled after value updates', async () => {
     const screen = render(() => {
-      const [value, setValue] = createSignal<number[]>([20, 80])
+      const [value, setValue] = createSignal<Array<number>>([20, 80])
 
       return (
         <Slider

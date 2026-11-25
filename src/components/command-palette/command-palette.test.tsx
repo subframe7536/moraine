@@ -15,7 +15,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-const GROUPS: CommandPaletteT.Group[] = [
+const GROUPS: Array<CommandPaletteT.Group> = [
   {
     type: 'group',
     label: 'Actions',

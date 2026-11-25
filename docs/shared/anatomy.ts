@@ -4,7 +4,7 @@ export type AnatomyRoot =
 
 interface AnatomyChildren {
   element?: string
-  children?: AnatomyNode[]
+  children?: Array<AnatomyNode>
 }
 
 export type AnatomyNode = AnatomyChildren &
@@ -17,11 +17,11 @@ export type AnatomyNode = AnatomyChildren &
 export interface AnatomyConfig {
   name?: string
   root: AnatomyRoot
-  children?: AnatomyNode[]
+  children?: Array<AnatomyNode>
 }
 
 export function anatomyNodeLabel(node: AnatomyNode): string {
-  return node.part ?? node.slot ?? node.internal!
+  return node.part ?? node.slot ?? node.internal ?? ''
 }
 
 export function anatomyNodeKind(node: AnatomyNode): 'part' | 'slot' | 'internal' {
@@ -35,10 +35,10 @@ export function renderAnatomyText(componentName: string, config: AnatomyConfig):
     : `slot=root${config.root.element ? `; <${config.root.element}>` : ''}`
   const name = config.name ?? componentName
   const lines = [`${name} [component; ${annotation}]`]
-  const visit = (nodes: AnatomyNode[], prefix: string) => {
+  const visit = (nodes: Array<AnatomyNode>, prefix: string) => {
     for (const [index, node] of nodes.entries()) {
       const last = index === nodes.length - 1
-      const metadata: string[] = [anatomyNodeKind(node)]
+      const metadata: Array<string> = [anatomyNodeKind(node)]
       if (node.part && node.slot) {
         metadata.push(`slot=${node.slot}`)
       }

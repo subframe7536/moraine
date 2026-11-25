@@ -134,7 +134,7 @@ function isSameToastContent(first: ToastT.Options, second: ToastT.Options): bool
 }
 
 export interface ToastStore {
-  readonly toasts: ToastRecord[]
+  readonly toasts: Array<ToastRecord>
   registry: HostRegistry<ToastHost>
   add: (
     options: ToastT.Options,
@@ -151,7 +151,7 @@ export interface ToastStore {
 
 export function createToastStore(): ToastStore {
   const registry = createHostRegistry<ToastHost>('Toast')
-  const [toasts, setToasts] = createStore<ToastRecord[]>([])
+  const [toasts, setToasts] = createStore<Array<ToastRecord>>([])
   const sessions = new Map<ToastT.Id, ToastSession>()
   let counter = 1
 
@@ -270,14 +270,19 @@ export function createToastStore(): ToastStore {
         const resolved = resolveToastOptions(item.options, defaults)
         return resolved.placement === candidate.placement && resolved.align === candidate.align
       })
-      if (front && isSameToastContent(resolveToastOptions(front.options, defaults), candidate)) {
+      const frontSession = front ? sessions.get(front.id) : undefined
+      if (
+        front &&
+        frontSession &&
+        isSameToastContent(resolveToastOptions(front.options, defaults), candidate)
+      ) {
         setToasts((draft) => {
           const item = draft.find((entry) => entry.id === front.id)
           if (item) {
             item.bump = (item.bump ?? 0) + 1
           }
         })
-        return sessions.get(front.id)!.handle
+        return frontSession.handle
       }
     }
 

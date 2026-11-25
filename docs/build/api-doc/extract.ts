@@ -13,13 +13,13 @@ const EMPTY_RECIPE: RecipeApi = {
 
 export async function generateApiDoc(
   projectRoot: string,
-  pages: readonly DocsPageSource[],
+  pages: ReadonlyArray<DocsPageSource>,
 ): Promise<GenerationResult> {
   const registry = await loadApiRegistry(projectRoot, pages)
   const typeExtractor = new TypeExtractor(projectRoot)
   const recipeExtractor = new RecipeExtractor(projectRoot)
   const componentDocs = new Map<string, ComponentApi>()
-  const indexComponents: ComponentIndexEntry[] = []
+  const indexComponents: Array<ComponentIndexEntry> = []
 
   for (const component of registry) {
     const typesModule = await typeExtractor.loadModule(component.typesPath)
@@ -34,7 +34,7 @@ export async function generateApiDoc(
     const recipe = component.recipePath
       ? await recipeExtractor.extract(component.recipePath, component.name)
       : EMPTY_RECIPE
-    const parts: PartApi[] = []
+    const parts: Array<PartApi> = []
 
     for (const part of component.parts) {
       const partTypesModule =

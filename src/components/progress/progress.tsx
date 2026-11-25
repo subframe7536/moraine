@@ -89,7 +89,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       return 0
     }
 
-    return Math.round(((resolvedValue() - minValue) / range) * 10000) / 100
+    return Math.round(((resolvedValue() - minValue) / range) * 10_000) / 100
   })
   const {
     slots: {

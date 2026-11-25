@@ -35,7 +35,7 @@ export interface SelectGroup<T extends string | BaseSelectT.Item> {
    * group: a repeated value is ignored (the first occurrence wins). A group with no remaining
    * items, or none matching the current search, renders nothing.
    */
-  children: T[]
+  children: Array<T>
 }
 export interface SelectSeparator {
   /** Structural separator discriminator. */
@@ -44,12 +44,12 @@ export interface SelectSeparator {
 }
 export type SelectEntry<T extends string | BaseSelectT.Item> = T | SelectGroup<T> | SelectSeparator
 export type SelectRow<T extends BaseSelectT.Item> =
-  | { type: 'label'; key: string; label: JSX.Element; values: T['value'][] }
+  | { type: 'label'; key: string; label: JSX.Element; values: Array<T['value']> }
   | { type: 'item'; key: string; item: T }
   | { type: 'separator'; key: string }
 export interface SelectView<T extends BaseSelectT.Item> {
-  items: T[]
-  rows: SelectRow<T>[]
+  items: Array<T>
+  rows: Array<SelectRow<T>>
   byValue?: ReadonlyMap<T['value'], T>
 }
 export type SelectVirtualizer<T extends BaseSelectT.Item> = ListVirtualizer<SelectRow<T>>

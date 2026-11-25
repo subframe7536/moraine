@@ -92,8 +92,9 @@ function sameColumnWindow(
     a.skippedAfter === b.skippedAfter &&
     a.items.length === b.items.length &&
     a.items.every((item, index) => {
-      const other = b.items[index]!
+      const other = b.items[index]
       return (
+        other !== undefined &&
         item.index === other.index &&
         item.start === other.start &&
         item.size === other.size &&
@@ -232,7 +233,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       layout: () => sections().layout,
     })
 
-    const columnEntries = (): readonly TColumn[] => props.columns ?? []
+    const columnEntries = (): ReadonlyArray<TColumn> => props.columns ?? []
     const [columnRtl, setColumnRtl] = createSignal(false)
     const columnLayout = createMemo(
       (): VirtualizerLayout => {
@@ -278,7 +279,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
               key: item.key,
             }))
           const first = items[0]
-          const last = items[items.length - 1]
+          const last = items.at(-1)
           return {
             items,
             skippedBefore: first ? first.index : 0,
@@ -451,7 +452,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       return first ? first.start - scrollMargin() : 0
     }
     const padAfter = () => {
-      const last = virtualItems[virtualItems.length - 1]
+      const last = virtualItems.at(-1)
       return Math.max(totalSize() - (last ? last.end - scrollMargin() : 0), 0)
     }
 

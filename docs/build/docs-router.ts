@@ -9,9 +9,9 @@ import type { DefaultFileSystemRouter } from 'solid-file-router/plugin'
  * scanned file.
  */
 export class DocsFileSystemRouter extends BaseFileSystemRouter {
-  private readonly children: DefaultFileSystemRouter[]
+  private readonly children: Array<DefaultFileSystemRouter>
 
-  constructor(children: DefaultFileSystemRouter[]) {
+  constructor(children: Array<DefaultFileSystemRouter>) {
     super({ dir: '.', extensions: [] })
     this.children = children
   }

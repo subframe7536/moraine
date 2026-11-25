@@ -10,7 +10,7 @@ const NOTIFICATION_OPTIONS = [
     description: 'Instant alerts on mobile and desktop',
   },
   { label: 'SMS updates', value: 'sms', description: 'Security and login codes' },
-] satisfies CheckboxGroupT.Item[]
+] satisfies Array<CheckboxGroupT.Item>
 
 export default function CheckboxGroupPlayground() {
   return (

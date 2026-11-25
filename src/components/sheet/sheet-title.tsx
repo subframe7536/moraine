@@ -44,5 +44,7 @@ export function SheetTitle<T extends ValidComponent = 'h2'>(
     context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? 'h2')
-  return <Root data-slot="sheet-title" {...titleSlot} {...(rest as any)} id={id()} />
+  return (
+    <Root data-slot="sheet-title" {...titleSlot} {...(rest as Record<string, unknown>)} id={id()} />
+  )
 }

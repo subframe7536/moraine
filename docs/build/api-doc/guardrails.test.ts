@@ -6,7 +6,7 @@ import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 const projectRoot = path.resolve(__dirname, '../../..')
 
-function collectFiles(root: string): string[] {
+function collectFiles(root: string): Array<string> {
   return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
     const target = path.join(root, entry.name)
     return entry.isDirectory() ? collectFiles(target) : [target]
@@ -28,7 +28,7 @@ describe('API documentation architecture guardrails', () => {
 
   test('component implementations do not declare public data attributes', () => {
     const sourceRoots = [path.join(projectRoot, 'src/components')]
-    const violations: string[] = []
+    const violations: Array<string> = []
     for (const root of sourceRoots) {
       for (const file of collectFiles(root)) {
         if (

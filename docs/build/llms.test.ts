@@ -96,8 +96,8 @@ describe('agent Markdown', () => {
       key: string
       name: string
       kind: string
-      parts: unknown[]
-      slots: string[]
+      parts: Array<unknown>
+      slots: Array<string>
     }
     expect(parsedButton.$schema).toBe('https://moraine.subf.dev/component-api.schema.json')
     expect(parsedButton.key).toBe('button')

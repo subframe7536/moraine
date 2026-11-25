@@ -90,8 +90,10 @@ export function hydrateFixture(
       return
     }
     unmounted = true
+    const runDispose = dispose
+    dispose = undefined
     try {
-      dispose?.()
+      runDispose?.()
     } finally {
       container.remove()
       restoreHydrationState()

@@ -4,7 +4,7 @@ import { scrollViewport } from '../../test-util/virtualizer-layout'
 import { createListVirtualizer } from '../../virtualizer'
 
 import { List } from './list'
-export function ListHydrationFixture(props: { items?: string[] }) {
+export function ListHydrationFixture(props: { items?: Array<string> }) {
   return (
     <List
       items={props.items ?? ['Alpha', 'Beta']}

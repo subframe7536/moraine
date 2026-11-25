@@ -43,7 +43,7 @@ export interface SortableItemInput {
    * Positions this item accepts as a drop target.
    * @default ['before', 'after']
    */
-  positions?: () => readonly SortableDropPosition[]
+  positions?: () => ReadonlyArray<SortableDropPosition>
 }
 
 /** Drag state attributes for an item element. */
@@ -119,5 +119,5 @@ export interface Sortable {
    * Pass to a virtualizer's `rangeExtractor` option to keep the drag source mounted while it is
    * scrolled out of view. Renders the visible range plus overscan, like the default extractor.
    */
-  readonly rangeExtractor: (range: SortableVirtualRange) => number[]
+  readonly rangeExtractor: (range: SortableVirtualRange) => Array<number>
 }

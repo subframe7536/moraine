@@ -26,7 +26,7 @@ function createDialogHeader(headerKind: 'explicit' | 'shorthand') {
       context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
     })
     const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
-    return <Root data-slot="dialog-header" {...headerSlot} {...(rest as any)} />
+    return <Root data-slot="dialog-header" {...headerSlot} {...(rest as Record<string, unknown>)} />
   }
 }
 

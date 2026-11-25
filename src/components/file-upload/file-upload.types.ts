@@ -20,7 +20,7 @@ interface FileRejection {
   /** The rejected file. */
   file: File
   /** Why the file was rejected; a file can fail `typeMismatch` and a size rule together. */
-  reasons: FileRejectionReason[]
+  reasons: Array<FileRejectionReason>
 }
 
 export namespace FileUploadT {
@@ -35,10 +35,10 @@ export namespace FileUploadT {
   export type Translations = Partial<Messages>
 
   export type Value<TMultiple extends boolean = boolean> = TMultiple extends true
-    ? File[]
+    ? Array<File>
     : TMultiple extends false
       ? File | null
-      : File | File[] | null
+      : File | Array<File> | null
 
   /**
    * Why a file was rejected, named after the matching `ValidityState` key: `tooLong` (over
@@ -51,7 +51,7 @@ export namespace FileUploadT {
 
   export interface ValueInvalidDetails {
     /** Files that failed validation, in pick order, each with its `reasons`. */
-    rejections: Rejection[]
+    rejections: Array<Rejection>
   }
 
   export interface ItemRenderProps {

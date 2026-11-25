@@ -8,7 +8,7 @@ const THEME_LAYERS: unique symbol = Symbol.for('moraine.theme.layers') as never
 type ThemeLayer = Readonly<Record<string, Readonly<Record<string, unknown>>>>
 
 type InternalTheme = MoraineTheme & {
-  readonly [THEME_LAYERS]: readonly ThemeLayer[]
+  readonly [THEME_LAYERS]: ReadonlyArray<ThemeLayer>
 }
 
 function cloneAndFreeze(value: unknown): unknown {
@@ -41,14 +41,14 @@ export function defineTheme(options: DefineThemeOptions = {}): MoraineTheme {
   ) as MoraineTheme
 }
 
-function getThemeLayers(theme: MoraineTheme | undefined): readonly ThemeLayer[] {
+function getThemeLayers(theme: MoraineTheme | undefined): ReadonlyArray<ThemeLayer> {
   return theme ? (theme as InternalTheme)[THEME_LAYERS] : []
 }
 
 export function getThemeRecipeLayers<S extends object, V>(
   theme: MoraineTheme,
   key: string,
-): readonly RecipeLayerConfig<S, V>[] {
+): ReadonlyArray<RecipeLayerConfig<S, V>> {
   return getThemeLayers(theme).flatMap((layer) => {
     const override = layer[key]
     return override ? [override] : []

@@ -54,7 +54,7 @@ const acceptButton = (element: HTMLButtonElement) => element.focus()
 ;<List items={[1]} itemRender={(context) => <li>{context.item}</li>} style="color: red" />
 
 type Assert<T extends true> = T
-type Callable = (...args: never[]) => unknown
+type Callable = (...args: Array<never>) => unknown
 export type SimpleTagAssertions = [
   Assert<typeof BaseSelect.useContext extends Callable ? true : false>,
   Assert<typeof createId extends Callable ? true : false>,

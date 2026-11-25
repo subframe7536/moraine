@@ -12,12 +12,12 @@ interface ServiceMetric {
   status: 'healthy' | 'degraded' | 'critical'
 }
 
-const METRICS: ServiceMetric[] = [
+const METRICS: Array<ServiceMetric> = [
   {
     id: '1',
     service: 'auth-service',
     region: 'us-east-1 (N. Virginia)',
-    rps: 14250,
+    rps: 14_250,
     p95Latency: '18ms',
     errorRate: '0.01%',
     cpu: '34%',
@@ -71,7 +71,7 @@ const HEALTH = {
   critical: { label: 'Critical', tone: 'danger' },
 } as const
 
-const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
+const COLUMNS: Array<DataTableT.Column<ServiceMetric>> = [
   {
     accessorKey: 'service',
     header: 'Service Name',

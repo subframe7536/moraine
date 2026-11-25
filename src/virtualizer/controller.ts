@@ -65,7 +65,7 @@ export interface VirtualizerAdapterOptions<TItem> {
    * Chooses which row indexes are rendered, replacing the default visible range plus `overscan`. Receives the visible range (`startIndex`, `endIndex`, `overscan`, `count`) and returns the indexes to render.
    * Use it to keep a row mounted while it is scrolled out of view, such as the row being dragged; `sortable.rangeExtractor` from `moraine/dnd` does this.
    */
-  rangeExtractor?: (range: VirtualRange) => number[]
+  rangeExtractor?: (range: VirtualRange) => Array<number>
   /**
    * Space in px before the first row inside the scroll element, such as a header that scrolls with the rows. It offsets row positions and scroll-to-index targets.
    * An explicit value wins over any value the host measures from the DOM.
@@ -93,7 +93,7 @@ export interface VirtualizerState<
   /** Low-level virtualizer instance driven by the mounted adapter. */
   readonly virtualizer: Virtualizer<TScrollElement, TItemElement>
   /** Reactive window of currently rendered rows. */
-  readonly virtualItems: readonly VirtualItem[]
+  readonly virtualItems: ReadonlyArray<VirtualItem>
   /** Reactive total scroll size across every entry. */
   readonly totalSize: () => number
   /** Re-runs pending updates and syncs derived state after imperative option changes. */
@@ -125,7 +125,7 @@ export function createVirtualizerController<
   scrollToIndex: Virtualizer<TScrollElement, TItemElement>['scrollToIndex']
   /** Binds the controller to a mounted adapter component; call inside the component body. */
   attach: (props: {
-    entries: () => readonly TItem[]
+    entries: () => ReadonlyArray<TItem>
     scrollElement: () => TScrollElement | undefined
     /** Layout measured by the adapter. Explicit options take precedence over these values. */
     layout?: () => VirtualizerLayout
@@ -164,7 +164,7 @@ export function createVirtualizerController<
         }
       })
       const [mounted, setMounted] = createSignal(false, { ownedWrite: true })
-      const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
+      const [virtualItems, setVirtualItems] = createStore<Array<VirtualItem>>([])
       const [totalSize, setTotalSize] = createSignal(0, { ownedWrite: true })
       const publish = (source: Virtualizer<TScrollElement, TItemElement>): void => {
         setVirtualItems(reconcile(source.getVirtualItems(), 'index'))
@@ -180,8 +180,8 @@ export function createVirtualizerController<
           flush(() => publish(source))
         }
       }
-      let currentKeys: VirtualItem['key'][] = []
-      let currentEstimates: number[] = []
+      let currentKeys: Array<VirtualItem['key']> = []
+      let currentEstimates: Array<number> = []
       let initialized = false
       // Set while the options effect drives the virtualizer: its writes join that effect's flush,
       // which publishes once at the end instead of from every `onChange`.
@@ -201,7 +201,7 @@ export function createVirtualizerController<
        * built from values the options effect has already read in its tracked compute.
        */
       function createOptions(
-        entries: readonly TItem[],
+        entries: ReadonlyArray<TItem>,
         scrollElement: TScrollElement | undefined,
         layout: VirtualizerLayout,
       ): VirtualizerOptions<TScrollElement, TItemElement> {
@@ -217,7 +217,7 @@ export function createVirtualizerController<
           scrollPaddingEnd: options.scrollPaddingEnd ?? layout.scrollPaddingEnd,
           isRtl: layout.isRtl ?? false,
           getScrollElement: () => scrollElement ?? null,
-          estimateSize: (index: number) => currentEstimates[index]!,
+          estimateSize: (index: number) => currentEstimates[index] ?? 0,
           getItemKey: (index: number) => currentKeys[index] ?? index,
           indexAttribute: 'data-index',
           onChange: (source: Virtualizer<TScrollElement, TItemElement>) => {

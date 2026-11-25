@@ -29,6 +29,10 @@ export function useAutoLoadingClick<T, E extends Event = MouseEvent>(
     Boolean(options.loading?.() || (options.autoLoading?.() && pendingActionCount() > 0)),
   )
 
+  const decrement = (): void => {
+    settle(() => setPendingActionCount((count) => Math.max(0, count - 1)))
+  }
+
   const onClick: JSX.EventHandler<T, E> = (event) => {
     const { defaultPrevented, result: handlerResult } = callHandler<E>(event, options.onClick)
 
@@ -37,9 +41,6 @@ export function useAutoLoadingClick<T, E extends Event = MouseEvent>(
     }
 
     settle(() => setPendingActionCount((count) => count + 1))
-    const decrement = (): void => {
-      settle(() => setPendingActionCount((count) => Math.max(0, count - 1)))
-    }
     void Promise.resolve(handlerResult).then(decrement, decrement)
   }
 

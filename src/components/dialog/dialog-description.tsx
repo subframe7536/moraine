@@ -45,5 +45,12 @@ export function DialogDescription<T extends ValidComponent = 'p'>(
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
   const Root = dynamic<ValidComponent>(() => local.as ?? 'p')
-  return <Root data-slot="dialog-description" {...descriptionSlot} {...(rest as any)} id={id()} />
+  return (
+    <Root
+      data-slot="dialog-description"
+      {...descriptionSlot}
+      {...(rest as Record<string, unknown>)}
+      id={id()}
+    />
+  )
 }

@@ -19,7 +19,7 @@ export interface CodeTabItem {
   lang?: string
   code?: string
   html?: string
-  highlightedLines?: number[] | string
+  highlightedLines?: Array<number> | string
 }
 
 export interface CodeTabsItemProps extends CodeTabItem {
@@ -35,7 +35,7 @@ export function CodeTabsItem(props: CodeTabsItemProps) {
 
 export interface CodeTabsProps {
   groupId?: string
-  items?: CodeTabItem[]
+  items?: Array<CodeTabItem>
   defaultValue?: string
   class?: string
   style?: JSX.CSSProperties
@@ -56,11 +56,11 @@ function getGroupSignal(groupId: string, initial: string) {
 
 export function CodeTabs(props: CodeTabsProps) {
   const resolvedChildren = children(() => props.children)
-  const items = createMemo<CodeTabItem[]>(() => {
+  const items = createMemo<Array<CodeTabItem>>(() => {
     if (props.items && props.items.length > 0) {
       return props.items
     }
-    const list: CodeTabItem[] = []
+    const list: Array<CodeTabItem> = []
     const raw = resolvedChildren()
     const childArray = Array.isArray(raw) ? raw : raw ? [raw] : []
     for (const child of childArray) {
@@ -68,7 +68,7 @@ export function CodeTabs(props: CodeTabsProps) {
         continue
       }
       if (typeof child === 'object' && child !== null && 'props' in child) {
-        const itemProps = (child as any).props as CodeTabsItemProps
+        const itemProps = (child as { props: CodeTabsItemProps }).props
         const childContent = itemProps.children
         let codeText = itemProps.code
         if (!codeText) {

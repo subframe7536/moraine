@@ -61,7 +61,11 @@ function getElementTranslate(element: HTMLElement): { x: number; y: number } | n
   if (!match) {
     return null
   }
-  const parts = match[2]!.split(',').map(Number.parseFloat)
+  const rawParts = match[2]
+  if (!rawParts) {
+    return null
+  }
+  const parts = rawParts.split(',').map(Number.parseFloat)
   return match[1] === '3d'
     ? { x: parts[12] ?? 0, y: parts[13] ?? 0 }
     : { x: parts[4] ?? 0, y: parts[5] ?? 0 }
@@ -292,6 +296,28 @@ export interface DrawerSwipeController {
   attach: (element: HTMLElement) => void
 }
 
+function returnFalse(): boolean {
+  return false
+}
+
+function clearContentSelection(content: HTMLElement): void {
+  const selection = content.ownerDocument.getSelection?.()
+  if (!selection || selection.isCollapsed) {
+    return
+  }
+  const anchor =
+    selection.anchorNode instanceof Element
+      ? selection.anchorNode
+      : selection.anchorNode?.parentElement
+  const focus =
+    selection.focusNode instanceof Element
+      ? selection.focusNode
+      : selection.focusNode?.parentElement
+  if (anchor && content.contains(anchor) && focus && content.contains(focus)) {
+    selection.removeAllRanges()
+  }
+}
+
 /**
  * Swipe-to-dismiss and snap-point gesture controller for Drawer.Content.
  * Bind it to the content element in the render owner that mounts it.
@@ -344,7 +370,7 @@ export function createDrawerSwipe(
     }
     const clampedHeight = clamp(resolvedHeight, 0, Math.min(popupHeight(), viewportHeight()))
     const targetOffset = Math.max(0, popupHeight() - clampedHeight)
-    return points[closestSnapPointIndex(points, targetOffset)]!.offset
+    return points[closestSnapPointIndex(points, targetOffset)]?.offset ?? 0
   })
 
   // Declared snap points keep a pure-CSS offset (element height minus snap
@@ -456,10 +482,10 @@ export function createDrawerSwipe(
     const direction = Math.sign(d)
     const currentOffset = snapPointOffset()
     let targetOffset = clamp(currentOffset + d, 0, size)
-    let target: ResolvedDrawerSnapPoint
+    let target: ResolvedDrawerSnapPoint | undefined
     if (drawer.snapToSequentialPoints) {
       const ordered = [...points].sort((a, b) => a.offset - b.offset)
-      target = ordered[closestSnapPointIndex(ordered, targetOffset)]!
+      target = ordered[closestSnapPointIndex(ordered, targetOffset)]
       if (velocity * direction >= SNAP_VELOCITY_THRESHOLD) {
         const adjacent = ordered[closestSnapPointIndex(ordered, currentOffset) + direction]
         if (!adjacent) {
@@ -481,19 +507,24 @@ export function createDrawerSwipe(
           size,
         )
       }
-      target = points[closestSnapPointIndex(points, targetOffset)]!
+      target = points[closestSnapPointIndex(points, targetOffset)]
       // A fast dismiss flick closes only from the lowest snap point; elsewhere the
       // velocity-projected target below picks the resting point.
       let maxOffset = 0
-      for (let index = 0; index < points.length; index += 1) {
-        if (points[index]!.offset > maxOffset) {
-          maxOffset = points[index]!.offset
+      for (const point of points) {
+        if (point.offset > maxOffset) {
+          maxOffset = point.offset
         }
       }
       if (velocity >= FAST_SWIPE_VELOCITY && d > 0 && currentOffset >= maxOffset) {
         closeSwipe()
         return
       }
+    }
+
+    if (!target) {
+      clearDragDisplacement()
+      return
     }
 
     // Snap point release: choose between the closest snap point and closing.
@@ -537,7 +568,7 @@ export function createDrawerSwipe(
   }
 
   /** Whether another overlay opened above this drawer (e.g. a nested drawer). */
-  let blocked: () => boolean = () => false
+  let blocked: () => boolean = returnFalse
 
   function updateDrag(state: DragState, x: number, y: number, timeStamp?: number): boolean {
     // Returns true once the gesture owns the drag (caller may preventDefault).
@@ -634,24 +665,6 @@ export function createDrawerSwipe(
     recordSample(state, main, timeStamp)
     setDisplacement(d)
     return true
-  }
-
-  function clearContentSelection(content: HTMLElement): void {
-    const selection = content.ownerDocument.getSelection?.()
-    if (!selection || selection.isCollapsed) {
-      return
-    }
-    const anchor =
-      selection.anchorNode instanceof Element
-        ? selection.anchorNode
-        : selection.anchorNode?.parentElement
-    const focus =
-      selection.focusNode instanceof Element
-        ? selection.focusNode
-        : selection.focusNode?.parentElement
-    if (anchor && content.contains(anchor) && focus && content.contains(focus)) {
-      selection.removeAllRanges()
-    }
   }
 
   function attach(content: HTMLElement): void {
@@ -807,7 +820,10 @@ export function createDrawerSwipe(
       if (shouldIgnoreSwipeForTextSelection(content)) {
         return
       }
-      const touch = event.touches[0]!
+      const touch = event.touches[0]
+      if (!touch) {
+        return
+      }
       const vert = vertical()
       const targets = findScrollableTargets(event.target, content, vert)
       const crossAxisMarker =

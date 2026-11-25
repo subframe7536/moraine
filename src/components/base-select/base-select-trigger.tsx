@@ -43,8 +43,15 @@ export function BaseSelectTrigger<
   TItem extends BaseSelectT.Item = BaseSelectT.Item,
 >(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
   const state = useSelectContext<TItem>()
+  const typedProps = props as BaseSelectT.TriggerProps<T, TItem> & {
+    onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
+    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
+    onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    ref?: HTMLElement | ((el: HTMLElement) => void)
+  }
   const local = pick(
-    props,
+    typedProps,
     'as',
     'children',
     'class',
@@ -54,10 +61,10 @@ export function BaseSelectTrigger<
     'onKeyDown',
     'onFocus',
     'onBlur',
-    'ref' as any,
+    'ref',
   )
   const rest = omit(
-    props,
+    typedProps,
     'as',
     'children',
     'class',
@@ -67,7 +74,7 @@ export function BaseSelectTrigger<
     'onKeyDown',
     'onFocus',
     'onBlur',
-    'ref' as any,
+    'ref',
   )
   const {
     slots: { trigger: triggerSlot },
@@ -152,6 +159,13 @@ export function BaseSelectTrigger<
     eventProps,
   )
   const rootBinding = root.bind(binding)
+  const activeDescendant = () => {
+    if (!state.open()) {
+      return undefined
+    }
+    const highlighted = state.highlightedValue()
+    return highlighted !== undefined ? state.itemId(highlighted) : undefined
+  }
   const Root = dynamic<ValidComponent>(tag)
   return (
     <Root
@@ -163,11 +177,7 @@ export function BaseSelectTrigger<
       id={state.id()}
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
-      aria-activedescendant={
-        state.open() && state.highlightedValue() !== undefined
-          ? state.itemId(state.highlightedValue()!)
-          : undefined
-      }
+      aria-activedescendant={activeDescendant()}
     >
       {resolvedChildren()}
     </Root>

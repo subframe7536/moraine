@@ -112,7 +112,10 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
 
   function Control(): JSX.Element {
     const state = useSelectContext<ComboboxT.NormalizedItem<T>>()
-    const selectedItem = () => source().byValue.get(state.value()[0]!)
+    const selectedItem = () => {
+      const first = state.value()[0]
+      return first !== undefined ? source().byValue.get(first) : undefined
+    }
     const selectedLabel = () => {
       const item = selectedItem()
       return item

@@ -8,12 +8,12 @@ import type { AlertT } from './alert.types'
 test('hydrates alert fixture and updates reactive props', () => {
   const [tone, setTone] = createSignal<AlertT.Variants['tone']>('info')
   const [title, setTitle] = createSignal('Alert title')
-  const [description] = createSignal<string | undefined>('Detailed alert description')
+  const description = 'Detailed alert description'
   const { container } = hydrateFixture(
     '/src/components/alert/alert.ssr.fixture.tsx',
     'renderAlertFixture',
     () => (
-      <AlertHydrationFixture tone={tone()} title={title()} description={description()} closable />
+      <AlertHydrationFixture tone={tone()} title={title()} description={description} closable />
     ),
   )
   const root = container.firstElementChild

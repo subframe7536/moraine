@@ -35,9 +35,9 @@ import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectProps, BaseSelectT, BaseSelectValue } from './base-select.types'
 /** Projects the selection onto the native form value: an array, or a scalar (`null` when empty). */
 function toFormValue<T extends BaseSelectValue>(
-  values: readonly T[],
+  values: ReadonlyArray<T>,
   multiple: boolean,
-): T[] | T | null {
+): Array<T> | T | null {
   return multiple ? [...values] : (values[0] ?? null)
 }
 
@@ -46,7 +46,7 @@ function fromFormValue<T extends BaseSelectValue>(
   formValue: unknown,
   multiple: boolean,
   emptyIsValue: boolean,
-): T[] {
+): Array<T> {
   if (multiple) {
     return Array.isArray(formValue) ? formValue : []
   }
@@ -57,7 +57,7 @@ function fromFormValue<T extends BaseSelectValue>(
 }
 
 function formValueMatches(
-  values: readonly BaseSelectValue[],
+  values: ReadonlyArray<BaseSelectValue>,
   formValue: unknown,
   multiple: boolean,
 ) {
@@ -71,8 +71,8 @@ export function createSelectState<T extends BaseSelectT.Item>(
   slotOwner: Accessor<string>,
 ) {
   const slotName = (slot: string) => dataSlotName(slotOwner(), slot)
-  type Value = readonly T['value'][]
-  const normalize = (values: Value): T['value'][] =>
+  type Value = ReadonlyArray<T['value']>
+  const normalize = (values: Value): Array<T['value']> =>
     normalizeSelection(values, props.multiple === true)
   const id = createId(() => props.id, 'select')
   const initial = untrack(() => normalize(props.defaultValue ?? []))

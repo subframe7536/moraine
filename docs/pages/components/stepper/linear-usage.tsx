@@ -5,7 +5,7 @@ const STEPS = [
   { value: 'account', label: 'Account', description: 'User credentials' },
   { value: 'profile', label: 'Profile', description: 'Personal details' },
   { value: 'review', label: 'Review', description: 'Confirmation' },
-] satisfies StepperT.Item[]
+] satisfies Array<StepperT.Item>
 
 export function LinearUsage() {
   const [step, setStep] = createSignal('account')
