@@ -133,6 +133,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           <Sidebar.Inset
             id="main-content"
             data-docs-main
+            class="overscroll-contain"
             ref={(element) => setMainEl(element)}
             onClick={(event) => {
               if (

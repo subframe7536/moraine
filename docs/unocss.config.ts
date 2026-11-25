@@ -99,6 +99,12 @@ export default defineConfig<PresetWind4Theme>({
     },
     {
       getCSS: () => `
+html,
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 /* The server renders the desktop rail before Sidebar resolves the viewport. */
 @media ${DOCS_MOBILE_QUERY} {
   [data-docs-sidebar]:not([data-mobile]) {

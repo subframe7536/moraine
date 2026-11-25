@@ -1,10 +1,10 @@
 import { useLocation } from '@solidjs/router'
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { Show, createMemo } from 'solid-js'
+import { createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, Sidebar, ToggleButton, cn } from '../../../../src'
+import { Badge, ToggleButton, cn } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
@@ -21,7 +21,6 @@ export interface DocsHeaderProps {
 }
 
 export function DocsHeader(props: DocsHeaderProps): JSX.Element {
-  const frame = Sidebar.useContext()
   const location = useLocation()
   const isComponents = createMemo(() => location.pathname.startsWith('/components'))
   const isHooks = createMemo(() => location.pathname.startsWith('/hooks'))
@@ -41,72 +40,67 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
           >
             <img src="/favicon.svg" alt="" class="size-6" />
             <span class="text-base font-semibold">Moraine</span>
-            <Show when={!frame.mobile()}>
-              <Badge
-                size="sm"
-                variant="outline"
-                class="text-xs text-muted-foreground font-mono px-1.5 py-0"
-              >
-                v{packageMetadata.version}
-              </Badge>
-            </Show>
+            <Badge
+              size="sm"
+              variant="outline"
+              class="text-xs text-muted-foreground font-mono px-1.5 py-0 hidden lg:inline-flex"
+            >
+              v{packageMetadata.version}
+            </Badge>
           </a>
-          <Show when={!frame.mobile()}>
-            <div class="ms-5 flex gap-1 items-center">
-              <ToggleButton
-                as="a"
-                variant="ghost"
-                activeVariant="ghost"
-                size="sm"
-                href="/docs/getting-started"
-                pressed={isDocs()}
-                aria-current={isDocs() ? 'true' : undefined}
-                class={cn(
-                  DOCS_HEADER_CONTROL_CLASS,
-                  'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
-                )}
-              >
-                Docs
-              </ToggleButton>
-              <ToggleButton
-                as="a"
-                variant="ghost"
-                activeVariant="ghost"
-                size="sm"
-                href="/components"
-                pressed={isComponents()}
-                aria-current={isComponents() ? 'true' : undefined}
-                class={cn(
-                  DOCS_HEADER_CONTROL_CLASS,
-                  'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
-                )}
-              >
-                Components
-              </ToggleButton>
-              <ToggleButton
-                as="a"
-                variant="ghost"
-                activeVariant="ghost"
-                size="sm"
-                href="/hooks"
-                pressed={isHooks()}
-                aria-current={isHooks() ? 'true' : undefined}
-                class={cn(
-                  DOCS_HEADER_CONTROL_CLASS,
-                  'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
-                )}
-              >
-                Hooks
-              </ToggleButton>
-            </div>
-          </Show>
+          <div class="ms-5 gap-1 hidden items-center lg:flex">
+            <ToggleButton
+              as="a"
+              variant="ghost"
+              activeVariant="ghost"
+              size="sm"
+              href="/docs/getting-started"
+              pressed={isDocs()}
+              aria-current={isDocs() ? 'true' : undefined}
+              class={cn(
+                DOCS_HEADER_CONTROL_CLASS,
+                'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
+              )}
+            >
+              Docs
+            </ToggleButton>
+            <ToggleButton
+              as="a"
+              variant="ghost"
+              activeVariant="ghost"
+              size="sm"
+              href="/components"
+              pressed={isComponents()}
+              aria-current={isComponents() ? 'true' : undefined}
+              class={cn(
+                DOCS_HEADER_CONTROL_CLASS,
+                'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
+              )}
+            >
+              Components
+            </ToggleButton>
+            <ToggleButton
+              as="a"
+              variant="ghost"
+              activeVariant="ghost"
+              size="sm"
+              href="/hooks"
+              pressed={isHooks()}
+              aria-current={isHooks() ? 'true' : undefined}
+              class={cn(
+                DOCS_HEADER_CONTROL_CLASS,
+                'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
+              )}
+            >
+              Hooks
+            </ToggleButton>
+          </div>
         </div>
         <PageActions
           pages={props.pages}
           paletteOpen={props.paletteOpen}
           setPaletteOpen={props.setPaletteOpen}
           onNavigate={props.onNavigate}
-          mobile={frame.mobile()}
           theme={props.theme}
           updateTheme={props.updateTheme}
         />

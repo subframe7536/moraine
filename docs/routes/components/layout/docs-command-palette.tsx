@@ -9,7 +9,7 @@ import type { CommandPaletteT, DialogT } from '../../../../src'
 
 import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.recipe'
 import type { SidebarPage } from './sidebar'
-export type DocsCommandPaletteVariant = 'desktop' | 'mobile'
+export type DocsCommandPaletteVariant = 'responsive' | 'desktop' | 'mobile'
 
 export interface DocsCommandPaletteProps {
   pages: SidebarPage[]
@@ -140,25 +140,27 @@ export function DocsSearchTrigger(
 ): JSX.Element {
   const local = pick(props, 'variant')
   const triggerProps = omit(props, 'variant')
-  const variant = () => local.variant ?? 'desktop'
+  const variant = () => local.variant ?? 'responsive'
 
   return (
     <Button
       {...triggerProps}
       aria-label="Open search"
       aria-keyshortcuts="Meta+K Control+K"
-      variant={variant() === 'mobile' ? 'ghost' : 'outline'}
-      size={variant() === 'mobile' ? 'icon-sm' : 'sm'}
+      variant={variant() === 'desktop' ? 'outline' : 'ghost'}
+      size={variant() === 'desktop' ? 'sm' : 'icon-sm'}
       leading="i-lucide-search"
       class={[
         DOCS_HEADER_CONTROL_CLASS,
         variant() === 'mobile'
           ? 'size-11'
-          : 'ms-1 me-2 h-9 w-52 justify-start border-border bg-muted/40 hover:bg-muted/70',
+          : variant() === 'desktop'
+            ? 'ms-1 me-2 h-9 w-52 justify-start border-border bg-muted/40 hover:bg-muted/70'
+            : 'size-11 lg:ms-1 lg:me-2 lg:px-2 lg:h-9 lg:w-52 lg:text-xs lg:justify-start lg:border-border lg:bg-muted/40 lg:hover:bg-muted/70',
       ]}
-      classes={{ label: 'flex-1' }}
+      classes={{ label: variant() === 'responsive' ? 'hidden lg:block lg:flex-1' : 'flex-1' }}
     >
-      <Show when={variant() === 'desktop'}>
+      <Show when={variant() !== 'mobile'}>
         <span class="text-sm flex gap-3 w-full items-center justify-between">
           <span>Search docs</span>
           <KbdGroup items={['⌘', 'K']} separator="" size="sm" variant="outline" />
