@@ -138,7 +138,9 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     },
   })
 
-  const [panelIdProp, setPanelId] = createSignal<string | undefined>(undefined)
+  const [panelIdProp, setPanelId] = createSignal<string | undefined>(undefined, {
+    ownedWrite: true,
+  })
   const panelId = createId(panelIdProp, 'sidebar-panel')
   const [rootElement, setRootElement] = createSignal<HTMLElement>()
   const localeDirection = useLocale().dir

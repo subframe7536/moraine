@@ -137,8 +137,8 @@ export function useOptionalDrawerContext(): DrawerContextValue | null {
 
 export function createDrawerContentRegistration() {
   const registration = createContentAnatomy()
-  const [bodyCount, setBodyCount] = createSignal(0)
-  const [footerCount, setFooterCount] = createSignal(0)
+  const [bodyCount, setBodyCount] = createSignal(0, { ownedWrite: true })
+  const [footerCount, setFooterCount] = createSignal(0, { ownedWrite: true })
   return {
     ...registration,
     registerBody: () => {

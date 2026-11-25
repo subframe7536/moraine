@@ -19,7 +19,7 @@ export const [DialogProvider, useDialogContext] =
 
 export function createDialogContentRegistration() {
   const registration = createContentAnatomy()
-  const [footerCount, setFooterCount] = createSignal(0)
+  const [footerCount, setFooterCount] = createSignal(0, { ownedWrite: true })
   return {
     ...registration,
     registerFooter: () => {
