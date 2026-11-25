@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { flush, merge, onSettled, omit } from 'solid-js'
+import { merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -110,12 +110,17 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     interaction,
   )
   const binding = root.bind(triggerProps)
-  onSettled(() =>
+  onSettled(() => {
+    let active = true
     queueMicrotask(() => {
-      flush()
-      validateOverlayTrigger(root.element(), 'DropdownMenu')
-    }),
-  )
+      if (active) {
+        validateOverlayTrigger(root.element(), 'DropdownMenu')
+      }
+    })
+    return () => {
+      active = false
+    }
+  })
   const Root = dynamic<ValidComponent>(tag)
   return <Root {...binding} />
 }

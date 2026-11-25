@@ -98,9 +98,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   // Effects run after the root's attributes are applied, so `pressEffect` reads the caller's
   // attributes even though the class binding is spread before them.
-  const [effectElement, setEffectElement] = createSignal<HTMLElement | undefined>(undefined, {
-    ownedWrite: true,
-  })
+  const [effectElement, setEffectElement] = createSignal<HTMLElement | undefined>(undefined)
   createEffect(root.element, (element) => {
     setEffectElement(element)
   })

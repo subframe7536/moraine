@@ -84,7 +84,7 @@
     "format": "oxfmt",
     "typecheck": "tsrs --noEmit --fast",
     "oxc": "pnpm run lint && pnpm run format",
-    "qa": "pnpm run lint && pnpm run format && pnpm run typecheck",
+    "qa": "pnpm run lint --type-check && pnpm run format",
     "release": "pnpm i && pnpm run test && pnpm run qa && bumpp --all",
     "prepublishOnly": "pnpm run build"
   },

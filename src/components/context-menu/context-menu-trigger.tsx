@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { flush, merge, onSettled, omit } from 'solid-js'
+import { merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -94,7 +94,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       get 'aria-disabled'() {
         return a11y().ariaDisabled
       },
-      get tabIndex() {
+      get tabindex() {
         return a11y().tabIndex
       },
     },
@@ -102,12 +102,17 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     events,
   )
   const binding = root.bind(triggerProps)
-  onSettled(() =>
+  onSettled(() => {
+    let active = true
     queueMicrotask(() => {
-      flush()
-      validateOverlayTrigger(root.element(), 'ContextMenu')
-    }),
-  )
+      if (active) {
+        validateOverlayTrigger(root.element(), 'ContextMenu')
+      }
+    })
+    return () => {
+      active = false
+    }
+  })
   const Root = dynamic<ValidComponent>(tag)
   return <Root type={undefined} {...(binding as Record<string, unknown>)} />
 }

@@ -293,7 +293,7 @@ export function createTransitionPresence(
       }
 
       if (currentElements.length === 0) {
-        endExit()
+        settle(endExit)
         if (!disposed) {
           options.onExitComplete?.()
         }

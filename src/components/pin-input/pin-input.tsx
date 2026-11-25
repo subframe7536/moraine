@@ -7,6 +7,7 @@ import {
   onCleanup,
   onSettled,
   Show,
+  untrack,
   omit,
 } from 'solid-js'
 
@@ -198,7 +199,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     validationType,
     normalizeValue: () => local.normalizeValue,
     value: () => local.value,
-    defaultValue: local.defaultValue,
+    defaultValue: untrack(() => local.defaultValue),
     fieldValue: field.value,
     setFormFieldValue: field.setFormValue,
     disabled: field.disabled,
@@ -290,13 +291,13 @@ export function PinInput(props: PinInputProps): JSX.Element {
   createEffect(
     chars,
     (currentChars) => {
-      const focused = focusedIndex()
+      const focused = untrack(focusedIndex)
       if (focused !== null) {
         const firstEmpty = currentChars.indexOf('')
         const isSelectable =
           focused < currentChars.length && (currentChars[focused] !== '' || focused === firstEmpty)
         if (!isSelectable) {
-          focusInput(getTargetIndex())
+          focusInput(untrack(getTargetIndex))
         }
       }
     },

@@ -63,7 +63,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     if (host === undefined || host === 'span') {
       return undefined
     }
-    return host === 'button' ? { tabIndex: -1, type: 'button' as const } : { tabIndex: -1 }
+    return host === 'button' ? { tabindex: -1, type: 'button' as const } : { tabindex: -1 }
   }
   const {
     slots: { trigger: triggerSlot },

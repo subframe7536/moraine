@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createMemo, createSignal, Show, untrack, omit } from 'solid-js'
+import { createEffect, createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -76,17 +76,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   const { locale } = useLocale()
 
   const [internalValue, setInternalValue] = createSignal(
-    untrack(() => props.value ?? props.defaultValue ?? props.min ?? 0),
-    { ownedWrite: true },
-  )
-
-  createEffect(
-    () => props.value,
-    (val) => {
-      if (val !== undefined) {
-        setInternalValue(val)
-      }
-    },
+    () => props.value ?? props.defaultValue ?? props.min ?? 0,
   )
 
   // The fill is empty only at `min`, which is not necessarily 0.

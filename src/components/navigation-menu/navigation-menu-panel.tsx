@@ -1,6 +1,6 @@
 import { getOverflowAncestors } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { For, createEffect, createSignal, onCleanup } from 'solid-js'
+import { For, createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { attachEventListener } from '../../shared/event-listener'
@@ -60,9 +60,10 @@ export function NavigationMenuPanel(): JSX.Element {
     },
   )
 
-  function measure(): void {
-    const content = context.activeContent()
-    const panel = context.panelElement()
+  function measure(
+    content = untrack(context.activeContent),
+    panel = untrack(context.panelElement),
+  ): void {
     if (!content || !panel) {
       return
     }
@@ -81,26 +82,31 @@ export function NavigationMenuPanel(): JSX.Element {
       Number.parseFloat(computed.borderBottomWidth || '0')
     const widthStyle = `${width}px`
     const heightStyle = `${height}px`
-    if (width > 0 && height > 0 && (size().width !== widthStyle || size().height !== heightStyle)) {
-      const next = { width: widthStyle, height: heightStyle }
-      settle(() => setSize(next))
+    const currentSize = untrack(size)
+    if (
+      width > 0 &&
+      height > 0 &&
+      (currentSize.width !== widthStyle || currentSize.height !== heightStyle)
+    ) {
+      setSize({ width: widthStyle, height: heightStyle })
     }
   }
 
   createEffect(
-    () => [context.activeContent(), context.panelElement()],
+    () => [context.activeContent(), context.panelElement()] as const,
     ([content, panel]) => {
       if (!content || !panel) {
         return
       }
-      measure()
+      measure(content, panel)
+      const onResize = () => settle(() => measure(content, panel))
       const Observer = panel.ownerDocument.defaultView?.ResizeObserver
       let observer: ResizeObserver | undefined
       if (Observer) {
-        observer = new Observer(measure)
+        observer = new Observer(onResize)
         observer.observe(content)
       }
-      const detach = attachEventListener(panel.ownerDocument.defaultView, 'resize', measure)
+      const detach = attachEventListener(panel.ownerDocument.defaultView, 'resize', onResize)
       return () => {
         detach()
         observer?.disconnect()

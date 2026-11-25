@@ -51,10 +51,11 @@ export function Popover(props: PopoverProps): JSX.Element {
   })
 
   createEffect(
-    () => [(() => merged.openOnHover)(), (() => merged.disabled)()],
+    () => (merged.openOnHover ? 1 : 0) | (merged.disabled ? 2 : 0),
     () => {
       hoverDelay.invalidate()
     },
+    { defer: true },
   )
 
   const behavior: ReturnType<typeof usePopoverContext> = {

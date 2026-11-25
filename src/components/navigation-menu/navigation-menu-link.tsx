@@ -91,7 +91,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
       get href() {
         return disabled() ? undefined : local.href
       },
-      get tabIndex() {
+      get tabindex() {
         return disabled() ? -1 : rest.tabindex
       },
     },

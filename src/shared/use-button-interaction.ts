@@ -179,7 +179,7 @@ export function useButtonInteraction(
       get role() {
         return props.role ?? (needsButtonRole() ? 'button' : undefined)
       },
-      get tabIndex() {
+      get tabindex() {
         if (props.tabindex !== undefined) {
           return props.tabindex
         }

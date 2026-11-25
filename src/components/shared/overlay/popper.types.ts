@@ -36,7 +36,7 @@ export interface PopperContentAttributes {
   /** Stores the content host; see `PopperContentContext.contentProps` for its lifetime contract. */
   ref: (element: HTMLDivElement) => void
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
-  tabIndex: number
+  tabindex: number
 }
 
 export interface PopperProps extends OverlayDisclosureProps, OverlayPortalProps {

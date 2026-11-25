@@ -1,5 +1,4 @@
 import type { JSX } from '@solidjs/web'
-import { isServer } from '@solidjs/web'
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 export type ControlKind = 'increment' | 'decrement'
 
@@ -121,15 +120,13 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
 
   // Cancel hold immediately when callback or reactive state makes control non-interactive.
   createEffect(
-    () => [
-      (() => options.isInteractive('increment'))(),
-      (() => options.isInteractive('decrement'))(),
-    ],
-    ([increment, decrement]) => {
-      if (states.increment.activePointerId !== null && !increment) {
+    () =>
+      (options.isInteractive('increment') ? 1 : 0) | (options.isInteractive('decrement') ? 2 : 0),
+    (mask) => {
+      if (states.increment.activePointerId !== null && (mask & 1) === 0) {
         finishPress('increment')
       }
-      if (states.decrement.activePointerId !== null && !decrement) {
+      if (states.decrement.activePointerId !== null && (mask & 2) === 0) {
         finishPress('decrement')
       }
     },
@@ -293,9 +290,6 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
       savedSelection.body.style.setProperty('-webkit-user-select', savedSelection.webkitUserSelect)
       savedSelection = null
       lockCount = 0
-    }
-    if (!isServer) {
-      setPressedControls({ increment: false, decrement: false })
     }
   })
 

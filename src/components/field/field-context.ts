@@ -1,7 +1,6 @@
 import type { JSX } from '@solidjs/web'
-import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled, untrack } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { hasContent } from '../../shared/jsx-content'
@@ -101,12 +100,7 @@ export function useFormField(
   const localId = createMemo(() => props?.id ?? options.defaultId)
   const [controlElement, setControlElement] = createSignal<HTMLElement>()
 
-  // Server rendering is pure, so controls register with their Field on the client; the label's
-  // `for` is applied while hydrating.
-  if (!isServer && fieldContext?.registerControl) {
-    const unregister = fieldContext.registerControl({ id: localId, labelFor })
-    onCleanup(unregister)
-  }
+  onSettled(() => fieldContext?.registerControl?.({ id: localId, labelFor }))
 
   const id = localId
   const path = createMemo<FieldPath | undefined>(
@@ -130,7 +124,7 @@ export function useFormField(
   const invalid = createMemo(() => hasContent(fieldContext?.error))
 
   createEffect(
-    () => [path(), focus(), controlElement(), (() => fieldContext?.binding?.controlRef)()],
+    () => [path(), focus(), controlElement(), fieldContext?.binding?.controlRef] as const,
     ([, shouldRegister, element, ref]) => {
       if (!shouldRegister || !element || !ref) {
         return

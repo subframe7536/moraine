@@ -7,6 +7,7 @@ import {
   getNextChildId,
   getOwner,
   onSettled,
+  untrack,
   omit,
 } from 'solid-js'
 
@@ -285,7 +286,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const serverItems: Array<ResizableItem> = []
   const items = isServer ? () => serverItems : clientItems
   const [uncontrolledLayout, setUncontrolledLayout] = createSignal<ResizableT.Layout | undefined>(
-    local.defaultValue ? { ...local.defaultValue } : undefined,
+    untrack(() => (local.defaultValue ? { ...local.defaultValue } : undefined)),
   )
 
   let seq = 0

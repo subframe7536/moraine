@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { merge, onCleanup, onSettled, omit } from 'solid-js'
+import { merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
@@ -197,14 +197,6 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     callHandler(event, merged.onCompositionEnd)
   }
 
-  let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
-
-  onCleanup(() => {
-    if (autoFocusTimer !== undefined) {
-      clearTimeout(autoFocusTimer)
-    }
-  })
-
   useFormReset(() => inputEl?.form, restoreControlledValue)
 
   onSettled(() => {
@@ -217,11 +209,12 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       return
     }
 
-    autoFocusTimer = setTimeout(() => {
+    const autoFocusTimer = setTimeout(() => {
       if (!field.disabled()) {
         inputEl?.focus()
       }
     }, merged.autoFocusDelay ?? 0)
+    return () => clearTimeout(autoFocusTimer)
   })
 
   return (

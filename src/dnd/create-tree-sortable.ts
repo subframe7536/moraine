@@ -185,14 +185,17 @@ export function createTreeSortable<T>(
     createEffect(
       () => {
         const state = sortable.state()
-        return state?.position === 'inside' ? String(state.targetId) : undefined
+        if (state?.position !== 'inside') {
+          return undefined
+        }
+        const item = tree.getItem(String(state.targetId))
+        return item && !item.expanded && item.hasChildren ? item.key : undefined
       },
       (key) => {
-        const item = key === undefined ? undefined : tree.getItem(key)
-        if (!item || item.expanded || !item.hasChildren) {
+        if (key === undefined) {
           return
         }
-        const timer = setTimeout(() => tree.expand(item.key), expandDelay)
+        const timer = setTimeout(() => tree.expand(key), expandDelay)
         return () => clearTimeout(timer)
       },
     )

@@ -44,7 +44,6 @@ function isFromDescendant(event: Event, selector: string): boolean {
 
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
-  const [lastHeight, setLastHeight] = createSignal(0)
   const transition = () => Boolean(context.variants.transition)
   const disclosure = createDisclosureState({
     open: () => props.item.expanded,
@@ -54,6 +53,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     // would inflate `scrollHeight` past the height the group settles at.
     measure: (element) => element.offsetHeight,
   })
+  const lastHeight = createMemo<number>((previous = 0) => disclosure.contentHeight() || previous)
   const allowHeightMotion = () => transition() && !disclosure.initialOpen()
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
   // A memo, so the toggle counter below sees only real state changes, not every height measurement.
@@ -83,11 +83,12 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     toggles,
     () => {
       // No animation runs under reduced motion, so `animationend` never fires.
-      requestAnimationFrame(() => {
+      const rafId = requestAnimationFrame(() => {
         if (contentElement?.getAnimations?.().length === 0) {
           finish()
         }
       })
+      return () => cancelAnimationFrame(rafId)
     },
     { defer: true },
   )
@@ -96,11 +97,6 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       finish()
     }
   }
-  createEffect(disclosure.contentHeight, (height) => {
-    if (height > 0) {
-      setLastHeight(height)
-    }
-  })
   const {
     slots: { content: contentSlot },
   } = useRecipe(
@@ -232,7 +228,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   const [itemElement, setItemElement] = createSignal<HTMLElement>()
   // Re-register when a reused row renders another item key.
   createEffect(
-    () => [itemElement(), (() => local.item.key)()],
+    () => [itemElement(), local.item.key] as const,
     ([element, key]) => {
       if (element) {
         return context.state.navigation.registerElement(key, element)
@@ -241,11 +237,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   )
   // Virtual row wiring (such as the measured index attribute) is owned and applied after rest.
   // Its `style` merges through the enforced recipe layer and its `ref` through the composed ref.
-  const rowAttributes = omit(
-    untrack(() => row() ?? {}),
-    'ref',
-    'style',
-  )
+  const rowAttributes = createMemo(() => omit(row() ?? {}, 'ref', 'style'))
   const {
     slots: { item: itemSlot, row: rowSlot, guide: guideSlot },
     variants,
@@ -297,7 +289,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         aria-label={local.item.label}
         {...itemSlot}
         {...rest}
-        {...rowAttributes}
+        {...rowAttributes()}
         tabindex={
           local.item.disabled
             ? undefined

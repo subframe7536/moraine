@@ -95,7 +95,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   })
 
   createEffect(
-    () => [positionerElement(), (() => props.open)(), (() => props.present())()],
+    () => [positionerElement(), props.open, props.present()] as const,
     ([positioner, open, present]) => {
       if (!positioner || open || !present) {
         return
@@ -122,7 +122,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       refState?.(layer)
 
       return () => {
-        props.refState?.(undefined)
+        refState?.(undefined)
       }
     },
   )
@@ -146,8 +146,15 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   })
 
   createEffect(
-    () => [(() => props.open)(), isPositioned(), (() => props.autoFocusStrategy)()],
-    ([open, positioned, focusStrategy]) => {
+    () =>
+      [
+        props.open,
+        isPositioned(),
+        props.autoFocusStrategy,
+        props.onAutoFocusHandled,
+        layer.contentElement(),
+      ] as const,
+    ([open, positioned, focusStrategy, onAutoFocusHandled, contentEl]) => {
       if (!open) {
         layer.setHighlightedItemId(undefined)
         layer.setPointerGraceIntent(null)
@@ -157,9 +164,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       if (!positioned || !focusStrategy || focusStrategy === 'none') {
         return
       }
-      const onAutoFocusHandled = props.onAutoFocusHandled
       let frameId = 0
-      const ownerWindow = layer.contentElement()?.ownerDocument.defaultView
+      const ownerWindow = contentEl?.ownerDocument.defaultView
 
       const runAutoFocus = () => {
         focusLayerFromStrategy(layer, focusStrategy ?? 'none')
@@ -252,7 +258,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
 
   function MenuGroup(groupProps: { group: OverlayMenuGroup<TItem> }): JSX.Element {
     const groupLabel = createMemo(() => groupProps.group.label)
-    const groupId = createId(undefined, `${props.id}-group`)
+    const groupId = createId(undefined, () => `${props.id}-group`)
     const groupLabelId = () => (groupLabel() ? `${groupId()}-label` : undefined)
     const radioGroup = createMenuRadioGroupState(() => groupProps.group.radioGroup)
 

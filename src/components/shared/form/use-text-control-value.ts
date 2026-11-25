@@ -145,7 +145,7 @@ export function useTextControlValue<
   }
 
   createEffect(
-    () => [options.value(), options.getFormValue(), composing(), isLazy()],
+    () => [options.value(), options.getFormValue(), composing(), isLazy()] as const,
     ([controlledValue, formValue, isComposing, lazy]) => {
       if (!isComposing) {
         const externalValue =

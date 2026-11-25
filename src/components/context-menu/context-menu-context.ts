@@ -465,7 +465,7 @@ export function createContextMenu(props: ContextMenuProps) {
     get 'aria-disabled'() {
       return triggerAccessibility().ariaDisabled
     },
-    get tabIndex() {
+    get tabindex() {
       return triggerAccessibility().tabIndex
     },
     onContextMenu: (event: MouseEvent) => {

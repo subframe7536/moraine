@@ -89,7 +89,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
 
   return function SubmenuItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
     const direction = useLocale().dir
-    const submenuId = createId(undefined, `${layerProps.id}-sub`)
+    const submenuId = createId(undefined, () => `${layerProps.id}-sub`)
     const submenuContentId = () => `${submenuId()}-content`
     const [triggerElement, setTriggerElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const [isOpen, setOpenState] = createControllableValue<boolean>({

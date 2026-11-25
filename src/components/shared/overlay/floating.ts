@@ -11,7 +11,7 @@ import {
 } from '@floating-ui/dom'
 import type { Coords, Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
 import type { Accessor } from 'solid-js'
-import { createEffect, createRoot, flush, getOwner, onCleanup, runWithOwner } from 'solid-js'
+import { createEffect, createRoot, getOwner, onCleanup, runWithOwner } from 'solid-js'
 
 import { useLocale } from '../../../provider/locale/locale-context'
 import { settle } from '../../../shared/utils'
@@ -327,9 +327,6 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                 }
 
                 settle(() => options.onPlacementChange(position.placement))
-                // The callback may close the overlay; apply its staged writes so the
-                // disposal is visible to the liveness re-check below.
-                flush()
                 if (!isCurrent()) {
                   return
                 }

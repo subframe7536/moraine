@@ -160,8 +160,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   let activeDocument: Document | undefined
   const skipDelayDocuments = new Set<Document>()
   let dismissedByPress = false
-  let disabledInitialized = false
-  let wasDisabled = false
   let ignoreNextFocusAfterWindowBlur = false
 
   onCleanup(() => {
@@ -310,20 +308,18 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   createEffect(
-    () => [Boolean(merged.disabled), open()] as const,
-    ([disabled, isOpen]) => {
-      if (disabledInitialized && disabled && !wasDisabled) {
+    () => Boolean(merged.disabled),
+    (disabled) => {
+      if (disabled) {
         invalidateTimers()
         setShouldUseInstantMotion(false)
 
-        if (isOpen) {
+        if (untrack(open)) {
           requestOpen(false)
         }
       }
-
-      wasDisabled = disabled
-      disabledInitialized = true
     },
+    { defer: true },
   )
 
   createEffect(ownerDocument, (currentDocument) => {

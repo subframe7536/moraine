@@ -310,7 +310,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   }
 
   function LeafItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
-    const itemId = createId(undefined, `${props.id}-item`)
+    const itemId = createId(undefined, () => `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
 
     useItemRegistration(() => itemProps.item, element, itemId)
@@ -366,7 +366,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   }
 
   function CheckboxMenuItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
-    const itemId = createId(undefined, `${props.id}-checkbox`)
+    const itemId = createId(undefined, () => `${props.id}-checkbox`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const [checked, setCheckedState] = createControllableValue<boolean>({
       value: () => ('checked' in itemProps.item ? itemProps.item.checked : undefined),
@@ -440,7 +440,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     item: OverlayMenuRadioItem
     radioGroup: MenuRadioGroupState
   }): JSX.Element {
-    const itemId = createId(undefined, `${props.id}-radio`)
+    const itemId = createId(undefined, () => `${props.id}-radio`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const checked = () => itemProps.radioGroup.value() === itemProps.item.value
 

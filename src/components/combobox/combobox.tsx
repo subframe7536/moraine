@@ -184,8 +184,12 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       focus: focusInput,
       openOnControlClick: () => local.openOnControlClick ?? false,
       setOpen: state.setOpen,
-      onPointerDown: rootProps.onPointerDown,
-      onClick: rootProps.onClick,
+      get onPointerDown() {
+        return rootProps.onPointerDown
+      },
+      get onClick() {
+        return rootProps.onClick
+      },
     })
 
     return (

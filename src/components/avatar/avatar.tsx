@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Show, createEffect, createMemo, createSignal, onCleanup, untrack, omit } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { pick, settle } from '../../shared/utils'
@@ -100,12 +100,12 @@ export function Avatar(props: AvatarProps): JSX.Element {
   const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
   const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
   const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
-  const [status, setStatusSignal] = createSignal<AvatarT.Status>(
-    untrack(source) ? 'loading' : 'error',
+  const [status, setStatusSignal] = createSignal<AvatarT.Status>(() =>
+    source() ? 'loading' : 'error',
   )
   let imageElement: HTMLImageElement | undefined
   let disposed = false
-  onCleanup(() => {
+  onSettled(() => () => {
     disposed = true
   })
 
@@ -133,12 +133,16 @@ export function Avatar(props: AvatarProps): JSX.Element {
       cancelled = true
     }
 
+    const nextStatus: AvatarT.Status = currentSource ? 'loading' : 'error'
+    if (currentStatus !== nextStatus) {
+      currentStatus = nextStatus
+      untrack(() => local.onStatusChange)?.(nextStatus)
+    }
+
     if (!currentSource) {
-      updateStatus('error')
       return cancel
     }
 
-    updateStatus('loading')
     queueMicrotask(() => {
       if (cancelled || !imageElement?.complete) {
         return
