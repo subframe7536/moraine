@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -47,12 +47,6 @@ export function DrawerBody<T extends ValidComponent = 'div'>(
     },
     context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="drawer-body"
-      {...bodySlot}
-      {...(rest as any)}
-    />
-  )
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  return <Root data-slot="drawer-body" {...bodySlot} {...(rest as any)} />
 }

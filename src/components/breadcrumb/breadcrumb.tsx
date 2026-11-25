@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { For, Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -110,6 +110,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
             const linkSlot = slotWith('link', {
               data: breadcrumbDataAttributes.link({ disabled: isDisabledLink }),
             })
+            const ItemTag = dynamic(() => (isInteractive() ? 'a' : 'span'))
 
             return (
               <>
@@ -118,8 +119,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     when={local.itemRender}
                     keyed
                     fallback={
-                      <Dynamic
-                        component={isInteractive() ? 'a' : 'span'}
+                      <ItemTag
                         data-slot={isCurrent() ? 'breadcrumb-page' : 'breadcrumb-link'}
                         {...(isCurrent() ? pageSlot : linkSlot)}
                         role={isDisabledLink() ? 'link' : undefined}
@@ -140,7 +140,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                             {label()}
                           </span>
                         </Show>
-                      </Dynamic>
+                      </ItemTag>
                     }
                   >
                     {(render) =>

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -62,9 +62,10 @@ export function SidebarTrigger<T extends ValidComponent = 'button'>(
     disabled,
   })
 
+  const Root = dynamic<ValidComponent>(tag)
+
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="sidebar-trigger"
       aria-expanded={context.open() ? 'true' : 'false'}
       aria-controls={defaultAriaControls()}

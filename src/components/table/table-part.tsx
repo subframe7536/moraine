@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import type { FlowComponent } from 'solid-js'
 import { omit } from 'solid-js'
 
@@ -41,11 +41,12 @@ export function createTablePart<P extends TablePartProps>(
   slot: TablePartSlot,
   tag: ValidComponent,
 ): FlowComponent<P> {
+  const Tag = dynamic(() => tag)
   return function TablePartComponent(props): JSX.Element {
     const local = pick(props, 'class', 'style')
     const rest = omit(props, 'class', 'style')
     const slots = useTablePart(slot, local)
 
-    return <Dynamic component={tag} data-slot={`table-${slot}`} {...slots[slot]} {...rest} />
+    return <Tag data-slot={`table-${slot}`} {...slots[slot]} {...rest} />
   }
 }

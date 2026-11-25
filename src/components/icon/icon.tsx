@@ -1,9 +1,7 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
-import { Show, createMemo, omit } from 'solid-js'
+import { Show, createMemo, dynamicComponent, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import type { ValidComponent } from '../../shared/types'
 import { pick } from '../../shared/utils'
 
 import { iconRecipe } from './icon.recipe'
@@ -48,13 +46,18 @@ export function Icon(props: IconProps): JSX.Element {
     }
   }
 
+  const Graphic = dynamicComponent(() => {
+    const current = name()
+    return typeof current === 'function' ? current : undefined
+  })
+
   // The host owns every attribute and slot binding. A component graphic is rendered without
   // props, so slot styling never depends on whether it forwards them.
   return (
     <span {...rootSlot} {...rest} {...accessibilityProps()}>
       <Show when={!isString()}>
         <Show when={typeof name() === 'function'} fallback={name() as JSX.Element}>
-          <Dynamic component={name() as ValidComponent} />
+          <Graphic />
         </Show>
       </Show>
     </span>

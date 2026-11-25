@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -43,6 +43,8 @@ export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): J
     variants,
   } = useRecipe(cardRecipe, local)
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+
   return (
     <CardProvider
       value={{
@@ -57,7 +59,7 @@ export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): J
         },
       }}
     >
-      <Dynamic component={local.as ?? 'div'} data-slot="card" {...rootSlot} {...(rest as any)} />
+      <Root data-slot="card" {...rootSlot} {...(rest as any)} />
     </CardProvider>
   )
 }

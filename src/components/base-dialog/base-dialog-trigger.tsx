@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { flush, onSettled, omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -66,9 +66,10 @@ export function BaseDialogTrigger<T extends ValidComponent = 'button'>(
     })
   })
 
+  const Root = dynamic<ValidComponent>(tag)
+
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="base-dialog-trigger"
       aria-haspopup="dialog"
       aria-controls={

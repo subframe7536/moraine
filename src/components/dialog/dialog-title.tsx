@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -44,13 +44,6 @@ export function DialogTitle<T extends ValidComponent = 'h2'>(
     slot: 'title',
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'h2'}
-      data-slot="dialog-title"
-      {...titleSlot}
-      {...(rest as any)}
-      id={id()}
-    />
-  )
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'h2')
+  return <Root data-slot="dialog-title" {...titleSlot} {...(rest as any)} id={id()} />
 }

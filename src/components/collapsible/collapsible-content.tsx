@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -65,6 +65,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     }
   })
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+
   return (
     <div
       ref={setWrapper}
@@ -87,8 +89,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
     >
       <Show when={shouldRenderContent()}>
-        <Dynamic
-          component={local.as ?? 'div'}
+        <Root
           data-slot="collapsible-content"
           {...contentSlot}
           {...rest}

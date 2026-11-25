@@ -1,6 +1,9 @@
-import { renderToString, Dynamic } from '@solidjs/web'
+import { dynamic, renderToString } from '@solidjs/web'
 
 import { Tabs } from './tabs'
+
+const Paragraph = dynamic(() => 'p')
+
 export function createTabItems() {
   return [
     {
@@ -29,14 +32,14 @@ export function renderLazyTabsFixture(): string {
           label: 'First',
           value: 'first',
           get content() {
-            return <Dynamic component="p">First lazy panel</Dynamic>
+            return <Paragraph>First lazy panel</Paragraph>
           },
         },
         {
           label: 'Second',
           value: 'second',
           get content() {
-            return <Dynamic component="p">Second lazy panel</Dynamic>
+            return <Paragraph>Second lazy panel</Paragraph>
           },
         },
       ]}

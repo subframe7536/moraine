@@ -361,7 +361,7 @@ export namespace DataTableT {
    */
   export type HeadAttributes = Omit<
     JSX.ThHTMLAttributes<HTMLTableCellElement>,
-    'children' | 'class' | 'classList' | 'style' | 'colSpan' | 'aria-sort'
+    'children' | 'class' | 'style' | 'colSpan' | 'aria-sort'
   >
 
   /**
@@ -370,7 +370,7 @@ export namespace DataTableT {
    */
   export type RowAttributes = Omit<
     JSX.HTMLAttributes<HTMLTableRowElement>,
-    'children' | 'class' | 'classList' | 'style'
+    'children' | 'class' | 'style'
   > & {
     class?: SlotClassValue
   }

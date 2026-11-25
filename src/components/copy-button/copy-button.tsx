@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { Show, children as resolveChildren, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -207,9 +207,10 @@ export function CopyButton<T extends ValidComponent = 'button'>(
     return <Icon name={icon()} data-slot="copy-button-icon" {...iconSlot} />
   }
 
+  const Root = dynamic(tag)
+
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="copy-button"
       {...rootSlot}
       {...binding}
@@ -232,6 +233,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       <Show when={hasIcon() && local.iconPosition === 'trailing'}>
         <Indicator />
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

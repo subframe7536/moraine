@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -79,9 +79,10 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
+
   return (
-    <Dynamic
-      component={local.as ?? 'span'}
+    <Root
       data-slot="tree-trigger"
       aria-hidden={'true'}
       {...triggerSlot}
@@ -111,6 +112,6 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
       >
         {local.children}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

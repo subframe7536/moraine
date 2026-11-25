@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { Show, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
@@ -256,10 +256,11 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
     context.toggle()
   }
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'button')
+
   return (
     <Show when={!context.mobile()}>
-      <Dynamic
-        component={(local.as ?? 'button') as ValidComponent}
+      <Root
         type={isButton() ? 'button' : undefined}
         data-slot="sidebar-rail"
         {...railSlot}

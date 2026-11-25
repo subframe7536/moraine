@@ -1,6 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
 import { Show, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -21,8 +20,7 @@ function renderInTbody(
   return render(() => (
     <table>
       <tbody>
-        <Dynamic
-          component={virtualizer.virtualRender}
+        <virtualizer.virtualRender
           entries={entries}
           scrollElement={options?.scrollElement}
           render={options?.renderRow ?? ((item, _index, props) => <tr {...props}>{item}</tr>)}
@@ -96,8 +94,7 @@ describe('createTableVirtualizer', () => {
     const screen = render(() => (
       <table>
         <tbody>
-          <Dynamic
-            component={virtualizer.virtualRender}
+          <virtualizer.virtualRender
             entries={entries()}
             scrollElement={scrollElement}
             render={(item, _index, props) => <tr {...props}>{item}</tr>}
@@ -217,8 +214,7 @@ describe('createTableVirtualizer', () => {
           </tr>
         </thead>
         <tbody>
-          <Dynamic
-            component={virtualizer.virtualRender}
+          <virtualizer.virtualRender
             entries={['a', 'b', 'c']}
             scrollElement={scrollElement}
             render={(item, _index, props) => <tr {...props}>{item}</tr>}
@@ -249,8 +245,7 @@ describe('createTableVirtualizer', () => {
     const screen = render(() => (
       <table aria-rowcount="999">
         <tbody>
-          <Dynamic
-            component={virtualizer.virtualRender}
+          <virtualizer.virtualRender
             entries={['a', 'b']}
             scrollElement={scrollElement}
             render={(item, _index, props) => <tr {...props}>{item}</tr>}
@@ -305,8 +300,7 @@ describe('createTableVirtualizer', () => {
     const screen = render(() => (
       <table>
         <tbody>
-          <Dynamic
-            component={virtualizer.virtualRender}
+          <virtualizer.virtualRender
             entries={entries()}
             render={(item: string, _index: number, props?: Record<string, unknown>) => {
               rendered.push(item)
@@ -338,8 +332,7 @@ describe('createTableVirtualizer', () => {
     const screen = render(() => (
       <table>
         <tbody>
-          <Dynamic
-            component={virtualizer.virtualRender}
+          <virtualizer.virtualRender
             entries={entries()}
             render={(item: string, _index: number, props?: Record<string, unknown>) => (
               <tr {...props}>{item}</tr>
@@ -384,8 +377,7 @@ describe('createTableVirtualizer', () => {
           </tr>
         </thead>
         <tbody>
-          <Dynamic
-            component={virtualizer.virtualRender}
+          <virtualizer.virtualRender
             entries={['a', 'b', 'c']}
             render={(item, _index, props) => <tr {...props}>{item}</tr>}
           />
@@ -436,8 +428,7 @@ describe('createTableVirtualizer', () => {
     const screen = render(() => (
       <table>
         <tbody>
-          <Dynamic
-            component={virtualizer.virtualRender}
+          <virtualizer.virtualRender
             entries={['a', 'b']}
             render={(item, _index, props) => <tr {...props}>{item}</tr>}
           />
@@ -471,8 +462,7 @@ describe('createTableVirtualizer', () => {
       <table aria-rowcount={rowCount()}>
         <tbody>
           <Show when={mounted()}>
-            <Dynamic
-              component={virtualizer.virtualRender}
+            <virtualizer.virtualRender
               entries={entries()}
               render={(item: string, _index: number, props?: Record<string, unknown>) => (
                 <tr {...props}>{item}</tr>
@@ -528,8 +518,7 @@ describe('createTableVirtualizer', () => {
             </tr>
           </thead>
           <tbody>
-            <Dynamic
-              component={virtualizer.virtualRender}
+            <virtualizer.virtualRender
               entries={Array.from({ length: 50 }, (_, index) => `Item ${index}`)}
               scrollElement={scrollElement}
               render={(item, _index, props) => <tr {...props}>{item}</tr>}
@@ -577,8 +566,7 @@ describe('createTableVirtualizer', () => {
             </tr>
           </thead>
           <tbody>
-            <Dynamic
-              component={virtualizer.virtualRender}
+            <virtualizer.virtualRender
               entries={['a']}
               scrollElement={scrollElement}
               render={(item, _index, props) => <tr {...props}>{item}</tr>}
@@ -623,8 +611,7 @@ describe('createTableVirtualizer', () => {
             </tr>
           </thead>
           <tbody>
-            <Dynamic
-              component={virtualizer.virtualRender}
+            <virtualizer.virtualRender
               entries={['a']}
               scrollElement={scrollElement}
               render={(item, _index, props) => <tr {...props}>{item}</tr>}
@@ -666,8 +653,7 @@ describe('createTableVirtualizer', () => {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          <Dynamic
-            component={VirtualRender}
+          <VirtualRender
             entries={['a', 'b', 'c']}
             render={(item, _index, props) => (
               <Table.Row {...props}>
@@ -705,8 +691,7 @@ describe('createTableVirtualizer', () => {
     const screen = render(() => (
       <Table>
         <Table.Body>
-          <Dynamic
-            component={virtualizer.virtualRender}
+          <virtualizer.virtualRender
             entries={entries}
             render={(item, _index, props) => (
               <Table.Row {...props}>
@@ -783,8 +768,7 @@ describe('createTableVirtualizer', () => {
       const screen = render(() => (
         <table {...props.tableProps}>
           <tbody>
-            <Dynamic
-              component={virtualizer.virtualRender}
+            <virtualizer.virtualRender
               entries={['a', 'b']}
               scrollElement={scrollElement}
               columns={props.columns?.() ?? COLUMNS}
@@ -1011,8 +995,7 @@ describe('createTableVirtualizer', () => {
       const screen = render(() => (
         <table>
           <tbody>
-            <Dynamic
-              component={virtualizer.virtualRender}
+            <virtualizer.virtualRender
               entries={entries}
               scrollElement={scrollElement}
               columns={COLUMNS}

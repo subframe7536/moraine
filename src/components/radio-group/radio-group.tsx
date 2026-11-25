@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import {
   For,
   Show,
@@ -376,6 +376,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     field.emit('blur', event)
   }
 
+  const ItemTag = dynamic(() => (variants.variant === 'list' ? 'div' : 'label'))
+
   return (
     <div
       data-slot="radio-group"
@@ -446,12 +448,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
             })
 
             return (
-              <Dynamic
-                component={variants.variant === 'list' ? 'div' : 'label'}
-                id={item.id}
-                data-slot="radio-group-item"
-                {...itemSlot}
-              >
+              <ItemTag id={item.id} data-slot="radio-group-item" {...itemSlot}>
                 <div data-slot="radio-group-container" {...containerSlot}>
                   <HiddenInput
                     ref={(element) => {
@@ -535,7 +532,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     </Show>
                   </div>
                 </Show>
-              </Dynamic>
+              </ItemTag>
             )
           }}
         </For>

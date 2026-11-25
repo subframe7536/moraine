@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic, HydrationScript } from '@solidjs/web'
+import { HydrationScript, dynamic } from '@solidjs/web'
 import { For } from 'solid-js'
 
 import { DOCS_SITE, buildSiteMetaTags } from './build/site-meta'
@@ -27,11 +27,10 @@ export default function Document(props: { children?: JSX.Element }): JSX.Element
         <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
         <script>{THEME_INIT}</script>
         <For each={SITE_TAGS}>
-          {(tag) => (
-            <Dynamic component={tag.tag} {...tag.attrs}>
-              {tag.children}
-            </Dynamic>
-          )}
+          {(tag) => {
+            const Tag = dynamic(() => tag.tag)
+            return <Tag {...tag.attrs}>{tag.children}</Tag>
+          }}
         </For>
         <HydrationScript />
       </head>

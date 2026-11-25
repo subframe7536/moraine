@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import {
   Show,
   children as resolveChildren,
@@ -185,9 +185,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   )
   const hasChildren = () => hasContent(resolvedChildren())
 
+  const Root = dynamic(tag)
+
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="button"
       aria-busy={isLoading() ? 'true' : undefined}
       {...rootSlot}
@@ -220,6 +221,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           />
         )}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

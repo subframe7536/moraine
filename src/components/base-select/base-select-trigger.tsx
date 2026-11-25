@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { children as resolveChildren, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -152,9 +152,9 @@ export function BaseSelectTrigger<
     eventProps,
   )
   const rootBinding = root.bind(binding)
+  const Root = dynamic<ValidComponent>(tag)
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot={state.slotName('trigger')}
       aria-haspopup="listbox"
       {...triggerSlot}
@@ -170,6 +170,6 @@ export function BaseSelectTrigger<
       }
     >
       {resolvedChildren()}
-    </Dynamic>
+    </Root>
   )
 }

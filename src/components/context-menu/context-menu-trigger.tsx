@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { flush, merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -108,5 +108,6 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       validateOverlayTrigger(root.element(), 'ContextMenu')
     }),
   )
-  return <Dynamic component={tag()} type={undefined} {...(binding as any)} />
+  const Root = dynamic<ValidComponent>(tag)
+  return <Root type={undefined} {...(binding as any)} />
 }

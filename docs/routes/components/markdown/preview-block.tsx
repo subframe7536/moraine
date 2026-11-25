@@ -1,6 +1,5 @@
-import { Dynamic } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { createSignal, onSettled, Show } from 'solid-js'
+import { Show, createSignal, dynamicComponent, onSettled } from 'solid-js'
 
 import { CodeBlock } from './code'
 import { DOCS_BLOCK_CONTAINER_CLASS, DOCS_PREVIEW_CANVAS_CLASS } from './markdown.recipe'
@@ -24,7 +23,10 @@ export function DocsPreview(props: DocsMdxPreview) {
     <section class={DOCS_BLOCK_CONTAINER_CLASS}>
       <div class={DOCS_PREVIEW_CANVAS_CLASS} data-preview-ready={mounted() ? '' : undefined}>
         <Show when={mounted() && props.component}>
-          {(value) => <Dynamic component={value()} />}
+          {(value) => {
+            const Preview = dynamicComponent(value)
+            return <Preview />
+          }}
         </Show>
       </div>
       <Show when={source()}>

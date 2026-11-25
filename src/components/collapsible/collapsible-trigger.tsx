@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
 import { omit } from 'solid-js'
 
@@ -75,9 +75,9 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interactionProps)
+  const Root = dynamic(tag)
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="collapsible-trigger"
       aria-controls={context.contentId()}
       aria-expanded={disclosure.open() ? 'true' : 'false'}

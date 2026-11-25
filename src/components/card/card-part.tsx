@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -47,14 +47,9 @@ export function createCardPart<S extends CardPartSlot>(slot: S, fallback: ValidC
       }),
     })
 
-    return (
-      <Dynamic
-        component={local.as ?? fallback}
-        data-slot={`card-${slot}`}
-        {...partSlot}
-        {...(rest as any)}
-      />
-    )
+    const Root = dynamic<ValidComponent>(() => local.as ?? fallback)
+
+    return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as any)} />
   }
 }
 
@@ -74,13 +69,7 @@ export function CardPart(
       ...context.slotOverrides,
     }),
   })
+  const Root = dynamic<ValidComponent>(() => local.as ?? local.fallback)
 
-  return (
-    <Dynamic
-      component={local.as ?? local.fallback}
-      data-slot={`card-${slot}`}
-      {...partSlot}
-      {...(rest as any)}
-    />
-  )
+  return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as any)} />
 }

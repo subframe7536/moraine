@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import {
   Show,
   children as resolveChildren,
@@ -157,10 +157,10 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     )
     const closeIcon = createLazyMemo(() => merged.closeIcon)
     const tag = (): ValidComponent => local.as ?? 'div'
+    const Root = dynamic(tag)
 
     return (
-      <Dynamic
-        component={tag()}
+      <Root
         data-slot="dialog-content"
         role="dialog"
         dir={local.dir ?? direction()}
@@ -194,7 +194,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
           </BaseDialog.Close>
         </Show>
         {explicitChildren()}
-      </Dynamic>
+      </Root>
     )
   }
 

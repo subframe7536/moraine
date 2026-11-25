@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import {
   DEV,
   For,
@@ -180,6 +180,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const rootId = createId(() => merged.id, 'accordion')
   const expandIcon = createMemo(() => merged.expandIcon)
   const headingTag = () => `h${merged.headingLevel}` as const
+  const Heading = dynamic(headingTag)
   const [selectedValues, setSelectedValues] = createControllableValue<string[]>({
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? [],
@@ -457,7 +458,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
           return (
             <div data-slot="accordion-item" {...itemSlot}>
-              <Dynamic component={headingTag()} data-slot="accordion-header" {...headerSlot}>
+              <Heading data-slot="accordion-header" {...headerSlot}>
                 <button
                   ref={setTriggerEl}
                   id={triggerId()}
@@ -497,7 +498,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     <Icon name={expandIcon()} data-slot="accordion-trailing" {...trailingSlot} />
                   </Show>
                 </button>
-              </Dynamic>
+              </Heading>
 
               <AccordionItemPanel
                 disclosure={disclosure}

@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { Show, createSignal, flush, omit, untrack } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -72,7 +72,8 @@ function Root(
       rest,
     ),
   )
-  return <Dynamic component={tag()} {...binding} />
+  const RootEl = dynamic(tag)
+  return <RootEl {...binding} />
 }
 
 describe('polymorphic root', () => {

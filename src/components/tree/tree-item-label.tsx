@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -43,11 +43,13 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
+
   return (
-    <Dynamic component={local.as ?? 'span'} data-slot="tree-label" {...labelSlot} {...rest}>
+    <Root data-slot="tree-label" {...labelSlot} {...rest}>
       <Show when={local.children} fallback={itemContext.item.label}>
         {local.children}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

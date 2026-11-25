@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
@@ -34,13 +34,7 @@ export function createRegion<S extends RegionSlot>(
     const {
       slots: { [slot]: regionSlot },
     } = useSidebarStyles(slot, local)
-    return (
-      <Dynamic
-        component={local.as ?? defaultTag}
-        data-slot={dataSlot}
-        {...regionSlot}
-        {...(rest as any)}
-      />
-    )
+    const Root = dynamic<ValidComponent>(() => local.as ?? defaultTag)
+    return <Root data-slot={dataSlot} {...regionSlot} {...(rest as any)} />
   }
 }

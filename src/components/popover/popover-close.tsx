@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
 import { omit } from 'solid-js'
 
@@ -46,6 +46,7 @@ export function PopoverClose<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interaction)
+  const Root = dynamic(tag)
 
-  return <Dynamic component={tag()} data-slot="popover-close" {...binding} />
+  return <Root data-slot="popover-close" {...binding} />
 }

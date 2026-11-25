@@ -64,7 +64,7 @@ function attachClickBridge(document: Document, seq: number, handler: (event: Mou
   }
 }
 
-/** Tracks a Dynamic root and bridges events from custom and foreign-document roots. */
+/** Tracks a polymorphic dynamic root and bridges events from custom and foreign-document roots. */
 export function createPolymorphicRoot(options: {
   tag: Accessor<ValidComponent>
   /** Run custom trigger clicks after the target's own handler, allowing it to cancel activation. */

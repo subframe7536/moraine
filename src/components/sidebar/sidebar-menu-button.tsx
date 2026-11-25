@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { children as resolveChildren, createMemo, merge, Show, omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -174,13 +174,9 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
   const binding = root.bind(elementProps)
   const children = resolveChildren(() => local.children)
   const hasChildren = () => hasContent(children())
+  const Root = dynamic(resolvedTag)
   return (
-    <Dynamic
-      component={resolvedTag()}
-      data-slot="sidebar-menu-button"
-      {...menuButtonSlot}
-      {...binding}
-    >
+    <Root data-slot="sidebar-menu-button" {...menuButtonSlot} {...binding}>
       <Show when={local.leading}>
         {(iconName) => (
           <Icon
@@ -206,6 +202,6 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
           />
         )}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

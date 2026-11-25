@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -157,14 +157,15 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
   const defaultRole = () => (isUrgent() ? 'alert' : 'status')
   const defaultAriaLive = () => (isUrgent() ? 'assertive' : 'polite')
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+
   return (
     <Show when={presence.present()}>
       {(_present) => {
         const [element, setElement] = createSignal<HTMLElement>()
         bindElement(element, presence.registerElement)
         return (
-          <Dynamic
-            component={local.as ?? 'div'}
+          <Root
             data-slot="alert"
             role={defaultRole()}
             aria-live={defaultAriaLive()}
@@ -213,7 +214,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
                 <Icon name={local.closeIcon ?? 'icon-close'} />
               </button>
             </Show>
-          </Dynamic>
+          </Root>
         )
       }}
     </Show>

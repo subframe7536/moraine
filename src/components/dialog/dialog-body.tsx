@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -45,12 +45,6 @@ export function DialogBody<T extends ValidComponent = 'div'>(
     },
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="dialog-body"
-      {...bodySlot}
-      {...(rest as any)}
-    />
-  )
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  return <Root data-slot="dialog-body" {...bodySlot} {...(rest as any)} />
 }

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
@@ -34,13 +34,7 @@ export function SidebarInset<T extends ValidComponent = 'main'>(
   const {
     slots: { inset: insetSlot },
   } = useSidebarStyles('inset', local)
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'main')
 
-  return (
-    <Dynamic
-      component={(local.as ?? 'main') as ValidComponent}
-      data-slot="sidebar-inset"
-      {...insetSlot}
-      {...(rest as object)}
-    />
-  )
+  return <Root data-slot="sidebar-inset" {...insetSlot} {...(rest as object)} />
 }

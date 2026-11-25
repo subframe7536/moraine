@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
@@ -42,12 +42,6 @@ export function SidebarMenuAction<T extends ValidComponent = 'div'>(
   const menuActionSlot = slotWith('menuAction', {
     data: sidebarDataAttributes.menuAction({ mobile: context.mobile }),
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="sidebar-menu-action"
-      {...menuActionSlot}
-      {...rest}
-    />
-  )
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  return <Root data-slot="sidebar-menu-action" {...menuActionSlot} {...rest} />
 }

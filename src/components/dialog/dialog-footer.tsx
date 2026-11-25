@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -44,12 +44,6 @@ export function DialogFooter<T extends ValidComponent = 'div'>(
     slot: 'footer',
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="dialog-footer"
-      {...footerSlot}
-      {...(rest as any)}
-    />
-  )
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  return <Root data-slot="dialog-footer" {...footerSlot} {...(rest as any)} />
 }

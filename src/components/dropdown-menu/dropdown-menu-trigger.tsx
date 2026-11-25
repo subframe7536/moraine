@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { flush, merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -116,5 +116,6 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
       validateOverlayTrigger(root.element(), 'DropdownMenu')
     }),
   )
-  return <Dynamic component={tag()} {...binding} />
+  const Root = dynamic<ValidComponent>(tag)
+  return <Root {...binding} />
 }

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { children as resolveChildren, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -78,11 +78,10 @@ export function BaseDialogContent<T extends ValidComponent = 'div'>(
     }),
   )
 
-  const tag = (): ValidComponent => local.as ?? 'div'
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
 
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="base-dialog-content"
       role="dialog"
       id={context.contentId()}
@@ -94,6 +93,6 @@ export function BaseDialogContent<T extends ValidComponent = 'div'>(
       onKeyDown={binding.onKeyDown}
     >
       {body()}
-    </Dynamic>
+    </Root>
   )
 }

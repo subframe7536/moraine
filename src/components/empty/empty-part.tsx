@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -47,14 +47,9 @@ export function createEmptyPart<S extends EmptyPartSlot>(
       context: () => ({ variants: { size: context.size }, ...context.slotOverrides }),
     })
 
-    return (
-      <Dynamic
-        component={local.as ?? fallback}
-        data-slot={`empty-${slot}`}
-        {...partSlot}
-        {...(rest as any)}
-      />
-    )
+    const Root = dynamic<ValidComponent>(() => local.as ?? fallback)
+
+    return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as any)} />
   }
 }
 
@@ -71,13 +66,7 @@ export function EmptyPart(
     slot,
     context: () => ({ variants: { size: context.size }, ...context.slotOverrides }),
   })
+  const Root = dynamic<ValidComponent>(() => local.as ?? local.fallback)
 
-  return (
-    <Dynamic
-      component={local.as ?? local.fallback}
-      data-slot={`empty-${slot}`}
-      {...partSlot}
-      {...(rest as any)}
-    />
-  )
+  return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as any)} />
 }

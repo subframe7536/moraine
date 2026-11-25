@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic, isServer } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import type { Column, RowData } from '@tanstack/table-core'
 import {
   DEV,
@@ -9,6 +9,7 @@ import {
   createMemo,
   createSignal,
   createUniqueId,
+  dynamicComponent,
   onSettled,
   omit,
 } from 'solid-js'
@@ -381,34 +382,36 @@ export function DataTable<TData extends RowData = RowData>(
                     </For>
                   }
                 >
-                  {(virtualizer) => (
-                    <Dynamic
-                      component={virtualizer().virtualRender}
-                      entries={rows()}
-                      scrollElement={scrollContainer()}
-                      columns={table().getCenterVisibleLeafColumns()}
-                      // These are the `columns` passed above.
-                      columnSize={(column: unknown) =>
-                        (column as Column<DataTableFeatures, TData>).getSize()
-                      }
-                      columnLayout={columnLayout()}
-                      render={(
-                        row: DataTableT.Row<TData>,
-                        index: number,
-                        rowProps: TableVirtualRowProps,
-                      ) => (
-                        <DataTableRow
-                          row={row}
-                          index={index}
-                          virtualRowProps={rowProps}
-                          rowProps={local.rowProps}
-                          onRowClick={local.onRowClick}
-                          onRowDoubleClick={local.onRowDoubleClick}
-                          expandedRowRender={expandedRowRender()}
-                        />
-                      )}
-                    />
-                  )}
+                  {(virtualizer) => {
+                    const VirtualRows = dynamicComponent(() => virtualizer().virtualRender)
+                    return (
+                      <VirtualRows
+                        entries={rows()}
+                        scrollElement={scrollContainer()}
+                        columns={table().getCenterVisibleLeafColumns()}
+                        // These are the `columns` passed above.
+                        columnSize={(column: unknown) =>
+                          (column as Column<DataTableFeatures, TData>).getSize()
+                        }
+                        columnLayout={columnLayout()}
+                        render={(
+                          row: DataTableT.Row<TData>,
+                          index: number,
+                          rowProps: TableVirtualRowProps,
+                        ) => (
+                          <DataTableRow
+                            row={row}
+                            index={index}
+                            virtualRowProps={rowProps}
+                            rowProps={local.rowProps}
+                            onRowClick={local.onRowClick}
+                            onRowDoubleClick={local.onRowDoubleClick}
+                            expandedRowRender={expandedRowRender()}
+                          />
+                        )}
+                      />
+                    )
+                  }}
                 </Show>
               </Show>
             </tbody>

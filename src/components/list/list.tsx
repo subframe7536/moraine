@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { For, Show, createEffect, createMemo, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -104,9 +104,10 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
     { defer: true },
   )
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'ul')
+
   return (
-    <Dynamic
-      component={local.as ?? 'ul'}
+    <Root
       role="list"
       data-slot="list"
       {...rootSlot}
@@ -145,6 +146,6 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
       >
         {renderWithProps(local.emptyRender!, {})}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

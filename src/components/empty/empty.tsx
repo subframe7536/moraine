@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -43,6 +43,8 @@ export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>):
     variants,
   } = useRecipe(emptyRecipe, local)
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+
   return (
     <EmptyProvider
       value={{
@@ -54,7 +56,7 @@ export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>):
         },
       }}
     >
-      <Dynamic component={local.as ?? 'div'} data-slot="empty" {...rootSlot} {...(rest as any)} />
+      <Root data-slot="empty" {...rootSlot} {...(rest as any)} />
     </EmptyProvider>
   )
 }

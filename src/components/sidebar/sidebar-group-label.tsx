@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
@@ -32,13 +32,7 @@ export function SidebarGroupLabel<T extends ValidComponent = 'div'>(
   const {
     slots: { groupLabel: groupLabelSlot },
   } = useSidebarStyles('groupLabel', local)
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
 
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="sidebar-group-label"
-      {...groupLabelSlot}
-      {...(rest as any)}
-    />
-  )
+  return <Root data-slot="sidebar-group-label" {...groupLabelSlot} {...(rest as any)} />
 }

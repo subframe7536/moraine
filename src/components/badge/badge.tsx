@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { Show, children as resolveChildren, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -68,8 +68,10 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
     slots: { root: rootSlot, leading: leadingSlot, label: labelSlot, trailing: trailingSlot },
   } = useRecipe(badgeRecipe, styleProps)
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
+
   return (
-    <Dynamic component={local.as ?? 'span'} data-slot="badge" {...rootSlot} {...(rest as any)}>
+    <Root data-slot="badge" {...rootSlot} {...(rest as any)}>
       <Show when={leading()}>
         {(leading) => <Icon name={leading()} data-slot="badge-leading" {...leadingSlot} />}
       </Show>
@@ -83,6 +85,6 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
       <Show when={trailing()}>
         <Icon name={trailing()} data-slot="badge-trailing" {...trailingSlot} />
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

@@ -1,5 +1,5 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
@@ -7,6 +7,9 @@ import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Tabs } from './tabs'
 import { createTabItems } from './tabs.ssr.fixture'
+
+const Paragraph = dynamic(() => 'p')
+
 describe('Tabs SSR Hydration', () => {
   test('hydrates the first panel and shows an inactive panel after keyboard selection', () => {
     const { container } = hydrateFixture(
@@ -20,14 +23,14 @@ describe('Tabs SSR Hydration', () => {
               label: 'First',
               value: 'first',
               get content() {
-                return <Dynamic component="p">First lazy panel</Dynamic>
+                return <Paragraph>First lazy panel</Paragraph>
               },
             },
             {
               label: 'Second',
               value: 'second',
               get content() {
-                return <Dynamic component="p">Second lazy panel</Dynamic>
+                return <Paragraph>Second lazy panel</Paragraph>
               },
             },
           ]}

@@ -1,6 +1,6 @@
 import type { Placement } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { Dynamic, Portal } from '@solidjs/web'
+import { Portal, dynamic } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
 import { Show, createEffect, createMemo, createSignal, merge, untrack, omit } from 'solid-js'
 
@@ -220,9 +220,9 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     disabled,
     expanded: context.isOpen,
   })
+  const Root = dynamic<ValidComponent>(tag)
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot={context.slotName('trigger')}
       {...triggerData}
       aria-haspopup={(local.ariaRelation ?? 'popup') === 'popup' ? 'true' : undefined}

@@ -1,8 +1,7 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
 import type { RowData } from '@tanstack/table-core'
 import type { Component } from 'solid-js'
-import { Show, createSignal } from 'solid-js'
+import { Show, createSignal, dynamicComponent } from 'solid-js'
 
 import { useRecipe } from '../provider'
 import type { SlotOverrides } from '../provider'
@@ -33,6 +32,7 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
   render: Component<DataTableT.ExpandedRowRenderProps<TData>>
   slotOverrides: SlotOverrides
 }): JSX.Element {
+  const ExpandedContent = dynamicComponent(() => props.render)
   const {
     slots: { expandedRow: expandedRowSlot, expandedCell: expandedCellSlot },
   } = useRecipe(
@@ -92,7 +92,7 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
                 })}
               >
                 <div ref={setBody} class={DATA_TABLE_EXPANDED_BODY_CLASS}>
-                  <Dynamic component={props.render} row={props.row} />
+                  <ExpandedContent row={props.row} />
                 </div>
               </div>
             </td>

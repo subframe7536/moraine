@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic, isServer } from '@solidjs/web'
+import { dynamic, isServer } from '@solidjs/web'
 import { Show, createRenderEffect, createSignal, onCleanup, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
@@ -73,6 +73,8 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   const mobileAriaLabel = () =>
     local['aria-label'] ?? (rest as { title?: string }).title ?? messages().label
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'aside')
+
   // The mobile Drawer owns presence, so only the inline desktop panel reflects the closed state.
   const PanelContent = (contentProps: { mobile: boolean }) => {
     const closed = () => !contentProps.mobile && !context.open()
@@ -91,8 +93,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
       }),
     })
     return (
-      <Dynamic
-        component={(local.as ?? 'aside') as ValidComponent}
+      <Root
         data-slot="sidebar-panel"
         {...panelSlot}
         ref={(node: HTMLElement) => {
@@ -106,7 +107,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
         id={local.id ?? context.panelId()}
       >
         {content()}
-      </Dynamic>
+      </Root>
     )
   }
 

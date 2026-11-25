@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -214,6 +214,8 @@ export function Field<T extends ValidComponent = 'div'>(
     registerControl,
   }
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+
   function RenderFieldInternal(): JSX.Element {
     // Read the children getter in its own memo so mounted components are created once, then call
     // function values tracked so Solid control-flow accessors, such as `Show`, stay reactive.
@@ -231,7 +233,7 @@ export function Field<T extends ValidComponent = 'div'>(
     })
 
     return (
-      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rootSlot} {...(rest as any)}>
+      <Root data-slot="field" {...rootSlot} {...(rest as any)}>
         <div data-slot="field-wrapper" {...wrapperSlot}>
           <Show when={showLabel()}>
             <div data-slot="field-label-wrapper" {...labelWrapperSlot}>
@@ -278,7 +280,7 @@ export function Field<T extends ValidComponent = 'div'>(
             </div>
           </Show>
         </div>
-      </Dynamic>
+      </Root>
     )
   }
 

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -26,14 +26,8 @@ function createDrawerHeader(headerKind: 'explicit' | 'shorthand') {
       data: { header: drawerDataAttributes.header({ body: content.hasBody }) },
       context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
     })
-    return (
-      <Dynamic
-        component={local.as ?? 'div'}
-        data-slot="drawer-header"
-        {...headerSlot}
-        {...(rest as any)}
-      />
-    )
+    const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+    return <Root data-slot="drawer-header" {...headerSlot} {...(rest as any)} />
   }
 }
 

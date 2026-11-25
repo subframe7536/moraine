@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { createMemo } from 'solid-js'
 
 import { cn } from '../../../../../src'
@@ -16,9 +16,9 @@ export function HeadingWithAnchor(props: {
   class?: string
 }): JSX.Element {
   const component = createMemo(() => `h${props.level}`)
+  const Heading = dynamic(component)
   return (
-    <Dynamic
-      component={component()}
+    <Heading
       id={props.id}
       tabindex={-1}
       class={cn(MARKDOWN_ANCHOR_HEADING_CLASS, `docs-${component()}`, props.class)}
@@ -31,6 +31,6 @@ export function HeadingWithAnchor(props: {
       >
         #
       </a>
-    </Dynamic>
+    </Heading>
   )
 }
