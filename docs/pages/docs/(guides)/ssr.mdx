@@ -42,8 +42,9 @@ In Moraine:
 
 - Overlays default to closed, so the server output contains only the trigger.
 - Portals emit no server markup, so overlay content renders only on the client, even when an overlay starts open. The server and initial client trees match.
-- Read browser APIs in `onMount` or event handlers. For browser-only content, keep the server and
-  initial client tree identical, then reveal that content after mounting.
+- Read browser APIs in `onSettled`, the side-effect phase of `createEffect`, or event handlers. For
+  browser-only content, keep the server and initial client tree identical, then reveal that content
+  after hydration.
 
 ```tsx
 import { Button, Dialog } from 'moraine'
@@ -144,6 +145,6 @@ SSR and the first client render use `en-US`; a root `MoraineProvider` follows `n
 
 ## Best Practices for SSR Safety
 
-1. **Avoid `window` or `document` in the component body**: Read window dimensions, `localStorage`, or DOM properties inside `onMount` or user event handlers (`onClick`, `onInput`), never while the component runs.
+1. **Avoid `window` or `document` in the component body**: Read window dimensions, `localStorage`, or DOM properties inside `onSettled`, the side-effect phase of `createEffect`, or user event handlers (`onClick`, `onInput`), never while the component or the compute phase runs.
 2. **Deterministic initial state**: Initialize controlled signals with static defaults that the server evaluates the same way as the client.
 3. **Use Moraine primitives for overlays**: Built-in primitives already manage portals, scroll locks, and focus containment, so you do not need custom SSR guards.
