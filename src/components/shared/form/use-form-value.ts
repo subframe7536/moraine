@@ -21,9 +21,11 @@ export function useFormValue<T>(
   reset: () => void,
 ] {
   const initialDefaultValue = untrack(() => options.defaultValue?.()) as T
-  const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(() => initialDefaultValue, {
-    ownedWrite: true,
-  })
+  const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(
+    (typeof initialDefaultValue === 'function'
+      ? () => initialDefaultValue
+      : initialDefaultValue) as never,
+  )
 
   const controlledValue = createMemo(() => {
     const controlled = options.value?.()
@@ -46,7 +48,7 @@ export function useFormValue<T>(
 
   // Synchronize external controlled updates and restore Field store when controlled
   createEffect(
-    () => [(() => options.value?.())(), (() => options.field?.value())()],
+    () => [options.value?.(), options.field?.value()],
     ([controlled, formValue]) => {
       if (controlled !== undefined && options.field && formValue !== controlled) {
         options.field.setFormValue(controlled)

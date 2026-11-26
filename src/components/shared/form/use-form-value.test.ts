@@ -5,7 +5,7 @@ import type { UseFormFieldReturn } from '../../field/field-context'
 
 import { useFormValue } from './use-form-value'
 function createMockField(): UseFormFieldReturn {
-  const [value, setValue] = createSignal<unknown>(undefined, { ownedWrite: true })
+  const [value, setValue] = createSignal<unknown>(undefined)
   return {
     id: () => 'test-id',
     name: () => 'test-name',
@@ -33,122 +33,136 @@ function createMockField(): UseFormFieldReturn {
 
 describe('useFormValue', () => {
   it('updates the value, notifies the caller, and syncs the form field', () => {
-    createRoot((dispose) => {
-      const onValueChange = vi.fn<(...args: Array<any>) => void>()
-      const field = createMockField()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const field = createMockField()
 
-      const [value, setValue] = useFormValue({
-        defaultValue: () => 'initial',
-        onValueChange,
-        field,
-      })
+    const [[value, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          useFormValue({
+            defaultValue: () => 'initial',
+            onValueChange,
+            field,
+          }),
+          d,
+        ] as const,
+    )
 
-      expect(value()).toBe('initial')
+    expect(value()).toBe('initial')
 
-      flush(() => setValue('updated'))
-      expect(value()).toBe('updated')
-      expect(onValueChange).toHaveBeenCalledWith('updated')
-      expect(field.setFormValue).toHaveBeenCalledWith('updated')
+    flush(() => setValue('updated'))
+    expect(value()).toBe('updated')
+    expect(onValueChange).toHaveBeenCalledWith('updated')
+    expect(field.setFormValue).toHaveBeenCalledWith('updated')
 
-      dispose()
-    })
+    dispose()
   })
 
   it('keeps the controlled value authoritative until the parent updates it', () => {
-    let disposeFn: (() => void) | undefined
     const [controlled, setControlled] = createSignal('first')
     const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const field = createMockField()
-    let valueAccessor: () => string = () => ''
-    let setValueFn: (v: string) => void = () => {}
 
-    createRoot((dispose) => {
-      disposeFn = dispose
-      const [value, setValue] = useFormValue({
-        value: controlled,
-        onValueChange,
-        field,
-      })
-      valueAccessor = value
-      setValueFn = setValue
-    })
+    const [[value, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          useFormValue({
+            value: controlled,
+            onValueChange,
+            field,
+          }),
+          d,
+        ] as const,
+    )
 
-    expect(valueAccessor()).toBe('first')
+    expect(value()).toBe('first')
 
-    flush(() => setValueFn('second'))
+    flush(() => setValue('second'))
     expect(onValueChange).toHaveBeenCalledWith('second')
-    expect(valueAccessor()).toBe('first')
+    expect(value()).toBe('first')
     expect(field.setFormValue).toHaveBeenCalledWith('first')
 
     flush(() => setControlled('second'))
-    expect(valueAccessor()).toBe('second')
+    expect(value()).toBe('second')
     expect(field.setFormValue).toHaveBeenCalledWith('second')
 
-    disposeFn?.()
+    dispose()
   })
 
   it('does not notify when the next value is equal to the current one', () => {
-    createRoot((dispose) => {
-      const onValueChange = vi.fn<(...args: Array<any>) => void>()
-      const field = createMockField()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const field = createMockField()
 
-      const [, setValue] = useFormValue({
-        defaultValue: () => 'same',
-        onValueChange,
-        field,
-      })
+    const [[, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          useFormValue({
+            defaultValue: () => 'same',
+            onValueChange,
+            field,
+          }),
+          d,
+        ] as const,
+    )
 
-      flush(() => setValue('same'))
-      expect(onValueChange).not.toHaveBeenCalled()
+    flush(() => setValue('same'))
+    expect(onValueChange).not.toHaveBeenCalled()
 
-      dispose()
-    })
+    dispose()
   })
 
   it('resets an uncontrolled value to its default without notifying the caller', () => {
-    createRoot((dispose) => {
-      const onValueChange = vi.fn<(...args: Array<any>) => void>()
-      const field = createMockField()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const field = createMockField()
 
-      const [value, setValue, reset] = useFormValue({
-        defaultValue: () => 'initial',
-        onValueChange,
-        field,
-      })
+    const [[value, setValue, reset], dispose] = createRoot(
+      (d) =>
+        [
+          useFormValue({
+            defaultValue: () => 'initial',
+            onValueChange,
+            field,
+          }),
+          d,
+        ] as const,
+    )
 
-      flush(() => setValue('dirty'))
-      expect(value()).toBe('dirty')
-      onValueChange.mockClear()
+    flush(() => setValue('dirty'))
+    expect(value()).toBe('dirty')
+    onValueChange.mockClear()
 
-      flush(() => reset())
-      expect(value()).toBe('initial')
-      expect(field.setFormValue).toHaveBeenLastCalledWith('initial')
-      expect(onValueChange).not.toHaveBeenCalled()
+    flush(() => reset())
+    expect(value()).toBe('initial')
+    expect(field.setFormValue).toHaveBeenLastCalledWith('initial')
+    expect(onValueChange).not.toHaveBeenCalled()
 
-      dispose()
-    })
+    dispose()
   })
 
   it('uses a custom isEqual to compare complex values', () => {
-    createRoot((dispose) => {
-      const onValueChange = vi.fn<(...args: Array<any>) => void>()
-      const field = createMockField()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const field = createMockField()
 
-      const [value, setValue] = useFormValue<Array<string>>({
-        defaultValue: () => ['a', 'b'],
-        onValueChange,
-        field,
-        isEqual: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
-      })
+    const [[value, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          useFormValue<Array<string>>({
+            defaultValue: () => ['a', 'b'],
+            onValueChange,
+            field,
+            isEqual: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
+          }),
+          d,
+        ] as const,
+    )
 
-      flush(() => setValue(['a', 'b']))
-      expect(onValueChange).not.toHaveBeenCalled()
+    flush(() => setValue(['a', 'b']))
+    expect(onValueChange).not.toHaveBeenCalled()
 
-      flush(() => setValue(['a', 'b', 'c']))
-      expect(onValueChange).toHaveBeenCalledWith(['a', 'b', 'c'])
-      expect(value()).toEqual(['a', 'b', 'c'])
+    flush(() => setValue(['a', 'b', 'c']))
+    expect(onValueChange).toHaveBeenCalledWith(['a', 'b', 'c'])
+    expect(value()).toEqual(['a', 'b', 'c'])
 
-      dispose()
-    })
+    dispose()
   })
 })

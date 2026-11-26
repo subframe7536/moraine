@@ -35,7 +35,7 @@ export function useTextControlValue<
   let lazyCompositionExternalValue: TValue | undefined
 
   createEffect(
-    () => [options.value(), (() => options.getFormPath?.())()],
+    () => [options.value(), options.getFormPath?.()],
     ([value]) => {
       if (value !== undefined) {
         options.setFormValue(value)

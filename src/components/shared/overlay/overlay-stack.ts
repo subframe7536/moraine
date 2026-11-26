@@ -1,3 +1,4 @@
+import { untrack } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { containsComposed } from './dom'
@@ -106,7 +107,7 @@ export function containsOverlayContentAbove(target: Node, branch: Element): bool
   const ownerDocument = target.ownerDocument
   const overlayStack = ownerDocument ? (overlayStacks.get(ownerDocument) ?? []) : []
   const ownerIndex = overlayStack.findIndex((entry) => {
-    const content = entry.contentElement()
+    const content = untrack(entry.contentElement)
     return Boolean(content && containsComposed(content, target))
   })
 
@@ -115,7 +116,7 @@ export function containsOverlayContentAbove(target: Node, branch: Element): bool
   }
 
   for (let index = ownerIndex + 1; index < overlayStack.length; index++) {
-    const content = overlayStack[index]?.contentElement()
+    const content = untrack(() => overlayStack[index]?.contentElement())
     if (content && containsComposed(branch, content)) {
       return true
     }
