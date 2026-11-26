@@ -1,8 +1,7 @@
 import type { JSX } from '@solidjs/web'
-import { isServer } from '@solidjs/web'
 import { functionalUpdate, stateSlicesEqual } from '@tanstack/table-core'
 import type { Row, RowData, TableOptions, Updater } from '@tanstack/table-core'
-import { DEV, createMemo, flush, merge, untrack } from 'solid-js'
+import { DEV, createMemo, merge, untrack } from 'solid-js'
 
 import { DataTable } from './data-table'
 import {
@@ -262,12 +261,7 @@ export function createDataTable<TData extends RowData = RowData>(
     },
   ) as TableOptions<DataTableFeatures, TData>
 
-  // constructTable syncs controlled `state` slices into base atoms via staged
-  // writes; flush so they apply before the table's JSX claims hydrated DOM,
-  // otherwise the deferred invalidation re-runs insert regions and replaces
-  // server-rendered nodes during hydration.
-  const resolvedTable = () => createTable(resolvedTableOptions)
-  const table = (isServer ? resolvedTable() : flush(resolvedTable)) as DataTableT.Instance<TData>
+  const table = createTable(resolvedTableOptions) as DataTableT.Instance<TData>
 
   const paginationSettings: DataTableT.PaginationSettings = {
     get paginated() {

@@ -10,9 +10,11 @@ type ControllableValueUpdate<T> = T | ((previous: T) => T)
 
 export function createControllableValue<T>(options: CreateControllableValueOptions<T>) {
   const initialDefaultValue = untrack(options.defaultValue)
-  const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(() => initialDefaultValue, {
-    ownedWrite: true,
-  })
+  const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(
+    (typeof initialDefaultValue === 'function'
+      ? () => initialDefaultValue
+      : initialDefaultValue) as never,
+  )
   const controlledValue = createMemo(() => options.value())
   const value = createMemo<T>(() => {
     const controlled = controlledValue()

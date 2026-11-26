@@ -80,7 +80,7 @@ it('hydrates the new table features and keeps them reactive', () => {
   expect(bodyRow(container, 'components').querySelector('td[data-tree]')).toBe(treeCell)
 
   const checkbox = bodyRow(container, 'README.md').querySelector<HTMLElement>('[role="checkbox"]')!
-  checkbox.click()
+  flush(() => checkbox.click())
   expect(summary(container)).toBe('1 of 4 selected')
 
   expect(errorSpy).not.toHaveBeenCalled()

@@ -47,7 +47,7 @@ export function createToastTimer(options: CreateToastTimerOptions) {
 
   const startTimer = () => {
     stopTimer()
-    if (isPaused()) {
+    if (untrack(isPaused)) {
       return
     }
     closeTimerStartTime = Date.now()
