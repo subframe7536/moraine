@@ -4,7 +4,7 @@ import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { attachEventListener } from '../../shared/event-listener'
-import { createId, mergeDefaults, settle } from '../../shared/utils'
+import { createId, mergeDefaults } from '../../shared/utils'
 import { createPopper } from '../shared/overlay/popper'
 
 import { TooltipContent } from './tooltip-content'
@@ -195,7 +195,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   function closeImmediately(): boolean {
-    return settle(() => closeImmediatelyInner())
+    return closeImmediatelyInner()
   }
 
   function closeImmediatelyInner(): boolean {
@@ -222,7 +222,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   function scheduleOpen(fromFocus = false): void {
-    settle(() => scheduleOpenInner(fromFocus))
+    scheduleOpenInner(fromFocus)
   }
 
   function scheduleOpenInner(fromFocus = false): void {
@@ -258,21 +258,17 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
     setShouldUseInstantMotion(false)
     const version = ++timerVersion
-    timers.open = setTimeout(
-      () =>
-        settle(() => {
-          if (!ownerAlive || version !== timerVersion || merged.disabled) {
-            return
-          }
+    timers.open = setTimeout(() => {
+      if (!ownerAlive || version !== timerVersion || merged.disabled) {
+        return
+      }
 
-          requestTooltipOpen(false)
-        }),
-      merged.openDelay,
-    )
+      requestTooltipOpen(false)
+    }, merged.openDelay)
   }
 
   function scheduleClose(): void {
-    settle(() => scheduleCloseInner())
+    scheduleCloseInner()
   }
 
   function scheduleCloseInner(): void {
@@ -292,19 +288,15 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     }
 
     const version = ++timerVersion
-    timers.close = setTimeout(
-      () =>
-        settle(() => {
-          if (!ownerAlive || version !== timerVersion || merged.disabled) {
-            return
-          }
+    timers.close = setTimeout(() => {
+      if (!ownerAlive || version !== timerVersion || merged.disabled) {
+        return
+      }
 
-          setShouldUseInstantMotion(false)
-          popper.setOpen(false)
-          clearCloseTimer()
-        }),
-      merged.closeDelay,
-    )
+      setShouldUseInstantMotion(false)
+      popper.setOpen(false)
+      clearCloseTimer()
+    }, merged.closeDelay)
   }
 
   createEffect(

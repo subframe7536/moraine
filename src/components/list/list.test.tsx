@@ -370,6 +370,7 @@ describe('list', () => {
       Object.defineProperty(list, name, { configurable: true, value })
     }
     await Promise.resolve()
+    await Promise.resolve()
 
     list.scrollTop = 200
     fireEvent.scroll(list)

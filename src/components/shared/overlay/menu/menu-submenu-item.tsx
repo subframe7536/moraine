@@ -2,13 +2,13 @@ import type { Placement } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import { Portal } from '@solidjs/web'
 import type { Accessor, Component } from 'solid-js'
-import { createSignal, onSettled, Show, untrack } from 'solid-js'
+import { createSignal, flush, onSettled, Show, untrack } from 'solid-js'
 
 import { useLocale } from '../../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { attachEventListenerMap } from '../../../../shared/event-listener'
 import { createTransitionPresence } from '../../../../shared/transition-presence'
-import { createId, settle } from '../../../../shared/utils'
+import { createId } from '../../../../shared/utils'
 import type { OverlayPlacement } from '../../../../theme/style-types'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { resolveDirection } from '../direction'
@@ -122,15 +122,21 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       removePointerExitListener = undefined
     }
 
-    const dismissSubmenu = (): void => {
+    const closeSelf = (): void => {
+      setOpenState(false)
+      setAutoFocusStrategy('none')
+    }
+
+    const dismissSubmenu = (syncFlush = true): void => {
       clearOpenTimeout()
       stopPointerExitWatch()
-      submenuLayerState?.closeSubmenus()
-      // Close commits per submenu so nested exit motion cascades deepest first.
-      settle(() => {
-        setOpenState(false)
-        setAutoFocusStrategy('none')
-      })
+      submenuLayerState?.closeSubmenus(undefined, undefined, syncFlush)
+      if (syncFlush) {
+        // Close commits per submenu so nested exit motion cascades deepest first.
+        flush(closeSelf)
+      } else {
+        closeSelf()
+      }
     }
 
     const dismissSubmenuOnPointerExit = (point?: [number, number]): void => {
