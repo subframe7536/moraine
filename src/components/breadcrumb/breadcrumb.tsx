@@ -6,7 +6,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, pick } from '../../shared/utils'
+import { callHandler, callRef, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { defaultBreadcrumbMessages } from './breadcrumb.messages'
@@ -128,7 +128,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                         href={isInteractive() ? item.href : undefined}
                         target={isInteractive() ? item.target : undefined}
                         rel={isInteractive() ? item.rel : undefined}
-                        onClick={isInteractive() ? item.onClick : undefined}
+                        onClick={(event: MouseEvent) => {
+                          if (isInteractive()) {
+                            callHandler(event, item.onClick)
+                          }
+                        }}
                       >
                         <Show when={leading()}>
                           {(icon) => (

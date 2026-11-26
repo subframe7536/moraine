@@ -265,7 +265,9 @@ export function PopperContent(
     context
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
   const [positionerPositioned, setPositionerPositioned] = createSignal(false)
-  const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom')
+  const [currentPlacement, setCurrentPlacement] = createSignal<Placement>(() =>
+    resolveFloatingPlacement(options.placement, options.align),
+  )
   const [mount, setPortalMount] = createSignal<HTMLElement>()
   // Resolve after mounting, when the trigger may have been adopted into another document.
   createEffect(triggerElement, (trigger) => {
@@ -280,13 +282,6 @@ export function PopperContent(
       restoreFocusAfterClose = true
     }
   })
-
-  createEffect(
-    () => [(() => options.placement)(), (() => options.align)()],
-    ([placement, align]) => {
-      setCurrentPlacement(resolveFloatingPlacement(placement, align))
-    },
-  )
 
   const [content, setContent] = createSignal<HTMLDivElement>()
   bindElement(content, (element) => {
@@ -462,7 +457,7 @@ export function PopperContent(
     get role() {
       return options.role
     },
-    tabIndex: -1,
+    tabindex: -1,
   } as PopperContentAttributes
   Object.defineProperties(
     contentProps,

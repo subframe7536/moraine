@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, merge, onCleanup, onSettled, untrack, omit } from 'solid-js'
+import { createEffect, merge, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
@@ -288,26 +288,18 @@ export function Textarea<
   }
 
   createEffect(
-    () => [
-      (() => merged.autoResize)(),
-      (() => merged.rows)(),
-      (() => merged.maxRows)(),
-      (() => merged.autoResizeDelay)(),
-      (() => merged.value)(),
-      field.value(),
-    ],
+    () =>
+      [
+        merged.autoResize,
+        merged.rows,
+        merged.maxRows,
+        merged.autoResizeDelay,
+        merged.value,
+        field.value(),
+      ] as const,
     () => scheduleAutoResize(),
+    { defer: true },
   )
-
-  let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
-
-  onCleanup(() => {
-    if (autoFocusTimer !== undefined) {
-      clearTimeout(autoFocusTimer)
-    }
-    cancelAutoResizeTimer?.()
-    cancelAutoResizeTimer = undefined
-  })
 
   useFormReset(
     () => textareaEl?.form,
@@ -326,6 +318,7 @@ export function Textarea<
       restoreControlledValue()
     }
 
+    let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
     if (merged.autoFocus) {
       autoFocusTimer = setTimeout(() => {
         if (!field.disabled()) {
@@ -335,6 +328,14 @@ export function Textarea<
     }
 
     scheduleAutoResize(merged.autoResizeDelay)
+
+    return () => {
+      if (autoFocusTimer !== undefined) {
+        clearTimeout(autoFocusTimer)
+      }
+      cancelAutoResizeTimer?.()
+      cancelAutoResizeTimer = undefined
+    }
   })
 
   return (

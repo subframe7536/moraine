@@ -1,6 +1,7 @@
+import { isServer } from '@solidjs/web'
 import type { JSX } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { createStore } from 'solid-js'
+import { createRoot, createStore, runWithOwner } from 'solid-js'
 
 import { settle } from '../../shared/utils'
 import type { FeedbackCloseReason } from '../shared/overlay/feedback/feedback.types'
@@ -316,8 +317,11 @@ export function createToastStore(): ToastStore {
 let defaultStore: ToastStore | undefined
 
 export function getDefaultToastStore(): ToastStore {
+  if (isServer) {
+    return createToastStore()
+  }
   if (!defaultStore) {
-    defaultStore = createToastStore()
+    defaultStore = runWithOwner(null, () => createRoot(() => createToastStore()))
   }
   return defaultStore
 }

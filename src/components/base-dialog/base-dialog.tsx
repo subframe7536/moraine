@@ -58,7 +58,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
-  const [overlayScroll, setOverlayScroll] = createSignal(false, { ownedWrite: true })
+  const [overlayScroll, setOverlayScroll] = createSignal(false)
   let hadOpenContent = false
   const presence = createTransitionPresence({
     open,
@@ -127,9 +127,9 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   }
 
   createEffect(
-    () => [open(), isPresent()],
-    ([isOpen, present]) => {
-      if (isOpen && present) {
+    () => open() && isPresent(),
+    (active) => {
+      if (active) {
         hadOpenContent = true
       }
     },

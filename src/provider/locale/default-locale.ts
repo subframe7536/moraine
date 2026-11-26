@@ -28,9 +28,15 @@ export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<strin
   const [ready, setReady] = createSignal(false)
 
   onSettled(() => {
+    let active = true
     queueMicrotask(() => {
-      setReady(true)
+      if (active) {
+        setReady(true)
+      }
     })
+    return () => {
+      active = false
+    }
   })
 
   const apply = (): void => {
@@ -38,13 +44,13 @@ export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<strin
   }
 
   createEffect(
-    () => [enabled(), ready()],
-    ([isEnabled, isReady]) => {
-      if (!isEnabled) {
+    () => (enabled() ? (ready() ? 2 : 1) : 0),
+    (state) => {
+      if (state === 0) {
         setDetected(FALLBACK_LOCALE)
         return
       }
-      if (!isReady || typeof window === 'undefined') {
+      if (state === 1 || typeof window === 'undefined') {
         return
       }
 

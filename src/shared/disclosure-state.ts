@@ -127,19 +127,14 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const inert = () => (closed() ? (true as const) : undefined)
   const ariaHidden = () => (closed() ? ('true' as const) : undefined)
 
-  const [hasToggled, setHasToggled] = createSignal(false, { ownedWrite: true })
-
-  createEffect(
-    options.open,
-    (isOpen, wasOpen) => {
-      if (isOpen !== wasOpen) {
-        setHasToggled(true)
-      }
-    },
-    { defer: true },
-  )
-
-  const initialOpen = createMemo(() => options.open() && !hasToggled())
+  let everClosed = false
+  const initialOpen = createMemo(() => {
+    if (!options.open()) {
+      everClosed = true
+      return false
+    }
+    return !everClosed
+  })
 
   function shouldMount(): boolean {
     if (forceMount()) {

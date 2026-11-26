@@ -325,20 +325,21 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   onSettled(() => {
     measureHeight()
-    requestAnimationFrame(() => setMounted(true))
+    const rafId = requestAnimationFrame(() => setMounted(true))
     return () => {
+      cancelAnimationFrame(rafId)
       props.onHeight(props.toast.id, 0)
     }
   })
 
   createEffect(
     () => [
-      (() => options().title)(),
-      (() => options().description)(),
-      (() => options().action)(),
-      (() => options().cancel)(),
-      (() => options().size)(),
-      (() => props.toast.render)(),
+      options().title,
+      options().description,
+      options().action,
+      options().cancel,
+      options().size,
+      props.toast.render,
     ],
     () => {
       queueMicrotask(measureHeight)

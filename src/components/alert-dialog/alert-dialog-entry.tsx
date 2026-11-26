@@ -191,9 +191,9 @@ export function AlertDialogEntry(props: {
   } = recipe
 
   createEffect(
-    () => [options().title, options().ariaLabel] as const,
-    ([title, label]) => {
-      if (!DEV || hasContent(title) || label) {
+    () => DEV && !hasContent(options().title) && !options().ariaLabel,
+    (missingLabel) => {
+      if (!missingLabel) {
         return
       }
       console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')

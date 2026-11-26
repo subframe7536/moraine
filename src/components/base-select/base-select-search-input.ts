@@ -91,10 +91,10 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
     get disabled() {
       return state.disabled()
     },
-    get readOnly() {
+    get readonly() {
       return state.readOnly() || !enabled()
     },
-    get maxLength() {
+    get maxlength() {
       return options.maxLength
     },
     get autocomplete() {

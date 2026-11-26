@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 
 import {
   attachEventListenerMap,
@@ -926,7 +926,7 @@ export function createDrawerSwipe(
     // re-measure so a height changed while pinned is picked up.
     createEffect(drawer.nested.openCount, (count) => {
       if (count === 0) {
-        measureSize()
+        untrack(() => measureSize())
       }
     })
     createEventListenerMap(content, {

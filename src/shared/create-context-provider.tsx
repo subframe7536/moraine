@@ -21,7 +21,7 @@ export function createContextProvider<T>(
       ? () => useContext(context) ?? defaultValue
       : () => {
           const ctx = useContext(context)
-          if (!ctx) {
+          if (ctx === null) {
             throw new Error(`use${name}Context must be used within <${name}Provider />`)
           }
           return ctx

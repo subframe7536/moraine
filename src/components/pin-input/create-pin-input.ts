@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, untrack, createRenderEffect } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { settle } from '../../shared/utils'
 
@@ -90,9 +90,9 @@ export function createPinInput(options: CreatePinInputOptions) {
 
   // Controlled prop updates mirror into Field
   createEffect(
-    () => [options.value?.(), options.fieldValue()] as const,
-    ([val, fieldValue]) => {
-      if (val !== undefined && fieldValue !== val) {
+    () => options.value?.(),
+    (val) => {
+      if (val !== undefined && untrack(options.fieldValue) !== val) {
         options.setFormFieldValue(val)
       }
     },
@@ -141,7 +141,7 @@ export function createPinInput(options: CreatePinInputOptions) {
     }
   }
 
-  createRenderEffect(
+  createEffect(
     joinedValue,
     (joined) => {
       const action = pendingAction

@@ -5,7 +5,6 @@ import {
   createMemo,
   createSignal,
   merge,
-  onCleanup,
   onSettled,
   Show,
   untrack,
@@ -260,8 +259,9 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
 
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
-    () => [explicitControlledValue(), min(), max(), field.value(), locale()],
-    ([value, min, max, formValue, localeTag]) => {
+    () =>
+      [explicitControlledValue(), min(), max(), field.value(), locale(), formatOptions()] as const,
+    ([value, min, max, formValue, localeTag, fmtOptions]) => {
       if (value === undefined) {
         return
       }
@@ -274,12 +274,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       const boundedValue = clamp(value, min, max)
       if (
         !Object.is(
-          toNumber(
-            formValue as string | number | undefined,
-            Number.NaN,
-            localeTag,
-            formatOptions(),
-          ),
+          toNumber(formValue as string | number | undefined, Number.NaN, localeTag, fmtOptions),
           boundedValue,
         )
       ) {
@@ -394,7 +389,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     const controlProps = merge(slots[kind], {
       'data-slot': `number-input-${kind}`,
       type: 'button',
-      tabIndex: -1,
+      tabindex: -1,
       get 'aria-label'() {
         return isIncrement ? messages().increment : messages().decrement
       },
@@ -459,14 +454,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     step('decrement', 'wheel', event, event.shiftKey ? largeStepValue() : stepValue())
   }
 
-  let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
   const [isIOS, setIsIOS] = createSignal(false)
-
-  onCleanup(() => {
-    if (autoFocusTimeoutId !== undefined) {
-      clearTimeout(autoFocusTimeoutId)
-    }
-  })
 
   useFormReset(
     () => inputEl?.form,
@@ -493,11 +481,12 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       return
     }
 
-    autoFocusTimeoutId = setTimeout(() => {
+    const autoFocusTimeoutId = setTimeout(() => {
       if (!field.disabled()) {
         inputEl?.focus()
       }
     }, merged.autoFocusDelay ?? 0)
+    return () => clearTimeout(autoFocusTimeoutId)
   })
 
   const onInputKeyDown = createKeyDownHandler<HTMLInputElement>({

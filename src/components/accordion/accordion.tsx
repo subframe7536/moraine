@@ -276,7 +276,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const itemDisabledSnapshot = () => items().map((item) => item.disabled)
 
   createEffect(
-    () => [itemDisabledSnapshot(), (() => merged.disabled)()],
+    () => [itemDisabledSnapshot(), merged.disabled] as const,
     ([disabledItems, disabled]) => {
       const enabledItemCount = disabledItems.filter(
         (itemDisabled) => !disabled && !itemDisabled,

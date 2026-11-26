@@ -1,5 +1,14 @@
 import type { JSX } from '@solidjs/web'
-import { For, Show, createEffect, createMemo, createSignal, onCleanup, omit } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  untrack,
+  omit,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { EMPTY_AXIS_METRICS, createScrollMetrics } from '../../shared/scroll-metrics'
@@ -255,7 +264,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
         return
       }
       for (const axis of ['x', 'y'] as const) {
-        if (axisMetrics(axis).extent <= 0) {
+        if (untrack(() => axisMetrics(axis).extent) <= 0) {
           continue
         }
         const reachedStart = previous[axis].start && !current[axis].start
@@ -269,7 +278,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
           }
         } else {
           // `start`/`end` are logical: in RTL they sit at the right and left edges.
-          const rtl = metrics().rtl
+          const rtl = untrack(() => metrics().rtl)
           if (reachedStart) {
             ;(rtl ? local.onRightReached : local.onLeftReached)?.()
           }

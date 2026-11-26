@@ -49,34 +49,31 @@ export interface SplitterHandleBindings {
 }
 
 export function createSplitterHandle(options: CreateSplitterHandleOptions): SplitterHandleBindings {
+  const disabled = createMemo(() => options.disabled() === true)
+  const resetOnDisabled = (): false => {
+    disabled()
+    return false
+  }
+  const resetIntersectionOnDisabled = (): SplitterHandleRegistration | null => {
+    disabled()
+    return null
+  }
   const [element, setElement] = createSignal<HTMLElement>()
-  const [hovered, setHovered] = createSignal(false)
-  const [focused, setFocused] = createSignal(false)
-  const [dragging, setDragging] = createSignal(false)
-  const [crossHovered, setCrossHovered] = createSignal(false)
+  const [hovered, setHovered] = createSignal<boolean>(resetOnDisabled)
+  const [focused, setFocused] = createSignal<boolean>(resetOnDisabled)
+  const [dragging, setDragging] = createSignal<boolean>(resetOnDisabled)
+  const [crossHovered, setCrossHovered] = createSignal<boolean>(resetOnDisabled)
   const [startIntersection, setStartIntersection] = createSignal<SplitterHandleRegistration | null>(
-    null,
+    resetIntersectionOnDisabled,
   )
   const [endIntersection, setEndIntersection] = createSignal<SplitterHandleRegistration | null>(
-    null,
+    resetIntersectionOnDisabled,
   )
 
-  const disabled = createMemo(() => options.disabled() === true)
   const active = createMemo(() => hovered() || focused() || dragging() || crossHovered())
 
   const registrationId = Symbol('splitter-handle')
   let registration: SplitterHandleRegistration | null = null
-
-  createEffect(disabled, (isDisabled) => {
-    if (isDisabled) {
-      setHovered(false)
-      setFocused(false)
-      setDragging(false)
-      setCrossHovered(false)
-      setStartIntersection(null)
-      setEndIntersection(null)
-    }
-  })
 
   createEffect(
     () => [element(), disabled()],

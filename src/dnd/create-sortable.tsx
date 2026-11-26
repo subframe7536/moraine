@@ -6,7 +6,6 @@ import type { FlowComponent } from 'solid-js'
 import {
   createContext,
   createEffect,
-  createRenderEffect,
   createSignal,
   onCleanup,
   onSettled,
@@ -446,7 +445,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       },
     )
     createEffect(
-      () => [input.id(), input.index(), (() => input.disabled?.() ?? false)()],
+      () => [input.id(), input.index(), input.disabled?.() ?? false] as const,
       ([id, index, disabled], prev) => {
         sortable.id = id
         sortable.disabled = disabled
@@ -464,7 +463,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     const handleRef = (element: HTMLElement): void => {
       setItemHandle(element)
     }
-    createRenderEffect(input.id, (id) => {
+    createEffect(input.id, (id) => {
       handleSetters.set(id, handleRef)
       const pending = pendingHandles.get(id)
       if (pending) {
@@ -478,7 +477,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       }
     })
     let element: HTMLElement | undefined
-    createRenderEffect(input.id, (id) => {
+    createEffect(input.id, (id) => {
       if (element) {
         elements.set(id, element)
       }

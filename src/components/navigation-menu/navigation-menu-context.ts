@@ -83,31 +83,21 @@ export function createNavigationMenuState(
   const [items, setItems] = createSignal<Array<NavigationMenuItemContextValue>>([], {
     ownedWrite: true,
   })
-  const [rootElement, setRootElement] = createSignal<HTMLElement | undefined>(undefined, {
-    ownedWrite: true,
-  })
-  const [panelElement, setPanelElement] = createSignal<HTMLDivElement | undefined>(undefined, {
-    ownedWrite: true,
-  })
+  const [rootElement, setRootElement] = createSignal<HTMLElement | undefined>(undefined)
+  const [panelElement, setPanelElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [floating, setFloating] = createSignal<
     Pick<PopperContentContext, 'positionerElement' | 'positioned' | 'currentPlacement'> | undefined
   >(undefined, { ownedWrite: true })
   const positionerElement = () => floating()?.positionerElement()
-  const [mounted, setMounted] = createSignal(false, { ownedWrite: true })
+  const [mounted, setMounted] = createSignal(false)
   const positioned = () => floating()?.positioned() ?? false
   const activeItem = createMemo(() => findEnabledItem(value()))
   const open = createMemo(() => mounted() && activeItem() !== undefined)
   const activeTrigger = createMemo(() => activeItem()?.trigger())
   const activeContent = createMemo(() => activeItem()?.content())
-  const [reference, setReference] = createSignal<HTMLButtonElement | undefined>(undefined, {
-    ownedWrite: true,
-  })
-  const [initialPosition, setInitialPosition] = createSignal<Coords | undefined>(undefined, {
-    ownedWrite: true,
-  })
-  const [focusRequest, setFocusRequest] = createSignal<string | undefined>(undefined, {
-    ownedWrite: true,
-  })
+  const [reference, setReference] = createSignal<HTMLButtonElement | undefined>(undefined)
+  const [initialPosition, setInitialPosition] = createSignal<Coords | undefined>(undefined)
+  const [focusRequest, setFocusRequest] = createSignal<string | undefined>(undefined)
   const presence = createTransitionPresence({ open })
   const displayedItem = createMemo<NavigationMenuItemContextValue | undefined>(
     (previous) => activeItem() ?? (presence.present() ? previous : undefined),

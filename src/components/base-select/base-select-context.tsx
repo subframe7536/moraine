@@ -253,8 +253,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
     (item, selected) => selected.has(item),
   )
   createEffect(
-    () => [open(), navigation(), highlightedValue(), selectedValues()],
-    ([isOpen, nav, current, selected]) => {
+    () => [open(), navigation(), selectedValues()] as const,
+    ([isOpen, nav, selected]) => {
+      const current = untrack(highlightedValue)
       if (!isOpen || (current !== undefined && nav.indexByValue.has(current))) {
         return
       }
@@ -383,11 +384,12 @@ export function createSelectState<T extends BaseSelectT.Item>(
   })
 
   createEffect(
-    () => [value(), field.value(), props.value !== undefined, props.multiple === true] as const,
-    ([current, formValue, controlled, multiple]) => {
+    () => [value(), props.value !== undefined, props.multiple === true] as const,
+    ([current, controlled, multiple]) => {
       if (!controlled) {
         return
       }
+      const formValue = untrack(field.value)
       if (!formValueMatches(current, formValue, multiple)) {
         field.setFormValue(toFormValue(current, multiple))
       }

@@ -377,8 +377,12 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       disabled: state.locked,
       openOnControlClick: () => local.openOnControlClick ?? !editable(),
       setOpen: state.setOpen,
-      onPointerDown: rootProps.onPointerDown,
-      onClick: rootProps.onClick,
+      get onPointerDown() {
+        return rootProps.onPointerDown
+      },
+      get onClick() {
+        return rootProps.onClick
+      },
     })
 
     return (

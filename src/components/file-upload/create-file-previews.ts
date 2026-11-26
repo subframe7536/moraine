@@ -1,5 +1,6 @@
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createMemo, onCleanup, untrack } from 'solid-js'
 
 import { createObjectUrl, revokeObjectUrl } from './file-input-sync'
 import { isImageFile } from './file-validation'
@@ -7,43 +8,44 @@ export function createFilePreviews(options: {
   files: Accessor<Array<File>>
   enabled: Accessor<boolean>
 }): Accessor<Map<File, string>> {
-  const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
+  const previewUrls = createMemo<Map<File, string>>((previous = new Map()) => {
+    const files = options.files()
+    const previewsEnabled = options.enabled()
 
-  createEffect(
-    () => [options.files(), options.enabled()],
-    ([files, previewsEnabled]) => {
-      setPreviewUrls((previous) => {
-        const next = new Map(previous)
+    if (isServer) {
+      return previous.size === 0 ? previous : new Map()
+    }
 
-        for (const [file, url] of previous.entries()) {
-          if (!previewsEnabled || !files.includes(file) || !isImageFile(file)) {
-            revokeObjectUrl(url)
-            next.delete(file)
-          }
+    let changed = false
+    const next = new Map(previous)
+
+    for (const [file, url] of previous.entries()) {
+      if (!previewsEnabled || !files.includes(file) || !isImageFile(file)) {
+        revokeObjectUrl(url)
+        next.delete(file)
+        changed = true
+      }
+    }
+
+    if (previewsEnabled) {
+      for (const file of files) {
+        if (!isImageFile(file) || next.has(file)) {
+          continue
         }
 
-        if (!previewsEnabled) {
-          return next
+        const url = createObjectUrl(file)
+        if (url) {
+          next.set(file, url)
+          changed = true
         }
+      }
+    }
 
-        for (const file of files) {
-          if (!isImageFile(file) || next.has(file)) {
-            continue
-          }
-
-          const url = createObjectUrl(file)
-          if (url) {
-            next.set(file, url)
-          }
-        }
-
-        return next
-      })
-    },
-  )
+    return changed ? next : previous
+  })
 
   onCleanup(() => {
-    for (const url of previewUrls().values()) {
+    for (const url of untrack(previewUrls).values()) {
       revokeObjectUrl(url)
     }
   })

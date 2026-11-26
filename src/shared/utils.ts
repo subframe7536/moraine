@@ -82,9 +82,9 @@ export function mergeDefaults<T extends object, U extends object>(defaults: T, s
  */
 export function createId(
   deterministicId?: () => string | null | undefined,
-  prefix = 'mo',
+  prefix: string | (() => string) = 'mo',
 ): Accessor<string> {
-  const fallbackId = `${prefix}-${createUniqueId()}`
+  const uniqueId = createUniqueId()
   const resolvedId = createMemo(() => {
     const id = deterministicId?.()
 
@@ -94,7 +94,8 @@ export function createId(
     }
 
     // Fallback to auto-incrementing counter
-    return fallbackId
+    const resolvedPrefix = typeof prefix === 'function' ? prefix() : prefix
+    return `${resolvedPrefix}-${uniqueId}`
   })
 
   return resolvedId

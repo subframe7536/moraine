@@ -134,21 +134,18 @@ function DefaultSelectContentBody<T extends SelectItem>(
                     {item().label}
                   </span>
                   <Show when={item().description}>
-                    {(description) => {
-                      const itemDescriptionSlot = slotWithData('itemDescription', {
-                        data: selectItemDataAttributes.itemDescription({
-                          highlighted: () => itemState.highlighted,
-                        }),
-                      })
-                      return (
-                        <span
-                          data-slot={state.slotName('itemDescription')}
-                          {...itemDescriptionSlot}
-                        >
-                          {description()}
-                        </span>
-                      )
-                    }}
+                    {(description) => (
+                      <span
+                        data-slot={state.slotName('itemDescription')}
+                        {...slotWithData('itemDescription', {
+                          data: selectItemDataAttributes.itemDescription({
+                            highlighted: () => itemState.highlighted,
+                          }),
+                        })}
+                      >
+                        {description()}
+                      </span>
+                    )}
                   </Show>
                 </span>
                 <Show when={itemState.selected}>

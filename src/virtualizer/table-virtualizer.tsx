@@ -4,12 +4,12 @@ import {
   Show,
   createEffect,
   createMemo,
-  createRenderEffect,
   createSignal,
   flush,
   getOwner,
   merge,
   onCleanup,
+  onSettled,
 } from 'solid-js'
 
 import { createVirtualizerController } from './controller'
@@ -178,7 +178,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
   // effect, keeps rows that mount during a scroll on the current window.
   const [windowSource, setWindowSource] = createSignal<
     Accessor<TableVirtualColumnWindow> | undefined
-  >(undefined, { ownedWrite: true })
+  >(undefined)
   const columnWindow = (): TableVirtualColumnWindow | undefined => windowSource()?.()
 
   const VirtualRender: Component<TableVirtualRenderProps<TItem, TColumn>> = (props) => {
@@ -203,7 +203,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
 
     const [sections, setSections] = createSignal(EMPTY_SECTIONS, {
       equals: sameSections,
-      ownedWrite: true,
     })
     const measureSections = (table: HTMLTableElement, scroll: HTMLElement | undefined) => {
       const host = resolveHost()
@@ -288,8 +287,10 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
         },
         { equals: sameColumnWindow },
       )
-      setWindowSource(() => currentWindow)
-      onCleanup(() => setWindowSource((source) => (source === currentWindow ? undefined : source)))
+      onSettled(() => {
+        setWindowSource(() => currentWindow)
+        return () => setWindowSource((source) => (source === currentWindow ? undefined : source))
+      })
     }
 
     // Announce the virtualized dataset: the table declares its total row count and every row
@@ -414,7 +415,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       },
     )
 
-    createRenderEffect(
+    createEffect(
       () => [controller.instance(), ariaCounts()] as const,
       ([instance, counts]) => {
         const table = instance ? resolveTable() : null
