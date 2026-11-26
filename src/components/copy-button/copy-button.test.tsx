@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
+import { flush } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { CopyButton } from './copy-button'
@@ -47,6 +48,7 @@ describe('copyButton', () => {
     expect(button.getAttribute('aria-label')).toBe('Copied to clipboard')
 
     vi.advanceTimersByTime(2000)
+    flush()
     expect(button.hasAttribute('data-copied')).toBe(false)
     expect(iconSlot.hasAttribute('data-copied')).toBe(false)
     expect(iconSlot.getAttribute('class')).toContain('icon-copy')
@@ -80,6 +82,7 @@ describe('copyButton', () => {
 
     expect(label.textContent).toBe('Copied URL')
     vi.advanceTimersByTime(2000)
+    flush()
     expect(label.textContent).toBe('Copy URL')
   })
 
@@ -115,6 +118,7 @@ describe('copyButton', () => {
     expect(button.hasAttribute('data-copied')).toBe(false)
 
     vi.advanceTimersByTime(2000)
+    flush()
     expect(button.hasAttribute('aria-invalid')).toBe(false)
     expect(button.getAttribute('aria-label')).toBe('Copy to clipboard')
   })
@@ -134,6 +138,7 @@ describe('copyButton', () => {
     expect(button.getAttribute('aria-label')).toBe('Token not copied')
 
     vi.advanceTimersByTime(2000)
+    flush()
     fireEvent.click(button)
     await flushMicrotasks()
     expect(button.getAttribute('aria-label')).toBe('Token copied')

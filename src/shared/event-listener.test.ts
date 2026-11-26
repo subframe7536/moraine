@@ -41,6 +41,27 @@ describe('attachEventListener', () => {
 
     expect(listener).toHaveBeenCalledOnce()
   })
+
+  it('does not swallow errors thrown by listeners', () => {
+    const target = document.createElement('button')
+    const error = new Error('listener boom')
+    const onError = vi.fn<(err: unknown) => void>()
+    const onWindowError = (event: ErrorEvent) => {
+      event.preventDefault()
+      onError(event.error)
+    }
+    window.addEventListener('error', onWindowError)
+    try {
+      const cleanup = attachEventListener(target, 'click', () => {
+        throw error
+      })
+      click(target)
+      cleanup()
+    } finally {
+      window.removeEventListener('error', onWindowError)
+    }
+    expect(onError).toHaveBeenCalledWith(error)
+  })
 })
 
 describe('attachEventListenerMap', () => {

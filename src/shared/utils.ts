@@ -6,30 +6,11 @@ import {
   createMemo,
   createRenderEffect,
   createUniqueId,
-  flush,
   getOwner,
   runWithOwner,
   untrack,
 } from 'solid-js'
 
-/**
- * Runs `fn` and, when the caller has no reactive owner, settles the writes it
- * staged with `flush` — like a Solid 1 `batch`. DOM event listeners, timers,
- * and microtasks run unowned, so writes they make would stage forever.
- */
-export function settle<T>(fn: () => T): T {
-  const result = fn()
-  try {
-    flush()
-  } catch {
-    // Inside an action body or an onSettled callback flush() throws; writes
-    // already staged are committed by that scope's own settle. Inside an
-    // effect callback flush() is a no-op for the same reason — direct writes
-    // join the running pass's transaction, while a nested flush(fn) would
-    // park them in a pass tx that is discarded.
-  }
-  return result
-}
 /**
  * Applies prop defaults the way Solid 1 `mergeProps` did: a prop present but
  * `undefined` falls through to the default. Solid 2's `merge` returns the

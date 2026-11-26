@@ -1,7 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
-
-import { settle } from '../../shared/utils'
+import { createEffect, createMemo, createSignal, flush, untrack } from 'solid-js'
 
 import { areCharArraysEqual, normalizeChars } from './pin-input-value'
 import type { PinInputT } from './pin-input.types'
@@ -162,7 +160,7 @@ export function createPinInput(options: CreatePinInputOptions) {
     update: Array<string> | ((prev: Array<string>) => Array<string>),
     completeOnUnchanged = false,
   ): void {
-    settle(() => setCharsInner(update, completeOnUnchanged))
+    setCharsInner(update, completeOnUnchanged)
   }
 
   function setCharsInner(
@@ -184,14 +182,16 @@ export function createPinInput(options: CreatePinInputOptions) {
 
     emittedChars = next
     const controlledValue = options.value?.()
-    if (controlledValue === undefined) {
-      setUncontrolledChars(() => next)
-      options.setFormFieldValue(nextJoined)
-    } else {
-      options.setFormFieldValue(controlledValue)
-    }
+    flush(() => {
+      if (controlledValue === undefined) {
+        setUncontrolledChars(() => next)
+        options.setFormFieldValue(nextJoined)
+      } else {
+        options.setFormFieldValue(controlledValue)
+      }
+    })
 
-    options.onValueChange?.()?.(nextJoined)
+    flush(() => options.onValueChange?.()?.(nextJoined))
 
     if (nextComplete) {
       if (chars().join('') === nextJoined) {
