@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { stubViewportSize } from '../../test-util/overlay-test'
@@ -31,8 +31,8 @@ function mockInstantTooltipExit(): void {
   })
 }
 
-describe('Tooltip', () => {
-  test('coordinates independently across Documents', async () => {
+describe('tooltip', () => {
+  it('coordinates independently across Documents', async () => {
     const firstFrame = document.createElement('iframe')
     const secondFrame = document.createElement('iframe')
     document.body.append(firstFrame, secondFrame)
@@ -74,7 +74,7 @@ describe('Tooltip', () => {
     }
   })
 
-  test('does not share skip delay with a different Document', async () => {
+  it('does not share skip delay with a different Document', async () => {
     vi.useFakeTimers()
     const firstFrame = document.createElement('iframe')
     const secondFrame = document.createElement('iframe')
@@ -122,7 +122,7 @@ describe('Tooltip', () => {
       vi.useRealTimers()
     }
   })
-  test.each([0, 600])('dismisses activation and cancels reopening after %i ms', async (delay) => {
+  it.each([0, 600])('dismisses activation and cancels reopening after %i ms', async (delay) => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
     const screen = render(() => (
@@ -152,7 +152,7 @@ describe('Tooltip', () => {
     vi.useRealTimers()
   })
 
-  test('renders text content when open is controlled', () => {
+  it('renders text content when open is controlled', () => {
     render(() => (
       <Tooltip open>
         <Tooltip.Trigger as="button" type="button">
@@ -165,7 +165,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')!.textContent).toContain('Tooltip content')
   })
 
-  test('renders the trigger content as a native button root', () => {
+  it('renders the trigger content as a native button root', () => {
     render(() => (
       <Tooltip>
         <Tooltip.Trigger as="button" type="button">
@@ -183,7 +183,7 @@ describe('Tooltip', () => {
     expect(trigger?.hasAttribute('data-expanded')).toBe(false)
   })
 
-  test('renders a span trigger root', () => {
+  it('renders a span trigger root', () => {
     render(() => (
       <Tooltip>
         <Tooltip.Trigger as="span">Trigger</Tooltip.Trigger>
@@ -194,7 +194,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[data-slot="tooltip-trigger"]')?.tagName).toBe('SPAN')
   })
 
-  test('applies top-level class and style to trigger', () => {
+  it('applies top-level class and style to trigger', () => {
     render(() => (
       <Tooltip>
         <Tooltip.Trigger as="button" class="trigger-class" style={{ width: '200px' }} type="button">
@@ -210,7 +210,7 @@ describe('Tooltip', () => {
     expect(trigger?.style.width).toBe('200px')
   })
 
-  test('applies provider trigger classes and styles', () => {
+  it('applies provider trigger classes and styles', () => {
     render(() => (
       <MoraineProvider
         theme={defineTheme({
@@ -228,7 +228,7 @@ describe('Tooltip', () => {
     expect(trigger?.className).toContain('provider-trigger')
   })
 
-  test('renders keyboard hints', () => {
+  it('renders keyboard hints', () => {
     render(() => (
       <Tooltip open>
         <Tooltip.Trigger as="button" type="button">
@@ -245,7 +245,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelectorAll('[data-slot="tooltip-kbds"]').length).toBe(1)
   })
 
-  test('styles keycaps from the root kbdVariant and falls back to invert for invert tooltips', () => {
+  it('styles keycaps from the root kbdVariant and falls back to invert for invert tooltips', () => {
     const [kbdVariant, setKbdVariant] = createSignal<'outline' | undefined>('outline')
     render(() => (
       <Tooltip open variant="invert" kbdVariant={kbdVariant()}>
@@ -262,7 +262,7 @@ describe('Tooltip', () => {
     expect(kbd()?.className).toContain('bg-muted-foreground')
   })
 
-  test('routes classes and styles to their slots', () => {
+  it('routes classes and styles to their slots', () => {
     render(() => (
       <Tooltip
         open
@@ -286,7 +286,7 @@ describe('Tooltip', () => {
     )
   })
 
-  test('shows children as the tooltip text when text is not provided', () => {
+  it('shows children as the tooltip text when text is not provided', () => {
     render(() => (
       <Tooltip open>
         <Tooltip.Trigger>Trigger</Tooltip.Trigger>
@@ -297,7 +297,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).toBe('Child text')
   })
 
-  test('renders tooltip container when no text or kbds are provided', () => {
+  it('renders tooltip container when no text or kbds are provided', () => {
     render(() => (
       <Tooltip open>
         <Tooltip.Trigger as="button" type="button">
@@ -313,7 +313,7 @@ describe('Tooltip', () => {
     expect(content?.textContent).toBe('')
   })
 
-  test('does not render content when disabled', () => {
+  it('does not render content when disabled', () => {
     const screen = render(() => (
       <Tooltip open disabled>
         <Tooltip.Trigger as="button" type="button">
@@ -326,7 +326,7 @@ describe('Tooltip', () => {
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
-  test('renders controlled overlay without a trigger', async () => {
+  it('renders controlled overlay without a trigger', async () => {
     render(() => (
       <Tooltip open>
         <Tooltip.Content>Tooltip content</Tooltip.Content>
@@ -340,7 +340,7 @@ describe('Tooltip', () => {
     })
   })
 
-  test('defaults to the top side with centered alignment', () => {
+  it('defaults to the top side with centered alignment', () => {
     render(() => (
       <Tooltip open>
         <Tooltip.Trigger>Trigger</Tooltip.Trigger>
@@ -354,7 +354,7 @@ describe('Tooltip', () => {
     expect(content?.getAttribute('data-align')).toBe('center')
   })
 
-  test('updates side and alignment when placement props change without replacing content', () => {
+  it('updates side and alignment when placement props change without replacing content', () => {
     const [placement, setPlacement] = createSignal<'top' | 'bottom'>('top')
     const [align, setAlign] = createSignal<'center' | 'start'>('center')
 
@@ -380,7 +380,7 @@ describe('Tooltip', () => {
     expect(updatedContent?.getAttribute('data-align')).toBe('start')
   })
 
-  test('a disabled non-button trigger does not open on hover or focus', async () => {
+  it('a disabled non-button trigger does not open on hover or focus', async () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
@@ -400,7 +400,7 @@ describe('Tooltip', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('opens first hover after delay', async () => {
+  it('opens first hover after delay', async () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
@@ -425,7 +425,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Tooltip content')
   })
 
-  test('does not reopen when window focus returns to a trigger with a pending focus delay', async () => {
+  it('does not reopen when window focus returns to a trigger with a pending focus delay', async () => {
     vi.useFakeTimers()
     const screen = render(() => (
       <Tooltip openDelay={50}>
@@ -450,7 +450,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role="tooltip"]')).not.toBeNull()
   })
 
-  test('ignores touch and pen hover before accepting mouse hover', async () => {
+  it('ignores touch and pen hover before accepting mouse hover', async () => {
     vi.useFakeTimers()
     const screen = render(() => (
       <Tooltip openDelay={50}>
@@ -472,7 +472,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Mouse tooltip')
   })
 
-  test('invalidates pending open and closes resolved state when disabled changes', async () => {
+  it('invalidates pending open and closes resolved state when disabled changes', async () => {
     vi.useFakeTimers()
     const [disabled, setDisabled] = createSignal(false)
     const onOpenChange = vi.fn()
@@ -506,7 +506,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
   })
 
-  test('emits each controlled close attempt exactly once', async () => {
+  it('emits each controlled close attempt exactly once', async () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
@@ -525,7 +525,7 @@ describe('Tooltip', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('does not coordinate globally from a rejected controlled open', async () => {
+  it('does not coordinate globally from a rejected controlled open', async () => {
     vi.useFakeTimers()
     const onFirstOpenChange = vi.fn()
     const screen = render(() => (
@@ -558,7 +558,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Second tooltip')
   })
 
-  test('isolates global coordination after an owner is disposed', async () => {
+  it('isolates global coordination after an owner is disposed', async () => {
     vi.useFakeTimers()
     const first = render(() => (
       <Tooltip openDelay={10}>
@@ -590,7 +590,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Second tooltip')
   })
 
-  test('uses unique description ids across independent owners', () => {
+  it('uses unique description ids across independent owners', () => {
     const first = render(() => (
       <Tooltip open>
         <Tooltip.Trigger as="button">First</Tooltip.Trigger>
@@ -613,7 +613,7 @@ describe('Tooltip', () => {
     expect(document.getElementById(secondId!)).not.toBeNull()
   })
 
-  test('opens the next tooltip immediately and closes the previous tooltip', async () => {
+  it('opens the next tooltip immediately and closes the previous tooltip', async () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
@@ -665,7 +665,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Third tooltip')
   })
 
-  test('opens the next tooltip without its delay right after another closes', async () => {
+  it('opens the next tooltip without its delay right after another closes', async () => {
     vi.useFakeTimers()
     const screen = render(() => (
       <>
@@ -692,7 +692,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
   })
 
-  test('keeps an always-open tooltip visible when another tooltip is hovered and left', async () => {
+  it('keeps an always-open tooltip visible when another tooltip is hovered and left', async () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
@@ -732,7 +732,7 @@ describe('Tooltip', () => {
     expect(getAlwaysContent()?.hasAttribute('data-expanded')).toBe(true)
   })
 
-  test('skips the hover delay when another tooltip starts open', async () => {
+  it('skips the hover delay when another tooltip starts open', async () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
@@ -762,7 +762,7 @@ describe('Tooltip', () => {
     expect(hasDelayedTooltip()).toBe(true)
   })
 
-  test('keeps the switched-to tooltip open for its close delay after leaving it', async () => {
+  it('keeps the switched-to tooltip open for its close delay after leaving it', async () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
@@ -808,7 +808,7 @@ describe('Tooltip', () => {
     expect(closingTooltip?.hasAttribute('data-closed')).toBe(true)
   })
 
-  test('does not skip delay when the previous trigger never opened', async () => {
+  it('does not skip delay when the previous trigger never opened', async () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
@@ -845,7 +845,7 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
   })
 
-  test.each([
+  it.each([
     ['left', 'end'],
     ['right', 'start'],
   ] as const)('reports side %s and alignment %s on the content', (placement, align) => {
@@ -862,7 +862,7 @@ describe('Tooltip', () => {
     expect(content?.getAttribute('data-align')).toBe(align)
   })
 
-  test.each([
+  it.each([
     ['the default gutter', undefined, 124],
     ['a configured gutter', 12, 132],
   ])('places content with %s', async (_, gutter, top) => {
@@ -894,7 +894,7 @@ describe('Tooltip', () => {
     }
   })
 
-  test.each([
+  it.each([
     ['the default overflow padding', undefined, 872],
     ['a configured overflow padding', 20, 856],
   ])('leaves %s between the content and the viewport edge', async (_, overflowPadding, height) => {

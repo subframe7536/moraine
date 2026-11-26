@@ -1,5 +1,5 @@
 import { createRoot, createSignal, flush } from 'solid-js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { createDisclosureState } from './disclosure-state'
 function setScrollHeight(element: HTMLElement, getValue: () => number): void {
@@ -29,7 +29,7 @@ afterEach(() => {
 })
 
 describe('createDisclosureState', () => {
-  test('publishes a new height when connected content resizes', () => {
+  it('publishes a new height when connected content resizes', () => {
     const notifiers = installResizeObserverMock()
     const lifecycle = createRoot((dispose) => ({
       dispose,
@@ -51,7 +51,7 @@ describe('createDisclosureState', () => {
     lifecycle.dispose()
   })
 
-  test('ignores resize reports from a superseded measure element', () => {
+  it('ignores resize reports from a superseded measure element', () => {
     const notifiers = installResizeObserverMock()
     const lifecycle = createRoot((dispose) => ({
       dispose,
@@ -82,7 +82,7 @@ describe('createDisclosureState', () => {
     lifecycle.dispose()
   })
 
-  test('exposes reactive data attribute getters', () => {
+  it('exposes reactive data attribute getters', () => {
     createRoot((dispose) => {
       const [open, setOpen] = createSignal(false, { ownedWrite: true })
       const [disabled, setDisabled] = createSignal(false, { ownedWrite: true })
@@ -102,7 +102,7 @@ describe('createDisclosureState', () => {
     })
   })
 
-  test('constructs without layout APIs or a mounted element', () => {
+  it('constructs without layout APIs or a mounted element', () => {
     vi.stubGlobal('ResizeObserver', undefined)
 
     expect(() => {
@@ -115,7 +115,7 @@ describe('createDisclosureState', () => {
     }).not.toThrow()
   })
 
-  test('calculates shouldMount from the open state and forceMount', () => {
+  it('calculates shouldMount from the open state and forceMount', () => {
     createRoot((dispose) => {
       const [open, setOpen] = createSignal(false, { ownedWrite: true })
       const [forceMount, setForceMount] = createSignal(false, { ownedWrite: true })
@@ -138,7 +138,7 @@ describe('createDisclosureState', () => {
     })
   })
 
-  test('restores trigger focus when content closes while focused', async () => {
+  it('restores trigger focus when content closes while focused', async () => {
     let setOpen!: (v: boolean) => void
     let trigger!: HTMLButtonElement
     let innerInput!: HTMLInputElement
@@ -173,7 +173,7 @@ describe('createDisclosureState', () => {
     disposeRoot()
   })
 
-  test('does not restore trigger focus if focus was outside content upon close', async () => {
+  it('does not restore trigger focus if focus was outside content upon close', async () => {
     let setOpen!: (v: boolean) => void
     let trigger!: HTMLButtonElement
     let outside!: HTMLButtonElement
@@ -207,7 +207,7 @@ describe('createDisclosureState', () => {
     disposeRoot()
   })
 
-  test('restores trigger focus in iframe ownerDocument upon close', async () => {
+  it('restores trigger focus in iframe ownerDocument upon close', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const doc = iframe.contentDocument!
@@ -245,7 +245,7 @@ describe('createDisclosureState', () => {
     iframe.remove()
   })
 
-  test('measures the latest registration and falls back when it is released', () => {
+  it('measures the latest registration and falls back when it is released', () => {
     const lifecycle = createRoot((dispose) => ({
       dispose,
       state: createDisclosureState({ open: () => true }),
@@ -271,7 +271,7 @@ describe('createDisclosureState', () => {
     lifecycle.dispose()
   })
 
-  test('keeps measuring the newest registration when an older duplicate is released', () => {
+  it('keeps measuring the newest registration when an older duplicate is released', () => {
     const lifecycle = createRoot((dispose) => ({
       dispose,
       state: createDisclosureState({ open: () => true }),
@@ -295,7 +295,7 @@ describe('createDisclosureState', () => {
     lifecycle.dispose()
   })
 
-  test('keeps the newer content element when a superseded one is released', () => {
+  it('keeps the newer content element when a superseded one is released', () => {
     createRoot((dispose) => {
       const state = createDisclosureState({ open: () => true })
       const first = document.createElement('div')

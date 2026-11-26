@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { createFileFixture } from '../test-util/file-fixture.ts'
 
@@ -7,8 +7,8 @@ async function fixture(files: Record<string, string>) {
   return new RecipeExtractor(await createFileFixture(files))
 }
 
-describe('RecipeExtractor', () => {
-  test('extracts composed slots, variants, and data attributes', async () => {
+describe('recipeExtractor', () => {
+  it('extracts composed slots, variants, and data attributes', async () => {
     const extractor = await fixture({
       'shared.recipe.ts': `
 export const SHARED_BASE = { root: '', trigger: '', '--mo-sidebar-width': 'var(--sidebar-width, 16rem)' }
@@ -55,7 +55,7 @@ export const demoRecipe = defineRecipe('demo', {
     ])
   })
 
-  test('rejects duplicate targets and unsupported contract calls', async () => {
+  it('rejects duplicate targets and unsupported contract calls', async () => {
     const duplicates = await fixture({
       'demo.recipe.ts': `
 export const demoDataAttributes = {
@@ -80,7 +80,7 @@ export const demoRecipe = defineRecipe('demo', { base: { root: '' } })
     )
   })
 
-  test('fails when recipe metadata depends on a non-recipe module', async () => {
+  it('fails when recipe metadata depends on a non-recipe module', async () => {
     const extractor = await fixture({
       'opaque.ts': `export const SIZES = { sm: {}, md: {} }`,
       'demo.recipe.ts': `

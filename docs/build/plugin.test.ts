@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import path from 'pathe'
 import { createServer, parseSync } from 'vite'
 import type { ViteDevServer } from 'vite'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { getDocsShikiCss } from './core/shiki.ts'
 import { docsBuildPlugin } from './plugin.ts'
@@ -93,7 +93,7 @@ api:
 }
 
 describe('docsBuildPlugin', () => {
-  test('regenerates after source changes and preserves docs on invalid source', async () => {
+  it('regenerates after source changes and preserves docs on invalid source', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
     try {
@@ -135,14 +135,16 @@ export type ButtonProps = ButtonT.Props
       const generated = await readFile(apiPath, 'utf8')
       expect(JSON.parse(generated).parts[0].props[0].name).toBe('second')
       await writeFile(sourceFile, 'export function Button(')
-      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow()
+      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow(
+        /Failed to parse/,
+      )
       expect(await readFile(apiPath, 'utf8')).toBe(generated)
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
   })
 
-  test('generates api docs, virtual api data and transforms content', async () => {
+  it('generates api docs, virtual api data and transforms content', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
 
@@ -196,7 +198,7 @@ export type ButtonProps = ButtonT.Props
         await readFile(path.join(projectRoot, 'docs/pages/components/button/api.json'), 'utf8'),
       ).toContain('"button"')
 
-      await expect(access(path.join(projectRoot, 'docs/.generated'))).rejects.toThrow()
+      await expect(access(path.join(projectRoot, 'docs/.generated'))).rejects.toThrow(/ENOENT/)
 
       const resolvedApiId =
         typeof resolveId === 'function'
@@ -238,7 +240,7 @@ export type ButtonProps = ButtonT.Props
       await rm(projectRoot, { recursive: true, force: true })
     }
   })
-  test('runs transforms through a real Vite dev server', async () => {
+  it('runs transforms through a real Vite dev server', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
     let server: ViteDevServer | undefined

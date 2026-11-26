@@ -2,16 +2,16 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { TypeExtractor } from './extract-types.ts'
 import { RecipeExtractor } from './recipe.ts'
-describe('TypeExtractor', () => {
+describe('typeExtractor', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
   const extractor = new TypeExtractor(projectRoot)
   const recipes = new RecipeExtractor(projectRoot)
 
-  test('expands shared style vocabulary in component props', async () => {
+  it('expands shared style vocabulary in component props', async () => {
     for (const [file, namespace, expected] of [
       [
         'src/components/input/input.types.ts',
@@ -33,7 +33,7 @@ describe('TypeExtractor', () => {
     }
   })
 
-  test('only expands style aliases and stops cyclic style references', async () => {
+  it('only expands style aliases and stops cyclic style references', async () => {
     const directory = mkdtempSync(path.join(tmpdir(), 'moraine-style-types-'))
     try {
       writeFileSync(
@@ -60,7 +60,7 @@ describe('TypeExtractor', () => {
     }
   })
 
-  test('extracts Button component types, generics, and BaseProps', async () => {
+  it('extracts Button component types, generics, and BaseProps', async () => {
     const module = await extractor.loadModule('src/components/button/button.types.ts')
     expect(module).toBeDefined()
 
@@ -95,7 +95,7 @@ describe('TypeExtractor', () => {
     expect(asProp?.default).toEqual({ kind: 'literal', value: 'button' })
   })
 
-  test('uses only declared as props and preserves an explicit default', async () => {
+  it('uses only declared as props and preserves an explicit default', async () => {
     const directory = mkdtempSync(path.join(tmpdir(), 'moraine-as-types-'))
     try {
       writeFileSync(
@@ -120,7 +120,7 @@ describe('TypeExtractor', () => {
     }
   })
 
-  test('reads as from inherited, aliased, and intersected Base props', async () => {
+  it('reads as from inherited, aliased, and intersected Base props', async () => {
     const cases = [
       ['src/components/dialog/dialog.types.ts', 'DialogT', 'TriggerProps', 'Dialog.Trigger'],
       ['src/components/list/list.types.ts', 'ListT', 'Props', 'List'],
@@ -148,7 +148,7 @@ describe('TypeExtractor', () => {
     expect(item.props.map((prop) => prop.name)).not.toContain('as')
   })
 
-  test('extracts Dialog composite parts and inherited BaseDialog props', async () => {
+  it('extracts Dialog composite parts and inherited BaseDialog props', async () => {
     const module = await extractor.loadModule('src/components/dialog/dialog.types.ts')
     expect(module).toBeDefined()
 
@@ -170,7 +170,7 @@ describe('TypeExtractor', () => {
     expect(contentPart.props.map((p) => p.name)).toContain('description')
   })
 
-  test('extracts Select item metadata and props', async () => {
+  it('extracts Select item metadata and props', async () => {
     const module = await extractor.loadModule('src/components/select/select.types.ts')
     expect(module).toBeDefined()
 
@@ -190,7 +190,7 @@ describe('TypeExtractor', () => {
     expect(placeholder?.default).toEqual({ kind: 'literal', value: '' })
   })
 
-  test('extracts Form factory parts and schemas', async () => {
+  it('extracts Form factory parts and schemas', async () => {
     const module = await extractor.loadModule('src/components/form/form.types.ts')
     expect(module).toBeDefined()
 
@@ -203,7 +203,7 @@ describe('TypeExtractor', () => {
     expect(formPart.props.map((p) => p.name)).toContain('style')
   })
 
-  test('distinguishes optional property (?) from required undefined (T | undefined)', async () => {
+  it('distinguishes optional property (?) from required undefined (T | undefined)', async () => {
     const fixtureSource = `
 export namespace TestT {
   export interface Props {
@@ -237,7 +237,7 @@ export namespace TestT {
     expect(optStr?.optional).toBe(true)
   })
 
-  test('distinguishes all default kinds: empty string, false, 0, null, expression, and none', async () => {
+  it('distinguishes all default kinds: empty string, false, 0, null, expression, and none', async () => {
     const fixtureSource = `
 export namespace DefaultsT {
   export interface Props {
@@ -288,7 +288,7 @@ export namespace DefaultsT {
     expect(noDefault?.default).toBeUndefined()
   })
 
-  test('handles never capability for Slot, Variants, Classes, Styles without manufacturing props', async () => {
+  it('handles never capability for Slot, Variants, Classes, Styles without manufacturing props', async () => {
     const fixtureSource = `
 import type { BaseProps } from '../../shared/types'
 export namespace NeverT {
@@ -332,7 +332,7 @@ export namespace NeverT {
     expect(propNames).not.toContain('size')
   })
 
-  test('expands indexed access types in CheckboxGroup and Pagination', async () => {
+  it('expands indexed access types in CheckboxGroup and Pagination', async () => {
     const checkboxGroupModule = await extractor.loadModule(
       'src/components/checkbox-group/checkbox-group.types.ts',
     )
@@ -383,7 +383,7 @@ export namespace NeverT {
     expect(variantProp?.type).toBe("'solid' | 'soft' | 'outline' | 'ghost' | 'link'")
   })
 
-  test('expands discriminated-union Item types into merged props', async () => {
+  it('expands discriminated-union Item types into merged props', async () => {
     const kbdGroupModule = await extractor.loadModule('src/components/kbd-group/kbd-group.types.ts')
     const kbdGroupItem = await extractor.extractItem(kbdGroupModule!, 'KbdGroupT')
     expect(kbdGroupItem?.props.map((prop) => prop.name)).toEqual(['value', 'ariaLabel', 'symbol'])

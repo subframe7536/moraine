@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { createKeyDownHandler, createKeyUpHandler, isComposingKeyboardEvent } from './keyboard'
 function createMockKeyboardEvent(key: string, init: Partial<KeyboardEvent> = {}): KeyboardEvent {
@@ -19,20 +19,20 @@ function createHost(): { element: HTMLElement; eventInit: Partial<KeyboardEvent>
 }
 
 describe('isComposingKeyboardEvent', () => {
-  test.each([[{ isComposing: true }], [{ keyCode: 229 }], [{ which: 229 }]])(
+  it.each([[{ isComposing: true }], [{ keyCode: 229 }], [{ which: 229 }]])(
     'detects composition from %j',
     (init) => {
       expect(isComposingKeyboardEvent(createMockKeyboardEvent('Enter', init))).toBe(true)
     },
   )
 
-  test('returns false for a plain event', () => {
+  it('returns false for a plain event', () => {
     expect(isComposingKeyboardEvent(createMockKeyboardEvent('Enter'))).toBe(false)
   })
 })
 
 describe('createKeyDownHandler', () => {
-  test('dispatches a literal key binding with automatic preventDefault', () => {
+  it('dispatches a literal key binding with automatic preventDefault', () => {
     const { eventInit } = createHost()
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({ keys: { Enter: handle } })
@@ -44,7 +44,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).toHaveBeenCalledWith(event)
   })
 
-  test('forwards the user handler first and stops when it prevents', () => {
+  it('forwards the user handler first and stops when it prevents', () => {
     const { eventInit } = createHost()
     const handle = vi.fn()
     const user = vi.fn((event: KeyboardEvent) => event.preventDefault())
@@ -59,7 +59,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).not.toHaveBeenCalled()
   })
 
-  test('supports array-form user handlers', () => {
+  it('supports array-form user handlers', () => {
     const { eventInit } = createHost()
     const user = vi.fn()
     const onKeyDown = createKeyDownHandler({
@@ -72,7 +72,7 @@ describe('createKeyDownHandler', () => {
     expect(user).toHaveBeenCalledWith('data', expect.anything())
   })
 
-  test('stops on an already-prevented event', () => {
+  it('stops on an already-prevented event', () => {
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({ keys: { Enter: handle } })
     const event = createMockKeyboardEvent('Enter')
@@ -83,7 +83,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).not.toHaveBeenCalled()
   })
 
-  test('disabled skips the dispatch', () => {
+  it('disabled skips the dispatch', () => {
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({ disabled: () => true, keys: { Enter: handle } })
 
@@ -92,7 +92,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).not.toHaveBeenCalled()
   })
 
-  test.each([[{ isComposing: true }], [{ keyCode: 229 }], [{ which: 229 }]])(
+  it.each([[{ isComposing: true }], [{ keyCode: 229 }], [{ which: 229 }]])(
     'skips events during composition %j',
     (init) => {
       const handle = vi.fn()
@@ -104,7 +104,7 @@ describe('createKeyDownHandler', () => {
     },
   )
 
-  test('composing accessor adds external composition state', () => {
+  it('composing accessor adds external composition state', () => {
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({ composing: () => true, keys: { Enter: handle } })
 
@@ -113,7 +113,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).not.toHaveBeenCalled()
   })
 
-  test('skipRepeat ignores auto-repeated events', () => {
+  it('skipRepeat ignores auto-repeated events', () => {
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({ skipRepeat: true, keys: { Enter: handle } })
 
@@ -122,7 +122,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).not.toHaveBeenCalled()
   })
 
-  test('currentTargetOnly requires the event to hit the host itself', () => {
+  it('currentTargetOnly requires the event to hit the host itself', () => {
     const { element } = createHost()
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({ currentTargetOnly: true, keys: { Enter: handle } })
@@ -137,7 +137,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).not.toHaveBeenCalled()
   })
 
-  test('ignoreModifiers skips events with a listed modifier', () => {
+  it('ignoreModifiers skips events with a listed modifier', () => {
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({
       ignoreModifiers: ['alt', 'ctrl'],
@@ -152,7 +152,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).toHaveBeenCalledOnce()
   })
 
-  test("normalizes 'Spacebar' to ' '", () => {
+  it("normalizes 'Spacebar' to ' '", () => {
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({ keys: { ' ': handle } })
 
@@ -163,7 +163,7 @@ describe('createKeyDownHandler', () => {
     expect(event.preventDefault).toHaveBeenCalled()
   })
 
-  test('preventDefault: false keeps native default', () => {
+  it('preventDefault: false keeps native default', () => {
     const handle = vi.fn()
     const onKeyDown = createKeyDownHandler({
       keys: { Enter: { handle, preventDefault: false } },
@@ -176,7 +176,7 @@ describe('createKeyDownHandler', () => {
     expect(event.preventDefault).not.toHaveBeenCalled()
   })
 
-  test('when falling back to onUnhandled when the guard fails', () => {
+  it('when falling back to onUnhandled when the guard fails', () => {
     const handle = vi.fn()
     const onUnhandled = vi.fn()
     const onKeyDown = createKeyDownHandler({
@@ -193,7 +193,7 @@ describe('createKeyDownHandler', () => {
     expect(onUnhandled).toHaveBeenCalledOnce()
   })
 
-  test('ignore swallows keys without preventDefault or onUnhandled', () => {
+  it('ignore swallows keys without preventDefault or onUnhandled', () => {
     const onUnhandled = vi.fn()
     const onKeyDown = createKeyDownHandler({ ignore: [' ', 'Home'], onUnhandled })
 
@@ -205,7 +205,7 @@ describe('createKeyDownHandler', () => {
     expect(onUnhandled).not.toHaveBeenCalled()
   })
 
-  test('onUnhandled receives unmatched keys after guards', () => {
+  it('onUnhandled receives unmatched keys after guards', () => {
     const onUnhandled = vi.fn()
     const onKeyDown = createKeyDownHandler({ keys: { Enter: vi.fn() }, onUnhandled })
 
@@ -213,7 +213,7 @@ describe('createKeyDownHandler', () => {
     expect(onUnhandled).toHaveBeenCalledOnce()
   })
 
-  test('keys may be computed per event', () => {
+  it('keys may be computed per event', () => {
     const handle = vi.fn()
     const dynamic = vi.fn(() => ({ x: handle }))
     const onKeyDown = createKeyDownHandler({ keys: dynamic })
@@ -225,7 +225,7 @@ describe('createKeyDownHandler', () => {
     expect(handle).toHaveBeenCalledOnce()
   })
 
-  test('forwarded args reach bindings and onUnhandled', () => {
+  it('forwarded args reach bindings and onUnhandled', () => {
     const handle = vi.fn()
     const onUnhandled = vi.fn()
     const onKeyDown = createKeyDownHandler<HTMLElement, [string, number]>({
@@ -260,7 +260,7 @@ describe('createKeyDownHandler logical aliases', () => {
     return { event, handle, onUnhandled }
   }
 
-  test('next/previous follow a horizontal axis', () => {
+  it('next/previous follow a horizontal axis', () => {
     const right = dispatch('ArrowRight', { keys: { next: undefined } })
     const left = dispatch('ArrowLeft', { keys: { previous: undefined } })
     expect(right.handle).not.toHaveBeenCalled()
@@ -268,7 +268,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(left.onUnhandled).toHaveBeenCalledOnce()
   })
 
-  test('next/previous resolve ArrowRight/ArrowLeft on horizontal ltr', () => {
+  it('next/previous resolve ArrowRight/ArrowLeft on horizontal ltr', () => {
     const next = vi.fn()
     const previous = vi.fn()
     const onKeyDown = createKeyDownHandler({ keys: { next, previous } })
@@ -280,7 +280,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(previous).toHaveBeenCalledOnce()
   })
 
-  test('horizontal rtl flips next/previous', () => {
+  it('horizontal rtl flips next/previous', () => {
     const next = vi.fn()
     const previous = vi.fn()
     const onKeyDown = createKeyDownHandler({
@@ -295,7 +295,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(previous).toHaveBeenCalledOnce()
   })
 
-  test('next/previous resolve ArrowDown/ArrowUp on vertical', () => {
+  it('next/previous resolve ArrowDown/ArrowUp on vertical', () => {
     const next = vi.fn()
     const previous = vi.fn()
     const onKeyDown = createKeyDownHandler({
@@ -310,7 +310,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(previous).toHaveBeenCalledOnce()
   })
 
-  test('forward/backward resolve inline arrows regardless of orientation', () => {
+  it('forward/backward resolve inline arrows regardless of orientation', () => {
     const forward = vi.fn()
     const backward = vi.fn()
     const onKeyDown = createKeyDownHandler({
@@ -325,7 +325,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(backward).toHaveBeenCalledOnce()
   })
 
-  test('rtl flips forward/backward', () => {
+  it('rtl flips forward/backward', () => {
     const forward = vi.fn()
     const backward = vi.fn()
     const onKeyDown = createKeyDownHandler({
@@ -340,7 +340,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(backward).toHaveBeenCalledOnce()
   })
 
-  test('open/close resolve ArrowDown/ArrowUp on horizontal', () => {
+  it('open/close resolve ArrowDown/ArrowUp on horizontal', () => {
     const open = vi.fn()
     const close = vi.fn()
     const onKeyDown = createKeyDownHandler({ keys: { open, close } })
@@ -352,7 +352,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(close).toHaveBeenCalledOnce()
   })
 
-  test('open/close resolve forward/backward arrows on vertical', () => {
+  it('open/close resolve forward/backward arrows on vertical', () => {
     const open = vi.fn()
     const close = vi.fn()
     const onKeyDown = createKeyDownHandler({
@@ -367,7 +367,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(close).toHaveBeenCalledOnce()
   })
 
-  test('a literal binding wins over an alias', () => {
+  it('a literal binding wins over an alias', () => {
     const literal = vi.fn()
     const alias = vi.fn()
     const onKeyDown = createKeyDownHandler({ keys: { ArrowRight: literal, next: alias } })
@@ -378,7 +378,7 @@ describe('createKeyDownHandler logical aliases', () => {
     expect(alias).not.toHaveBeenCalled()
   })
 
-  test('direction falls back to the host computed direction', () => {
+  it('direction falls back to the host computed direction', () => {
     const element = document.createElement('div')
     element.dir = 'rtl'
     document.body.append(element)
@@ -393,7 +393,7 @@ describe('createKeyDownHandler logical aliases', () => {
 })
 
 describe('createKeyUpHandler', () => {
-  test('dispatches keyup bindings and forwards the user handler', () => {
+  it('dispatches keyup bindings and forwards the user handler', () => {
     const release = vi.fn()
     const user = vi.fn()
     const onKeyUp = createKeyUpHandler({

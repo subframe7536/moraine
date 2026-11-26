@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { For, createSignal, flush } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { createTree } from '../components/tree/tree'
 
@@ -142,7 +142,7 @@ describe('createListSortable', () => {
     }
   }
 
-  test('reorders items on a pointer drop and reports the move', async () => {
+  it('reorders items on a pointer drop and reports the move', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
     const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
     const { rows, handles, labels } = renderList({ items, onReorder })
@@ -168,7 +168,7 @@ describe('createListSortable', () => {
     await waitFor(() => expect(labels()).toEqual(['b', 'a', 'c']))
   })
 
-  test('reorders items on a keyboard drop', async () => {
+  it('reorders items on a keyboard drop', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
     const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
     const { rows, handles, labels } = renderList({ items, onReorder })
@@ -188,7 +188,7 @@ describe('createListSortable', () => {
     await waitFor(() => expect(labels()).toEqual(['b', 'a', 'c']))
   })
 
-  test('shows no indicator and does not drop where canDrop rejects', async () => {
+  it('shows no indicator and does not drop where canDrop rejects', async () => {
     const items = () => ['a', 'b', 'c']
     const onReorder = vi.fn()
     const { rows, handles } = renderList({ items, onReorder, canDrop: () => false })
@@ -206,7 +206,7 @@ describe('createListSortable', () => {
     expect(onReorder).not.toHaveBeenCalled()
   })
 
-  test('rejects a drop onto a row that the items no longer contain', async () => {
+  it('rejects a drop onto a row that the items no longer contain', async () => {
     const rendered = () => ['a', 'b', 'c']
     const [items, setItems] = createSignal(['a', 'b', 'c'])
     const onReorder = vi.fn()
@@ -230,7 +230,7 @@ describe('createListSortable', () => {
     expect(onReorder).not.toHaveBeenCalled()
   })
 
-  test('rejects a drop of a row that the items no longer contain', async () => {
+  it('rejects a drop of a row that the items no longer contain', async () => {
     const rendered = () => ['a', 'b', 'c']
     const [items, setItems] = createSignal(['a', 'b', 'c'])
     const onReorder = vi.fn()
@@ -254,7 +254,7 @@ describe('createListSortable', () => {
     expect(onReorder).not.toHaveBeenCalled()
   })
 
-  test('does not drag a disabled row', async () => {
+  it('does not drag a disabled row', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
     const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
     const { rows, handles } = renderList({
@@ -273,7 +273,7 @@ describe('createListSortable', () => {
     expect(onReorder).not.toHaveBeenCalled()
   })
 
-  test('keeps the remaining rows draggable after an item is removed', async () => {
+  it('keeps the remaining rows draggable after an item is removed', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
     const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
     const { rows, handles, labels } = renderList({ items, onReorder })
@@ -308,7 +308,7 @@ const FILE_ACCESS = {
 }
 
 describe('createTreeSortable', () => {
-  test('moves an item inside a folder on an inside drop', async () => {
+  it('moves an item inside a folder on an inside drop', async () => {
     const [files, setFiles] = createSignal<Array<FileNode>>([
       { id: 'a' },
       { id: 'folder', children: [{ id: 'f1' }] },

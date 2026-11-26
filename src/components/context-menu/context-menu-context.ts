@@ -361,8 +361,6 @@ export function createContextMenu(props: ContextMenuProps) {
       return
     }
     longPressWindow = currentWindow
-    // Cross-realm ownerWindow timer; @subf/oxlint-plugin@0.4.0 only recognizes window/globalThis/self.
-    // oxlint-disable-next-line subf/solid-reactivity
     longPressTimeoutId = currentWindow.setTimeout(() => {
       longPressTimeoutId = 0
       longPressWindow = undefined

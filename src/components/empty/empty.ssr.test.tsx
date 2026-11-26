@@ -1,11 +1,11 @@
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { EmptyHydrationFixture } from './empty.ssr.fixture'
 import type { EmptyT } from './empty.types'
-test.each([true, false])(
+it.each([true, false])(
   'hydrates parts and updates size and optional content (initially present=%s)',
   (initialOptional) => {
     const [size, setSize] = createSignal<EmptyT.Variants['size']>('sm')

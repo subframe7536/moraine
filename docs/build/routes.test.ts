@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { resolveDocsPageContext } from './core/paths.ts'
 import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
@@ -52,7 +52,7 @@ async function writeProjectFile(projectRoot: string, relative: string, content: 
 }
 
 describe('docs route metadata', () => {
-  test('resolves canonical paths for both surfaces and pathless groups', () => {
+  it('resolves canonical paths for both surfaces and pathless groups', () => {
     const cases = [
       ['docs/(overview)/getting-started.mdx', 'docs', 'overview', '/docs/getting-started'],
       ['docs/(styling)/design.mdx', 'docs', 'styling', '/docs/design'],
@@ -77,7 +77,7 @@ describe('docs route metadata', () => {
     )
   })
 
-  test('filters malformed sections and sorts pages across surfaces', async () => {
+  it('filters malformed sections and sorts pages across surfaces', async () => {
     const { getDocsPages, registerDocsRouteInfo } = await import('../routes/docs-route.ts')
     registerDocsRouteInfo(ROUTE_INFO)
     expect(getDocsPages()).toMatchObject([
@@ -90,7 +90,7 @@ describe('docs route metadata', () => {
     ])
   })
 
-  test('scans pages and rejects duplicate order within one section', async () => {
+  it('scans pages and rejects duplicate order within one section', async () => {
     const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-docs-routes-'))
     try {
       await writeProjectFile(
@@ -130,7 +130,7 @@ describe('docs route metadata', () => {
     }
   })
 
-  test('preserves sections on canonical metadata', () => {
+  it('preserves sections on canonical metadata', () => {
     const page = resolveDocsPageContext('/tmp/docs/pages/components/button/index.mdx')
     const info = createDocsRouteInfo(
       page,
@@ -155,7 +155,7 @@ describe('docs route metadata', () => {
     })
   })
 
-  test('scans repository styling routes preserving sidebar order with class-merging included', () => {
+  it('scans repository styling routes preserving sidebar order with class-merging included', () => {
     const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.section === 'styling')
     expect(scanned.map((r) => r.info.key)).toEqual([
       'design',
@@ -167,7 +167,7 @@ describe('docs route metadata', () => {
     ])
   })
 
-  test('scans repository hooks routes with hooks index first and remainder alphabetically', () => {
+  it('scans repository hooks routes with hooks index first and remainder alphabetically', () => {
     const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.surface === 'hooks')
     expect(scanned.map((r) => r.info.key)).toEqual([
       'hooks',
@@ -184,7 +184,7 @@ describe('docs route metadata', () => {
     ])
   })
 
-  test('registers virtualization once as a guide for all route-derived consumers', () => {
+  it('registers virtualization once as a guide for all route-derived consumers', () => {
     const routes = scanDocsRoutes(process.cwd())
     expect(routes.filter((route) => route.info.key === 'virtualization')).toMatchObject([
       {
@@ -200,7 +200,7 @@ describe('docs route metadata', () => {
     expect(routes.some((route) => route.info.key === 'create-list-virtualizer')).toBe(false)
   })
 
-  test('scans repository components routes with components index first and remainder alphabetically within sections', () => {
+  it('scans repository components routes with components index first and remainder alphabetically within sections', () => {
     const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.surface === 'components')
     expect(scanned[0]?.info.routePath).toBe('/components')
     const buttons = scanned.filter((r) => r.info.section === 'buttons')

@@ -1,11 +1,11 @@
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 
 import { KbdHydrationFixture } from './kbd.ssr.fixture'
-test('hydrates semantic KbdGroup output and reacts to item changes', () => {
+it('hydrates semantic KbdGroup output and reacts to item changes', () => {
   const [keyName, setKeyName] = createSignal('escape')
   const [items, setItems] = createSignal<Array<KbdGroupT.Item>>(['ctrl', 'k'])
   const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>()

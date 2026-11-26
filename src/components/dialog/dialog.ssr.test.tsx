@@ -1,5 +1,5 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
@@ -8,7 +8,7 @@ import { Icon } from '../icon/icon'
 
 import { Dialog } from './dialog'
 import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
-test('hydrates a polymorphic Button trigger with nested JSX icons', () => {
+it('hydrates a polymorphic Button trigger with nested JSX icons', () => {
   const { container } = hydrateFixture(
     '/src/components/dialog/dialog.ssr.fixture.tsx',
     'renderButtonTriggerFixture',
@@ -37,8 +37,8 @@ function expectAriaReferencesToResolve(content: Element): void {
   }
 }
 
-describe('Dialog SSR Hydration', () => {
-  test('hydrates composed part IDs without replacing nodes', () => {
+describe('dialog SSR Hydration', () => {
+  it('hydrates composed part IDs without replacing nodes', () => {
     const { container } = hydrateFixture(
       '/src/components/dialog/dialog.ssr.fixture.tsx',
       'renderPartsFixture',
@@ -68,7 +68,7 @@ describe('Dialog SSR Hydration', () => {
     expect(container.querySelector('[data-slot="dialog-description"]')?.id).toBeTruthy()
   })
 
-  test('server renders composable parts with stable IDs', () => {
+  it('server renders composable parts with stable IDs', () => {
     const html = renderSsrFixture(
       '/src/components/dialog/dialog.ssr.fixture.tsx',
       'renderPartsFixture',
@@ -78,7 +78,7 @@ describe('Dialog SSR Hydration', () => {
     expect(html).toContain('data-slot="dialog-body"')
     expect(html).toContain('data-slot="dialog-footer"')
   })
-  test('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
+  it('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
     const { container } = hydrateFixture(
       '/src/components/dialog/dialog.ssr.fixture.tsx',
       'renderDialogFixture',

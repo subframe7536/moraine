@@ -1,7 +1,7 @@
 import { waitFor } from '@solidjs/testing-library'
 import { hydrate } from '@solidjs/web'
 import { createComponent, createSignal, flush } from 'solid-js'
-import { expect, test, vi } from 'vitest'
+import { expect, vi, it } from 'vitest'
 
 import { renderSsrFixture, installHydrationState } from '../test-util/ssr-test'
 import type { CnConfig } from '../theme/cn'
@@ -15,7 +15,7 @@ import {
   ThemeHydrationFixture,
   fixtureTheme,
 } from './moraine-provider.ssr.fixture'
-test('hydrates Theme presentation once and preserves native nodes across replacement', () => {
+it('hydrates Theme presentation once and preserves native nodes across replacement', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(
     '/src/provider/moraine-provider.ssr.fixture.tsx',
@@ -79,7 +79,7 @@ test('hydrates Theme presentation once and preserves native nodes across replace
   }
 })
 
-test('hydrates default presentation with the same component nodes', () => {
+it('hydrates default presentation with the same component nodes', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(
     '/src/provider/moraine-provider.ssr.fixture.tsx',
@@ -102,7 +102,7 @@ test('hydrates default presentation with the same component nodes', () => {
   }
 })
 
-test('isolates SSR requests and hydrates scoped merging with live config replacement', () => {
+it('isolates SSR requests and hydrates scoped merging with live config replacement', () => {
   const fixture = '/src/provider/moraine-provider.ssr.fixture.tsx'
   const html = renderSsrFixture(fixture, 'renderCnFixture')
   const defaultHtml = renderSsrFixture(fixture, 'renderDefaultCnFixture')
@@ -139,7 +139,7 @@ test('isolates SSR requests and hydrates scoped merging with live config replace
   }
 })
 
-test('ssr default locale without a provider is en-US', () => {
+it('ssr default locale without a provider is en-US', () => {
   const html = renderSsrFixture(
     '/src/provider/moraine-provider.ssr.fixture.tsx',
     'renderDefaultLocaleFixture',
@@ -147,7 +147,7 @@ test('ssr default locale without a provider is en-US', () => {
   expect(html).toContain('data-locale="en-US"')
 })
 
-test('detectLocale stays en-US through SSR and first hydration, then follows the browser', async () => {
+it('detectLocale stays en-US through SSR and first hydration, then follows the browser', async () => {
   const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
   const html = renderSsrFixture(
     '/src/provider/moraine-provider.ssr.fixture.tsx',
@@ -176,7 +176,7 @@ test('detectLocale stays en-US through SSR and first hydration, then follows the
   }
 })
 
-test('hydrates localized pagination and dialog labels', () => {
+it('hydrates localized pagination and dialog labels', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(
     '/src/provider/moraine-provider.ssr.fixture.tsx',

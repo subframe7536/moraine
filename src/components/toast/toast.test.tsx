@@ -6,7 +6,7 @@ import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { Toast } from './index'
 import type { ToastT } from './index'
-describe('Toast', () => {
+describe('toast', () => {
   beforeEach(() => {
     Toast.close()
     // jsdom reports an unfocused document by default; the host re-syncs from hasFocus() on attach.

@@ -1,11 +1,11 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
-import { expect, test, vi } from 'vitest'
+import { expect, vi, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { AccordionHydrationFixture } from './accordion.ssr.fixture'
-test('hydrates expanded JSX and mounts and releases an initially closed panel', async () => {
+it('hydrates expanded JSX and mounts and releases an initially closed panel', async () => {
   const mounted = vi.fn()
   const cleaned = vi.fn()
   const { container } = hydrateFixture(

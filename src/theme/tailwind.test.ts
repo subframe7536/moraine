@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 
 import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
@@ -81,7 +81,7 @@ async function compileCSSWithIconify(candidates: Array<string>) {
 }
 
 describe('colors', () => {
-  test.each([
+  it.each([
     ['bg-primary', 'background-color: var(--primary);'],
     ['text-primary-foreground', 'color: var(--primary-foreground);'],
     ['bg-secondary', 'background-color: var(--secondary);'],
@@ -103,14 +103,14 @@ describe('colors', () => {
     expect(css).toContain(declaration)
   })
 
-  test.each(['info', 'success', 'warning'] as const)('%s tone colors resolve', async (color) => {
+  it.each(['info', 'success', 'warning'] as const)('%s tone colors resolve', async (color) => {
     const css = await compileCSS([`bg-${color}`, `text-${color}`, `text-${color}-foreground`])
     expect(css).toContain(`background-color: var(--${color});`)
     expect(css).toContain(`color: var(--${color});`)
     expect(css).toContain(`color: var(--${color}-foreground, var(--background));`)
   })
 
-  test('hover and active colors fall back through the base color', async () => {
+  it('hover and active colors fall back through the base color', async () => {
     const css = await compileCSS([
       'bg-background-hover',
       'bg-card-active',
@@ -141,7 +141,7 @@ describe('colors', () => {
     expect(css).not.toContain('-focus')
   })
 
-  test('tone channel utilities read the tone variables', async () => {
+  it('tone channel utilities read the tone variables', async () => {
     const css = await compileCSS([
       'tone-danger',
       'bg-tone',
@@ -179,7 +179,7 @@ describe('colors', () => {
     expect(css).toContain('--tw-ring-color: color-mix(in oklab, var(--mo-tone) 20%, transparent);')
   })
 
-  test('mixes colors in the local scope only when color-mix is supported', async () => {
+  it('mixes colors in the local scope only when color-mix is supported', async () => {
     const css = await compileCSS(['bg-accent-hover'], true)
     expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
     expect(css).toContain(
@@ -188,7 +188,7 @@ describe('colors', () => {
     expect(css).not.toMatch(/--primary:\s/)
   })
 
-  test('control, boundary, and focus tokens resolve without default colors', async () => {
+  it('control, boundary, and focus tokens resolve without default colors', async () => {
     const css = await compileCSS(['border-border', 'border-input', 'bg-control', 'ring-ring'], true)
     expect(css).toContain('border-color: var(--border)')
     expect(css).toContain('border-color: var(--input)')
@@ -199,7 +199,7 @@ describe('colors', () => {
 })
 
 describe('font size and border radius', () => {
-  test('text utilities scale from the local --font-size', async () => {
+  it('text utilities scale from the local --font-size', async () => {
     const css = await compileCSS(['text-tiny', 'text-sm', 'text-base', 'text-5xl'])
 
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 0.625)')
@@ -209,7 +209,7 @@ describe('font size and border radius', () => {
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 3)')
   })
 
-  test.each([
+  it.each([
     ['rounded-lg', 'border-radius: var(--radius);'],
     ['rounded-xl', 'border-radius: calc(var(--radius) * 1.4);'],
     ['rounded-sm', 'border-radius: calc(var(--radius) * 0.6);'],
@@ -222,7 +222,7 @@ describe('font size and border radius', () => {
 })
 
 describe('shadows and z-index', () => {
-  test('preserves the native Tailwind shadow scale', async () => {
+  it('preserves the native Tailwind shadow scale', async () => {
     const candidates = [
       'shadow-2xs',
       'shadow-xs',
@@ -237,11 +237,11 @@ describe('shadows and z-index', () => {
     expect(await compileCSS(candidates)).toBe(build(candidates))
   })
 
-  test('semantic shadow tokens resolve through the box-shadow variable', async () => {
+  it('semantic shadow tokens resolve through the box-shadow variable', async () => {
     expect(await compileCSS(['shadow-overlay'])).toContain('--tw-shadow: var(--shadow-overlay);')
   })
 
-  test.each([
+  it.each([
     ['z-base', 'z-index: 1;'],
     ['z-raised', 'z-index: 2;'],
     ['z-control', 'z-index: 3;'],
@@ -255,7 +255,7 @@ describe('shadows and z-index', () => {
 })
 
 describe('animations', () => {
-  test('compiles disclosure child state and slider peer state', async () => {
+  it('compiles disclosure child state and slider peer state', async () => {
     const tokens = [
       ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
       ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
@@ -273,7 +273,7 @@ describe('animations', () => {
     expect(css).not.toContain(':has(')
   })
 
-  test('compound data states compile for disclosure and instant motion', async () => {
+  it('compound data states compile for disclosure and instant motion', async () => {
     const css = await compileCSS([
       'data-transition:data-expanded:animate-accordion-down',
       'data-instant-motion:data-expanded:animate-none',
@@ -286,13 +286,13 @@ describe('animations', () => {
     expect(css).toContain('@keyframes accordion-down')
   })
 
-  test('the instant tooltip positioner compiles without :has', async () => {
+  it('the instant tooltip positioner compiles without :has', async () => {
     const css = await compileCSS(TOOLTIP_INSTANT_POSITIONER_CLASS.split(' '))
     expect(css).toContain('[data-positioned]')
     expect(css).not.toContain(':has(')
   })
 
-  test('enter and exit animations read shared duration, easing, and keyframe variables', async () => {
+  it('enter and exit animations read shared duration, easing, and keyframe variables', async () => {
     const enter = await compileCSS(['animate-mo-enter'])
     expect(enter).toContain(
       'animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
@@ -311,7 +311,7 @@ describe('animations', () => {
     expect(exit).toContain('opacity: var(--mo-exit-opacity, 1);')
   })
 
-  test.each([
+  it.each([
     [
       'animate-carousel',
       'carousel var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
@@ -332,7 +332,7 @@ describe('animations', () => {
     expect(await compileCSS([utility])).toContain(`animation: ${animation};`)
   })
 
-  test('standard transition utilities keep Tailwind defaults', async () => {
+  it('standard transition utilities keep Tailwind defaults', async () => {
     const css = await compileCSS(['transition', 'transition-colors', 'transition-mo-enter'])
     expect(css).toContain(
       'transition-duration: var(--tw-duration, var(--default-transition-duration));',
@@ -343,7 +343,7 @@ describe('animations', () => {
     expect(css).not.toContain('.transition-mo-enter')
   })
 
-  test('enter and exit utilities set the matching CSS variables', async () => {
+  it('enter and exit utilities set the matching CSS variables', async () => {
     const css = await compileCSS([
       'enter-opacity-0',
       'exit-opacity-0',
@@ -378,7 +378,7 @@ describe('animations', () => {
     expect(css).toContain('--mo-exit-rotate: 45deg;')
   })
 
-  test('enter and exit utilities compose with data variants', async () => {
+  it('enter and exit utilities compose with data variants', async () => {
     const css = await compileCSS([
       'data-expanded:enter-opacity-0',
       'data-closed:exit-opacity-0',
@@ -393,7 +393,7 @@ describe('animations', () => {
 })
 
 describe('icon utilities', () => {
-  test('registers semantic icon names without generating CSS', async () => {
+  it('registers semantic icon names without generating CSS', async () => {
     const ds = await loadDesignSystem()
     const iconClasses = ds
       .getClassList()
@@ -407,7 +407,7 @@ describe('icon utilities', () => {
     }
   })
 
-  test('compiles the icon-mask forced-colors behavior', async () => {
+  it('compiles the icon-mask forced-colors behavior', async () => {
     const css = await compileCSS(
       cn(iconRecipe.config.variants!.isMask!.true!.root)?.split(' ') ?? [],
     )
@@ -419,7 +419,7 @@ describe('icon utilities', () => {
     expect(css).toMatch(/@media \(forced-colors: active\)\s*\{\s*color: inherit;/)
   })
 
-  test('compiles the icon host sizing classes', async () => {
+  it('compiles the icon host sizing classes', async () => {
     const css = await compileCSS(
       cn(iconRecipe.config.variants!.isMask!.false!.root)?.split(' ') ?? [],
     )
@@ -430,7 +430,7 @@ describe('icon utilities', () => {
 })
 
 describe('tree drop target utility', () => {
-  test('compiles one block per drop state', async () => {
+  it('compiles one block per drop state', async () => {
     const css = await compileCSS(['tree-drop-target'])
 
     expect(css).toMatch(
@@ -446,7 +446,7 @@ describe('tree drop target utility', () => {
 })
 
 describe('scrollbar-none utility', () => {
-  test('hides the native scrollbar', async () => {
+  it('hides the native scrollbar', async () => {
     const css = await compileCSS(['scrollbar-none'])
 
     expect(css).toMatch(/\.scrollbar-none\s*\{[\s\S]*scrollbar-width: none;/)
@@ -455,7 +455,7 @@ describe('scrollbar-none utility', () => {
 })
 
 describe('font families', () => {
-  test.each([
+  it.each([
     ['font-sans', 'var(--font-sans)'],
     ['font-mono', 'var(--font-mono)'],
     ['font-serif', 'var(--font-serif)'],
@@ -465,7 +465,7 @@ describe('font families', () => {
 })
 
 describe('attribute variants', () => {
-  test.each([
+  it.each([
     ['data-active:bg-primary', '[data-active]', 'background-color: var(--primary);'],
     ['data-checked:text-foreground', '[data-checked]', 'color: var(--foreground);'],
     ['data-disabled:opacity-50', '[data-disabled]', 'opacity: 50%;'],
@@ -478,13 +478,13 @@ describe('attribute variants', () => {
     expect(css).toContain(declaration)
   })
 
-  test('data-leaf compiles tree item utilities', async () => {
+  it('data-leaf compiles tree item utilities', async () => {
     expect(await compileCSS(['data-leaf:invisible'])).toContain(
       String.raw`.data-leaf\:invisible[data-leaf]`,
     )
   })
 
-  test('the button press selector applies only to the active, non-popup state', async () => {
+  it('the button press selector applies only to the active, non-popup state', async () => {
     const css = await compileCSS([
       'transition-all',
       '[&:active:not([aria-haspopup])]:translate-y-px',
@@ -493,7 +493,7 @@ describe('attribute variants', () => {
     expect(css).toMatch(/:active:not\(\[aria-haspopup\]\)\s*\{\s*--tw-translate-y: 1px;/)
   })
 
-  test('menu item highlight differentiates regular items and submenu triggers', async () => {
+  it('menu item highlight differentiates regular items and submenu triggers', async () => {
     const css = await compileCSS([
       'data-highlighted:[&:not([aria-haspopup])]:bg-accent-hover',
       'data-highlighted:[&[aria-haspopup=menu]]:bg-accent',
@@ -505,7 +505,7 @@ describe('attribute variants', () => {
     expect(css).toContain('var(--accent);')
   })
 
-  test('data variants compose with hover inside a hover media query', async () => {
+  it('data variants compose with hover inside a hover media query', async () => {
     const css = await compileCSS(['hover:data-active:bg-primary'])
     expect(css).toContain('@media (hover: hover)')
     expect(css).toMatch(
@@ -513,7 +513,7 @@ describe('attribute variants', () => {
     )
   })
 
-  test('hover, focus, and responsive variants resolve moraine tokens', async () => {
+  it('hover, focus, and responsive variants resolve moraine tokens', async () => {
     const css = await compileCSS(['hover:bg-primary', 'focus:ring-ring', 'md:bg-secondary'])
     expect(css).toMatch(
       /@media \(hover: hover\)\s*\{\s*\.hover\\:bg-primary:hover\s*\{\s*background-color: var\(--primary\);/,
@@ -524,7 +524,7 @@ describe('attribute variants', () => {
     )
   })
 
-  test('component attribute states compile into attribute selectors', async () => {
+  it('component attribute states compile into attribute selectors', async () => {
     const candidates = [
       "data-required:after:content-['*']",
       'data-dragging:border-primary',
@@ -557,7 +557,7 @@ describe('attribute variants', () => {
     }
   })
 
-  test('accent channel utilities compile with state variants', async () => {
+  it('accent channel utilities compile with state variants', async () => {
     const candidates = [
       'hover:accent-scope',
       'focus-within:accent-scope',
@@ -580,26 +580,26 @@ describe('attribute variants', () => {
 })
 
 describe('iconify integration (docs config)', () => {
-  test('lucide icon utilities generate SVG mask CSS', async () => {
+  it('lucide icon utilities generate SVG mask CSS', async () => {
     const css = await compileCSSWithIconify(['lucide--arrow-down'])
     expect(css).toContain('--svg: url("data:image/svg+xml,')
     expect(css).toContain("d='M12 5v14m7-7l-7 7l-7-7'")
   })
 
-  test('the iconify base class renders currentColor through a mask', async () => {
+  it('the iconify base class renders currentColor through a mask', async () => {
     const css = await compileCSSWithIconify(['iconify'])
     expect(css).toContain('background-color: currentColor;')
     expect(css).toContain('mask-image: var(--svg);')
   })
 
-  test('moraine tokens still work alongside iconify', async () => {
+  it('moraine tokens still work alongside iconify', async () => {
     const css = await compileCSSWithIconify(['bg-primary', 'rounded-lg', 'animate-mo-enter'])
     expect(css).toContain('background-color: var(--primary);')
     expect(css).toContain('border-radius: var(--radius);')
     expect(css).toContain('animation: mo-enter')
   })
 
-  test('lucide icons are registered and produce CSS while moraine icon stubs do not', async () => {
+  it('lucide icons are registered and produce CSS while moraine icon stubs do not', async () => {
     const ds = await loadDesignSystemWithIconify()
     const lucideClasses = ds.getClassList().filter(([name]) => name.startsWith('lucide--'))
     expect(lucideClasses.length).toBeGreaterThan(1000)
@@ -616,7 +616,7 @@ describe('iconify integration (docs config)', () => {
     expect(checkStub).toBeNull()
   })
 
-  test('iconify icons work with variants', async () => {
+  it('iconify icons work with variants', async () => {
     const css = await compileCSSWithIconify(['hover:lucide--arrow-down'])
     expect(css).toContain('@media (hover: hover)')
     expect(css).toContain(String.raw`.hover\:lucide--arrow-down:hover`)
@@ -631,7 +631,7 @@ async function loadDesignSystemWithIconify() {
 }
 
 describe('full compilation', () => {
-  test('utilities from every family compile together', async () => {
+  it('utilities from every family compile together', async () => {
     const css = await compileCSS([
       'bg-primary',
       'text-primary-foreground',

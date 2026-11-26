@@ -1,12 +1,12 @@
 import { waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { PinInput } from './pin-input'
-describe('PinInput SSR Hydration', () => {
-  test('hydrates default value and slot nodes stably', async () => {
+describe('pinInput SSR Hydration', () => {
+  it('hydrates default value and slot nodes stably', async () => {
     const [value, setValue] = createSignal('123')
 
     const { container } = hydrateFixture(
@@ -34,7 +34,7 @@ describe('PinInput SSR Hydration', () => {
     expect(container.querySelector('[data-slot="pin-input-input"]')).toBe(first)
   })
 
-  test('hydrates separator positions from the server markup', () => {
+  it('hydrates separator positions from the server markup', () => {
     const { container } = hydrateFixture(
       '/src/components/pin-input/pin-input.ssr.fixture.tsx',
       'renderPinInputWithSeparatorsFixture',

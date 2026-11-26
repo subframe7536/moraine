@@ -1,15 +1,15 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { Show, createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 import { ButtonGroup } from '../button-group'
 
 import { ToggleButton } from './toggle-button'
-describe('ToggleButton', () => {
-  test('shows conditional JSX children when their condition changes', () => {
+describe('toggleButton', () => {
+  it('shows conditional JSX children when their condition changes', () => {
     const [visible, setVisible] = createSignal(false)
     const screen = render(() => (
       <ToggleButton aria-label="Conditional">
@@ -26,7 +26,7 @@ describe('ToggleButton', () => {
     flush(() => setVisible(false))
     expect(screen.queryByText('Visible content')).toBeNull()
   })
-  test('toggles native button state after the caller click without submitting its form', () => {
+  it('toggles native button state after the caller click without submitting its form', () => {
     const onSubmit = vi.fn()
     const events: Array<string> = []
     const ref = vi.fn()
@@ -56,7 +56,7 @@ describe('ToggleButton', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  test('uses initial uncontrolled state and waits for controlled updates', () => {
+  it('uses initial uncontrolled state and waits for controlled updates', () => {
     const [pressed, setPressed] = createSignal(false)
     const onPressedChange = vi.fn()
     const screen = render(() => (
@@ -81,7 +81,7 @@ describe('ToggleButton', () => {
     expect(onPressedChange).toHaveBeenCalledTimes(2)
   })
 
-  test('honors cancelled clicks and inherited disabled/loading activation guards', () => {
+  it('honors cancelled clicks and inherited disabled/loading activation guards', () => {
     const onPressedChange = vi.fn()
     const onClick = vi.fn()
     const screen = render(() => (
@@ -116,7 +116,7 @@ describe('ToggleButton', () => {
     expect(onPressedChange).not.toHaveBeenCalled()
   })
 
-  test.each(['resolve', 'reject'] as const)(
+  it.each(['resolve', 'reject'] as const)(
     'preserves async clicks through autoLoading on %s',
     async (outcome) => {
       let resolve!: () => void
@@ -163,7 +163,7 @@ describe('ToggleButton', () => {
     },
   )
 
-  test('applies theme, instance, and slot overrides to their slots', () => {
+  it('applies theme, instance, and slot overrides to their slots', () => {
     const theme = defineTheme({
       button: { base: { root: 'button-theme', label: 'button-label-theme' } },
       toggleButton: {
@@ -218,7 +218,7 @@ describe('ToggleButton', () => {
     expect(button.classList.contains('instance-class')).toBe(false)
   })
 
-  test('toggles pressed state of a button inside a ButtonGroup', () => {
+  it('toggles pressed state of a button inside a ButtonGroup', () => {
     const screen = render(() => (
       <ButtonGroup size="sm" variant="solid" tone="danger">
         <ToggleButton>Grouped</ToggleButton>
@@ -231,7 +231,7 @@ describe('ToggleButton', () => {
     expect(grouped.getAttribute('aria-pressed')).toBe('true')
   })
 
-  test('keeps reactive children current across pressed and loading updates', () => {
+  it('keeps reactive children current across pressed and loading updates', () => {
     const [loading, setLoading] = createSignal(false)
     const [text, setText] = createSignal('Draft')
     const screen = render(() => (
@@ -249,7 +249,7 @@ describe('ToggleButton', () => {
     expect(button.getAttribute('aria-pressed')).toBe('true')
   })
 
-  test('supports non-native element roots with role=button and keyboard activation', async () => {
+  it('supports non-native element roots with role=button and keyboard activation', async () => {
     let divRef: HTMLDivElement | undefined
     const onDivToggle = vi.fn()
 
@@ -281,7 +281,7 @@ describe('ToggleButton', () => {
     expect(divBtn.getAttribute('aria-pressed')).toBe('false')
   })
 
-  test('supports anchor roots and forwards href without type attribute', () => {
+  it('supports anchor roots and forwards href without type attribute', () => {
     let anchorRef: HTMLAnchorElement | undefined
     const onAnchorToggle = vi.fn()
 
@@ -307,7 +307,7 @@ describe('ToggleButton', () => {
     expect(anchorBtn.getAttribute('aria-pressed')).toBe('true')
   })
 
-  test('supports custom component roots and forwards attributes', () => {
+  it('supports custom component roots and forwards attributes', () => {
     const CustomRoot = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
 
     const screen = render(() => (

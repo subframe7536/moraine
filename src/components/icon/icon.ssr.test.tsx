@@ -1,10 +1,10 @@
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { IconHydrationFixture } from './icon.ssr.fixture'
-test('hydrates class, caller-controlled JSX, and component icons inside reactive host spans', () => {
+it('hydrates class, caller-controlled JSX, and component icons inside reactive host spans', () => {
   const [label, setLabel] = createSignal('Status')
   const [visible, setVisible] = createSignal(true)
   const { container } = hydrateFixture(

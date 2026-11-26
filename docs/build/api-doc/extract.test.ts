@@ -1,11 +1,9 @@
 import { readFileSync } from 'node:fs'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-// oxlint-disable-next-line import/no-namespace
 import * as MoraineDataTable from '../../../src/data-table/index.ts'
-// oxlint-disable-next-line import/no-namespace
 import * as MoraineMain from '../../../src/index.ts'
 import { scanDocsPages } from '../routes.ts'
 
@@ -18,7 +16,7 @@ const Moraine = { ...MoraineMain, ...MoraineDataTable }
 describe('generateApiDoc', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
 
-  test('generates the frontmatter registry from types and recipes', async () => {
+  it('generates the frontmatter registry from types and recipes', async () => {
     const result = await generateApiDoc(projectRoot, scanDocsPages(projectRoot))
 
     const publicNames: Array<string> = []
@@ -158,9 +156,6 @@ describe('generateApiDoc', () => {
       expect(itemsType).toContain("type: 'group';")
       expect(itemsType).toMatch(/children: Array<(?:string \| )?\{/)
       expect(itemsType).not.toContain('TItem')
-      if (key !== 'multi-select') {
-        expect(itemsType).toContain('string | {')
-      }
 
       expect(props.map((prop) => prop.name)).toEqual(
         expect.arrayContaining([
@@ -173,22 +168,27 @@ describe('generateApiDoc', () => {
           'overflowPadding',
         ]),
       )
-      if (key === 'select') {
-        expect(props.map((prop) => prop.name)).not.toContain('virtualizer')
-      } else {
-        expect(props.map((prop) => prop.name)).toEqual(
-          expect.arrayContaining([
-            'virtualizer',
-            'searchValue',
-            'defaultSearchValue',
-            'onSearchValueChange',
-            'filterMethod',
-            'searchMaxLength',
-          ]),
-        )
-      }
       expect(props.map((prop) => prop.name)).not.toContain('virtualRender')
       expect(props.map((prop) => prop.name)).not.toContain('scrollToItem')
+    }
+    for (const key of ['select', 'combobox']) {
+      const itemsType = result.componentDocs
+        .get(key)!
+        .parts[0]!.props.find((prop) => prop.name === 'items')?.typeDetails
+      expect(itemsType).toContain('string | {')
+    }
+    expect(select?.parts[0]?.props.map((prop) => prop.name)).not.toContain('virtualizer')
+    for (const key of ['combobox', 'multi-select']) {
+      expect(result.componentDocs.get(key)!.parts[0]!.props.map((prop) => prop.name)).toEqual(
+        expect.arrayContaining([
+          'virtualizer',
+          'searchValue',
+          'defaultSearchValue',
+          'onSearchValueChange',
+          'filterMethod',
+          'searchMaxLength',
+        ]),
+      )
     }
     for (const key of ['collapsible', 'sidebar']) {
       const trigger = result.componentDocs
@@ -294,7 +294,7 @@ describe('generateApiDoc', () => {
     )
   })
 
-  test('is deterministic', async () => {
+  it('is deterministic', async () => {
     const pages = scanDocsPages(projectRoot)
     const first = await generateApiDoc(projectRoot, pages)
     const second = await generateApiDoc(projectRoot, pages)

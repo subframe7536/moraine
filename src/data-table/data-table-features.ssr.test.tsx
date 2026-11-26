@@ -1,7 +1,7 @@
 import { waitFor } from '@solidjs/testing-library'
 import type { SortingState } from '@tanstack/table-core'
 import { createSignal, flush } from 'solid-js'
-import { afterEach, expect, test, vi } from 'vitest'
+import { afterEach, expect, vi, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../test-util/ssr-test'
 
@@ -33,7 +33,7 @@ function summary(container: HTMLElement): string | null | undefined {
     ?.textContent
 }
 
-test('server-renders tree indentation, sort priorities, and the row count', () => {
+it('server-renders tree indentation, sort priorities, and the row count', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(FIXTURE, 'renderDataTableFeaturesFixture')
 
@@ -57,7 +57,7 @@ test('server-renders tree indentation, sort priorities, and the row count', () =
   expect(summary(container)).toBe('4 rows')
 })
 
-test('hydrates the new table features and keeps them reactive', () => {
+it('hydrates the new table features and keeps them reactive', () => {
   const errorSpy = vi.spyOn(console, 'error')
   const [sorting, setSorting] = createSignal<SortingState>([
     { id: 'kind', desc: false },
@@ -86,7 +86,7 @@ test('hydrates the new table features and keeps them reactive', () => {
   expect(errorSpy).not.toHaveBeenCalled()
 })
 
-test('hydrates an empty virtual shell, then renders windowed columns', async () => {
+it('hydrates an empty virtual shell, then renders windowed columns', async () => {
   const errorSpy = vi.spyOn(console, 'error')
   const markup = renderSsrFixture(FIXTURE, 'renderVirtualColumnsDataTableFixture')
   // The server cannot measure the viewport, so it sends the header and an empty body shell.
@@ -127,7 +127,7 @@ test('hydrates an empty virtual shell, then renders windowed columns', async () 
   expect(errorSpy).not.toHaveBeenCalled()
 })
 
-test('hydrates a rows-only virtual table without a colgroup', async () => {
+it('hydrates a rows-only virtual table without a colgroup', async () => {
   const errorSpy = vi.spyOn(console, 'error')
   const { container } = hydrateFixture(FIXTURE, 'renderVirtualRowsDataTableFixture', () => (
     <VirtualRowsDataTableFixture />

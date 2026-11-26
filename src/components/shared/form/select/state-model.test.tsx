@@ -1,6 +1,6 @@
 import { fireEvent, render, within } from '@solidjs/testing-library'
 import { For } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { BaseSelect } from '../../../base-select/base-select'
 import { useSelectContext } from '../../../base-select/base-select-context'
@@ -11,8 +11,8 @@ const items = [
   { value: 'GB', label: 'United Kingdom' },
 ]
 
-describe('Select family state ownership', () => {
-  test('clicking the Control does not open the popup, while the trigger and listbox still select', () => {
+describe('select family state ownership', () => {
+  it('clicking the Control does not open the popup, while the trigger and listbox still select', () => {
     const onValueChange = vi.fn()
     function Parts() {
       const state = useSelectContext()
@@ -42,7 +42,7 @@ describe('Select family state ownership', () => {
     expect(onValueChange).toHaveBeenCalledWith(['GB'])
   })
 
-  test('filtered navigation never changes committed form serialization', () => {
+  it('filtered navigation never changes committed form serialization', () => {
     const screen = render(() => (
       <form>
         <Combobox name="single" items={items} value="US" defaultOpen />
@@ -65,7 +65,7 @@ describe('Select family state ownership', () => {
     ])
   })
 
-  test('numeric and string values remain distinct', () => {
+  it('numeric and string values remain distinct', () => {
     const onValueChange = vi.fn()
     const values = [
       { value: 0, label: 'Number' },

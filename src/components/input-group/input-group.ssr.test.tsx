@@ -1,6 +1,6 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { Show, createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import { Icon } from '../icon/index'
@@ -8,8 +8,8 @@ import { Input } from '../input/input'
 import { Textarea } from '../textarea/textarea'
 
 import { InputGroup } from './input-group'
-describe('InputGroup SSR hydration', () => {
-  test('reuses group, control and part nodes through hydration and reactive replacement', () => {
+describe('inputGroup SSR hydration', () => {
+  it('reuses group, control and part nodes through hydration and reactive replacement', () => {
     const [show, setShow] = createSignal(true)
     const [compact, setCompact] = createSignal(true)
     const [value, setValue] = createSignal('Server value')
@@ -64,7 +64,7 @@ describe('InputGroup SSR hydration', () => {
     expect(document.activeElement).toBe(input)
   })
 
-  test('hydrates a textarea with vertical parts and reactive native boolean attributes', () => {
+  it('hydrates a textarea with vertical parts and reactive native boolean attributes', () => {
     const [readOnly, setReadOnly] = createSignal(false)
     const { container } = hydrateFixture(
       '/src/components/input-group/input-group.ssr.fixture.tsx',

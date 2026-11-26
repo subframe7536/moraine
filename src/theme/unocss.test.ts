@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 
 import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import type { PresetWind3Theme } from '@subf/unocss'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { baseSelectRecipe } from '../components/base-select/base-select.recipe'
 import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
@@ -46,7 +46,7 @@ function rootBlock(css: string): string {
 }
 
 describe('presetMoraine', () => {
-  test.each([
+  it.each([
     ['Wind3', presetWind3, () => createGenerator({ presets: [presetWind3()] })],
     ['Wind4', presetWind4, () => createGenerator({ presets: [presetWind4()] })],
   ])('preserves the native %s shadow scale', async (_name, wind, createBaseline) => {
@@ -56,7 +56,7 @@ describe('presetMoraine', () => {
     expect(await generate(candidates, false, wind)).toBe(css)
   })
 
-  test('compiles high-contrast accent colors for ghost controls and their text slots', async () => {
+  it('compiles high-contrast accent colors for ghost controls and their text slots', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
@@ -88,7 +88,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('color:var(--mo-accent-fg, var(--muted-foreground))')
   })
 
-  test.each(WIND_VERSIONS)(
+  it.each(WIND_VERSIONS)(
     'compiles disclosure child state and slider peer state with %s',
     async (_name, wind) => {
       const tokens = [
@@ -109,7 +109,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test.each(WIND_VERSIONS)(
+  it.each(WIND_VERSIONS)(
     'compiles compound and hyphenated attributes with %s',
     async (_name, wind) => {
       const css = await generate(
@@ -131,7 +131,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test.each(WIND_VERSIONS)(
+  it.each(WIND_VERSIONS)(
     'highlighted items keep readable text and danger tones with %s',
     async (_name, wind) => {
       const classes = [
@@ -157,8 +157,8 @@ describe('presetMoraine', () => {
     },
   )
 
-  test.each(WIND_VERSIONS)(
-    'CSS variable shorthand reads the variable with %s',
+  it.each(WIND_VERSIONS)(
+    'cSS variable shorthand reads the variable with %s',
     async (_name, wind) => {
       const utilities = {
         w: 'width',
@@ -202,7 +202,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test.each(WIND_VERSIONS)('registers %s theme tokens', async (name, wind) => {
+  it.each(WIND_VERSIONS)('registers %s theme tokens', async (name, wind) => {
     const css = await generate(
       [
         'rounded-lg',
@@ -269,7 +269,7 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/opacity:(0\.64|64%)/)
   })
 
-  test.each(WIND_VERSIONS)(
+  it.each(WIND_VERSIONS)(
     'resolves the internal tone channel utilities with %s',
     async (_name, wind) => {
       const css = await generate(
@@ -322,7 +322,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test('Wind4 rounded utilities read the local --radius', async () => {
+  it('wind4 rounded utilities read the local --radius', async () => {
     const css = await generate(['rounded-md', 'rounded-xl', 'rounded-t-lg', 'rounded-none'])
 
     expect(css).toContain('.rounded-md{border-radius:calc(var(--radius) * 0.8);}')
@@ -333,7 +333,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('.rounded-none{border-radius:0;}')
   })
 
-  test('Wind4 font utilities read the local --font-size', async () => {
+  it('wind4 font utilities read the local --font-size', async () => {
     const css = await generate(['text-tiny', 'text-xs', 'text-sm', 'text-base', 'text-5xl'])
 
     expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.625)')
@@ -344,7 +344,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('.text-5xl{font-size:calc(var(--font-size, 1rem) * 3)')
   })
 
-  test('inlines resolved Wind4 typography and radius overrides', async () => {
+  it('inlines resolved Wind4 typography and radius overrides', async () => {
     const generator = await createGenerator({
       presets: [presetWind4(), presetMoraine()],
       theme: {
@@ -388,7 +388,7 @@ describe('presetMoraine', () => {
     expect(css).toContain(String.raw`.hover\:rd-md:hover{border-radius:var(--app-radius);}`)
   })
 
-  test('preserves native Wind4 arbitrary typography and radius utilities', async () => {
+  it('preserves native Wind4 arbitrary typography and radius utilities', async () => {
     const tokens = new Set([
       'text-[length:1.125rem]',
       'text-[length:var(--app-size)]',
@@ -404,7 +404,7 @@ describe('presetMoraine', () => {
     expect(actual.css).toBe(expected.css)
   })
 
-  test('registers data and aria presence variants', async () => {
+  it('registers data and aria presence variants', async () => {
     const css = await generate([
       'data-disabled:opacity-64',
       'data-focused:ring-3',
@@ -418,7 +418,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--danger)')
   })
 
-  test.each(WIND_VERSIONS)(
+  it.each(WIND_VERSIONS)(
     'registers shared enter and exit animation defaults with %s',
     async (_name, wind) => {
       const css = await generate(['animate-mo-enter', 'animate-mo-exit'], false, wind)
@@ -438,7 +438,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test.each(WIND_VERSIONS)(
+  it.each(WIND_VERSIONS)(
     'registers enter and exit animation utilities with %s',
     async (_name, wind) => {
       const css = await generate(
@@ -495,14 +495,14 @@ describe('presetMoraine', () => {
     },
   )
 
-  test.each(WIND_VERSIONS)('keeps host transition defaults with %s', async (_name, wind) => {
+  it.each(WIND_VERSIONS)('keeps host transition defaults with %s', async (_name, wind) => {
     const css = await generate(['transition', 'transition-colors'], true, wind)
     expect(css).not.toContain('transition-duration:var(--mo-anim-duration')
     expect(css).not.toContain('--default-transition-duration: var(--mo-anim-duration')
     expect(css).not.toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
   })
 
-  test.each(WIND_VERSIONS)(
+  it.each(WIND_VERSIONS)(
     'emits neutral theme variables and semantic shadows with %s',
     async (_name, wind) => {
       const generator = await createGenerator({
@@ -543,7 +543,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test.each(WIND_VERSIONS)('lets CSS own theme colors and shadows with %s', async (_name, wind) => {
+  it.each(WIND_VERSIONS)('lets CSS own theme colors and shadows with %s', async (_name, wind) => {
     const generator = await createGenerator({
       presets: [
         wind(),
@@ -567,36 +567,49 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--accent-hover, var(--mo-accent-hover, var(--accent)))')
   })
 
-  test.each(WIND_VERSIONS)(
-    'overrides control without coupling other surfaces with %s',
+  it.each(WIND_VERSIONS)(
+    'overrides control without coupling other surfaces when themeDefaults is true with %s',
     async (_name, wind) => {
-      for (const themeDefaults of [true, false]) {
-        const generator = await createGenerator({
-          presets: [
-            wind(),
-            presetMoraine({
-              wind3: wind === presetWind3,
-              themeDefaults,
-              override: { light: { colors: { control: 'var(--palette-field)' } } },
-            }),
-          ],
-        })
-        const { css } = await generator.generate(new Set(['bg-control']), { preflights: true })
-        expect(rootBlock(css)).toMatch(/--control: var\(--palette-field\);/)
-        if (themeDefaults) {
-          expect(rootBlock(css)).toMatch(/--input: rgb\(229, 229, 229\);/)
-          expect(rootBlock(css)).toMatch(/--card: rgb\(255, 255, 255\);/)
-          expect(rootBlock(css)).toMatch(/--background: rgb\(255, 255, 255\);/)
-          expect(css).toMatch(/\.dark \{[^}]*--control: rgb\(23, 23, 23\);/)
-        } else {
-          expect(css).not.toMatch(/--(?:input|card|background):/)
-          expect(css).not.toMatch(/\.dark \{[^}]*--control:/)
-        }
-      }
+      const generator = await createGenerator({
+        presets: [
+          wind(),
+          presetMoraine({
+            wind3: wind === presetWind3,
+            themeDefaults: true,
+            override: { light: { colors: { control: 'var(--palette-field)' } } },
+          }),
+        ],
+      })
+      const { css } = await generator.generate(new Set(['bg-control']), { preflights: true })
+      expect(rootBlock(css)).toMatch(/--control: var\(--palette-field\);/)
+      expect(rootBlock(css)).toMatch(/--input: rgb\(229, 229, 229\);/)
+      expect(rootBlock(css)).toMatch(/--card: rgb\(255, 255, 255\);/)
+      expect(rootBlock(css)).toMatch(/--background: rgb\(255, 255, 255\);/)
+      expect(css).toMatch(/\.dark \{[^}]*--control: rgb\(23, 23, 23\);/)
     },
   )
 
-  test('uses configured proportions for locally scoped mix values', async () => {
+  it.each(WIND_VERSIONS)(
+    'overrides control without coupling other surfaces when themeDefaults is false with %s',
+    async (_name, wind) => {
+      const generator = await createGenerator({
+        presets: [
+          wind(),
+          presetMoraine({
+            wind3: wind === presetWind3,
+            themeDefaults: false,
+            override: { light: { colors: { control: 'var(--palette-field)' } } },
+          }),
+        ],
+      })
+      const { css } = await generator.generate(new Set(['bg-control']), { preflights: true })
+      expect(rootBlock(css)).toMatch(/--control: var\(--palette-field\);/)
+      expect(css).not.toMatch(/--(?:input|card|background):/)
+      expect(css).not.toMatch(/\.dark \{[^}]*--control:/)
+    },
+  )
+
+  it('uses configured proportions for locally scoped mix values', async () => {
     const generator = await createGenerator({
       presets: [presetWind4(), presetMoraine({ mix: { hover: 20, active: 40, ink: 30 } })],
     })
@@ -608,7 +621,7 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/\.dark \{[^}]*--mo-mix-hover: 20%;/)
   })
 
-  test('applies per-theme mix overrides and explicit tone ink', async () => {
+  it('applies per-theme mix overrides and explicit tone ink', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
@@ -636,7 +649,7 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/\.dark \{[^}]*--primary-ink: #60a5fa;/)
   })
 
-  test('a zero mix percentage is emitted as 0%', async () => {
+  it('a zero mix percentage is emitted as 0%', async () => {
     const generator = await createGenerator({
       presets: [presetWind4(), presetMoraine({ mix: { hover: 0 } })],
     })
@@ -644,7 +657,7 @@ describe('presetMoraine', () => {
     expect(rootBlock(css)).toMatch(/--mo-mix-hover: 0%;/)
   })
 
-  test('explicit tone hover and active colors are emitted as theme variables', async () => {
+  it('explicit tone hover and active colors are emitted as theme variables', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
@@ -662,7 +675,7 @@ describe('presetMoraine', () => {
     expect(rootBlock(css)).toMatch(/--primary-active: #345678;/)
   })
 
-  test.each(WIND_VERSIONS)(
+  it.each(WIND_VERSIONS)(
     'applies named overrides and top-level tokens with %s',
     async (_name, wind) => {
       const options: PresetMoraineOptions = {
@@ -728,7 +741,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test.each([true, false])(
+  it.each([true, false])(
     'emits color-scheme-only overrides with explicit selectors when themeDefaults is %s',
     async (themeDefaults) => {
       const generator = await createGenerator({
@@ -755,7 +768,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test('an explicit selector receives its own mix and colors without base colors', async () => {
+  it('an explicit selector receives its own mix and colors without base colors', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
@@ -779,7 +792,7 @@ describe('presetMoraine', () => {
     expect(css).not.toContain('--background: rgb(')
   })
 
-  test('a custom theme without a base receives only its own colors', async () => {
+  it('a custom theme without a base receives only its own colors', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
@@ -795,7 +808,7 @@ describe('presetMoraine', () => {
     expect(css).not.toMatch(/\[data-theme="brand"\] \{\s*--primary:/)
   })
 
-  test('emits an explicit soft token and the mix.soft override', async () => {
+  it('emits an explicit soft token and the mix.soft override', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
@@ -810,7 +823,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('--mo-mix-soft: 16%;')
   })
 
-  test('rejects invalid mix adjustments', () => {
+  it('rejects invalid mix adjustments', () => {
     expect(() => presetMoraine({ mix: { hover: Number.POSITIVE_INFINITY } })).toThrow(RangeError)
     expect(() => presetMoraine({ mix: { hover: -1 } })).toThrow(RangeError)
     expect(() => presetMoraine({ mix: { hover: 101 } })).toThrow(RangeError)
@@ -821,7 +834,7 @@ describe('presetMoraine', () => {
 })
 
 describe('icon host utilities', () => {
-  test.each(WIND_VERSIONS)('compiles the icon host classes with %s', async (_name, wind) => {
+  it.each(WIND_VERSIONS)('compiles the icon host classes with %s', async (_name, wind) => {
     const tokens = cn(iconRecipe.config.variants!.isMask!.false!.root)?.split(' ') ?? []
     const css = await generate(tokens, false, wind)
 
@@ -831,7 +844,7 @@ describe('icon host utilities', () => {
 })
 
 describe('forced colors utilities', () => {
-  test.each(WIND_VERSIONS)('expands the icon-mask shortcut with %s', async (_name, wind) => {
+  it.each(WIND_VERSIONS)('expands the icon-mask shortcut with %s', async (_name, wind) => {
     const css = await generate(['icon-mask'], false, wind)
 
     expect(css).toMatch(/\.icon-mask\{forced-color-adjust:none;\}/)
@@ -843,7 +856,7 @@ describe('forced colors utilities', () => {
 })
 
 describe('tree drop target shortcut', () => {
-  test.each(WIND_VERSIONS)('expands every drop state with %s', async (_name, wind) => {
+  it.each(WIND_VERSIONS)('expands every drop state with %s', async (_name, wind) => {
     const css = await generate(['tree-drop-target'], false, wind)
 
     expect(css).toMatch(/\[data-dnd-dragging\]>\.tree-drop-target\{[^}]*var\(--popover\)/)
@@ -857,7 +870,7 @@ describe('tree drop target shortcut', () => {
 })
 
 describe('scrollbar-none shortcut', () => {
-  test.each(WIND_VERSIONS)('hides the native scrollbar with %s', async (_name, wind) => {
+  it.each(WIND_VERSIONS)('hides the native scrollbar with %s', async (_name, wind) => {
     const css = await generate(['scrollbar-none'], false, wind)
 
     expect(css).toMatch(/\.scrollbar-none\{[^}]*scrollbar-width:none;/)
@@ -865,8 +878,8 @@ describe('scrollbar-none shortcut', () => {
   })
 })
 
-describe('Wind3 semantic color and layout compatibility', () => {
-  test('applies alpha to semantic variables through interaction variants', async () => {
+describe('wind3 semantic color and layout compatibility', () => {
+  it('applies alpha to semantic variables through interaction variants', async () => {
     const css = await generate(
       [
         'bg-primary/20',
@@ -898,7 +911,7 @@ describe('Wind3 semantic color and layout compatibility', () => {
     expect(css).toContain('[data-highlighted][data-danger]')
   })
 
-  test.each([undefined, false, true])(
+  it.each([undefined, false, true])(
     'preserves native spacing and sizes with wind3=%s',
     async (wind3) => {
       const theme = { spacing: { 4: '2rem' }, width: { 8: '3rem' } }
@@ -924,7 +937,7 @@ describe('Wind3 semantic color and layout compatibility', () => {
     },
   )
 
-  test.each([undefined, false])(
+  it.each([undefined, false])(
     'does not enable Wind3 compatibility with wind3=%s',
     async (wind3) => {
       const generator = await createGenerator({
@@ -943,7 +956,7 @@ describe('Wind3 semantic color and layout compatibility', () => {
     },
   )
 
-  test('preserves native typography and radius overrides with Wind3', async () => {
+  it('preserves native typography and radius overrides with Wind3', async () => {
     const theme = {
       fontSize: { sm: ['1.125rem', '1.75rem'] as [string, string] },
       borderRadius: { md: '7px', xl: '11px', lg: '9px' },

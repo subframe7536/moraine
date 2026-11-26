@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { getFocusableElements } from './focus'
 describe('getFocusableElements', () => {
-  test('uses native disabled, details, and radio-group tab rules', () => {
+  it('uses native disabled, details, and radio-group tab rules', () => {
     const container = document.createElement('div')
     container.innerHTML = `
       <fieldset disabled>
@@ -31,7 +31,7 @@ describe('getFocusableElements', () => {
     container.remove()
   })
 
-  test('traverses open shadow roots and excludes inert slotted ancestors', () => {
+  it('traverses open shadow roots and excludes inert slotted ancestors', () => {
     const container = document.createElement('div')
     const host = document.createElement('div')
     const slottedButton = document.createElement('button')

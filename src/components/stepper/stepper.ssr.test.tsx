@@ -1,10 +1,10 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { expect, test, vi } from 'vitest'
+import { expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { DuplicateStepperFixture, StepperHydrationFixture } from './stepper.ssr.fixture'
-test('hydrates encoded duplicate step IDs without changing their relationships', () => {
+it('hydrates encoded duplicate step IDs without changing their relationships', () => {
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   const { container } = hydrateFixture(
     '/src/components/stepper/stepper.ssr.fixture.tsx',
@@ -22,7 +22,7 @@ test('hydrates encoded duplicate step IDs without changing their relationships',
   warn.mockRestore()
 })
 
-test.each([false, true])(
+it.each([false, true])(
   'hydrates step relationships and lazily selects another panel (vertical=%s)',
   (vertical) => {
     const read = vi.fn()

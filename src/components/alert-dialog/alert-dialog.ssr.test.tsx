@@ -1,10 +1,10 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { AlertDialogFixture } from './alert-dialog.ssr.fixture'
-describe('AlertDialog SSR', () => {
-  test('hydrates an empty host', () => {
+describe('alertDialog SSR', () => {
+  it('hydrates an empty host', () => {
     const html = renderSsrFixture(
       '/src/components/alert-dialog/alert-dialog.ssr.fixture.tsx',
       'renderAlertDialogFixture',
@@ -21,7 +21,7 @@ describe('AlertDialog SSR', () => {
     expect(document.body.querySelector('[role="alertdialog"]')).toBeNull()
   })
 
-  test('settles server calls as api without a host', () => {
+  it('settles server calls as api without a host', () => {
     expect(
       renderSsrFixture(
         '/src/components/alert-dialog/alert-dialog.ssr.fixture.tsx',

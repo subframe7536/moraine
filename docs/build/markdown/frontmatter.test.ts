@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { parseFrontmatterData } from './frontmatter.ts'
 const VALID_FRONTMATTER = `
@@ -14,7 +14,7 @@ search:
 `
 
 describe('parseFrontmatterData', () => {
-  test('normalizes required page metadata', () => {
+  it('normalizes required page metadata', () => {
     expect(parseFrontmatterData(VALID_FRONTMATTER, '/docs/button.mdx')).toMatchObject({
       title: 'Button',
       description: 'Button page.',
@@ -23,7 +23,7 @@ describe('parseFrontmatterData', () => {
     })
   })
 
-  test('validates an explicit API source registration', () => {
+  it('validates an explicit API source registration', () => {
     expect(
       parseFrontmatterData(
         `${VALID_FRONTMATTER}\ngroup: Overlay\napi:\n  path: src/components/dialog/dialog\n  parts:\n    - Trigger\n    - name: Content\n      path: src/components/dialog/dialog-content\n`,
@@ -38,7 +38,7 @@ describe('parseFrontmatterData', () => {
     })
   })
 
-  test.each([
+  it.each([
     [
       'src/components/button/button.tsx',
       'api.path must be an extensionless component path under src/components',
@@ -50,7 +50,7 @@ describe('parseFrontmatterData', () => {
     ).toThrow(message)
   })
 
-  test('rejects duplicate composite parts', () => {
+  it('rejects duplicate composite parts', () => {
     expect(() =>
       parseFrontmatterData(
         `${VALID_FRONTMATTER}\napi:\n  path: src/components/dialog/dialog\n  parts: [Trigger, Trigger]\n`,
@@ -59,7 +59,7 @@ describe('parseFrontmatterData', () => {
     ).toThrow('api.parts[1] duplicates part "Trigger"')
   })
 
-  test('rejects unknown top-level and nested frontmatter fields', () => {
+  it('rejects unknown top-level and nested frontmatter fields', () => {
     for (const field of ['unknownField: test', 'sidebar:\n  order: 10\n  unknownField: test']) {
       const source = field.startsWith('sidebar:')
         ? VALID_FRONTMATTER.replace('sidebar:\n  order: 10', field)
@@ -70,7 +70,7 @@ describe('parseFrontmatterData', () => {
     }
   })
 
-  test.each([
+  it.each([
     ['', 'frontmatter is required'],
     [VALID_FRONTMATTER.replace('title: Button\n', ''), 'title must be a non-empty string'],
     [

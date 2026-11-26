@@ -1,10 +1,10 @@
 import { render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { MoraineProvider, Skeleton } from '../../index'
 import { defineTheme } from '../../theme'
-test('keeps placeholders mounted and applies user classes when the theme changes', () => {
+it('keeps placeholders mounted and applies user classes when the theme changes', () => {
   const [theme, setTheme] = createSignal(
     defineTheme({ skeleton: { base: { root: 'theme-skeleton-a' } } }),
   )

@@ -1,11 +1,11 @@
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { CommandPalette } from './command-palette'
-describe('CommandPalette SSR Hydration', () => {
-  test('hydrates an empty listbox with a valid combobox relationship', () => {
+describe('commandPalette SSR Hydration', () => {
+  it('hydrates an empty listbox with a valid combobox relationship', () => {
     const { container } = hydrateFixture(
       '/src/components/command-palette/command-palette.ssr.fixture.tsx',
       'renderEmptyCommandPaletteFixture',
@@ -17,7 +17,7 @@ describe('CommandPalette SSR Hydration', () => {
     expect(listbox?.querySelector('[data-slot="command-palette-empty"]')).not.toBeNull()
   })
 
-  test('hydrates trailing descriptions and updates their placement without replacing the item', () => {
+  it('hydrates trailing descriptions and updates their placement without replacing the item', () => {
     const [position, setPosition] = createSignal<'trailing' | 'bottom'>('trailing')
     const { container } = hydrateFixture(
       '/src/components/command-palette/command-palette.ssr.fixture.tsx',

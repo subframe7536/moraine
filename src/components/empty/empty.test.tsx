@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme/create-theme'
@@ -10,8 +10,8 @@ import type { EmptyT } from './empty.types'
 const slot = (container: HTMLElement, name: string) =>
   container.querySelector<HTMLElement>(`[data-slot="empty${name ? `-${name}` : ''}"]`)
 
-describe('Empty', () => {
-  test('renders its parts with default elements and no inferred semantics', () => {
+describe('empty', () => {
+  it('renders its parts with default elements and no inferred semantics', () => {
     const { container } = render(() => (
       <Empty>
         <Empty.Media>
@@ -40,7 +40,7 @@ describe('Empty', () => {
     expect(slot(container, '')?.hasAttribute('aria-describedby')).toBe(false)
   })
 
-  test('updates family presentation without replacing nodes', () => {
+  it('updates family presentation without replacing nodes', () => {
     const [classes, setClasses] = createSignal<EmptyT.Classes>({
       media: 'media-slot',
       title: 'title-red',
@@ -75,7 +75,7 @@ describe('Empty', () => {
     expect(slot(container, 'description')?.style.color).toBe('green')
   })
 
-  test('inherits reactive theme defaults and keeps parts mounted when the theme changes', () => {
+  it('inherits reactive theme defaults and keeps parts mounted when the theme changes', () => {
     const [theme, setTheme] = createSignal(
       defineTheme({
         empty: {
@@ -101,7 +101,7 @@ describe('Empty', () => {
     expect(title?.className).not.toContain('theme-title')
   })
 
-  test('forwards native props to polymorphic elements', () => {
+  it('forwards native props to polymorphic elements', () => {
     const { container } = render(() => (
       <Empty as="section" aria-label="Projects" id="projects">
         <Empty.Media as="figure" />
@@ -120,7 +120,7 @@ describe('Empty', () => {
     expect(slot(container, 'actions')?.getAttribute('aria-label')).toBe('Project actions')
   })
 
-  test('requires Empty for parts', () => {
+  it('requires Empty for parts', () => {
     expect(() => render(() => <Empty.Media />)).toThrow('useEmptyContext')
   })
 })

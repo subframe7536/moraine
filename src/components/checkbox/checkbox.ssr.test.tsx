@@ -1,11 +1,11 @@
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Checkbox } from './checkbox'
-describe('Checkbox SSR Hydration', () => {
-  test('hydrates indeterminate content and preserves branch order through state updates', () => {
+describe('checkbox SSR Hydration', () => {
+  it('hydrates indeterminate content and preserves branch order through state updates', () => {
     const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
 
     const { container } = hydrateFixture(

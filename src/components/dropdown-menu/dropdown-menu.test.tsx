@@ -1,15 +1,15 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { Show, createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { callHandler } from '../../shared/utils'
 import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { Button } from '../button'
 
 import { DropdownMenu } from './dropdown-menu'
-describe('DropdownMenu', () => {
-  test.each([
+describe('dropdownMenu', () => {
+  it.each([
     ['ArrowDown', 'First'],
     ['ArrowUp', 'Last'],
     ['Enter', 'First'],
@@ -33,7 +33,7 @@ describe('DropdownMenu', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('lets nested Button consumers cancel click and keyboard activation', () => {
+  it('lets nested Button consumers cancel click and keyboard activation', () => {
     const onOpenChange = vi.fn()
     const cancel = (event: Event) => event.preventDefault()
     const screen = render(() => (
@@ -53,7 +53,7 @@ describe('DropdownMenu', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('opens once from a custom trigger', () => {
+  it('opens once from a custom trigger', () => {
     const onOpenChange = vi.fn()
     const CustomButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button {...props} />
@@ -69,7 +69,7 @@ describe('DropdownMenu', () => {
     expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
   })
 
-  test('honors a custom trigger that cancels click before forwarding it', async () => {
+  it('honors a custom trigger that cancels click before forwarding it', async () => {
     const onOpenChange = vi.fn()
     const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button
@@ -92,7 +92,7 @@ describe('DropdownMenu', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('opens and restores focus in a foreign Document', async () => {
+  it('opens and restores focus in a foreign Document', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = iframe.contentDocument!
@@ -125,7 +125,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('opens a submenu from a foreign Document', async () => {
+  it('opens a submenu from a foreign Document', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = iframe.contentDocument!
@@ -158,7 +158,7 @@ describe('DropdownMenu', () => {
       iframe.remove()
     }
   })
-  test('shows the indicator of a checkbox item only while it is checked', async () => {
+  it('shows the indicator of a checkbox item only while it is checked', async () => {
     const [checked, setChecked] = createSignal(false)
     render(() => (
       <DropdownMenu defaultOpen>
@@ -191,7 +191,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('shows the indicator of a radio item only while its group selects it', async () => {
+  it('shows the indicator of a radio item only while its group selects it', async () => {
     const [value, setValue] = createSignal<string | undefined>(undefined)
     render(() => (
       <DropdownMenu defaultOpen>
@@ -230,7 +230,7 @@ describe('DropdownMenu', () => {
       ).toBeGreaterThan(0)
     })
   })
-  test('applies preventScroll only when the menu opens', async () => {
+  it('applies preventScroll only when the menu opens', async () => {
     const [open, setOpen] = createSignal(true)
     const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
@@ -255,7 +255,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('applies top-level class and style to trigger', () => {
+  it('applies top-level class and style to trigger', () => {
     render(() => (
       <DropdownMenu>
         <DropdownMenu.Trigger
@@ -276,7 +276,7 @@ describe('DropdownMenu', () => {
     expect(trigger?.style.width).toBe('200px')
   })
 
-  test('opens by keyboard and supports keyboard selection', async () => {
+  it('opens by keyboard and supports keyboard selection', async () => {
     const onSelect = vi.fn()
 
     const screen = render(() => (
@@ -305,7 +305,7 @@ describe('DropdownMenu', () => {
     expect(onSelect).toHaveBeenCalledTimes(1)
   })
 
-  test('closes from trigger keyboard escape while open', async () => {
+  it('closes from trigger keyboard escape while open', async () => {
     const screen = render(() => (
       <DropdownMenu>
         <DropdownMenu.Trigger as="button" type="button">
@@ -334,7 +334,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('focuses content on click open, supports typeahead, and restores trigger focus on escape', async () => {
+  it('focuses content on click open, supports typeahead, and restores trigger focus on escape', async () => {
     const triggerRef = vi.fn()
     const screen = render(() => (
       <DropdownMenu>
@@ -384,7 +384,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('scrolls the highlighted item into view when opened by keyboard', async () => {
+  it('scrolls the highlighted item into view when opened by keyboard', async () => {
     const scrollIntoView = vi.fn()
     const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
 
@@ -410,7 +410,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('opens and closes submenus with arrow keys', async () => {
+  it('opens and closes submenus with arrow keys', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -474,7 +474,7 @@ describe('DropdownMenu', () => {
     expect(document.activeElement).toBe(subTrigger)
   })
 
-  test('reports uncontrolled submenu open changes through onOpenChange', async () => {
+  it('reports uncontrolled submenu open changes through onOpenChange', async () => {
     const onOpenChange = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen>
@@ -518,7 +518,7 @@ describe('DropdownMenu', () => {
     expect(onOpenChange.mock.calls).toEqual([[true], [false]])
   })
 
-  test('keeps a controlled submenu closed until its open prop changes', async () => {
+  it('keeps a controlled submenu closed until its open prop changes', async () => {
     const onOpenChange = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen>
@@ -561,7 +561,7 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).not.toContain('Nested action')
   })
 
-  test('follows a controlled submenu open prop and reports close requests', async () => {
+  it('follows a controlled submenu open prop and reports close requests', async () => {
     const [open, setOpen] = createSignal(false)
     const onOpenChange = vi.fn()
     render(() => (
@@ -625,7 +625,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('applies itemSubIndicator presentation inside submenu layers', async () => {
+  it('applies itemSubIndicator presentation inside submenu layers', async () => {
     render(() => (
       <DropdownMenu defaultOpen classes={{ itemSubIndicator: 'custom-sub-indicator' }}>
         <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
@@ -667,7 +667,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('dismisses the deepest submenu first', async () => {
+  it('dismisses the deepest submenu first', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -730,7 +730,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('moves focus into submenu when submenu opens by click', async () => {
+  it('moves focus into submenu when submenu opens by click', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -770,7 +770,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('supports controlled open state and reports close attempts', async () => {
+  it('supports controlled open state and reports close attempts', async () => {
     const onOpenChange = vi.fn()
 
     render(() => (
@@ -798,7 +798,7 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
-  test('keeps content mounted with closed data attrs until exit motion finishes', async () => {
+  it('keeps content mounted with closed data attrs until exit motion finishes', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -838,7 +838,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('reports bottom side and start alignment for the default placement', async () => {
+  it('reports bottom side and start alignment for the default placement', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -860,7 +860,7 @@ describe('DropdownMenu', () => {
     expect(rootContent.getAttribute('data-align')).toBe('start')
   })
 
-  test('renders item matrix, nested submenu, and content slots', async () => {
+  it('renders item matrix, nested submenu, and content slots', async () => {
     const contentTop = vi.fn((props: { sub: boolean }) => (
       <div data-testid={props.sub ? 'content-top-sub' : 'content-top-root'}>
         {props.sub ? 'Top Sub' : 'Top Root'}
@@ -949,7 +949,7 @@ describe('DropdownMenu', () => {
     expect(contentBottom).toHaveBeenCalledWith({ sub: true })
   })
 
-  test('passes itemRender context for root and nested items', async () => {
+  it('passes itemRender context for root and nested items', async () => {
     const itemRender = vi.fn((props: any) => (
       <span data-testid={`custom-${String(props.item.label)}-${props.depth}`}>
         {String(props.item.label)}:{props.depth}:{String(props.hasChildren)}:
@@ -996,7 +996,7 @@ describe('DropdownMenu', () => {
     expect(itemRender).toHaveBeenCalled()
   })
 
-  test('renders into portal by default', () => {
+  it('renders into portal by default', () => {
     const screen = render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1010,7 +1010,7 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
-  test('renders the trigger content as a native button root', () => {
+  it('renders the trigger content as a native button root', () => {
     render(() => (
       <DropdownMenu>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1026,7 +1026,7 @@ describe('DropdownMenu', () => {
     expect(trigger?.getAttribute('type')).toBe('button')
   })
 
-  test('renders an anchor trigger root', () => {
+  it('renders an anchor trigger root', () => {
     render(() => (
       <DropdownMenu>
         <DropdownMenu.Trigger as="a" href="#menu">
@@ -1043,7 +1043,7 @@ describe('DropdownMenu', () => {
     expect(trigger.getAttribute('href')).toBe('#menu')
   })
 
-  test('uses native and non-native disabled trigger semantics', () => {
+  it('uses native and non-native disabled trigger semantics', () => {
     render(() => (
       <>
         <DropdownMenu disabled>
@@ -1080,7 +1080,7 @@ describe('DropdownMenu', () => {
     expect(span.tabIndex).toBe(-1)
   })
 
-  test('keeps non-native triggers tabbable when enabled and allows caller overrides', () => {
+  it('keeps non-native triggers tabbable when enabled and allows caller overrides', () => {
     render(() => (
       <>
         <DropdownMenu>
@@ -1109,7 +1109,7 @@ describe('DropdownMenu', () => {
     expect(anchor.tabIndex).toBe(3)
   })
 
-  test('renders controlled overlay without a trigger', async () => {
+  it('renders controlled overlay without a trigger', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Content items={[{ label: 'Open item' }]} />
@@ -1123,7 +1123,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('does not open when menu trigger is disabled', async () => {
+  it('does not open when menu trigger is disabled', async () => {
     const screen = render(() => (
       <DropdownMenu disabled>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1141,7 +1141,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('closes an uncontrolled open menu when it becomes disabled', async () => {
+  it('closes an uncontrolled open menu when it becomes disabled', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const onOpenChange = vi.fn()
     render(() => (
@@ -1167,7 +1167,7 @@ describe('DropdownMenu', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('reports one controlled close attempt when an open menu becomes disabled', async () => {
+  it('reports one controlled close attempt when an open menu becomes disabled', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const onOpenChange = vi.fn()
     render(() => (
@@ -1195,7 +1195,7 @@ describe('DropdownMenu', () => {
     expect(onOpenChange).toHaveBeenCalledTimes(1)
   })
 
-  test('clears a removed trigger and restores focus to its replacement', async () => {
+  it('clears a removed trigger and restores focus to its replacement', async () => {
     const [triggerKind, setTriggerKind] = createSignal<'button' | 'anchor' | undefined>('button')
     const screen = render(() => (
       <DropdownMenu>
@@ -1237,7 +1237,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('does not restore focus to a trigger removed while open', async () => {
+  it('does not restore focus to a trigger removed while open', async () => {
     const [showTrigger, setShowTrigger] = createSignal(true)
     const screen = render(() => (
       <DropdownMenu>
@@ -1266,7 +1266,7 @@ describe('DropdownMenu', () => {
     expect(document.activeElement).not.toBe(trigger)
   })
 
-  test('supports checkbox toggle and keeps disabled item from selecting', async () => {
+  it('supports checkbox toggle and keeps disabled item from selecting', async () => {
     const onCheckedChange = vi.fn()
     const onDisabledSelect = vi.fn()
 
@@ -1312,7 +1312,7 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
-  test('keeps dropdown menu open when clicking or pressing on a disabled item', async () => {
+  it('keeps dropdown menu open when clicking or pressing on a disabled item', async () => {
     const onSelect = vi.fn()
 
     render(() => (
@@ -1357,7 +1357,7 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
-  test('supports uncontrolled radio groups with pointer and keyboard selection and disabled prevention', async () => {
+  it('supports uncontrolled radio groups with pointer and keyboard selection and disabled prevention', async () => {
     const onCompactSelect = vi.fn()
     const onDensityChange = vi.fn()
     const onDisabledSelect = vi.fn()
@@ -1428,7 +1428,7 @@ describe('DropdownMenu', () => {
     expect(onDensityChange).toHaveBeenCalledTimes(2)
   })
 
-  test('lifts radio groups nested in group items into sibling groups without nested group roles', () => {
+  it('lifts radio groups nested in group items into sibling groups without nested group roles', () => {
     const onDensityChange = vi.fn()
 
     render(() => (
@@ -1475,7 +1475,7 @@ describe('DropdownMenu', () => {
     expect(onDensityChange).toHaveBeenCalledExactlyOnceWith('comfortable')
   })
 
-  test('applies itemLeading classes to every leading icon host and renders component icons inside', async () => {
+  it('applies itemLeading classes to every leading icon host and renders component icons inside', async () => {
     const Glyph = () => <svg data-testid="glyph" />
     render(() => (
       <DropdownMenu defaultOpen classes={{ itemLeading: 'user-leading' }}>
@@ -1511,7 +1511,7 @@ describe('DropdownMenu', () => {
     expect(subIndicator.querySelector('[data-testid="glyph"]')).not.toBeNull()
   })
 
-  test('exposes danger state without annotating default items', async () => {
+  it('exposes danger state without annotating default items', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1549,7 +1549,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('renders submenu content through portal instead of nesting inside root content', async () => {
+  it('renders submenu content through portal instead of nesting inside root content', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1582,7 +1582,7 @@ describe('DropdownMenu', () => {
     expect(root.contains(sub)).toBe(false)
   })
 
-  test('keeps submenu open while pointer moves through the submenu grace area', async () => {
+  it('keeps submenu open while pointer moves through the submenu grace area', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1636,7 +1636,7 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).toContain('Nested action')
   })
 
-  test('closes the submenu when the pointer leaves the trigger and moves outside the menu', async () => {
+  it('closes the submenu when the pointer leaves the trigger and moves outside the menu', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1690,7 +1690,7 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).not.toContain('Nested action')
   })
 
-  test('clears data-highlighted and reopens consistently across repeated submenu trigger hover-leave cycles', async () => {
+  it('clears data-highlighted and reopens consistently across repeated submenu trigger hover-leave cycles', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1751,7 +1751,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('immediately dismisses submenu and clears data-highlighted when exiting away from the submenu side', async () => {
+  it('immediately dismisses submenu and clears data-highlighted when exiting away from the submenu side', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1813,7 +1813,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('opens a keyboard-highlighted closed submenu when hovered with the mouse', async () => {
+  it('opens a keyboard-highlighted closed submenu when hovered with the mouse', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1854,7 +1854,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('clears data-highlighted when leaving a submenu trigger during submenu exit motion', async () => {
+  it('clears data-highlighted when leaving a submenu trigger during submenu exit motion', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1900,7 +1900,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('closes the submenu when the pointer leaves the submenu content to outside the menu', async () => {
+  it('closes the submenu when the pointer leaves the submenu content to outside the menu', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1944,7 +1944,7 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).not.toContain('Nested action')
   })
 
-  test('restores submenu selection after pointer grace when moving toward another submenu', async () => {
+  it('restores submenu selection after pointer grace when moving toward another submenu', async () => {
     vi.useFakeTimers()
 
     try {
@@ -2017,7 +2017,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('applies styles override to content', async () => {
+  it('applies styles override to content', async () => {
     render(() => (
       <DropdownMenu defaultOpen styles={{ content: { width: '200px' } }}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2035,7 +2035,7 @@ describe('DropdownMenu', () => {
     expect(content?.style.width).toBe('200px')
   })
 
-  test('forwards content props and applies item class and style directly', async () => {
+  it('forwards content props and applies item class and style directly', async () => {
     const contentRef = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen>
@@ -2068,7 +2068,7 @@ describe('DropdownMenu', () => {
     expect(item.style.height).toBe('40px')
   })
 
-  test('locks body scroll without rendering an overlay layer by default while open', async () => {
+  it('locks body scroll without rendering an overlay layer by default while open', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2092,7 +2092,7 @@ describe('DropdownMenu', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
-  test('blocks Escape and outside presses when dismissal is disabled', async () => {
+  it('blocks Escape and outside presses when dismissal is disabled', async () => {
     const onClosePrevented = vi.fn()
     render(() => (
       <DropdownMenu
@@ -2117,7 +2117,7 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[role="menu"]')).not.toBeNull()
   })
 
-  test('cycles typeahead matches, skips disabled items, and keeps Space in an active search', async () => {
+  it('cycles typeahead matches, skips disabled items, and keeps Space in an active search', async () => {
     const onOpenSelect = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
@@ -2166,7 +2166,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('does not activate checkbox or submenu items when Space continues typeahead', async () => {
+  it('does not activate checkbox or submenu items when Space continues typeahead', async () => {
     const onCheckedChange = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
@@ -2197,7 +2197,7 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).not.toContain('Nested action')
   })
 
-  test('uses rendered label text for typeahead when label is a JSX element', async () => {
+  it('uses rendered label text for typeahead when label is a JSX element', async () => {
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2218,7 +2218,7 @@ describe('DropdownMenu', () => {
     ).toContain('Archive')
   })
 
-  test.each(['touch', 'pen'])(
+  it.each(['touch', 'pen'])(
     'does not highlight items from %s pointer movement',
     async (pointerType) => {
       render(() => (
@@ -2242,7 +2242,7 @@ describe('DropdownMenu', () => {
     },
   )
 
-  test('honors outside pointer cancellation before dismissing', async () => {
+  it('honors outside pointer cancellation before dismissing', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
@@ -2272,7 +2272,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('uses completed primary presses for outside dismissal', async () => {
+  it('uses completed primary presses for outside dismissal', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
@@ -2299,7 +2299,7 @@ describe('DropdownMenu', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('keeps a closing menu above lower overlays until exit completes', async () => {
+  it('keeps a closing menu above lower overlays until exit completes', async () => {
     const firstChange = vi.fn()
     const secondChange = vi.fn()
     const screen = render(() => (
@@ -2337,7 +2337,7 @@ describe('DropdownMenu', () => {
     expect(firstChange).toHaveBeenCalledWith(false)
   })
 
-  test('closes on Tab and moves focus in document order', async () => {
+  it('closes on Tab and moves focus in document order', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="before">
@@ -2367,7 +2367,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('closes on Shift+Tab and restores the trigger', async () => {
+  it('closes on Shift+Tab and restores the trigger', async () => {
     const screen = render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2389,7 +2389,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('uses the logical RTL arrow to open a submenu', async () => {
+  it('uses the logical RTL arrow to open a submenu', async () => {
     const previousDirection = document.documentElement.dir
     document.documentElement.dir = 'rtl'
 
@@ -2420,7 +2420,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('follows a controlled radio group value and reports selections without updating it', async () => {
+  it('follows a controlled radio group value and reports selections without updating it', async () => {
     const [value, setValue] = createSignal('compact')
     const onValueChange = vi.fn()
     render(() => (
@@ -2461,7 +2461,7 @@ describe('DropdownMenu', () => {
     await waitFor(() => expect(checkedStates()).toEqual(['false', 'true']))
   })
 
-  test('keeps independent radio groups in one menu and stays open after selecting a radio item', async () => {
+  it('keeps independent radio groups in one menu and stays open after selecting a radio item', async () => {
     const onLayoutChange = vi.fn()
     const onSortChange = vi.fn()
     render(() => (
@@ -2518,7 +2518,7 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
-  test('selects a radio group nested inside an array section', () => {
+  it('selects a radio group nested inside an array section', () => {
     const onValueChange = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
@@ -2556,7 +2556,7 @@ describe('DropdownMenu', () => {
     expect(radios[1]!.getAttribute('aria-checked')).toBe('true')
   })
 
-  test('selects a radio group nested inside a group item', () => {
+  it('selects a radio group nested inside a group item', () => {
     const onValueChange = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
@@ -2601,7 +2601,7 @@ describe('DropdownMenu', () => {
     expect(radios[1]!.getAttribute('aria-checked')).toBe('true')
   })
 
-  test('links nested radio groups to distinct label elements', () => {
+  it('links nested radio groups to distinct label elements', () => {
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2646,7 +2646,7 @@ describe('DropdownMenu', () => {
     expect(labels.map((label) => label?.textContent)).toEqual(['Layout', 'Sort'])
   })
 
-  test('selects radio items inside a submenu', async () => {
+  it('selects radio items inside a submenu', async () => {
     const onThemeChange = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
@@ -2694,7 +2694,7 @@ describe('DropdownMenu', () => {
     expect(light.getAttribute('aria-checked')).toBe('true')
   })
 
-  test('links menu groups to their labels and gives interactive items stable ids', async () => {
+  it('links menu groups to their labels and gives interactive items stable ids', async () => {
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2724,7 +2724,7 @@ describe('DropdownMenu', () => {
     expect(item.id).not.toBe('')
   })
 
-  test('renders a group label supplied through a getter', () => {
+  it('renders a group label supplied through a getter', () => {
     const group = {
       type: 'group' as const,
       get label() {
@@ -2747,7 +2747,7 @@ describe('DropdownMenu', () => {
     ).toBe('File actions')
   })
 
-  test('cancels a pending submenu hover when the root closes', async () => {
+  it('cancels a pending submenu hover when the root closes', async () => {
     vi.useFakeTimers()
 
     try {
@@ -2776,7 +2776,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('does not finish a pending submenu hover after its trigger becomes disabled', async () => {
+  it('does not finish a pending submenu hover after its trigger becomes disabled', async () => {
     vi.useFakeTimers()
     const [disabled, setDisabled] = createSignal(false)
 
@@ -2809,7 +2809,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('stays expanded after reopening and scrolling the window', async () => {
+  it('stays expanded after reopening and scrolling the window', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <DropdownMenu open={open()} preventScroll={false}>
@@ -2829,7 +2829,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('toggles open and closed on repeated trigger clicks', () => {
+  it('toggles open and closed on repeated trigger clicks', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <DropdownMenu onOpenChange={onOpenChange}>

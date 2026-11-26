@@ -1,5 +1,5 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
@@ -12,7 +12,7 @@ function labels(container: HTMLElement): Array<string> {
   )
 }
 
-test('hydrates expanded nested items and keeps the server DOM', () => {
+it('hydrates expanded nested items and keeps the server DOM', () => {
   const { container } = hydrateFixture(FIXTURE, 'renderTreeFixture', () => <TreeHydrationFixture />)
   const tree = container.querySelector('[role="tree"]')!
   const src = container.querySelector('[aria-label="src"]')!
@@ -34,7 +34,7 @@ test('hydrates expanded nested items and keeps the server DOM', () => {
   expect(container.querySelector('[aria-label="index.ts"] [data-slot="tree-guide"]')).toBe(guide)
 })
 
-test('hydrates keyboard interaction on server-rendered items', () => {
+it('hydrates keyboard interaction on server-rendered items', () => {
   const { container } = hydrateFixture(FIXTURE, 'renderTreeFixture', () => <TreeHydrationFixture />)
   const src = container.querySelector<HTMLElement>('[aria-label="src"]')!
   src.focus()
@@ -48,7 +48,7 @@ test('hydrates keyboard interaction on server-rendered items', () => {
   expect(src.getAttribute('aria-expanded')).toBe('false')
 })
 
-test('hydrates the default checkbox in each row when checkable', () => {
+it('hydrates the default checkbox in each row when checkable', () => {
   const { container } = hydrateFixture(FIXTURE, 'renderCheckableTreeFixture', () => (
     <TreeHydrationFixture checkable />
   ))

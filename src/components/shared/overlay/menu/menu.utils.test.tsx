@@ -1,5 +1,5 @@
 import { createRoot, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import {
   createLayerKeyDownHandler,
@@ -53,7 +53,7 @@ function installWindowStub(): () => void {
 }
 
 describe('hasOverlayMenuChildren', () => {
-  test('opens a submenu only for untyped or item entries with nested children', () => {
+  it('opens a submenu only for untyped or item entries with nested children', () => {
     expect(hasOverlayMenuChildren({ children: [{ label: 'Email' }] })).toBe(true)
     expect(hasOverlayMenuChildren({ type: 'item', children: [{ label: 'Email' }] })).toBe(true)
     expect(hasOverlayMenuChildren({ children: [] })).toBe(false)
@@ -64,7 +64,7 @@ describe('hasOverlayMenuChildren', () => {
 })
 
 describe('createLayerKeyDownHandler', () => {
-  test('does not close the menu for Escape emitted during IME composition', () => {
+  it('does not close the menu for Escape emitted during IME composition', () => {
     const onClose = vi.fn()
 
     createRoot((dispose) => {
@@ -85,7 +85,7 @@ describe('createLayerKeyDownHandler', () => {
 })
 
 describe('createPointerGraceIntent', () => {
-  test('keeps the right-side corridor between the leave point and submenu open', () => {
+  it('keeps the right-side corridor between the leave point and submenu open', () => {
     const trigger = createRectElement({
       bottom: 120,
       left: 0,
@@ -106,7 +106,7 @@ describe('createPointerGraceIntent', () => {
     expect(isPointInPointerGraceIntent([10, 180], intent)).toBe(false)
   })
 
-  test('does not clear the active grace timer when leaving another submenu trigger inside the safe area', () => {
+  it('does not clear the active grace timer when leaving another submenu trigger inside the safe area', () => {
     vi.useFakeTimers()
     const restoreWindow = installWindowStub()
 
@@ -155,7 +155,7 @@ describe('createPointerGraceIntent', () => {
     }
   })
 
-  test('does not restart the active grace timer when another submenu trigger updates it inside the safe area', () => {
+  it('does not restart the active grace timer when another submenu trigger updates it inside the safe area', () => {
     vi.useFakeTimers()
     const restoreWindow = installWindowStub()
 
@@ -221,7 +221,7 @@ describe('createPointerGraceIntent', () => {
 })
 
 describe('useOverlayMenuLayerState', () => {
-  test('normalizes and cycles typeahead while skipping disabled items', () => {
+  it('normalizes and cycles typeahead while skipping disabled items', () => {
     vi.useFakeTimers()
     const elements = ['Banana', 'Blueberry', 'Bravo', 'Open file'].map((label) => {
       const element = document.createElement('div')
@@ -279,7 +279,7 @@ describe('useOverlayMenuLayerState', () => {
     }
   })
 
-  test('recovers navigation after the highlighted item is removed and handles all-disabled lists', () => {
+  it('recovers navigation after the highlighted item is removed and handles all-disabled lists', () => {
     const first = document.createElement('div')
     const second = document.createElement('div')
     const disabled = document.createElement('div')
@@ -343,12 +343,12 @@ describe('useOverlayMenuLayerState', () => {
 })
 
 describe('resolveMenuGroups', () => {
-  test('returns empty array when items is undefined or empty', () => {
+  it('returns empty array when items is undefined or empty', () => {
     expect(resolveMenuGroups(undefined)).toEqual([])
     expect(resolveMenuGroups([])).toEqual([])
   })
 
-  test('resolves flat items into a single group without separator', () => {
+  it('resolves flat items into a single group without separator', () => {
     const items = [{ label: 'Edit' }, { label: 'Delete' }]
     const groups = resolveMenuGroups(items)
 
@@ -359,7 +359,7 @@ describe('resolveMenuGroups', () => {
     })
   })
 
-  test('resolves array-of-arrays into groups with automatic separators between them', () => {
+  it('resolves array-of-arrays into groups with automatic separators between them', () => {
     const group1 = [{ label: 'Copy' }, { label: 'Cut' }]
     const group2 = [{ label: 'Delete' }]
     const groups = resolveMenuGroups([group1, group2])
@@ -375,7 +375,7 @@ describe('resolveMenuGroups', () => {
     })
   })
 
-  test('handles explicit group objects with items', () => {
+  it('handles explicit group objects with items', () => {
     const item1 = { label: 'Profile' }
     const item2 = { label: 'Billing' }
     const item3 = { label: 'Settings' }
@@ -401,7 +401,7 @@ describe('resolveMenuGroups', () => {
     })
   })
 
-  test('ignores empty groups and empty nested arrays', () => {
+  it('ignores empty groups and empty nested arrays', () => {
     const groups = resolveMenuGroups([
       [],
       [{ label: 'Item 1' }],
@@ -417,7 +417,7 @@ describe('resolveMenuGroups', () => {
     expect(groups[1]?.separator).toBe(true)
   })
 
-  test('lifts radio-group entries out of array sub-groups into their own groups', () => {
+  it('lifts radio-group entries out of array sub-groups into their own groups', () => {
     const before = { label: 'Copy' }
     const after = { label: 'Delete' }
     const radioGroup = {
@@ -436,7 +436,7 @@ describe('resolveMenuGroups', () => {
     expect(groups[2]).toEqual({ items: [after] })
   })
 
-  test('lifts radio-group entries out of group items and keeps the label on the first chunk', () => {
+  it('lifts radio-group entries out of group items and keeps the label on the first chunk', () => {
     const before = { label: 'Profile' }
     const after = { label: 'Sign out' }
     const radioGroup = {

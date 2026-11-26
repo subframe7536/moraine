@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { Show, createComponent, createSignal, flush, onCleanup } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { Resizable } from '../resizable'
@@ -9,7 +9,7 @@ import { Resizable } from '../resizable'
 import { Sidebar } from './sidebar'
 const originalMatchMedia = window.matchMedia
 
-test.each(['Header', 'Content', 'Footer', 'Inset', 'Group', 'Menu'] as const)(
+it.each(['Header', 'Content', 'Footer', 'Inset', 'Group', 'Menu'] as const)(
   'preserves %s child ownership and reactive updates',
   (part) => {
     const [value, setValue] = createSignal('Before')
@@ -77,8 +77,8 @@ afterEach(() => {
   window.matchMedia = originalMatchMedia
 })
 
-describe('Sidebar', () => {
-  test('keeps one sidebar identity and preserves child state across mobile changes', async () => {
+describe('sidebar', () => {
+  it('keeps one sidebar identity and preserves child state across mobile changes', async () => {
     const [mobile, setMobile] = createSignal(false)
     const ref = vi.fn()
     let mounts = 0
@@ -125,7 +125,7 @@ describe('Sidebar', () => {
     expect(ref.mock.calls.every(([element]) => element?.id === 'unique-sidebar')).toBe(true)
   })
 
-  test('shows header, navigation, and footer inside the desktop panel', () => {
+  it('shows header, navigation, and footer inside the desktop panel', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <FrameContent />
@@ -144,13 +144,15 @@ describe('Sidebar', () => {
     )
     for (const element of screen.container.querySelectorAll<HTMLElement>('[data-slot]')) {
       expect(element.style.getPropertyValue('--sidebar-width')).toBe('')
-      if (element.dataset.slot !== 'sidebar') {
-        expect(element.style.getPropertyValue('--mo-sidebar-width')).toBe('')
-      }
+    }
+    for (const element of screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot]:not([data-slot="sidebar"])',
+    )) {
+      expect(element.style.getPropertyValue('--mo-sidebar-width')).toBe('')
     }
   })
 
-  test('preserves the main subtree when switching between desktop and mobile', () => {
+  it('preserves the main subtree when switching between desktop and mobile', () => {
     const [mobile, setMobile] = createSignal(false)
     let input: HTMLInputElement | undefined
     const screen = render(() => (
@@ -170,7 +172,7 @@ describe('Sidebar', () => {
     expect(input).toBe(initialInput)
   })
 
-  test.each([
+  it.each([
     ['falls back to the localized default', {}, 'Sidebar navigation'],
     ['uses the Panel aria-label', { 'aria-label': 'Project navigation' }, 'Project navigation'],
     [
@@ -205,7 +207,7 @@ describe('Sidebar', () => {
     },
   )
 
-  test('switches to drawer mode from the media query when mobile is omitted', async () => {
+  it('switches to drawer mode from the media query when mobile is omitted', async () => {
     window.matchMedia = createMatchMediaMock(true)
     const screen = render(() => (
       <Sidebar>
@@ -223,7 +225,7 @@ describe('Sidebar', () => {
     )
   })
 
-  test('uses the breakpoint prop in the media query', async () => {
+  it('uses the breakpoint prop in the media query', async () => {
     const matchMedia = createMatchMediaMock(false)
     window.matchMedia = matchMedia
     render(() => (
@@ -235,7 +237,7 @@ describe('Sidebar', () => {
     await waitFor(() => expect(matchMedia).toHaveBeenCalledWith('(max-width: 1024px)'))
   })
 
-  test('ignores matchMedia updates when mobile is controlled', async () => {
+  it('ignores matchMedia updates when mobile is controlled', async () => {
     window.matchMedia = createMatchMediaMock(true)
     const screen = render(() => (
       <Sidebar mobile={false}>
@@ -248,7 +250,7 @@ describe('Sidebar', () => {
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  test('closes the drawer when the sidebar returns to desktop', async () => {
+  it('closes the drawer when the sidebar returns to desktop', async () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
       <Sidebar mobile={mobile()}>
@@ -272,7 +274,7 @@ describe('Sidebar', () => {
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
   })
 
-  test('hides and inerts the desktop panel while collapsed', () => {
+  it('hides and inerts the desktop panel while collapsed', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <FrameContent />
@@ -288,7 +290,7 @@ describe('Sidebar', () => {
     expect((sidebar as HTMLElement & { inert: boolean }).inert).toBe(true)
   })
 
-  test('applies the width prop as the panel width variable', () => {
+  it('applies the width prop as the panel width variable', () => {
     const screen = render(() => (
       <Sidebar mobile={false} width={288}>
         <FrameContent />
@@ -301,7 +303,7 @@ describe('Sidebar', () => {
     ).toBe('288px')
   })
 
-  test('offsets the collapsed floating panel by its outer gap', () => {
+  it('offsets the collapsed floating panel by its outer gap', () => {
     const screen = render(() => (
       <Sidebar mobile={false} variant="floating">
         <FrameContent />
@@ -314,7 +316,7 @@ describe('Sidebar', () => {
     ).toBe('calc(-1 * var(--mo-sidebar-width) - 0.5rem)')
   })
 
-  test('forwards region attributes, classes, styles, refs, and events', () => {
+  it('forwards region attributes, classes, styles, refs, and events', () => {
     const onScroll = vi.fn()
     let mainRef: HTMLElement | undefined
     const screen = render(() => (
@@ -340,8 +342,8 @@ describe('Sidebar', () => {
   })
 })
 
-describe('Sidebar.Trigger', () => {
-  test('is a button that reports its expanded state', () => {
+describe('sidebar.Trigger', () => {
+  it('is a button that reports its expanded state', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
@@ -361,7 +363,7 @@ describe('Sidebar.Trigger', () => {
     expect(trigger.getAttribute('aria-controls')).toBeTruthy()
   })
 
-  test('reflects initial closed state when mobile', () => {
+  it('reflects initial closed state when mobile', () => {
     const screen = render(() => (
       <Sidebar mobile>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
@@ -377,7 +379,7 @@ describe('Sidebar.Trigger', () => {
     expect(trigger.hasAttribute('data-open')).toBe(false)
   })
 
-  test('toggles desktop visibility, aria-expanded, and state attributes on click', () => {
+  it('toggles desktop visibility, aria-expanded, and state attributes on click', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
@@ -406,7 +408,7 @@ describe('Sidebar.Trigger', () => {
     expect(sidebar.hasAttribute('data-closed')).toBe(false)
   })
 
-  test('opens mobile drawer on trigger click', async () => {
+  it('opens mobile drawer on trigger click', async () => {
     const screen = render(() => (
       <Sidebar mobile>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
@@ -426,7 +428,7 @@ describe('Sidebar.Trigger', () => {
     })
   })
 
-  test.each([
+  it.each([
     ['prevents default', true, 'true'],
     ['leaves the default in place', false, 'false'],
   ] as const)(
@@ -454,7 +456,7 @@ describe('Sidebar.Trigger', () => {
     },
   )
 
-  test('does not toggle when disabled and exposes data-disabled', () => {
+  it('does not toggle when disabled and exposes data-disabled', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
@@ -472,7 +474,7 @@ describe('Sidebar.Trigger', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('toggles a non-button trigger with Enter and Space', () => {
+  it('toggles a non-button trigger with Enter and Space', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
@@ -495,7 +497,7 @@ describe('Sidebar.Trigger', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('ignores Enter on a disabled non-button trigger', () => {
+  it('ignores Enter on a disabled non-button trigger', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
@@ -517,8 +519,8 @@ describe('Sidebar.Trigger', () => {
   })
 })
 
-describe('Sidebar.GroupLabel', () => {
-  test('renders the group label as a div inside its group by default', () => {
+describe('sidebar.GroupLabel', () => {
+  it('renders the group label as a div inside its group by default', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.Group>
@@ -534,7 +536,7 @@ describe('Sidebar.GroupLabel', () => {
     expect(label?.textContent).toBe('Section Title')
   })
 
-  test('GroupLabel as="h2" renders h2', () => {
+  it('groupLabel as="h2" renders h2', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.Group>
@@ -548,8 +550,8 @@ describe('Sidebar.GroupLabel', () => {
   })
 })
 
-describe('Sidebar.Group', () => {
-  test('renders group container without list role', () => {
+describe('sidebar.Group', () => {
+  it('renders group container without list role', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.Group>
@@ -563,7 +565,7 @@ describe('Sidebar.Group', () => {
     expect(menu?.getAttribute('role')).toBeNull()
   })
 
-  test('Group as="nav" renders nav element', () => {
+  it('group as="nav" renders nav element', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.Group as="nav">
@@ -575,7 +577,7 @@ describe('Sidebar.Group', () => {
     expect(menu?.tagName).toBe('NAV')
   })
 
-  test('renders polymorphic regions and submenu content', () => {
+  it('renders polymorphic regions and submenu content', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.Panel>
@@ -604,8 +606,8 @@ describe('Sidebar.Group', () => {
   })
 })
 
-describe('Sidebar.Menu', () => {
-  test('renders a list of menu items inside a group', () => {
+describe('sidebar.Menu', () => {
+  it('renders a list of menu items inside a group', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.Group>
@@ -631,7 +633,7 @@ describe('Sidebar.Menu', () => {
     expect(items[0]?.querySelector('[data-slot="sidebar-menu-button"]')?.textContent).toBe('Home')
   })
 
-  test('forwards as, attributes, classes, and styles', () => {
+  it('forwards as, attributes, classes, and styles', () => {
     const screen = render(() => (
       <Sidebar classes={{ menu: 'theme-menu' }}>
         <Sidebar.Menu
@@ -653,8 +655,8 @@ describe('Sidebar.Menu', () => {
   })
 })
 
-describe('Sidebar.MenuButton', () => {
-  test('renders a link when href is set', () => {
+describe('sidebar.MenuButton', () => {
+  it('renders a link when href is set', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuButton href="/docs">Overview</Sidebar.MenuButton>
@@ -666,7 +668,7 @@ describe('Sidebar.MenuButton', () => {
     expect(link.getAttribute('data-slot')).toBe('sidebar-menu-button')
   })
 
-  test('renders the as element instead of a link when both as and href are set', () => {
+  it('renders the as element instead of a link when both as and href are set', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuButton as="button" href="/docs">
@@ -679,7 +681,7 @@ describe('Sidebar.MenuButton', () => {
     expect(screen.queryByRole('link')).toBeNull()
   })
 
-  test('renders a button that fires onClick and ignores clicks when disabled', () => {
+  it('renders a button that fires onClick and ignores clicks when disabled', () => {
     const handleClick = vi.fn()
     const screen = render(() => (
       <Sidebar>
@@ -704,7 +706,7 @@ describe('Sidebar.MenuButton', () => {
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
-  test('keeps a disabled link as an inert anchor without href', () => {
+  it('keeps a disabled link as an inert anchor without href', () => {
     const handleClick = vi.fn()
     const screen = render(() => (
       <Sidebar>
@@ -726,7 +728,7 @@ describe('Sidebar.MenuButton', () => {
     expect(handleClick).not.toHaveBeenCalled()
   })
 
-  test('marks active links and buttons with data-active, and only links with aria-current="page"', () => {
+  it('marks active links and buttons with data-active, and only links with aria-current="page"', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuButton href="/docs" active>
@@ -744,7 +746,7 @@ describe('Sidebar.MenuButton', () => {
     expect(button.getAttribute('aria-pressed')).toBeNull()
   })
 
-  test('MenuItem with leading and trailing renders icons with respective data slots', () => {
+  it('menuItem with leading and trailing renders icons with respective data slots', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuButton leading="i-lucide:house" trailing="i-lucide:chevron-right">
@@ -761,7 +763,7 @@ describe('Sidebar.MenuButton', () => {
     expect(label?.textContent).toBe('Home')
   })
 
-  test('marks menu buttons with data-mobile on mobile', () => {
+  it('marks menu buttons with data-mobile on mobile', () => {
     const screen = render(() => (
       <Sidebar mobile={true}>
         <Sidebar.MenuButton>Mobile Item</Sidebar.MenuButton>
@@ -771,7 +773,7 @@ describe('Sidebar.MenuButton', () => {
     expect(button.getAttribute('data-mobile')).toBe('')
   })
 
-  test('keeps the menu action beside the item button, so each click reaches only its own target', () => {
+  it('keeps the menu action beside the item button, so each click reaches only its own target', () => {
     const handleItemClick = vi.fn()
     const handleActionClick = vi.fn()
 
@@ -811,8 +813,8 @@ describe('Sidebar.MenuButton', () => {
   })
 })
 
-describe('Sidebar.MenuSub', () => {
-  test('MenuSub hides its items until the trigger opens them', async () => {
+describe('sidebar.MenuSub', () => {
+  it('menuSub hides its items until the trigger opens them', async () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuItem>
@@ -838,7 +840,7 @@ describe('Sidebar.MenuSub', () => {
     expect(screen.getByRole('button', { name: 'Sub Item' })).not.toBeNull()
   })
 
-  test('MenuSub with disabled marks the trigger disabled and prevents toggling', () => {
+  it('menuSub with disabled marks the trigger disabled and prevents toggling', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuItem>
@@ -861,7 +863,7 @@ describe('Sidebar.MenuSub', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('nests submenu items in a list under a trigger that toggles them', async () => {
+  it('nests submenu items in a list under a trigger that toggles them', async () => {
     const onClick = vi.fn()
     const screen = render(() => (
       <Sidebar>
@@ -902,7 +904,7 @@ describe('Sidebar.MenuSub', () => {
     await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
   })
 
-  test('applies Sidebar and user classes to a sub-trigger with a custom expand icon', () => {
+  it('applies Sidebar and user classes to a sub-trigger with a custom expand icon', () => {
     const screen = render(() => (
       <Sidebar classes={{ menuSubTrigger: 'theme-sub-trigger' }}>
         <Sidebar.MenuItem>
@@ -920,7 +922,7 @@ describe('Sidebar.MenuSub', () => {
     expect(trigger.querySelector('[data-slot="sidebar-menu-button-trailing"]')).not.toBeNull()
   })
 
-  test('sets data-expanded on the trigger while its content is open', async () => {
+  it('sets data-expanded on the trigger while its content is open', async () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuItem>
@@ -947,8 +949,8 @@ describe('Sidebar.MenuSub', () => {
   })
 })
 
-describe('Sidebar open state', () => {
-  test('preserves desktop open state across mobile breakpoint changes', async () => {
+describe('sidebar open state', () => {
+  it('preserves desktop open state across mobile breakpoint changes', async () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
       <Sidebar mobile={mobile()}>
@@ -983,7 +985,7 @@ describe('Sidebar open state', () => {
     })
   })
 
-  test('reports desktop toggles through controlled open and onOpenChange', () => {
+  it('reports desktop toggles through controlled open and onOpenChange', () => {
     const [open, setOpen] = createSignal(true)
     const onOpenChange = vi.fn((next: boolean) => setOpen(next))
     const screen = render(() => (
@@ -1002,7 +1004,7 @@ describe('Sidebar open state', () => {
     ).toBe('')
   })
 
-  test('uncontrolled desktop starts from defaultOpen and reports each toggle', () => {
+  it('uncontrolled desktop starts from defaultOpen and reports each toggle', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Sidebar mobile={false} defaultOpen={false} onOpenChange={onOpenChange}>
@@ -1017,7 +1019,7 @@ describe('Sidebar open state', () => {
     expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
   })
 
-  test('uncontrolled mobile drawer starts closed and reports trigger and Escape dismissal', async () => {
+  it('uncontrolled mobile drawer starts closed and reports trigger and Escape dismissal', async () => {
     const onOpenChange = vi.fn()
     const onMobileOpenChange = vi.fn()
     const screen = render(() => (
@@ -1043,7 +1045,7 @@ describe('Sidebar open state', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('defaultMobileOpen opens the uncontrolled mobile drawer on mount', async () => {
+  it('defaultMobileOpen opens the uncontrolled mobile drawer on mount', async () => {
     const screen = render(() => (
       <Sidebar mobile defaultMobileOpen>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
@@ -1060,7 +1062,7 @@ describe('Sidebar open state', () => {
     ).toBe('true')
   })
 
-  test('defaultOpen seeds only the desktop panel', async () => {
+  it('defaultOpen seeds only the desktop panel', async () => {
     const [mobile, setMobile] = createSignal(true)
     const screen = render(() => (
       <Sidebar mobile={mobile()} defaultOpen>
@@ -1088,7 +1090,7 @@ describe('Sidebar open state', () => {
     )
   })
 
-  test('controlled mobileOpen drives the drawer and onMobileOpenChange only requests changes', async () => {
+  it('controlled mobileOpen drives the drawer and onMobileOpenChange only requests changes', async () => {
     const [open, setOpen] = createSignal(false)
     const onMobileOpenChange = vi.fn((next: boolean) => setOpen(next))
     const screen = render(() => (
@@ -1113,7 +1115,7 @@ describe('Sidebar open state', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('controlled mobileOpen that the consumer ignores keeps the drawer closed', async () => {
+  it('controlled mobileOpen that the consumer ignores keeps the drawer closed', async () => {
     const onMobileOpenChange = vi.fn()
     const screen = render(() => (
       <Sidebar mobile mobileOpen={false} onMobileOpenChange={onMobileOpenChange}>
@@ -1132,7 +1134,7 @@ describe('Sidebar open state', () => {
     )
   })
 
-  test('a controlled desktop open does not open the drawer when switching to mobile', async () => {
+  it('a controlled desktop open does not open the drawer when switching to mobile', async () => {
     const [mobile, setMobile] = createSignal(false)
     const onOpenChange = vi.fn()
     const onMobileOpenChange = vi.fn()
@@ -1176,7 +1178,7 @@ describe('Sidebar open state', () => {
     )
   })
 
-  test('a controlled mobileOpen stays as written after leaving mobile', async () => {
+  it('a controlled mobileOpen stays as written after leaving mobile', async () => {
     const [mobile, setMobile] = createSignal(true)
     const onMobileOpenChange = vi.fn()
     const screen = render(() => (
@@ -1200,7 +1202,7 @@ describe('Sidebar open state', () => {
     expect(onMobileOpenChange).not.toHaveBeenCalled()
   })
 
-  test('uncontrolled layouts keep their own state and leaving mobile closes the drawer silently', async () => {
+  it('uncontrolled layouts keep their own state and leaving mobile closes the drawer silently', async () => {
     const [mobile, setMobile] = createSignal(false)
     const onOpenChange = vi.fn()
     const onMobileOpenChange = vi.fn()
@@ -1238,7 +1240,7 @@ describe('Sidebar open state', () => {
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  test('an expanded desktop panel does not open the drawer when entering mobile', async () => {
+  it('an expanded desktop panel does not open the drawer when entering mobile', async () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
       <Sidebar mobile={mobile()}>
@@ -1258,7 +1260,7 @@ describe('Sidebar open state', () => {
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  test('exposes side and variant as root data attributes', () => {
+  it('exposes side and variant as root data attributes', () => {
     const screen = render(() => (
       <Sidebar mobile={false} side="end" variant="inset">
         <Sidebar.Panel>Navigation</Sidebar.Panel>
@@ -1273,7 +1275,7 @@ describe('Sidebar open state', () => {
     expect(root?.hasAttribute('data-mobile')).toBe(false)
   })
 
-  test.each([
+  it.each([
     ['start', 'ltr', 'left-0'],
     ['end', 'ltr', 'right-0'],
     ['start', 'rtl', 'right-0'],
@@ -1296,8 +1298,8 @@ describe('Sidebar open state', () => {
   )
 })
 
-describe('Sidebar closeOnSelect', () => {
-  test('closes the mobile drawer after activating an item with href', async () => {
+describe('sidebar closeOnSelect', () => {
+  it('closes the mobile drawer after activating an item with href', async () => {
     const screen = render(() => (
       <Sidebar mobile>
         <Sidebar.Panel>
@@ -1317,7 +1319,7 @@ describe('Sidebar closeOnSelect', () => {
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
   })
 
-  test('does not close the mobile drawer for items without href', async () => {
+  it('does not close the mobile drawer for items without href', async () => {
     const screen = render(() => (
       <Sidebar mobile>
         <Sidebar.Panel>
@@ -1338,7 +1340,7 @@ describe('Sidebar closeOnSelect', () => {
     expect(document.body.querySelector('[role="dialog"]')).not.toBeNull()
   })
 
-  test('keeps the mobile drawer open when closeOnSelect is false', async () => {
+  it('keeps the mobile drawer open when closeOnSelect is false', async () => {
     const screen = render(() => (
       <Sidebar mobile>
         <Sidebar.Panel>
@@ -1360,8 +1362,8 @@ describe('Sidebar closeOnSelect', () => {
   })
 })
 
-describe('Sidebar landmarks', () => {
-  test('Panel defaults to aside and Inset defaults to main', () => {
+describe('sidebar landmarks', () => {
+  it('panel defaults to aside and Inset defaults to main', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
@@ -1372,7 +1374,7 @@ describe('Sidebar landmarks', () => {
     expect(screen.container.querySelector('[data-slot="sidebar-inset"]')?.tagName).toBe('MAIN')
   })
 
-  test('Trigger aria-controls matches the panel id', () => {
+  it('trigger aria-controls matches the panel id', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <Sidebar.Panel id="app-sidebar">Navigation</Sidebar.Panel>
@@ -1387,7 +1389,7 @@ describe('Sidebar landmarks', () => {
     expect(screen.container.querySelector('#app-sidebar')).not.toBeNull()
   })
 
-  test('Trigger aria-controls resolves to a generated id when the panel sets none', () => {
+  it('trigger aria-controls resolves to a generated id when the panel sets none', () => {
     const screen = render(() => (
       <Sidebar mobile={false}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
@@ -1402,8 +1404,8 @@ describe('Sidebar landmarks', () => {
   })
 })
 
-describe('Sidebar context validation', () => {
-  test.each([
+describe('sidebar context validation', () => {
+  it.each([
     ['Menu', () => <Sidebar.Group />],
     ['Label', () => <Sidebar.GroupLabel />],
     ['Item', () => <Sidebar.MenuButton />],
@@ -1537,8 +1539,8 @@ function mockRailRects(
   )
 }
 
-describe('Sidebar.Rail', () => {
-  test('exposes separator ARIA values and a localized resize label', () => {
+describe('sidebar.Rail', () => {
+  it('exposes separator ARIA values and a localized resize label', () => {
     const screen = render(() => <RailFrame defaultWidth={240} />)
     const rail = railOf(screen.container)
     expect(rail.getAttribute('role')).toBe('separator')
@@ -1551,7 +1553,7 @@ describe('Sidebar.Rail', () => {
     expect(rail.tabIndex).toBe(0)
   })
 
-  test('renders a custom host without button attributes and still works as a separator', () => {
+  it('renders a custom host without button attributes and still works as a separator', () => {
     const screen = render(() => <RailFrame defaultWidth={240} railAs="div" />)
     const rail = railOf(screen.container)
 
@@ -1567,12 +1569,12 @@ describe('Sidebar.Rail', () => {
     expect(panelOf(screen.container).getAttribute('data-closed')).toBeNull()
   })
 
-  test('omits aria-valuenow while open with no resolved width', () => {
+  it('omits aria-valuenow while open with no resolved width', () => {
     const screen = render(() => <RailFrame />)
     expect(railOf(screen.container).getAttribute('aria-valuenow')).toBeNull()
   })
 
-  test('drag grows the width, emits live changes, and commits once on release', () => {
+  it('drag grows the width, emits live changes, and commits once on release', () => {
     const onWidthChange = vi.fn()
     const onWidthCommit = vi.fn()
     const screen = render(() => (
@@ -1589,7 +1591,7 @@ describe('Sidebar.Rail', () => {
     expect(onWidthCommit).toHaveBeenLastCalledWith(280)
   })
 
-  test('a user ref on Panel receives the element without breaking rail measurement', () => {
+  it('a user ref on Panel receives the element without breaking rail measurement', () => {
     let userPanel: HTMLElement | undefined
     const screen = render(() => (
       <Sidebar mobile={false} side="end" defaultWidth={240}>
@@ -1614,7 +1616,7 @@ describe('Sidebar.Rail', () => {
     expect(sidebarWidth(screen.container)).toBe('280px')
   })
 
-  test('dragging a rail on the far side of the panel still grows it', () => {
+  it('dragging a rail on the far side of the panel still grows it', () => {
     const screen = render(() => <RailFrame side="end" defaultWidth={240} />)
     mockRailRects(screen.container, { side: 'end' })
     const rail = railOf(screen.container)
@@ -1625,7 +1627,7 @@ describe('Sidebar.Rail', () => {
     expect(sidebarWidth(screen.container)).toBe('280px')
   })
 
-  test('dragging below half the minimum closes; dragging back reopens clamped', () => {
+  it('dragging below half the minimum closes; dragging back reopens clamped', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => <RailFrame defaultWidth={240} onOpenChange={onOpenChange} />)
     mockRailRects(screen.container)
@@ -1642,7 +1644,7 @@ describe('Sidebar.Rail', () => {
     expect(sidebarWidth(screen.container)).toBe('224px')
   })
 
-  test('width clamps at minWidth and maxWidth during a drag', () => {
+  it('width clamps at minWidth and maxWidth during a drag', () => {
     const screen = render(() => <RailFrame defaultWidth={240} minWidth={200} maxWidth={300} />)
     mockRailRects(screen.container)
     const rail = railOf(screen.container)
@@ -1655,7 +1657,7 @@ describe('Sidebar.Rail', () => {
     expect(sidebarWidth(screen.container)).toBe('200px')
   })
 
-  test('a click without movement toggles; a click after a drag does nothing', () => {
+  it('a click without movement toggles; a click after a drag does nothing', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => <RailFrame defaultWidth={240} onOpenChange={onOpenChange} />)
     mockRailRects(screen.container)
@@ -1672,7 +1674,7 @@ describe('Sidebar.Rail', () => {
     expect(onOpenChange).toHaveBeenCalledTimes(2)
   })
 
-  test('keyboard resizes, snaps, and toggles; closed rail only answers Enter', () => {
+  it('keyboard resizes, snaps, and toggles; closed rail only answers Enter', () => {
     const onWidthChange = vi.fn()
     const onWidthCommit = vi.fn()
     const onOpenChange = vi.fn()
@@ -1713,7 +1715,7 @@ describe('Sidebar.Rail', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(true)
   })
 
-  test('renders nothing on mobile', () => {
+  it('renders nothing on mobile', () => {
     const screen = render(() => (
       <Sidebar mobile={true}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
@@ -1724,7 +1726,7 @@ describe('Sidebar.Rail', () => {
     expect(screen.container.querySelector('[data-slot="sidebar-rail"]')).toBeNull()
   })
 
-  test('controlled width emits but follows the prop', () => {
+  it('controlled width emits but follows the prop', () => {
     const onWidthChange = vi.fn()
     const screen = render(() => <RailFrame width={240} onWidthChange={onWidthChange} />)
     mockRailRects(screen.container)
@@ -1736,7 +1738,7 @@ describe('Sidebar.Rail', () => {
     expect(sidebarWidth(screen.container)).toBe('240px')
   })
 
-  test('trigger close and reopen keeps the width', () => {
+  it('trigger close and reopen keeps the width', () => {
     const screen = render(() => <RailFrame defaultWidth={240} />)
     mockRailRects(screen.container)
     const rail = railOf(screen.container)
@@ -1750,7 +1752,7 @@ describe('Sidebar.Rail', () => {
     expect(sidebarWidth(screen.container)).toBe('300px')
   })
 
-  test('cross-drags a nested resizable handle and the rail together', async () => {
+  it('cross-drags a nested resizable handle and the rail together', async () => {
     const screen = render(() => (
       <Sidebar mobile={false} defaultWidth={240}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
@@ -1799,7 +1801,7 @@ describe('Sidebar.Rail', () => {
     expect(Number.parseFloat(topPanel.style.flexBasis)).toBeGreaterThan(50)
   })
 
-  test('disabled rail ignores pointer and keys', () => {
+  it('disabled rail ignores pointer and keys', () => {
     const onWidthChange = vi.fn()
     const onOpenChange = vi.fn()
     const screen = render(() => (

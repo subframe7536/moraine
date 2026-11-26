@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { getJsDoc, parseTypeScript } from './ast.ts'
-describe('API documentation AST helpers', () => {
-  test('associates JSDoc descriptions and defaults with declarations and properties', async () => {
+describe('aPI documentation AST helpers', () => {
+  it('associates JSDoc descriptions and defaults with declarations and properties', async () => {
     const source = await parseTypeScript(
       'demo.d.ts',
       `
@@ -23,7 +23,7 @@ interface DemoProps {
     })
   })
 
-  test('collects multi-line examples and keeps tags inside fences out of the description', async () => {
+  it('collects multi-line examples and keeps tags inside fences out of the description', async () => {
     const source = await parseTypeScript(
       'demo.d.ts',
       `

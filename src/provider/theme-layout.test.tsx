@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { RadioGroup } from '../components/radio-group/radio-group'
 import { Resizable } from '../components/resizable/resizable'
@@ -15,7 +15,7 @@ import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineProvider } from './moraine-provider'
-test('resolves layout defaults reactively for styles, semantics, and keyboard navigation', () => {
+it('resolves layout defaults reactively for styles, semantics, and keyboard navigation', () => {
   const verticalTheme = defineTheme({
     separator: { defaultVariants: { orientation: 'vertical' } },
     slider: { defaultVariants: { orientation: 'vertical' } },
@@ -82,7 +82,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
   expect(screen.getByTestId('sidebar').className).not.toContain('sidebar-right')
 })
 
-test('uses the theme side for Sheet and lets explicit props override it', () => {
+it('uses the theme side for Sheet and lets explicit props override it', () => {
   const [side, setSide] = createSignal<'right' | undefined>()
   render(() => (
     <MoraineProvider
@@ -112,7 +112,7 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
   expect(content.classList.contains('sheet-left')).toBe(false)
 })
 
-test('inherits built-in defaultVariants on theme layers unless explicitly overridden', async () => {
+it('inherits built-in defaultVariants on theme layers unless explicitly overridden', async () => {
   const customBaseTheme = defineTheme({
     sidebar: {
       base: {

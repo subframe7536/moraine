@@ -1,12 +1,12 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { createComponent, createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Select } from './select'
 import type { SelectT } from './select.types'
-test('hydrates Select Control/Trigger/Value anatomy in place', () => {
+it('hydrates Select Control/Trigger/Value anatomy in place', () => {
   const { container } = hydrateFixture(
     '/src/components/select/select.ssr.fixture.tsx',
     'renderSelectFixture',
@@ -36,7 +36,7 @@ test('hydrates Select Control/Trigger/Value anatomy in place', () => {
   expect(trigger.getAttribute('aria-expanded')).toBe('true')
 })
 
-test('hydrates and updates custom itemRender content without replacing the server item node', () => {
+it('hydrates and updates custom itemRender content without replacing the server item node', () => {
   const [appleLabel, setAppleLabel] = createSignal('Apple')
 
   hydrateFixture(
@@ -68,7 +68,7 @@ test('hydrates and updates custom itemRender content without replacing the serve
   expect(document.body.querySelectorAll('[data-testid="custom-item"]')[0]).toBe(first)
 })
 
-test('hydrates string and grouped shorthand without replacing server elements', () => {
+it('hydrates string and grouped shorthand without replacing server elements', () => {
   const { container } = hydrateFixture(
     '/src/components/select/select.ssr.fixture.tsx',
     'renderStringItemsFixture',
@@ -89,7 +89,7 @@ test('hydrates string and grouped shorthand without replacing server elements', 
   expect(control.getAttribute('aria-expanded')).toBe('true')
 })
 
-test('renders a standalone Field default selection in SSR markup', () => {
+it('renders a standalone Field default selection in SSR markup', () => {
   const markup = renderSsrFixture(
     '/src/components/select/select.ssr.fixture.tsx',
     'renderSelectFieldDefaultFixture',

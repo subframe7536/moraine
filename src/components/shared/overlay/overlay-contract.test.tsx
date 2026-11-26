@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { BaseSelect } from '../../base-select'
 import { Combobox } from '../../combobox'
@@ -16,8 +16,8 @@ async function finishExit(selector: string, root: ParentNode = document.body): P
   await Promise.resolve()
 }
 
-describe('Unified overlay contract', () => {
-  test('Popover supports custom mount and onExitComplete', async () => {
+describe('unified overlay contract', () => {
+  it('popover supports custom mount and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
     const onExitComplete = vi.fn()
@@ -51,7 +51,7 @@ describe('Unified overlay contract', () => {
     }
   })
 
-  test('ContextMenu supports preventScroll={false}, custom mount, and onExitComplete', async () => {
+  it('contextMenu supports preventScroll={false}, custom mount, and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
     const onExitComplete = vi.fn()
@@ -87,7 +87,7 @@ describe('Unified overlay contract', () => {
     }
   })
 
-  test('DropdownMenu supports custom mount and onExitComplete', async () => {
+  it('dropdownMenu supports custom mount and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
     const onExitComplete = vi.fn()
@@ -121,7 +121,7 @@ describe('Unified overlay contract', () => {
     }
   })
 
-  test('BaseSelect and Combobox support preventScroll={false} and onExitComplete', async () => {
+  it('baseSelect and Combobox support preventScroll={false} and onExitComplete', async () => {
     const onExitComplete = vi.fn()
     const [open, setOpen] = createSignal(true)
     const items = [{ label: 'Apple', value: 'apple' }]

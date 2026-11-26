@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { createMediaQuery } from './media-query'
 const originalMatchMedia = window.matchMedia
@@ -23,7 +23,7 @@ afterEach(() => {
 })
 
 describe('createMediaQuery', () => {
-  test('keeps the server fallback through mount before applying the client match', async () => {
+  it('keeps the server fallback through mount before applying the client match', async () => {
     const media = createMediaQueryList(true)
     window.matchMedia = vi.fn(() => media)
 
@@ -39,7 +39,7 @@ describe('createMediaQuery', () => {
     expect(screen.getByTestId('matches').textContent).toBe('true')
   })
 
-  test('returns the fallback when matchMedia is unavailable', () => {
+  it('returns the fallback when matchMedia is unavailable', () => {
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
       value: undefined,
@@ -56,7 +56,7 @@ describe('createMediaQuery', () => {
     }).not.toThrow()
   })
 
-  test('uses legacy MediaQueryList listeners when modern listeners are unavailable', async () => {
+  it('uses legacy MediaQueryList listeners when modern listeners are unavailable', async () => {
     const addListener = vi.fn()
     const removeListener = vi.fn()
     const media = {
@@ -87,7 +87,7 @@ describe('createMediaQuery', () => {
     expect(removeListener).toHaveBeenCalledWith(listener)
   })
 
-  test('replaces the listener when a reactive query changes', async () => {
+  it('replaces the listener when a reactive query changes', async () => {
     const firstMedia = createMediaQueryList(false)
     const secondMedia = createMediaQueryList(true)
     const matchMedia = vi.fn((query: string) =>
@@ -107,7 +107,7 @@ describe('createMediaQuery', () => {
     expect(screen.getByTestId('matches').textContent).toBe('true')
   })
 
-  test('reacts to modern change events and removes the registered listener', async () => {
+  it('reacts to modern change events and removes the registered listener', async () => {
     const media = createMediaQueryList(false)
     window.matchMedia = vi.fn(() => media)
     const screen = render(() => {
@@ -128,7 +128,7 @@ describe('createMediaQuery', () => {
     expect(media.removeEventListener).toHaveBeenCalledWith('change', listener, undefined)
   })
 
-  test('cancels a pending initial update when its owner is disposed', async () => {
+  it('cancels a pending initial update when its owner is disposed', async () => {
     const media = createMediaQueryList(true)
     window.matchMedia = vi.fn(() => media)
     let currentMatch: (() => boolean) | undefined
@@ -143,7 +143,7 @@ describe('createMediaQuery', () => {
     expect(currentMatch?.()).toBe(false)
   })
 
-  test('normalizes an @media prefix before creating the query list', async () => {
+  it('normalizes an @media prefix before creating the query list', async () => {
     const media = createMediaQueryList(false)
     const matchMedia = vi.fn(() => media)
     window.matchMedia = matchMedia

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { createOutsidePressHandlers } from './outside-press'
 function pointerEvent(pointerId: number, defaultPrevented = false): PointerEvent {
@@ -19,7 +19,7 @@ afterEach(() => {
 })
 
 describe('createOutsidePressHandlers', () => {
-  test('disposes pending taps without allowing a later pointerup to dismiss', () => {
+  it('disposes pending taps without allowing a later pointerup to dismiss', () => {
     vi.useFakeTimers()
     const onPress = vi.fn()
     const handlers = createOutsidePressHandlers({
@@ -36,7 +36,7 @@ describe('createOutsidePressHandlers', () => {
     expect(onPress).not.toHaveBeenCalled()
   })
 
-  test('ignores cancelled touch presses without poisoning the next tap', () => {
+  it('ignores cancelled touch presses without poisoning the next tap', () => {
     vi.useFakeTimers()
     const onPress = vi.fn()
     const handlers = createOutsidePressHandlers({
@@ -53,7 +53,7 @@ describe('createOutsidePressHandlers', () => {
     expect(onPress).toHaveBeenCalledTimes(1)
   })
 
-  test('does not let a replaced pointer timeout clear the newer press', () => {
+  it('does not let a replaced pointer timeout clear the newer press', () => {
     vi.useFakeTimers()
     const onPress = vi.fn()
     const handlers = createOutsidePressHandlers({

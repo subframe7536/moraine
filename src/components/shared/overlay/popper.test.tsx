@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { Show, createSignal, flush, untrack } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { finishExitMotion } from '../../../test-util/overlay-test'
 import { Popover } from '../../popover/popover'
@@ -17,8 +17,8 @@ function PopperFixture(
   return untrack(() => props.contentRender(createPopper(props, 'popover')))
 }
 
-describe('Popper primitives', () => {
-  test('renders plain content children only while open and keeps them reactive', async () => {
+describe('popper primitives', () => {
+  it('renders plain content children only while open and keeps them reactive', async () => {
     const [label, setLabel] = createSignal('First')
     const screen = render(() => (
       <PopperFixture
@@ -42,7 +42,7 @@ describe('Popper primitives', () => {
     expect(document.querySelector('[data-testid="plain-content"]')?.textContent).toBe('Second')
   })
 
-  test('forwards original pointer events to trigger and content callbacks', async () => {
+  it('forwards original pointer events to trigger and content callbacks', async () => {
     const onTriggerPointerEnter = vi.fn()
     const onTriggerPointerLeave = vi.fn()
     const onContentPointerEnter = vi.fn()
@@ -99,7 +99,7 @@ describe('Popper primitives', () => {
     expect(onContentPointerLeave.mock.calls[0]?.[0]).toBe(contentLeave)
   })
 
-  test('applies no ARIA relation attributes when the trigger relation is none', async () => {
+  it('applies no ARIA relation attributes when the trigger relation is none', async () => {
     const screen = render(() => (
       <PopperFixture
         contentRender={(popper) => (
@@ -126,7 +126,7 @@ describe('Popper primitives', () => {
     expect(trigger.getAttribute('aria-describedby')).toBeNull()
   })
 
-  test('does not render closed content until the trigger opens it', async () => {
+  it('does not render closed content until the trigger opens it', async () => {
     render(() => (
       <PopperFixture
         contentRender={(popper) => (
@@ -147,7 +147,7 @@ describe('Popper primitives', () => {
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toBe('Content')
   })
 
-  test('force-mounts closed content without activating open-state resources', async () => {
+  it('force-mounts closed content without activating open-state resources', async () => {
     const onEscapeKeyDown = vi.fn()
     const screen = render(() => (
       <PopperFixture
@@ -187,7 +187,7 @@ describe('Popper primitives', () => {
     expect(onEscapeKeyDown).not.toHaveBeenCalled()
   })
 
-  test('unmounts the content host after closing', async () => {
+  it('unmounts the content host after closing', async () => {
     const screen = render(() => (
       <PopperFixture
         contentRender={(context) => (
@@ -221,7 +221,7 @@ describe('Popper primitives', () => {
     )
   })
 
-  test('stops positioning when its trigger is removed', async () => {
+  it('stops positioning when its trigger is removed', async () => {
     const [showTrigger, setShowTrigger] = createSignal(true)
     render(() => (
       <PopperFixture
@@ -256,7 +256,7 @@ describe('Popper primitives', () => {
     })
   })
 
-  test('preserves target cancellation for outside pointer interactions', async () => {
+  it('preserves target cancellation for outside pointer interactions', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
@@ -294,7 +294,7 @@ describe('Popper primitives', () => {
     expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
   })
 
-  test('dismisses press-less outside clicks while retaining inside and cancelled click behavior', async () => {
+  it('dismisses press-less outside clicks while retaining inside and cancelled click behavior', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
@@ -339,7 +339,7 @@ describe('Popper primitives', () => {
     uncancelledOutside.remove()
   })
 
-  test('does not replay an outside pointer dismissal as a click against a newly opened layer', async () => {
+  it('does not replay an outside pointer dismissal as a click against a newly opened layer', async () => {
     const [firstOpen, setFirstOpen] = createSignal(true)
     const [secondOpen, setSecondOpen] = createSignal(false)
     const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
@@ -388,7 +388,7 @@ describe('Popper primitives', () => {
     outside.remove()
   })
 
-  test('suppresses the click that dismissed a layer even after a delayed release', async () => {
+  it('suppresses the click that dismissed a layer even after a delayed release', async () => {
     const [firstOpen, setFirstOpen] = createSignal(true)
     const [secondOpen, setSecondOpen] = createSignal(false)
     const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
@@ -446,7 +446,7 @@ describe('Popper primitives', () => {
     outside.remove()
   })
 
-  test('clears stale pointer-click suppression when a different target clicks first', async () => {
+  it('clears stale pointer-click suppression when a different target clicks first', async () => {
     const [firstOpen, setFirstOpen] = createSignal(true)
     const [secondOpen, setSecondOpen] = createSignal(false)
     const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
@@ -501,7 +501,7 @@ describe('Popper primitives', () => {
     secondOutside.remove()
   })
 
-  test('ignores secondary pointer dismissal and prevents handled Escape', async () => {
+  it('ignores secondary pointer dismissal and prevents handled Escape', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
     const onOpenChange = vi.fn()
@@ -542,7 +542,7 @@ describe('Popper primitives', () => {
     outside.remove()
   })
 
-  test('delays touch outside dismissal until a completed tap', async () => {
+  it('delays touch outside dismissal until a completed tap', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
     const onOpenChange = vi.fn()
@@ -569,7 +569,7 @@ describe('Popper primitives', () => {
     outside.remove()
   })
 
-  test('ignores Escape while an IME composition is active', async () => {
+  it('ignores Escape while an IME composition is active', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <PopperFixture
@@ -601,7 +601,7 @@ describe('Popper primitives', () => {
     screen.unmount()
   })
 
-  test('does not acquire global resources without a mounted content surface', async () => {
+  it('does not acquire global resources without a mounted content surface', async () => {
     const onEscapeKeyDown = vi.fn()
     const [show, setShow] = createSignal(false)
     const screen = render(() => (
@@ -633,7 +633,7 @@ describe('Popper primitives', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
-  test('keeps preventScroll state for an open cycle when preventScroll changes', async () => {
+  it('keeps preventScroll state for an open cycle when preventScroll changes', async () => {
     const [open, setOpen] = createSignal(true)
     const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
@@ -679,7 +679,7 @@ describe('Popper primitives', () => {
     }
   })
 
-  test('reports the resolved placement when placement options change', async () => {
+  it('reports the resolved placement when placement options change', async () => {
     const [placement, setPlacement] = createSignal<'top' | 'right'>('top')
     render(() => (
       <PopperFixture
@@ -720,7 +720,7 @@ describe('Popper primitives', () => {
     })
   })
 
-  test('reuses the same content element through a rapid close and reopen', async () => {
+  it('reuses the same content element through a rapid close and reopen', async () => {
     const [open, setOpen] = createSignal(true)
     render(() => (
       <PopperFixture
@@ -757,7 +757,7 @@ describe('Popper primitives', () => {
     })
   })
 
-  test('positions without ResizeObserver support', async () => {
+  it('positions without ResizeObserver support', async () => {
     const resizeObserverDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'ResizeObserver')
     Reflect.deleteProperty(globalThis, 'ResizeObserver')
     const screen = render(() => (
@@ -790,7 +790,7 @@ describe('Popper primitives', () => {
     }
   })
 
-  test('releases scroll lock and interaction resources when conditional content unmounts', async () => {
+  it('releases scroll lock and interaction resources when conditional content unmounts', async () => {
     const [showContent, setShowContent] = createSignal(true)
     const onEscapeKeyDown = vi.fn()
     render(() => (
@@ -829,7 +829,7 @@ describe('Popper primitives', () => {
     expect(onEscapeKeyDown).not.toHaveBeenCalled()
   })
 
-  test('retargets positioning when the trigger is replaced', async () => {
+  it('retargets positioning when the trigger is replaced', async () => {
     const [useFirstTrigger, setUseFirstTrigger] = createSignal(true)
     render(() => (
       <PopperFixture
@@ -914,7 +914,7 @@ describe('Popper primitives', () => {
     })
   })
 
-  test('accepts an ordered list of fallback placements', async () => {
+  it('accepts an ordered list of fallback placements', async () => {
     render(() => (
       <PopperFixture
         defaultOpen
@@ -937,8 +937,8 @@ describe('Popper primitives', () => {
   })
 })
 
-describe('Popper native event composition', () => {
-  test('lets a reactive click handler cancel hover-mode activation', () => {
+describe('popper native event composition', () => {
+  it('lets a reactive click handler cancel hover-mode activation', () => {
     const [cancel, setCancel] = createSignal(true)
     const changes = vi.fn()
     const events: Array<MouseEvent> = []
@@ -970,7 +970,7 @@ describe('Popper native event composition', () => {
     expect(events[0]?.defaultPrevented).toBe(true)
   })
 
-  test('lets content pointer handlers cancel tooltip dismissal', async () => {
+  it('lets content pointer handlers cancel tooltip dismissal', async () => {
     const changes = vi.fn()
     render(() => (
       <Tooltip defaultOpen closeDelay={0} onOpenChange={changes}>
@@ -996,7 +996,7 @@ describe('Popper native event composition', () => {
     expect(changes).not.toHaveBeenCalled()
   })
 
-  test('preserves custom trigger keyboard activation and disabled state', () => {
+  it('preserves custom trigger keyboard activation and disabled state', () => {
     const CustomTrigger = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
     const [disabled, setDisabled] = createSignal(false)
     const changes = vi.fn()
@@ -1022,8 +1022,8 @@ describe('Popper native event composition', () => {
   })
 })
 
-describe('Floating component context isolation', () => {
-  test.each(['popover', 'tooltip'] as const)(
+describe('floating component context isolation', () => {
+  it.each(['popover', 'tooltip'] as const)(
     'isolates a nested %s from its parent popover',
     async (kind) => {
       const Inner = kind === 'popover' ? Popover : Tooltip
@@ -1048,21 +1048,15 @@ describe('Floating component context isolation', () => {
       expect(
         document.getElementById(outer.getAttribute('aria-controls')!)?.getAttribute('aria-label'),
       ).toBe('Outer panel')
-      if (kind === 'popover') {
-        expect(inner.getAttribute('aria-controls')).not.toBe(outer.getAttribute('aria-controls'))
-        expect(
-          document.getElementById(inner.getAttribute('aria-controls')!)?.getAttribute('aria-label'),
-        ).toBe('Inner panel')
-      } else {
-        expect(inner.getAttribute('aria-haspopup')).toBeNull()
-        expect(inner.getAttribute('aria-controls')).toBeNull()
-        expect(inner.getAttribute('aria-expanded')).toBeNull()
-        expect(
-          document
-            .getElementById(inner.getAttribute('aria-describedby')!)
-            ?.getAttribute('aria-label'),
-        ).toBe('Inner panel')
-      }
+      const innerPanelAttr = kind === 'popover' ? 'aria-controls' : 'aria-describedby'
+      const innerControls = inner.getAttribute('aria-controls')
+      expect(innerControls).not.toBe(outer.getAttribute('aria-controls'))
+      expect(innerControls === null).toBe(kind === 'tooltip')
+      expect(inner.getAttribute('aria-haspopup') === null).toBe(kind === 'tooltip')
+      expect(inner.getAttribute('aria-expanded') === null).toBe(kind === 'tooltip')
+      expect(
+        document.getElementById(inner.getAttribute(innerPanelAttr)!)?.getAttribute('aria-label'),
+      ).toBe('Inner panel')
       fireEvent.click(inner)
       expect(innerChanges).toHaveBeenCalledExactlyOnceWith(false)
       expect(outerChanges).not.toHaveBeenCalled()
@@ -1071,7 +1065,7 @@ describe('Floating component context isolation', () => {
     },
   )
 
-  test.each(['popover', 'tooltip'] as const)(
+  it.each(['popover', 'tooltip'] as const)(
     'cancels a %s opening timer when its root unmounts',
     async (kind) => {
       vi.useFakeTimers()
@@ -1101,7 +1095,7 @@ describe('Floating component context isolation', () => {
     },
   )
 
-  test('starts scroll lock after delayed inner content mounts', async () => {
+  it('starts scroll lock after delayed inner content mounts', async () => {
     const [show, setShow] = createSignal(false)
     const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
@@ -1133,7 +1127,7 @@ describe('Floating component context isolation', () => {
     }
   })
 
-  test('supports polymorphic trigger element via as prop and opens with keyboard', async () => {
+  it('supports polymorphic trigger element via as prop and opens with keyboard', async () => {
     const screen = render(() => (
       <PopperFixture
         contentRender={(popper) => (

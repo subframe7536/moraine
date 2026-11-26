@@ -1,12 +1,12 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import { Button } from '../button'
 
 import { BaseDialog } from './base-dialog'
-describe('BaseDialog SSR Hydration', () => {
-  test('hydrates the polymorphic trigger and defers closed content', () => {
+describe('baseDialog SSR Hydration', () => {
+  it('hydrates the polymorphic trigger and defers closed content', () => {
     let mounts = 0
     const Content = () => {
       mounts += 1

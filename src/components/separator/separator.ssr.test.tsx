@@ -1,12 +1,12 @@
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Separator } from './separator'
-describe('Separator SSR Hydration', () => {
-  test('hydrates the single separator root without reordering nodes', () => {
+describe('separator SSR Hydration', () => {
+  it('hydrates the single separator root without reordering nodes', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
 
     const { container } = hydrateFixture(

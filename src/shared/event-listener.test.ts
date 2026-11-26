@@ -1,5 +1,5 @@
 import { createEffect, createRoot, createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import {
   attachEventListener,
@@ -12,13 +12,13 @@ function click(target: EventTarget) {
 }
 
 describe('attachEventListener', () => {
-  test('returns a noop cleanup when target is missing', () => {
+  it('returns a noop cleanup when target is missing', () => {
     expect(() => {
       attachEventListener(undefined, 'click', () => {})()
     }).not.toThrow()
   })
 
-  test('listens until the returned cleanup runs', () => {
+  it('listens until the returned cleanup runs', () => {
     const target = document.createElement('button')
     const listener = vi.fn()
 
@@ -31,7 +31,7 @@ describe('attachEventListener', () => {
     expect(listener).toHaveBeenCalledOnce()
   })
 
-  test('honors the once option', () => {
+  it('honors the once option', () => {
     const target = document.createElement('button')
     const listener = vi.fn()
 
@@ -44,7 +44,7 @@ describe('attachEventListener', () => {
 })
 
 describe('attachEventListenerMap', () => {
-  test('registers every listener and disposes them together', () => {
+  it('registers every listener and disposes them together', () => {
     const target = document.createElement('button')
     const onClick = vi.fn()
     const onKeyDown = vi.fn()
@@ -62,7 +62,7 @@ describe('attachEventListenerMap', () => {
     expect(onKeyDown).toHaveBeenCalledOnce()
   })
 
-  test('skips undefined entries', () => {
+  it('skips undefined entries', () => {
     const target = document.createElement('button')
     const onClick = vi.fn()
 
@@ -75,7 +75,7 @@ describe('attachEventListenerMap', () => {
 })
 
 describe('createEventListener', () => {
-  test('stops calling the listener once its owner is disposed', () => {
+  it('stops calling the listener once its owner is disposed', () => {
     const target = document.createElement('button')
     const listener = vi.fn()
 
@@ -90,7 +90,7 @@ describe('createEventListener', () => {
     expect(listener).toHaveBeenCalledOnce()
   })
 
-  test('honors capture when the listener sits on an ancestor', () => {
+  it('honors capture when the listener sits on an ancestor', () => {
     const parent = document.createElement('div')
     const child = document.createElement('button')
     parent.append(child)
@@ -106,7 +106,7 @@ describe('createEventListener', () => {
     expect(order).toEqual(['parent', 'child'])
   })
 
-  test('detaches the previous target when the target changes', async () => {
+  it('detaches the previous target when the target changes', async () => {
     const first = document.createElement('button')
     const second = document.createElement('button')
     const listener = vi.fn()
@@ -133,7 +133,7 @@ describe('createEventListener', () => {
     lifecycle.dispose()
   })
 
-  test('dispatches the latest reactive state without duplicate registration', () => {
+  it('dispatches the latest reactive state without duplicate registration', () => {
     const target = document.createElement('button')
     const seen: Array<string> = []
 
@@ -150,7 +150,7 @@ describe('createEventListener', () => {
     })
   })
 
-  test('is safe to construct without a target', () => {
+  it('is safe to construct without a target', () => {
     expect(() => {
       createRoot((dispose) => {
         createEventListener(undefined, 'custom', () => {})
@@ -161,7 +161,7 @@ describe('createEventListener', () => {
 })
 
 describe('createEventListenerMap', () => {
-  test('registers multiple listeners and removes them on cleanup', () => {
+  it('registers multiple listeners and removes them on cleanup', () => {
     const target = document.createElement('button')
     const onClick = vi.fn()
     const onFocusIn = vi.fn()
@@ -181,7 +181,7 @@ describe('createEventListenerMap', () => {
     expect(onFocusIn).toHaveBeenCalledOnce()
   })
 
-  test('per-event options override map-level options', () => {
+  it('per-event options override map-level options', () => {
     const target = document.createElement('div')
     const child = document.createElement('button')
     target.append(child)
@@ -203,7 +203,7 @@ describe('createEventListenerMap', () => {
     expect(order).toEqual(['child', 'parent'])
   })
 
-  test('handles a missing target gracefully', () => {
+  it('handles a missing target gracefully', () => {
     expect(() => {
       createRoot((dispose) => {
         createEventListenerMap(undefined, { click: () => {} })

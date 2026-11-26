@@ -1,7 +1,7 @@
 import type { ComputePositionConfig, Platform } from '@floating-ui/dom'
 import { cleanup, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { isElement } from './dom'
 import { useFloatingPosition } from './floating'
@@ -76,7 +76,7 @@ describe('useFloatingPosition', () => {
     floatingMocks.updates.length = 0
   })
 
-  test('ignores an older position result that resolves after a newer request', async () => {
+  it('ignores an older position result that resolves after a newer request', async () => {
     const pending: Array<(position: DeferredPosition) => void> = []
     floatingMocks.computePosition.mockImplementation(
       () =>
@@ -117,7 +117,7 @@ describe('useFloatingPosition', () => {
     expect(onPositionedChange.mock.calls).toEqual([[false], [true]])
   })
 
-  test('passes pointer coordinates to the inline middleware and recomputes when they change', async () => {
+  it('passes pointer coordinates to the inline middleware and recomputes when they change', async () => {
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -148,7 +148,7 @@ describe('useFloatingPosition', () => {
     expect(names.indexOf('inline')).toBeLessThan(names.indexOf('flip'))
   })
 
-  test('stays ready while configuration batches recalculate and reports readiness again after reopening', async () => {
+  it('stays ready while configuration batches recalculate and reports readiness again after reopening', async () => {
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -177,7 +177,7 @@ describe('useFloatingPosition', () => {
     await waitFor(() => expect(ready.mock.calls).toEqual([[false], [true], [false], [true]]))
   })
 
-  test('does not commit after a placement callback closes the lifecycle', async () => {
+  it('does not commit after a placement callback closes the lifecycle', async () => {
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -199,7 +199,7 @@ describe('useFloatingPosition', () => {
     expect(ready.mock.calls).toEqual([[false]])
   })
 
-  test('reports readiness after the fallback timer and stops reporting after disposal', async () => {
+  it('reports readiness after the fallback timer and stops reporting after disposal', async () => {
     vi.useFakeTimers()
     vi.stubGlobal('requestAnimationFrame', () => 1)
     vi.stubGlobal('cancelAnimationFrame', vi.fn())
@@ -225,7 +225,7 @@ describe('useFloatingPosition', () => {
     expect(ready.mock.calls).toEqual([[false], [true], [false]])
   })
 
-  test('starts at a viewport position and transitions to the latest target after readiness', async () => {
+  it('starts at a viewport position and transitions to the latest target after readiness', async () => {
     vi.useFakeTimers()
     vi.stubGlobal('requestAnimationFrame', () => 1)
     vi.stubGlobal('cancelAnimationFrame', vi.fn())
@@ -276,7 +276,7 @@ describe('useFloatingPosition', () => {
     expect(floating.style.transform).toBe('translate3d(120px, 220px, 0px)')
   })
 
-  test.each(['close', 'unmount'])('cancels the initial movement on %s', async (action) => {
+  it.each(['close', 'unmount'])('cancels the initial movement on %s', async (action) => {
     vi.useFakeTimers()
     vi.stubGlobal(
       'requestAnimationFrame',
@@ -310,7 +310,7 @@ describe('useFloatingPosition', () => {
     expect(floating.style.visibility).toBe('hidden')
   })
 
-  test('starts after late mounting and does not position a replaced element', async () => {
+  it('starts after late mounting and does not position a replaced element', async () => {
     const [floating, setFloating] = createSignal<HTMLElement>()
     const [reference, setReference] = createSignal<HTMLElement>()
     const ready = vi.fn()
@@ -355,7 +355,7 @@ describe('useFloatingPosition', () => {
     second.remove()
   })
 
-  test('keeps the captured virtual reference and ignores results after its context element is removed', async () => {
+  it('keeps the captured virtual reference and ignores results after its context element is removed', async () => {
     let resolve!: (position: DeferredPosition) => void
     floatingMocks.computePosition.mockImplementation(
       () =>
@@ -437,7 +437,7 @@ describe('floating geometry and style ownership', () => {
     floatingMocks.updates.length = 0
   })
 
-  test.each([1, 1.25, 2])('rounds coordinates to device pixels at DPR %s', async (dpr) => {
+  it.each([1, 1.25, 2])('rounds coordinates to device pixels at DPR %s', async (dpr) => {
     await useGeometry()
     vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(dpr)
     const screen = render(() => (
@@ -460,7 +460,7 @@ describe('floating geometry and style ownership', () => {
   })
 
   describe.each([8, -8])('cross-axis offset %s', (shift) => {
-    test.each([
+    it.each([
       { placement: 'bottom', direction: 'ltr', baseX: -9.55, sign: 1 },
       { placement: 'bottom-start', direction: 'ltr', baseX: 10.3, sign: 1 },
       { placement: 'bottom-end', direction: 'ltr', baseX: -29.4, sign: -1 },
@@ -497,7 +497,7 @@ describe('floating geometry and style ownership', () => {
     )
   })
 
-  test('does not apply size constraints from a superseded request after configuration changes', async () => {
+  it('does not apply size constraints from a superseded request after configuration changes', async () => {
     const releases: Array<() => void> = []
     await useGeometry(
       500,
@@ -533,7 +533,7 @@ describe('floating geometry and style ownership', () => {
     expect(floating.style.maxHeight).toBe('')
   })
 
-  test('restores inline constraints before measuring disabled options and preserves author changes', async () => {
+  it('restores inline constraints before measuring disabled options and preserves author changes', async () => {
     await useGeometry()
     const [enabled, setEnabled] = createSignal(true)
     const [target, setTarget] = createSignal<HTMLElement>()
@@ -569,7 +569,7 @@ describe('floating geometry and style ownership', () => {
     expect(second.style.maxHeight).toBe('77px')
   })
 
-  test('clamps negative available sizes to zero when fitting the viewport', async () => {
+  it('clamps negative available sizes to zero when fitting the viewport', async () => {
     await useGeometry(0)
     const target = document.createElement('div')
     document.body.append(target)
@@ -592,7 +592,7 @@ describe('floating geometry and style ownership', () => {
     target.remove()
   })
 
-  test('keeps the current position when a superseded request resolves after disposal', async () => {
+  it('keeps the current position when a superseded request resolves after disposal', async () => {
     let release!: () => void
     const blocked = new Promise<void>((resolve) => {
       release = resolve
@@ -625,7 +625,7 @@ describe('floating geometry and style ownership', () => {
     screen.unmount()
   })
 
-  test('sets the reference distance from gutter alone and ignores overflowPadding for it', async () => {
+  it('sets the reference distance from gutter alone and ignores overflowPadding for it', async () => {
     await useGeometry()
     const [gutter, setGutter] = createSignal(4)
     const [padding, setPadding] = createSignal(24)
@@ -653,7 +653,7 @@ describe('floating geometry and style ownership', () => {
     screen.unmount()
   })
 
-  test('clamps to the viewport with overflowPadding alone and ignores gutter for it', async () => {
+  it('clamps to the viewport with overflowPadding alone and ignores gutter for it', async () => {
     await useGeometry()
     const [gutter, setGutter] = createSignal(4)
     const [padding, setPadding] = createSignal(24)

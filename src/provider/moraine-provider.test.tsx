@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal, flush, onCleanup } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { Button } from '../components/button/button'
 import { Input } from '../components/input/input'
@@ -8,8 +8,8 @@ import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineProvider } from './moraine-provider'
-describe('MoraineProvider', () => {
-  test('preserves instance classes on components rendered under a Provider', () => {
+describe('moraineProvider', () => {
+  it('preserves instance classes on components rendered under a Provider', () => {
     const screen = render(() => (
       <>
         <MoraineProvider>
@@ -24,7 +24,7 @@ describe('MoraineProvider', () => {
     expect(screen.getByRole('button', { name: 'Default' }).className).not.toContain('custom')
   })
 
-  test('inherits reactively, replaces explicit themes, and restores inheritance for undefined', () => {
+  it('inherits reactively, replaces explicit themes, and restores inheritance for undefined', () => {
     const parent = defineTheme({
       button: {
         defaultVariants: { size: 'sm' },
@@ -63,7 +63,7 @@ describe('MoraineProvider', () => {
     expect(screen.getByRole('button')).toBe(button)
   })
 
-  test('isolates sibling trees and unmounts children owned by the Provider', () => {
+  it('isolates sibling trees and unmounts children owned by the Provider', () => {
     const [theme, setTheme] = createSignal(
       defineTheme({ button: { base: { root: 'first-theme' } } }),
     )
@@ -96,7 +96,7 @@ describe('MoraineProvider', () => {
     expect(cleanups).toBe(1)
   })
 
-  test('keeps components functional without a Provider', () => {
+  it('keeps components functional without a Provider', () => {
     let clicks = 0
     const screen = render(() => (
       <Button
@@ -111,7 +111,7 @@ describe('MoraineProvider', () => {
     expect(clicks).toBe(1)
   })
 
-  test('replaces themes without losing native input state or focus', () => {
+  it('replaces themes without losing native input state or focus', () => {
     const [theme, setTheme] = createSignal(defineTheme({ input: { base: { root: 'p-2' } } }))
     const screen = render(() => (
       <MoraineProvider theme={theme()}>

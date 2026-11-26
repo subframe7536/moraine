@@ -1,11 +1,11 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Popover } from './popover'
-describe('Popover SSR Hydration', () => {
-  test('hydrates closed hover markup and opens it from keyboard focus', async () => {
+describe('popover SSR Hydration', () => {
+  it('hydrates closed hover markup and opens it from keyboard focus', async () => {
     vi.useFakeTimers()
     try {
       const { container } = hydrateFixture(

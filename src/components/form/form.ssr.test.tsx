@@ -1,6 +1,6 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import { Button } from '../button'
@@ -8,8 +8,8 @@ import { Input } from '../input'
 import { Switch } from '../switch'
 
 import { createForm } from './'
-describe('Form SSR Hydration', () => {
-  test('hydrates and resets the same controls before submitting the client-owned store', async () => {
+describe('form SSR Hydration', () => {
+  it('hydrates and resets the same controls before submitting the client-owned store', async () => {
     const onSubmit = vi.fn()
 
     function ClientForm() {

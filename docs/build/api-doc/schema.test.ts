@@ -3,7 +3,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { collectFiles } from '../core/paths.ts'
 
@@ -13,7 +13,7 @@ const schemaPath = path.join(projectRoot, 'docs/public/component-api.schema.json
 const pagesRoot = path.join(projectRoot, 'docs/pages')
 
 describe('component-api.schema.json', () => {
-  test('schema file exists and defines valid JSON Schema structure', () => {
+  it('schema file exists and defines valid JSON Schema structure', () => {
     expect(existsSync(schemaPath)).toBe(true)
     const raw = readFileSync(schemaPath, 'utf8')
     const schema = JSON.parse(raw) as {
@@ -46,7 +46,7 @@ describe('component-api.schema.json', () => {
     expect(schema.$defs.DataAttributeTargetApi).toBeDefined()
   })
 
-  test('all component api.json files conform to the component api contract', () => {
+  it('all component api.json files conform to the component api contract', () => {
     const apiFiles = collectFiles(pagesRoot, (file) => path.basename(file) === 'api.json')
     expect(apiFiles.length).toBeGreaterThanOrEqual(40)
 

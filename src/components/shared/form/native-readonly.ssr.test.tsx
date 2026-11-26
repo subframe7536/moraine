@@ -1,10 +1,10 @@
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../../test-util/ssr-test'
 
 import { NativeReadonlyFixture } from './native-readonly.ssr.fixture'
-test.each([false, true])('preserves native readonly=%s before and after hydration', (initial) => {
+it.each([false, true])('preserves native readonly=%s before and after hydration', (initial) => {
   const fixturePath = '/src/components/shared/form/native-readonly.ssr.fixture.tsx'
   const exportName = initial ? 'renderReadonlyFixture' : 'renderEditableFixture'
   const server = document.createElement('div')

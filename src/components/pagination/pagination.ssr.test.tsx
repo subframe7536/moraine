@@ -1,12 +1,12 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Pagination } from './pagination'
-describe('Pagination SSR Hydration', () => {
-  test('renders deterministic single-page SSR markup', () => {
+describe('pagination SSR Hydration', () => {
+  it('renders deterministic single-page SSR markup', () => {
     const markup = renderSsrFixture(
       '/src/components/pagination/pagination.ssr.fixture.tsx',
       'renderSinglePagePaginationFixture',
@@ -17,7 +17,7 @@ describe('Pagination SSR Hydration', () => {
     expect(markup).not.toContain('data-slot="pagination-ellipsis"')
   })
 
-  test('hydrates ellipsis link mode without replacing nodes and handles first navigation', () => {
+  it('hydrates ellipsis link mode without replacing nodes and handles first navigation', () => {
     const [page, setPage] = createSignal(5)
 
     const { container } = hydrateFixture(

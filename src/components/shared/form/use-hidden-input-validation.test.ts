@@ -1,9 +1,9 @@
 import { createRoot, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { useHiddenInputValidation } from './use-hidden-input-validation'
 describe('useHiddenInputValidation', () => {
-  test('initializes with nativeInvalid false', () => {
+  it('initializes with nativeInvalid false', () => {
     createRoot((dispose) => {
       const { nativeInvalid } = useHiddenInputValidation()
       expect(nativeInvalid()).toBe(false)
@@ -11,7 +11,7 @@ describe('useHiddenInputValidation', () => {
     })
   })
 
-  test('prevents default, marks nativeInvalid true, and focuses target on onInvalid', () => {
+  it('prevents default, marks nativeInvalid true, and focuses target on onInvalid', () => {
     createRoot((dispose) => {
       const focus = vi.fn()
       const dummyTarget = { focus } as unknown as HTMLElement
@@ -32,7 +32,7 @@ describe('useHiddenInputValidation', () => {
     })
   })
 
-  test('resetNativeInvalid restores nativeInvalid to false', () => {
+  it('resetNativeInvalid restores nativeInvalid to false', () => {
     createRoot((dispose) => {
       const { nativeInvalid, onInvalid, resetNativeInvalid } = useHiddenInputValidation()
 

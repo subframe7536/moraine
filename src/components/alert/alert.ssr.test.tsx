@@ -1,11 +1,11 @@
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { AlertHydrationFixture } from './alert.ssr.fixture'
 import type { AlertT } from './alert.types'
-test('hydrates alert fixture and updates reactive props', () => {
+it('hydrates alert fixture and updates reactive props', () => {
   const [tone, setTone] = createSignal<AlertT.Variants['tone']>('info')
   const [title, setTitle] = createSignal('Alert title')
   const description = 'Detailed alert description'
@@ -32,7 +32,7 @@ test('hydrates alert fixture and updates reactive props', () => {
   expect(root?.getAttribute('data-tone')).toBe('success')
 })
 
-test('hydrates minimal alert fixture without description or close', () => {
+it('hydrates minimal alert fixture without description or close', () => {
   const [title, setTitle] = createSignal('Minimal alert')
   const { container } = hydrateFixture(
     '/src/components/alert/alert.ssr.fixture.tsx',

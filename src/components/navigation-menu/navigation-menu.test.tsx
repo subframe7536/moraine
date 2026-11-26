@@ -8,7 +8,7 @@ import {
   onCleanup,
   useContext,
 } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
@@ -100,8 +100,8 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('NavigationMenu', () => {
-  test.each([
+describe('navigationMenu', () => {
+  it.each([
     [undefined, 450],
     ['start', 400],
     ['end', 500],
@@ -126,7 +126,7 @@ describe('NavigationMenu', () => {
     await waitFor(() => expect(positioner.style.transform).toMatch(`translate3d(${x}px,`))
   })
 
-  test.each(['window', 'container'] as const)(
+  it.each(['window', 'container'] as const)(
     'stays open while %s scrolls and still switches panels',
     async (target) => {
       let scroller!: HTMLDivElement
@@ -147,7 +147,7 @@ describe('NavigationMenu', () => {
     },
   )
 
-  test('lets caller data attributes overload the root slot attributes', () => {
+  it('lets caller data attributes overload the root slot attributes', () => {
     render(() => <TestMenu data-orientation="caller" />)
 
     expect(page.getByRole('navigation', { name: 'Main' }).getAttribute('data-orientation')).toBe(
@@ -155,7 +155,7 @@ describe('NavigationMenu', () => {
     )
   })
 
-  test('opens native navigation panels lazily and exposes accessible state', async () => {
+  it('opens native navigation panels lazily and exposes accessible state', async () => {
     const _screen = render(() => <TestMenu />)
     expect(page.getByRole('navigation', { name: 'Main' })).toBeDefined()
     expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull()
@@ -177,7 +177,7 @@ describe('NavigationMenu', () => {
     )
   })
 
-  test('delays the first hover, cancels abandoned opens, and switches an open surface immediately', async () => {
+  it('delays the first hover, cancels abandoned opens, and switches an open surface immediately', async () => {
     vi.useFakeTimers()
     const changes = vi.fn()
     render(() => <TestMenu openDelay={80} onValueChange={changes} />)
@@ -199,7 +199,7 @@ describe('NavigationMenu', () => {
     expect(changes.mock.calls).toEqual([['products'], ['guides']])
   })
 
-  test('protects movement across the trigger-to-panel gap and closes after leaving the panel', async () => {
+  it('protects movement across the trigger-to-panel gap and closes after leaving the panel', async () => {
     vi.useFakeTimers()
     render(() => <TestMenu />)
     const trigger = page.getByRole('button', { name: 'Products' })
@@ -224,7 +224,7 @@ describe('NavigationMenu', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('ignores touch hover and cancels pending timers on unmount', async () => {
+  it('ignores touch hover and cancels pending timers on unmount', async () => {
     vi.useFakeTimers()
     const changes = vi.fn()
     const _screen = render(() => <TestMenu onValueChange={changes} />)
@@ -241,7 +241,7 @@ describe('NavigationMenu', () => {
     expect(changes.mock.calls).toEqual([['products']])
   })
 
-  test('dismisses on an outside pointer press without redirecting focus', async () => {
+  it('dismisses on an outside pointer press without redirecting focus', async () => {
     render(() => <TestMenu />)
     const trigger = page.getByRole('button', { name: 'Products' })
     trigger.focus()
@@ -254,7 +254,7 @@ describe('NavigationMenu', () => {
     expect(document.activeElement).toBe(outside)
   })
 
-  test('requests controlled changes without changing the supplied value', async () => {
+  it('requests controlled changes without changing the supplied value', async () => {
     const [value, setValue] = createSignal<string | null>(null)
     const changes = vi.fn()
     render(() => <TestMenu value={value()} onValueChange={changes} />)
@@ -278,7 +278,7 @@ describe('NavigationMenu', () => {
     flush(() => setValue(null))
   })
 
-  test('stays controlled after a controlled close writes back null', async () => {
+  it('stays controlled after a controlled close writes back null', async () => {
     const [value, setValue] = createSignal<string | null>('products')
     const changes = vi.fn()
     render(() => (
@@ -307,7 +307,7 @@ describe('NavigationMenu', () => {
     expect(page.queryByRole('link', { name: 'Guide' })).toBeNull()
   })
 
-  test.each([
+  it.each([
     ['horizontal', 'ltr', 'ArrowRight', 'ArrowDown'],
     ['horizontal', 'rtl', 'ArrowLeft', 'ArrowDown'],
     ['vertical', 'ltr', 'ArrowDown', 'ArrowRight'],
@@ -344,7 +344,7 @@ describe('NavigationMenu', () => {
     },
   )
 
-  test('flips horizontal list arrows from the provider without a dir attribute', () => {
+  it('flips horizontal list arrows from the provider without a dir attribute', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.removeAttribute('dir')
     try {
@@ -368,7 +368,7 @@ describe('NavigationMenu', () => {
     }
   })
 
-  test('preserves logical Tab order across the portal and leaves input editing keys alone', async () => {
+  it('preserves logical Tab order across the portal and leaves input editing keys alone', async () => {
     const _screen = render(() => <TestMenu />)
     const products = page.getByRole('button', { name: 'Products' })
     const guides = page.getByRole('button', { name: 'Guides' })
@@ -409,7 +409,7 @@ describe('NavigationMenu', () => {
     expect(products.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('reveals panel links when keyboard navigation moves beyond the scrollport', async () => {
+  it('reveals panel links when keyboard navigation moves beyond the scrollport', async () => {
     render(() => <TestMenu />)
     fireEvent.click(page.getByRole('button', { name: 'Products' }))
     const overview = await page.findByRole('link', { name: 'Overview' })
@@ -437,7 +437,7 @@ describe('NavigationMenu', () => {
     )
   })
 
-  test('retains outgoing content across switches and reuses it on a quick return', async () => {
+  it('retains outgoing content across switches and reuses it on a quick return', async () => {
     switchDuration = 500
     exitDuration = 350
     render(() => <TestMenu />)
@@ -477,7 +477,7 @@ describe('NavigationMenu', () => {
     expect(closingContent.isConnected).toBe(false)
   })
 
-  test('replaces unanimated content immediately and retains it through the shared panel exit', async () => {
+  it('replaces unanimated content immediately and retains it through the shared panel exit', async () => {
     exitDuration = 350
     render(() => <TestMenu />)
     fireEvent.click(page.getByRole('button', { name: 'Products' }))
@@ -516,7 +516,7 @@ describe('NavigationMenu', () => {
     )
   })
 
-  test('retains the original content context and reactive JSX while releasing its owner on close', async () => {
+  it('retains the original content context and reactive JSX while releasing its owner on close', async () => {
     switchDuration = 500
     let cleanups = 0
     const LabelContext = createContext<() => string>()
@@ -563,7 +563,7 @@ describe('NavigationMenu', () => {
     expect(await page.findByRole('link', { name: 'Updated content' })).not.toBe(link)
   })
 
-  test('releases removed outgoing content without closing the active panel', async () => {
+  it('releases removed outgoing content without closing the active panel', async () => {
     switchDuration = 500
     const [visible, setVisible] = createSignal(true)
     const cleanup = vi.fn()
@@ -601,7 +601,7 @@ describe('NavigationMenu', () => {
     expect(page.getByText('Current content').isConnected).toBe(true)
   })
 
-  test('closes disabled or removed parts and supports reactivation', async () => {
+  it('closes disabled or removed parts and supports reactivation', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const [visible, setVisible] = createSignal(true)
     const [hasContent, setHasContent] = createSignal(true)
@@ -655,7 +655,7 @@ describe('NavigationMenu', () => {
     ])
   })
 
-  test('forwards custom link props and refs, respects cancelled handlers, and optionally closes on click', async () => {
+  it('forwards custom link props and refs, respects cancelled handlers, and optionally closes on click', async () => {
     const [href, setHref] = createSignal('#first')
     const CustomLink = (props: NavigationMenuT.LinkRenderProps) => (
       <a {...props} data-router="custom" />
@@ -705,7 +705,7 @@ describe('NavigationMenu', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('updates the shared surface dimensions when its active content resizes and disconnects observers', async () => {
+  it('updates the shared surface dimensions when its active content resizes and disconnects observers', async () => {
     const observations: Array<{
       callback: ResizeObserverCallback
       disconnect: ReturnType<typeof vi.fn>
@@ -744,7 +744,7 @@ describe('NavigationMenu', () => {
     expect(observations.every((observer) => observer.disconnect.mock.calls.length > 0)).toBe(true)
   })
 
-  test('inherits family theme overrides while keeping part overrides local', async () => {
+  it('inherits family theme overrides while keeping part overrides local', async () => {
     const [styles, setStyles] = createSignal<NavigationMenuT.Styles>({})
     const theme = defineTheme({
       navigationMenu: {
@@ -780,7 +780,7 @@ describe('NavigationMenu', () => {
     expect(content.style.width).toBe('')
   })
 
-  test('supports polymorphic trigger element via as prop and opens with keyboard', async () => {
+  it('supports polymorphic trigger element via as prop and opens with keyboard', async () => {
     render(() => (
       <NavigationMenu>
         <NavigationMenu.List>

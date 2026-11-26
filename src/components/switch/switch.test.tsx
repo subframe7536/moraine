@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { FieldProvider } from '../field/field-context'
@@ -12,8 +12,8 @@ function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))
 }
 
-describe('Switch', () => {
-  test('forwards root ref and inner inputRef', () => {
+describe('switch', () => {
+  it('forwards root ref and inner inputRef', () => {
     let rootEl: HTMLDivElement | undefined
     let inputEl: HTMLInputElement | undefined
 
@@ -26,7 +26,7 @@ describe('Switch', () => {
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
   })
 
-  test('applies tabIndex to the focusable track instead of the root', () => {
+  it('applies tabIndex to the focusable track instead of the root', () => {
     const screen = render(() => <Switch tabindex={-1} label="Skipped" />)
 
     expect(
@@ -37,7 +37,7 @@ describe('Switch', () => {
     )
   })
 
-  test('fires a root onPointerDown handler when the track is pressed', () => {
+  it('fires a root onPointerDown handler when the track is pressed', () => {
     const onPointerDown = vi.fn()
     const screen = render(() => <Switch onPointerDown={onPointerDown} label="Press me" />)
     const track = screen.getByRole('switch')
@@ -47,7 +47,7 @@ describe('Switch', () => {
     expect(onPointerDown.mock.calls[0]?.[0].target).toBe(track)
   })
 
-  test('names the switch by its label and describes it by its description', () => {
+  it('names the switch by its label and describes it by its description', () => {
     const screen = render(() => <Switch label="Email alerts" description="Receive updates" />)
 
     const switchInput = screen.getByRole('switch', { name: 'Email alerts' })
@@ -56,7 +56,7 @@ describe('Switch', () => {
     expect(switchInput.getAttribute('aria-describedby')).toBe(description.id)
   })
 
-  test('supports uncontrolled toggle', async () => {
+  it('supports uncontrolled toggle', async () => {
     const screen = render(() => <Switch label="Marketing" />)
     const switchInput = screen.getByRole('switch', { name: 'Marketing' })
     const root = screen.container.querySelector('[data-slot="switch"]')!
@@ -72,7 +72,7 @@ describe('Switch', () => {
     expect(thumb.getAttribute('data-checked')).toBe('')
   })
 
-  test.each([' ', 'Enter'])(
+  it.each([' ', 'Enter'])(
     'does not toggle from a %s keydown and keyup alone, only from the click',
     async (key) => {
       const onChange = vi.fn()
@@ -92,7 +92,7 @@ describe('Switch', () => {
     },
   )
 
-  test('forwards visual focus boundaries to a bound Field without changing value', () => {
+  it('forwards visual focus boundaries to a bound Field without changing value', () => {
     const emit = vi.fn()
     const onChange = vi.fn()
     const binding: FieldBinding = {
@@ -122,7 +122,7 @@ describe('Switch', () => {
     expect(emit).toHaveBeenCalledTimes(2)
   })
 
-  test('calls user onFocus and onBlur when the control gains and loses focus', () => {
+  it('calls user onFocus and onBlur when the control gains and loses focus', () => {
     const onFocus = vi.fn()
     const onBlur = vi.fn()
     const screen = render(() => <Switch label="Focusable" onFocus={onFocus} onBlur={onBlur} />)
@@ -141,7 +141,7 @@ describe('Switch', () => {
     expect(onBlur.mock.calls[0]?.[0].target).toBe(track)
   })
 
-  test('marks a Form.Field switch touched on visual focus and validates on blur', async () => {
+  it('marks a Form.Field switch touched on visual focus and validates on blur', async () => {
     const schema = v.object({
       enabled: v.pipe(
         v.boolean(),
@@ -169,7 +169,7 @@ describe('Switch', () => {
     expect(track.getAttribute('aria-invalid')).toBe('true')
   })
 
-  test('does not toggle when disabled', async () => {
+  it('does not toggle when disabled', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Switch disabled label="Disabled" onCheckedChange={onChange} />)
     const switchInput = screen.getByRole('switch', { name: 'Disabled' })
@@ -181,7 +181,7 @@ describe('Switch', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('passes id, name, value and required attributes to input', () => {
+  it('passes id, name, value and required attributes to input', () => {
     const screen = render(() => (
       <Switch id="newsletter-switch" name="newsletter" value="yes" required label="Newsletter" />
     ))
@@ -196,7 +196,7 @@ describe('Switch', () => {
     expect(input?.getAttribute('required')).not.toBeNull()
   })
 
-  test('keeps controlled state while emitting onCheckedChange', async () => {
+  it('keeps controlled state while emitting onCheckedChange', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Switch checked label="Controlled" onCheckedChange={onChange} />)
     const switchInput = screen.getByRole('switch', { name: 'Controlled' })
@@ -211,7 +211,7 @@ describe('Switch', () => {
     })
   })
 
-  test('does not toggle a controlled readOnly switch', async () => {
+  it('does not toggle a controlled readOnly switch', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <Switch checked readOnly label="Readonly" onCheckedChange={onChange} />
@@ -226,7 +226,7 @@ describe('Switch', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('does not toggle an uncontrolled readOnly switch', async () => {
+  it('does not toggle an uncontrolled readOnly switch', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <Switch readOnly label="Readonly uncontrolled" onCheckedChange={onChange} />
@@ -241,7 +241,7 @@ describe('Switch', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('maps custom numeric values for controlled switch', async () => {
+  it('maps custom numeric values for controlled switch', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <Switch
@@ -266,7 +266,7 @@ describe('Switch', () => {
     })
   })
 
-  test('shows loading icon and disables interaction when loading', () => {
+  it('shows loading icon and disables interaction when loading', () => {
     const screen = render(() => (
       <Switch loading label="Loading" loadingIcon={<span data-testid="loading-icon">L</span>} />
     ))
@@ -280,7 +280,7 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, false)
   })
 
-  test('switches between unchecked and checked icons', async () => {
+  it('switches between unchecked and checked icons', async () => {
     const screen = render(() => (
       <Switch
         label="Icon state"
@@ -295,7 +295,7 @@ describe('Switch', () => {
     expect(screen.getByTestId('checked-icon').textContent).toBe('C')
   })
 
-  test('submits hidden switch value only when checked and resets to default state', async () => {
+  it('submits hidden switch value only when checked and resets to default state', async () => {
     const screen = render(() => (
       <form>
         <Switch name="enabled" value="yes" defaultChecked label="Enabled" />
@@ -322,7 +322,7 @@ describe('Switch', () => {
     })
   })
 
-  test('defaults the native value to a string or number trueValue, otherwise on', () => {
+  it('defaults the native value to a string or number trueValue, otherwise on', () => {
     const screen = render(() => (
       <form>
         <Switch
@@ -346,18 +346,18 @@ describe('Switch', () => {
     expect(data.get('custom')).toBe('yes')
   })
 
-  test('resolves defaultChecked against trueValue and falseValue', () => {
+  it('resolves defaultChecked against trueValue and falseValue', () => {
     const screen = render(() => (
       <>
         <Switch trueValue="dark" falseValue="light" defaultChecked="dark" label="On" />
         <Switch trueValue="dark" falseValue="light" defaultChecked="light" label="Off" />
       </>
     ))
-    expectSwitchChecked(screen.getByRole('switch', { name: 'On' }), true)
-    expectSwitchChecked(screen.getByRole('switch', { name: 'Off' }), false)
+    expect(screen.getByRole('switch', { name: 'On' }).getAttribute('aria-checked')).toBe('true')
+    expect(screen.getByRole('switch', { name: 'Off' }).getAttribute('aria-checked')).toBe('false')
   })
 
-  test('resets uncontrolled state to the initial default without emitting changes', async () => {
+  it('resets uncontrolled state to the initial default without emitting changes', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
@@ -377,7 +377,7 @@ describe('Switch', () => {
     expect(onChange).toHaveBeenCalledTimes(1)
   })
 
-  test('resets controlled switches to their latest value without callbacks or form value drift', async () => {
+  it('resets controlled switches to their latest value without callbacks or form value drift', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
@@ -406,7 +406,7 @@ describe('Switch', () => {
     expect(onChange).toHaveBeenCalledTimes(1)
   })
 
-  test('implicitly submits the form on Enter through the default submitter', () => {
+  it('implicitly submits the form on Enter through the default submitter', () => {
     const onSubmit = vi.fn()
     const screen = render(() => (
       <form
@@ -433,7 +433,7 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, false)
   })
 
-  test('implicitly submits the form on Enter without a submit button', () => {
+  it('implicitly submits the form on Enter without a submit button', () => {
     const onSubmit = vi.fn()
     const screen = render(() => (
       <form
@@ -453,7 +453,7 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, false)
   })
 
-  test('associates the hidden input with an external form through the form prop', () => {
+  it('associates the hidden input with an external form through the form prop', () => {
     const screen = render(() => (
       <>
         <form id="external-form" />
@@ -468,7 +468,7 @@ describe('Switch', () => {
     expect(input.form).toBe(externalForm)
   })
 
-  test('passes user classes and styles to their slots', () => {
+  it('passes user classes and styles to their slots', () => {
     const screen = render(() => (
       <Switch
         label="Classes"
@@ -484,7 +484,7 @@ describe('Switch', () => {
     expect(track?.classList.contains('user-track')).toBe(true)
   })
 
-  test('runs the caller click handler before toggling and respects cancellation', async () => {
+  it('runs the caller click handler before toggling and respects cancellation', async () => {
     const onChange = vi.fn()
     const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
     const screen = render(() => (
@@ -500,7 +500,7 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, false)
   })
 
-  test('renders falsy numeric label and description content', () => {
+  it('renders falsy numeric label and description content', () => {
     const screen = render(() => <Switch label={0} description={0} />)
 
     expect(screen.getByRole('switch', { name: '0' })).not.toBeNull()

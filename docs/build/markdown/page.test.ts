@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import type { ComponentApi } from '../api-doc/types.ts'
 
@@ -50,14 +50,14 @@ const FRONTMATTER = {
 }
 
 describe('createDocsMdxOptions', () => {
-  test('uses the default MDX route path resolver', () => {
+  it('uses the default MDX route path resolver', () => {
     const projectRoot = '/tmp/moraine-project'
     const options = createDocsMdxOptions(projectRoot)
 
     expect('transformPath' in options).toBe(false)
   })
 
-  test('extends the built-in MDX route with docs metadata and layout content', async () => {
+  it('extends the built-in MDX route with docs metadata and layout content', async () => {
     const projectRoot = '/tmp/moraine-project'
     const options = createDocsMdxOptions(projectRoot)
     const extension = await options.extendLoad?.(
@@ -106,7 +106,7 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.mdxContent).toContain('markdownPath={"/components/button.md"}')
   })
 
-  test('adds generated API sections after MDX headings', async () => {
+  it('adds generated API sections after MDX headings', async () => {
     const options = createDocsMdxOptions('/tmp/moraine-project')
     const extension = await options.extendLoad?.(
       {
@@ -132,7 +132,7 @@ describe('createDocsMdxOptions', () => {
     })
   })
 
-  test('preserves MDX heading metadata for pages without an API document', async () => {
+  it('preserves MDX heading metadata for pages without an API document', async () => {
     const options = createDocsMdxOptions('/tmp/moraine-project')
     const extension = await options.extendLoad?.(
       {
@@ -155,7 +155,7 @@ describe('createDocsMdxOptions', () => {
     })
   })
 
-  test('uses ordinary documentation metadata for Getting Started', async () => {
+  it('uses ordinary documentation metadata for Getting Started', async () => {
     const extension = await createDocsMdxOptions('/tmp/moraine-project').extendLoad?.(
       {
         source: '## Install',

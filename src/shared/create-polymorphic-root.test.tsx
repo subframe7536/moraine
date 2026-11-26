@@ -2,7 +2,7 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
 import { Show, createSignal, flush, omit, untrack } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { Button } from '../components/button'
 import type { ButtonProps } from '../components/button'
@@ -77,7 +77,7 @@ function Root(
 }
 
 describe('polymorphic root', () => {
-  test.each([
+  it.each([
     ['button', 'BUTTON', undefined],
     ['a', 'A', '/docs'],
     ['div', 'DIV', undefined],
@@ -96,15 +96,13 @@ describe('polymorphic root', () => {
     const element = screen.container.firstElementChild as HTMLElement
     expect(element.tagName).toBe(name)
     expect(element.getAttribute('role')).toBe(name === 'DIV' || name === 'SPAN' ? 'button' : null)
-    if (name === 'BUTTON') {
-      expect(element.getAttribute('type')).toBe('button')
-    }
+    expect(element.getAttribute('type')).toBe(name === 'BUTTON' ? 'button' : null)
     fireEvent.click(element)
     expect(click).toHaveBeenCalledOnce()
     expect(press).toHaveBeenCalledOnce()
   })
 
-  test('forwards refs on reactive root replacement and does not set undefined on unmount', () => {
+  it('forwards refs on reactive root replacement and does not set undefined on unmount', () => {
     const [as, setAs] = createSignal<ValidComponent>(() => NativeButton)
     const ref = vi.fn()
     const screen = render(() => (
@@ -121,7 +119,7 @@ describe('polymorphic root', () => {
     expect(ref).toHaveBeenCalledTimes(2)
   })
 
-  test('updates native disabled semantics after a custom root resolves', () => {
+  it('updates native disabled semantics after a custom root resolves', () => {
     const [disabled, setDisabled] = createSignal(true)
     const screen = render(() => (
       <Root as={NativeButton} disabled={disabled()}>
@@ -136,7 +134,7 @@ describe('polymorphic root', () => {
     expect(screen.getByRole('button')).toBe(element)
   })
 
-  test('keeps focusable disabled roots inert and preserves explicit attributes', () => {
+  it('keeps focusable disabled roots inert and preserves explicit attributes', () => {
     const press = vi.fn()
     const screen = render(() => (
       <Root
@@ -161,7 +159,7 @@ describe('polymorphic root', () => {
     expect(press).not.toHaveBeenCalled()
   })
 
-  test('runs consumers before activation and honors custom cancellation', () => {
+  it('runs consumers before activation and honors custom cancellation', () => {
     const press = vi.fn()
     const screen = render(() => (
       <>
@@ -186,7 +184,7 @@ describe('polymorphic root', () => {
     expect(press).not.toHaveBeenCalled()
   })
 
-  test('activates non-native roots with Enter and Space independently', () => {
+  it('activates non-native roots with Enter and Space independently', () => {
     const press = vi.fn()
     const screen = render(() => (
       <Root as="span" onPress={press}>
@@ -202,7 +200,7 @@ describe('polymorphic root', () => {
     expect(press).toHaveBeenCalledTimes(2)
   })
 
-  test.each(['button', NativeButton] as const)(
+  it.each(['button', NativeButton] as const)(
     'bridges adopted %s roots without duplicate clicks',
     (as) => {
       const iframe = document.createElement('iframe')
@@ -229,7 +227,7 @@ describe('polymorphic root', () => {
     },
   )
 
-  test('ignores clicks on a detached nested root and activates again once it returns', () => {
+  it('ignores clicks on a detached nested root and activates again once it returns', () => {
     const [visible, setVisible] = createSignal(true)
     const press = vi.fn()
     const ConditionalButton = (props: ButtonProps) => (
@@ -253,7 +251,7 @@ describe('polymorphic root', () => {
     expect(press).toHaveBeenCalledOnce()
   })
 
-  test.each(['span', NativeSpan] as const)(
+  it.each(['span', NativeSpan] as const)(
     'delegates the first keyboard event after adopting %s into an iframe',
     (as) => {
       const iframe = document.createElement('iframe')

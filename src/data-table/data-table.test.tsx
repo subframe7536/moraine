@@ -62,7 +62,7 @@ function createPersonTable(options: Partial<DataTableT.Options<Person>> = {}) {
   return createDataTable<Person>(merged)
 }
 
-describe('DataTable', () => {
+describe('dataTable', () => {
   it('renders data with a createDataTable instance', () => {
     render(() => {
       const table = createPersonTable()

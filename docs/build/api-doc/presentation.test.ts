@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
   createApiReferenceModel,
@@ -62,7 +62,7 @@ const component: ComponentApi = {
 }
 
 describe('createApiReferenceModel', () => {
-  test('keeps deterministic prop ordering with common props last', () => {
+  it('keeps deterministic prop ordering with common props last', () => {
     const model = createApiReferenceModel(component)!
     expect(model.parts[0]?.props.map((prop) => prop.name)).toEqual([
       'alpha',
@@ -75,14 +75,14 @@ describe('createApiReferenceModel', () => {
     expect(model.parts[0]?.props.find((prop) => prop.name === 'open')?.type).toBe('Boolean')
   })
 
-  test('formats literal and expression defaults', () => {
+  it('formats literal and expression defaults', () => {
     expect(formatDefaultValue({ kind: 'literal', value: '' })).toBe('""')
     expect(formatDefaultValue({ kind: 'literal', value: 'value' })).toBe("'value'")
     expect(formatDefaultValue({ kind: 'literal', value: false })).toBe('false')
     expect(formatDefaultValue({ kind: 'expression', text: 'items.length' })).toBe('items.length')
   })
 
-  test('shows undefined only when the optional property needs it', () => {
+  it('shows undefined only when the optional property needs it', () => {
     expect(formatExpandedPropType({ name: 'value', optional: true, type: 'string' })).toBe(
       'string | undefined',
     )
@@ -113,7 +113,7 @@ describe('createApiReferenceModel', () => {
     )
   })
 
-  test('shows concise triggers and complete types in prop details', () => {
+  it('shows concise triggers and complete types in prop details', () => {
     const model = createApiReferenceModel(component)!
     expect(model).not.toHaveProperty('item')
     expect(model.parts[0]?.props.find((prop) => prop.name === 'items')).toMatchObject({
@@ -126,7 +126,7 @@ describe('createApiReferenceModel', () => {
     })
   })
 
-  test('simplifies string literals to string in summary types while preserving details', () => {
+  it('simplifies string literals to string in summary types while preserving details', () => {
     expect(
       formatSummaryPropType({
         name: 'variant',
@@ -185,7 +185,7 @@ describe('createApiReferenceModel', () => {
     ).toBe('string | number')
   })
 
-  test('formats render props with Render summary type', () => {
+  it('formats render props with Render summary type', () => {
     expect(
       formatSummaryPropType({
         name: 'itemRender',
@@ -251,7 +251,7 @@ describe('createApiReferenceModel', () => {
     ).toBe('function')
   })
 
-  test('derives concise composite headings while retaining full names', () => {
+  it('derives concise composite headings while retaining full names', () => {
     const model = createApiReferenceModel(component)!
     expect(model.parts.map((part) => [part.heading, part.shortHeading])).toEqual([
       ['Demo', 'Demo'],
@@ -259,7 +259,7 @@ describe('createApiReferenceModel', () => {
     ])
   })
 
-  test('keeps prop anchors distinct from part headings with the same name', () => {
+  it('keeps prop anchors distinct from part headings with the same name', () => {
     const model = createApiReferenceModel({
       ...component,
       parts: [
@@ -298,7 +298,7 @@ describe('createApiReferenceModel', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  test('aggregates attributes and follows declared slot order', () => {
+  it('aggregates attributes and follows declared slot order', () => {
     const model = createApiReferenceModel(component)!
     expect(model.attributes?.slots).toEqual([
       'demo',
@@ -327,7 +327,7 @@ describe('createApiReferenceModel', () => {
     ])
   })
 
-  test('maps forwarded style keys to the child DOM owner', () => {
+  it('maps forwarded style keys to the child DOM owner', () => {
     expect(getDomSlotName('avatar-group', 'fallbackIcon')).toBe('avatar-fallback-icon')
     expect(getDomSlotName('checkbox-group', 'control')).toBe('checkbox-control')
     expect(getDomSlotName('pagination', 'controlLabel')).toBe('button-label')
@@ -342,7 +342,7 @@ describe('createApiReferenceModel', () => {
     expect(getDomSlotName('alert-dialog', 'action')).toBe('alert-dialog-action')
   })
 
-  test('uses the simplified API hierarchy in the TOC', () => {
+  it('uses the simplified API hierarchy in the TOC', () => {
     expect(getApiReferenceTocEntries(component)).toEqual([
       { id: 'api-reference', label: 'API Reference', level: 1 },
       { id: 'api-attributes', label: 'Attributes', level: 2 },
@@ -352,7 +352,7 @@ describe('createApiReferenceModel', () => {
     ])
   })
 
-  test('keeps API Reference and Props for single-part components', () => {
+  it('keeps API Reference and Props for single-part components', () => {
     expect(
       getApiReferenceTocEntries({
         ...component,
@@ -367,7 +367,7 @@ describe('createApiReferenceModel', () => {
     ])
   })
 
-  test('includes part entries for single components with multiple parts', () => {
+  it('includes part entries for single components with multiple parts', () => {
     expect(
       getApiReferenceTocEntries({
         ...component,

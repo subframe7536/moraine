@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createRoot, createSignal, flush } from 'solid-js'
-import { afterEach, describe, expect, onTestFinished, test, vi } from 'vitest'
+import { afterEach, describe, expect, onTestFinished, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
@@ -75,8 +75,8 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('ScrollArea', () => {
-  test('renders a focusable viewport inside the root and forwards refs and scroll events', () => {
+describe('scrollArea', () => {
+  it('renders a focusable viewport inside the root and forwards refs and scroll events', () => {
     const onScroll = vi.fn()
     const ref = vi.fn()
     const viewportRef = vi.fn()
@@ -107,7 +107,7 @@ describe('ScrollArea', () => {
     expect(root.hasAttribute('data-overflow-y')).toBe(true)
   })
 
-  test('leaves the tab order when content fits and restores it when content overflows', async () => {
+  it('leaves the tab order when content fits and restores it when content overflows', async () => {
     const { resize } = stubResizeObserver()
     const screen = render(() => <ScrollArea>Content</ScrollArea>)
     const { viewport } = parts(screen.container)
@@ -120,7 +120,7 @@ describe('ScrollArea', () => {
     expect(viewport.tabIndex).toBe(0)
   })
 
-  test('measures a viewport that binds before it joins the document', async () => {
+  it('measures a viewport that binds before it joins the document', async () => {
     const element = createRoot((dispose) => {
       onTestFinished(dispose)
       return <ScrollArea />
@@ -135,7 +135,7 @@ describe('ScrollArea', () => {
     expect(edges(root, 'y')).toEqual([true, false])
   })
 
-  test('reports overflowing edges, distances, and reached edges without shadows', async () => {
+  it('reports overflowing edges, distances, and reached edges without shadows', async () => {
     const onOverflowChange = vi.fn()
     const onTopReached = vi.fn()
     const onBottomReached = vi.fn()
@@ -184,7 +184,7 @@ describe('ScrollArea', () => {
     expect(onBottomReached).toHaveBeenCalledTimes(1)
   })
 
-  test.each(['ltr', 'rtl'] as const)(
+  it.each(['ltr', 'rtl'] as const)(
     'tracks logical horizontal edges in %s content',
     async (direction) => {
       const onLeftReached = vi.fn()
@@ -218,7 +218,7 @@ describe('ScrollArea', () => {
     },
   )
 
-  test('scrolls both axes with two scrollbars and a corner', async () => {
+  it('scrolls both axes with two scrollbars and a corner', async () => {
     const screen = render(() => <ScrollArea orientation="both" scrollbarMode="always" />)
     const { root, viewport, scrollbar } = parts(screen.container)
     const corner = root.querySelector<HTMLElement>('[data-slot="scroll-area-corner"]')!
@@ -246,7 +246,7 @@ describe('ScrollArea', () => {
     expect(scrollbar('horizontal')?.hasAttribute('data-visible')).toBe(false)
   })
 
-  test('positions the horizontal thumb from the logical start in RTL', async () => {
+  it('positions the horizontal thumb from the logical start in RTL', async () => {
     const screen = render(() => (
       <ScrollArea
         orientation="horizontal"
@@ -264,7 +264,7 @@ describe('ScrollArea', () => {
     expect(thumb.style.left).toBe('')
   })
 
-  test('applies the thin scrollbar width variant', () => {
+  it('applies the thin scrollbar width variant', () => {
     const screen = render(() => <ScrollArea scrollbarWidth="thin" />)
     const track = parts(screen.container).scrollbar('vertical')!
     expect(track.classList.contains('w-2')).toBe(true)
@@ -274,7 +274,7 @@ describe('ScrollArea', () => {
     ).toBe(false)
   })
 
-  test('shows scrollbars according to the scrollbar mode', async () => {
+  it('shows scrollbars according to the scrollbar mode', async () => {
     vi.useFakeTimers()
     const [mode, setMode] = createSignal<ScrollAreaT.Variants['scrollbarMode']>('hover')
     const screen = render(() => <ScrollArea scrollbarMode={mode()} scrollHideDelay={300} />)
@@ -314,7 +314,7 @@ describe('ScrollArea', () => {
     expect(scrollbar('vertical')).toBeNull()
   })
 
-  test('drags the thumb and jumps to track presses', async () => {
+  it('drags the thumb and jumps to track presses', async () => {
     const screen = render(() => <ScrollArea scrollbarMode="always" />)
     const { viewport, scrollbar } = parts(screen.container)
     flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
@@ -346,7 +346,7 @@ describe('ScrollArea', () => {
     expect(viewport.scrollTop).toBe(0)
   })
 
-  test('forwards wheel input over scrollbars to the viewport only while it can scroll', () => {
+  it('forwards wheel input over scrollbars to the viewport only while it can scroll', () => {
     const screen = render(() => <ScrollArea orientation="both" />)
     const { viewport, scrollbar } = parts(screen.container)
     setDimensions(viewport, {
@@ -370,7 +370,7 @@ describe('ScrollArea', () => {
     expect(viewport.scrollTop).toBe(200)
   })
 
-  test('translates page-mode wheel deltas per axis', () => {
+  it('translates page-mode wheel deltas per axis', () => {
     const screen = render(() => <ScrollArea orientation="both" />)
     const { viewport, scrollbar } = parts(screen.container)
     setDimensions(viewport, {
@@ -395,7 +395,7 @@ describe('ScrollArea', () => {
     expect(viewport.scrollTop).toBe(110)
   })
 
-  test('releases observers and listeners on unmount', () => {
+  it('releases observers and listeners on unmount', () => {
     const { observe, disconnect, resize } = stubResizeObserver()
     const onOverflowChange = vi.fn()
     const screen = render(() => (
@@ -420,7 +420,7 @@ describe('ScrollArea', () => {
     expect(disconnect).toHaveBeenCalled()
   })
 
-  test('uses theme defaults and resolves the shadow size from theme, prop, and overrides', () => {
+  it('uses theme defaults and resolves the shadow size from theme, prop, and overrides', () => {
     const theme = defineTheme({
       scrollArea: {
         defaultVariants: { fade: true, scrollbarMode: 'native' },

@@ -1,12 +1,12 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Input } from './input'
-describe('Input SSR Hydration', () => {
-  test('reuses its only native element and preserves controlled value behavior', async () => {
+describe('input SSR Hydration', () => {
+  it('reuses its only native element and preserves controlled value behavior', async () => {
     const [value, setValue] = createSignal('Server value')
     const onValueChange = vi.fn()
     const { container } = hydrateFixture(

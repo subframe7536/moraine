@@ -1,13 +1,13 @@
 import { render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { Table } from './table'
 const slot = (container: HTMLElement, name: string) =>
   container.querySelector<HTMLElement>(`[data-slot="table${name ? `-${name}` : ''}"]`)
 
-describe('Table', () => {
-  test('renders every public part with its default element and data-slot', () => {
+describe('table', () => {
+  it('renders every public part with its default element and data-slot', () => {
     const { container } = render(() => (
       <Table>
         <Table.Caption>Caption</Table.Caption>
@@ -40,7 +40,7 @@ describe('Table', () => {
     expect(slot(container, 'cell')?.tagName).toBe('TD')
   })
 
-  test('forwards containerRef to the container element around the table', () => {
+  it('forwards containerRef to the container element around the table', () => {
     let refEl: HTMLDivElement | undefined
     render(() => (
       <Table containerRef={(el) => (refEl = el)}>
@@ -55,7 +55,7 @@ describe('Table', () => {
     expect(refEl?.getAttribute('data-slot')).toBe('table-container')
   })
 
-  test('selected prop on Table.Row sets data-selected without aria-selected', () => {
+  it('selected prop on Table.Row sets data-selected without aria-selected', () => {
     const [selected, setSelected] = createSignal(false)
     const { container } = render(() => (
       <Table>
@@ -77,7 +77,7 @@ describe('Table', () => {
     expect(row.hasAttribute('aria-selected')).toBe(false)
   })
 
-  test('classes and styles overrides from Table root', () => {
+  it('classes and styles overrides from Table root', () => {
     const { container } = render(() => (
       <Table
         classes={{
@@ -114,7 +114,7 @@ describe('Table', () => {
     expect(slot(container, 'cell')?.className).toContain('custom-cell')
   })
 
-  test('forwards native table attributes like colSpan, rowSpan, scope', () => {
+  it('forwards native table attributes like colSpan, rowSpan, scope', () => {
     const { container } = render(() => (
       <Table>
         <Table.Header>
@@ -140,7 +140,7 @@ describe('Table', () => {
     expect(td.rowSpan).toBe(1)
   })
 
-  test('Table.Caption forwards its ref to the caption element', () => {
+  it('table.Caption forwards its ref to the caption element', () => {
     let captionRef: HTMLElement | undefined
     const { container } = render(() => (
       <Table>

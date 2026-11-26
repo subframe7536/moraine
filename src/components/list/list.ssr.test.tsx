@@ -1,11 +1,11 @@
 import { waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { ListHydrationFixture, VirtualListHydrationFixture } from './list.ssr.fixture'
-test('hydrates keyed list items and moves the same rows on reorder', () => {
+it('hydrates keyed list items and moves the same rows on reorder', () => {
   const [items, setItems] = createSignal(['Alpha', 'Beta'])
   const { container } = hydrateFixture(
     '/src/components/list/list.ssr.fixture.tsx',
@@ -23,7 +23,7 @@ test('hydrates keyed list items and moves the same rows on reorder', () => {
   expect(container.querySelector('[role="list"]')).toBe(root)
 })
 
-test('hydrates an empty virtual shell before attaching measured client rows', async () => {
+it('hydrates an empty virtual shell before attaching measured client rows', async () => {
   const { container } = hydrateFixture(
     '/src/components/list/list.ssr.fixture.tsx',
     'renderVirtualListFixture',

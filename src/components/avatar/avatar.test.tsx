@@ -1,6 +1,6 @@
 import { render, waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
@@ -87,8 +87,8 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Avatar', () => {
-  test('renders nothing when avatar group items is undefined or empty', () => {
+describe('avatar', () => {
+  it('renders nothing when avatar group items is undefined or empty', () => {
     const screen = render(() => (
       <>
         <AvatarGroup />
@@ -99,21 +99,21 @@ describe('Avatar', () => {
     expect(screen.container.querySelectorAll('[data-slot="avatar"]')).toHaveLength(0)
   })
 
-  test('renders avatar root element with fallback text', () => {
+  it('renders avatar root element with fallback text', () => {
     const screen = render(() => <Avatar text="MR" />)
 
     expect(screen.container.querySelector('[data-slot="avatar"]')).not.toBeNull()
     expect(screen.getByText('MR')).not.toBeNull()
   })
 
-  test('keeps child slot names when the root data-slot is overridden', () => {
+  it('keeps child slot names when the root data-slot is overridden', () => {
     const view = render(() => <Avatar text="MR" data-slot="custom-avatar" />)
 
     expect(view.container.querySelector('[data-slot="custom-avatar"]')).not.toBeNull()
     expect(view.container.querySelector('[data-slot="avatar-fallback"]')).not.toBeNull()
   })
 
-  test('renders fallback first while image is loading', () => {
+  it('renders fallback first while image is loading', () => {
     outcomesBySrc.set('/loading.png', 'pending')
     const screen = render(() => <Avatar src="/loading.png" text="MR" />)
 
@@ -127,7 +127,7 @@ describe('Avatar', () => {
     expect(fallback?.textContent).toBe('MR')
   })
 
-  test('switches to loaded state and crossfades image', async () => {
+  it('switches to loaded state and crossfades image', async () => {
     outcomesBySrc.set('/loaded.png', 'success')
     const screen = render(() => <Avatar src="/loaded.png" alt="Moraine" />)
 
@@ -145,7 +145,7 @@ describe('Avatar', () => {
     expect(fallback?.getAttribute('aria-hidden')).toBe('true')
   })
 
-  test.each([
+  it.each([
     ['cached-success', 'loaded'],
     ['cached-error', 'error'],
   ] as const)('resolves %s images through the native element', async (outcome, status) => {
@@ -159,22 +159,15 @@ describe('Avatar', () => {
     await waitFor(() => expect(root?.getAttribute('data-status')).toBe(status))
     expect(onStatusChange).not.toHaveBeenCalledWith('idle')
 
-    if (status === 'loaded') {
-      expect(screen.container.querySelector('[data-slot="avatar-image"]')).not.toBeNull()
-      expect(
-        screen.container
-          .querySelector('[data-slot="avatar-fallback"]')
-          ?.getAttribute('aria-hidden'),
-      ).toBe('true')
-    } else {
-      expect(
-        screen.container.querySelector('[data-slot="avatar-image"]')?.getAttribute('aria-hidden'),
-      ).toBe('true')
-      expect(screen.container.querySelector('[data-slot="avatar-fallback"]')).not.toBeNull()
-    }
+    const image = screen.container.querySelector('[data-slot="avatar-image"]')
+    const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
+    expect(image).not.toBeNull()
+    expect(fallback).not.toBeNull()
+    expect(image?.getAttribute('aria-hidden')).toBe(status === 'error' ? 'true' : null)
+    expect(fallback?.getAttribute('aria-hidden')).toBe(status === 'loaded' ? 'true' : null)
   })
 
-  test('renders the icon fallback on error state', async () => {
+  it('renders the icon fallback on error state', async () => {
     outcomesBySrc.set('/broken.png', 'error')
     const screen = render(() => <Avatar src="/broken.png" icon="i-lucide-user" />)
 
@@ -188,7 +181,7 @@ describe('Avatar', () => {
     expect(icon?.className).toContain('i-lucide-user')
   })
 
-  test('shows the icon in place of text when both are provided', () => {
+  it('shows the icon in place of text when both are provided', () => {
     const screen = render(() => <Avatar text="MR" icon="i-lucide-user" />)
     const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
 
@@ -196,7 +189,7 @@ describe('Avatar', () => {
     expect(fallback?.textContent).not.toContain('MR')
   })
 
-  test('renders a badge in each corner position', () => {
+  it('renders a badge in each corner position', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Avatar badge="i-lucide-check" badgePosition="top-left" />
@@ -209,21 +202,21 @@ describe('Avatar', () => {
     expect(screen.container.querySelectorAll('[data-slot="avatar-badge"]')).toHaveLength(4)
   })
 
-  test('generates initials from alt when text is not provided', () => {
+  it('generates initials from alt when text is not provided', () => {
     const screen = render(() => <Avatar alt="Moraine Team" />)
     const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
 
     expect(fallback?.textContent).toBe('MT')
   })
 
-  test('generates Unicode-safe initials across non-space whitespace', () => {
+  it('generates Unicode-safe initials across non-space whitespace', () => {
     const screen = render(() => <Avatar alt={'Ada\t😀 Lovelace'} />)
     const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
 
     expect(fallback?.textContent).toBe('A😀')
   })
 
-  test('resets to loading state when src changes', async () => {
+  it('resets to loading state when src changes', async () => {
     outcomesBySrc.set('/first.png', 'success')
     outcomesBySrc.set('/second.png', 'pending')
 
@@ -245,7 +238,7 @@ describe('Avatar', () => {
     expect(root?.getAttribute('data-status')).toBe('loading')
   })
 
-  test('does not restart loading when src changes only by surrounding whitespace', async () => {
+  it('does not restart loading when src changes only by surrounding whitespace', async () => {
     outcomesBySrc.set('/same.png', 'success')
     const onStatusChange = vi.fn()
     const [source, setSource] = createSignal('/same.png')
@@ -267,7 +260,7 @@ describe('Avatar', () => {
     expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual(['loading', 'loaded'])
   })
 
-  test('does not restart a pending load when the status callback changes', () => {
+  it('does not restart a pending load when the status callback changes', () => {
     outcomesBySrc.set('/pending.png', 'pending')
     const firstCallback = vi.fn()
     const secondCallback = vi.fn()
@@ -285,7 +278,7 @@ describe('Avatar', () => {
     expect(secondCallback.mock.calls.map(([status]) => status)).toEqual(['loaded'])
   })
 
-  test('treats blank sources as errors without requesting an image or emitting idle', () => {
+  it('treats blank sources as errors without requesting an image or emitting idle', () => {
     const onStatusChange = vi.fn()
     const screen = render(() => <Avatar src={' \t '} onStatusChange={onStatusChange} />)
 
@@ -296,7 +289,7 @@ describe('Avatar', () => {
     expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual(['error'])
   })
 
-  test('ignores stale load events after source replacement and disposal', async () => {
+  it('ignores stale load events after source replacement and disposal', async () => {
     const [source, setSource] = createSignal('/first.png')
     const onStatusChange = vi.fn()
     const screen = render(() => <Avatar src={source()} onStatusChange={onStatusChange} />)
@@ -318,7 +311,7 @@ describe('Avatar', () => {
     expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual(['loading', 'loaded'])
   })
 
-  test('exposes exactly one accessible image across fallback and loaded states', async () => {
+  it('exposes exactly one accessible image across fallback and loaded states', async () => {
     outcomesBySrc.set('/profile.png', 'pending')
     const screen = render(() => <Avatar src="/profile.png" alt="Jane Doe" icon="i-lucide-user" />)
 
@@ -339,7 +332,7 @@ describe('Avatar', () => {
     ).toBe('true')
   })
 
-  test('lets a caller root label own image semantics without duplicate descendants', () => {
+  it('lets a caller root label own image semantics without duplicate descendants', () => {
     outcomesBySrc.set('/profile.png', 'cached-success')
     const screen = render(() => (
       <Avatar src="/profile.png" alt="Original" aria-label="Account owner" />
@@ -353,7 +346,7 @@ describe('Avatar', () => {
     expect(screen.queryByRole('img', { name: 'Original' })).toBeNull()
   })
 
-  test('keeps an empty-alt avatar decorative while its fallback is visible', () => {
+  it('keeps an empty-alt avatar decorative while its fallback is visible', () => {
     const screen = render(() => <Avatar alt="" />)
 
     expect(screen.queryByRole('img')).toBeNull()
@@ -362,7 +355,7 @@ describe('Avatar', () => {
     ).toBeNull()
   })
 
-  test('keeps badge icons passive and creates no internal tab stop', () => {
+  it('keeps badge icons passive and creates no internal tab stop', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Avatar badge="i-lucide-check" text="MR" />
@@ -373,7 +366,7 @@ describe('Avatar', () => {
     expect(screen.container.querySelector('[tabindex="0"]')).toBeNull()
   })
 
-  test('fires onStatusChange for success and error paths', async () => {
+  it('fires onStatusChange for success and error paths', async () => {
     outcomesBySrc.set('/ok.png', 'success')
     outcomesBySrc.set('/bad.png', 'error')
     const successStatus = vi.fn()
@@ -396,7 +389,7 @@ describe('Avatar', () => {
     expect(errorStatus.mock.calls.map(([status]) => status)).toEqual(['loading', 'error'])
   })
 
-  test('renders avatar group with items + max', () => {
+  it('renders avatar group with items + max', () => {
     const screen = render(() => (
       <MoraineProvider>
         <AvatarGroup
@@ -421,7 +414,7 @@ describe('Avatar', () => {
     expect(fallbacks[1]?.textContent).toBe('B')
   })
 
-  test('renders all group items in input order when max is absent', () => {
+  it('renders all group items in input order when max is absent', () => {
     const screen = render(() => (
       <AvatarGroup items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }]} />
     ))
@@ -439,7 +432,7 @@ describe('Avatar', () => {
     expect(fallbacks[2]?.textContent).toBe('C')
   })
 
-  test('shows only the overflow count for max zero and floors positive max', () => {
+  it('shows only the overflow count for max zero and floors positive max', () => {
     const screen = render(() => (
       <>
         <AvatarGroup maxVisible={0} items={[{ text: 'A' }, { text: 'B' }]} />
@@ -453,7 +446,7 @@ describe('Avatar', () => {
     expect(groups[1]?.querySelector('[data-slot="avatar-group-count"]')?.textContent).toBe('+1')
   })
 
-  test('applies styles overrides to all slots', () => {
+  it('applies styles overrides to all slots', () => {
     outcomesBySrc.set('/styled.png', 'cached-success')
     const screen = render(() => (
       <>
@@ -493,7 +486,7 @@ describe('Avatar', () => {
     expect(badge?.style.width).toBe('200px')
   })
 
-  test('applies styles overrides to group slots', () => {
+  it('applies styles overrides to group slots', () => {
     const screen = render(() => (
       <AvatarGroup
         maxVisible={1}
@@ -515,7 +508,7 @@ describe('Avatar', () => {
     expect(count?.style.width).toBe('200px')
   })
 
-  test('forwards group styles to Avatar-owned child slots', () => {
+  it('forwards group styles to Avatar-owned child slots', () => {
     const screen = render(() => (
       <AvatarGroup
         items={[{ icon: 'icon-check', badge: 'icon-check' }]}
@@ -542,7 +535,7 @@ describe('Avatar', () => {
     expect(screen.container.querySelector('[data-slot^="avatar-group-fallback"]')).toBeNull()
   })
 
-  test('keeps group root overrides off child avatars', () => {
+  it('keeps group root overrides off child avatars', () => {
     const screen = render(() => (
       <AvatarGroup
         items={[{ text: 'A' }]}
@@ -560,8 +553,8 @@ describe('Avatar', () => {
     expect(fallback?.className).toContain('group-fallback')
   })
 
-  describe('Provider Precedence', () => {
-    test('Avatar and AvatarGroup inherit provider classes with instance overrides', () => {
+  describe('provider Precedence', () => {
+    it('avatar and AvatarGroup inherit provider classes with instance overrides', () => {
       const screen = render(() => (
         <MoraineProvider
           theme={defineTheme({

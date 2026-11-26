@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { Show, createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { Table } from '../components/table/table'
 import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
@@ -31,7 +31,7 @@ function renderInTbody(
 }
 
 describe('createTableVirtualizer', () => {
-  test('renders constant spacer rows and only the visible window with data-index', async () => {
+  it('renders constant spacer rows and only the visible window with data-index', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
@@ -58,7 +58,7 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('renders empty spacers and no rows for zero entries', async () => {
+  it('renders empty spacers and no rows for zero entries', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
@@ -81,7 +81,7 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('rebuilds rows when entries are reactively replaced', async () => {
+  it('rebuilds rows when entries are reactively replaced', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const [entries, setEntries] = createSignal(['Alpha', 'Beta'])
@@ -113,7 +113,7 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('defaults the scroll element to the host tbody', async () => {
+  it('defaults the scroll element to the host tbody', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
       ...scrollViewport(100, 40),
@@ -127,7 +127,7 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
-  test('clears the instance on unmount', async () => {
+  it('clears the instance on unmount', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
@@ -147,7 +147,7 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('forwards an explicit scrollMargin option', async () => {
+  it('forwards an explicit scrollMargin option', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
@@ -164,7 +164,7 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('scrolls to an index while mounted and becomes inert after unmount', async () => {
+  it('scrolls to an index while mounted and becomes inert after unmount', async () => {
     const scrollElement = document.createElement('div')
     const scrollTo = vi.fn()
     Object.defineProperties(scrollElement, {
@@ -196,7 +196,7 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('announces aria-rowcount and absolute aria-rowindex with header rows', async () => {
+  it('announces aria-rowcount and absolute aria-rowindex with header rows', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
@@ -234,7 +234,7 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('keeps an explicit aria-rowcount provided by the caller', async () => {
+  it('keeps an explicit aria-rowcount provided by the caller', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
@@ -263,7 +263,7 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('measures spacer rows from the first row when scrollMargin is set', async () => {
+  it('measures spacer rows from the first row when scrollMargin is set', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 10,
       ...measuredRows(10),
@@ -285,7 +285,7 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
-  test('skips rows past the end when entries shrink', async () => {
+  it('skips rows past the end when entries shrink', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 10,
       ...measuredRows(10),
@@ -321,7 +321,7 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
-  test('updates its own aria-rowcount when entries change', async () => {
+  it('updates its own aria-rowcount when entries change', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
       ...measuredRows(20),
@@ -354,7 +354,7 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
-  test('updates row metadata when header and footer rows change without new entries', async () => {
+  it('updates row metadata when header and footer rows change without new entries', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
       ...measuredRows(20),
@@ -419,7 +419,7 @@ describe('createTableVirtualizer', () => {
     expect(table.hasAttribute('aria-rowcount')).toBe(false)
   })
 
-  test('keeps a footer row index provided by the caller', async () => {
+  it('keeps a footer row index provided by the caller', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
       ...scrollViewport(100, 40),
@@ -448,7 +448,7 @@ describe('createTableVirtualizer', () => {
     expect(footerRow.getAttribute('aria-rowindex')).toBe('42')
   })
 
-  test('yields aria-rowcount to a caller value set after mount', async () => {
+  it('yields aria-rowcount to a caller value set after mount', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
       ...measuredRows(20),
@@ -486,7 +486,7 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
-  test('measures the body offset and sticky header height inside an ancestor scroller', async () => {
+  it('measures the body offset and sticky header height inside an ancestor scroller', async () => {
     const rects = new Map<string, Partial<DOMRect>>([
       ['DIV', { top: 0, height: 200 }],
       ['THEAD', { top: 30, height: 40 }],
@@ -541,7 +541,7 @@ describe('createTableVirtualizer', () => {
     rectSpy.mockRestore()
   })
 
-  test('does not treat a horizontally pinned header cell as a sticky header', async () => {
+  it('does not treat a horizontally pinned header cell as a sticky header', async () => {
     const rectSpy = vi
       .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
       .mockImplementation(function (this: HTMLElement) {
@@ -584,7 +584,7 @@ describe('createTableVirtualizer', () => {
     rectSpy.mockRestore()
   })
 
-  test('prefers explicit scrollMargin and scroll padding over measured values', async () => {
+  it('prefers explicit scrollMargin and scroll padding over measured values', async () => {
     const rectSpy = vi
       .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
       .mockImplementation(function (this: HTMLElement) {
@@ -629,7 +629,7 @@ describe('createTableVirtualizer', () => {
     rectSpy.mockRestore()
   })
 
-  test('composes with Table: the tbody becomes the scroll element and rows render inside the body', async () => {
+  it('composes with Table: the tbody becomes the scroll element and rows render inside the body', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
       ...measuredRows(20),
@@ -680,7 +680,7 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
-  test('marks the last entry, which the trailing spacer row hides from :last-child', async () => {
+  it('marks the last entry, which the trailing spacer row hides from :last-child', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
       ...measuredRows(20),
@@ -797,7 +797,7 @@ describe('createTableVirtualizer', () => {
     const indexes = (virtualizer: ReturnType<typeof createTableVirtualizer<string, string>>) =>
       virtualizer.columnWindow()?.items.map((item) => item.index)
 
-    test('lists the visible columns and the skipped counts on each side', async () => {
+    it('lists the visible columns and the skipped counts on each side', async () => {
       const { virtualizer } = createColumnVirtualizer()
       const { cleanup, scrollColumns } = renderColumns(virtualizer)
       await Promise.resolve()
@@ -814,7 +814,7 @@ describe('createTableVirtualizer', () => {
       expect(virtualizer.columnWindow()).toBeUndefined()
     })
 
-    test('widens the window by overscan', async () => {
+    it('widens the window by overscan', async () => {
       const { virtualizer } = createColumnVirtualizer({ overscan: 2 })
       const { cleanup, scrollColumns } = renderColumns(virtualizer)
       await Promise.resolve()
@@ -824,7 +824,7 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('offsets the window by the column scrollMargin', async () => {
+    it('offsets the window by the column scrollMargin', async () => {
       const { virtualizer } = createColumnVirtualizer()
       const { cleanup } = renderColumns(virtualizer, { columnLayout: { scrollMargin: 200 } })
       await Promise.resolve()
@@ -835,7 +835,7 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('recomputes the window when host column widths change', async () => {
+    it('recomputes the window when host column widths change', async () => {
       const [width, setWidth] = createSignal(100)
       const { virtualizer } = createColumnVirtualizer()
       const { cleanup } = renderColumns(virtualizer, { columnSize: () => width() })
@@ -849,7 +849,7 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('prefers columns.estimateSize over the host column size', async () => {
+    it('prefers columns.estimateSize over the host column size', async () => {
       const { virtualizer } = createColumnVirtualizer({ estimateSize: () => 150 })
       const { cleanup } = renderColumns(virtualizer)
       await Promise.resolve()
@@ -858,7 +858,7 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('skips window entries past the end when columns shrink', async () => {
+    it('skips window entries past the end when columns shrink', async () => {
       const [columns, setColumns] = createSignal<ReadonlyArray<string>>(COLUMNS)
       const { virtualizer } = createColumnVirtualizer()
       const { cleanup } = renderColumns(virtualizer, { columns })
@@ -871,7 +871,7 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('exposes the window while mounted and clears it on unmount', async () => {
+    it('exposes the window while mounted and clears it on unmount', async () => {
       const { virtualizer } = createColumnVirtualizer()
       const { cleanup, scrollColumns } = renderColumns(virtualizer)
       await Promise.resolve()
@@ -886,7 +886,7 @@ describe('createTableVirtualizer', () => {
       expect(virtualizer.columnWindow()).toBeUndefined()
     })
 
-    test('scrolls to a column', async () => {
+    it('scrolls to a column', async () => {
       const { virtualizer } = createColumnVirtualizer()
       const { cleanup, scrollTo } = renderColumns(virtualizer)
       await Promise.resolve()
@@ -897,7 +897,7 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('announces aria-colcount and removes it on unmount', async () => {
+    it('announces aria-colcount and removes it on unmount', async () => {
       const { virtualizer } = createColumnVirtualizer()
       const { screen, cleanup } = renderColumns(virtualizer)
       await Promise.resolve()
@@ -908,7 +908,7 @@ describe('createTableVirtualizer', () => {
       expect(table.getAttribute('aria-colcount')).toBeNull()
     })
 
-    test('keeps an explicit aria-colcount provided by the caller', async () => {
+    it('keeps an explicit aria-colcount provided by the caller', async () => {
       const { virtualizer } = createColumnVirtualizer()
       const { screen, cleanup } = renderColumns(virtualizer, {
         tableProps: { 'aria-colcount': '24' },
@@ -921,7 +921,7 @@ describe('createTableVirtualizer', () => {
       expect(table.getAttribute('aria-colcount')).toBe('24')
     })
 
-    test('stays inactive without the columns option', async () => {
+    it('stays inactive without the columns option', async () => {
       const virtualizer = createTableVirtualizer<string, string>({
         estimateSize: () => 20,
         ...scrollViewport(300, 40),
@@ -935,7 +935,7 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('renders the rows at the mounted scroll position', async () => {
+    it('renders the rows at the mounted scroll position', async () => {
       const scrollElement = document.createElement('div')
       let scrollTop = 900
       Object.defineProperty(scrollElement, 'scrollTop', {
@@ -972,7 +972,7 @@ describe('createTableVirtualizer', () => {
       scrollElement.remove()
     })
 
-    test('moves rows and visible columns together on one scroll event', async () => {
+    it('moves rows and visible columns together on one scroll event', async () => {
       const scrollElement = document.createElement('div')
       let scrollTop = 0
       let scrollLeft = 0

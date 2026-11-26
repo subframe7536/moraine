@@ -1,8 +1,8 @@
 import { createRoot, createSignal, flush } from 'solid-js'
-import { expect, test, vi } from 'vitest'
+import { expect, vi, it } from 'vitest'
 
 import { useSearchQuery } from './search-query'
-test('keeps uncontrolled query text and applies the current length limit', () => {
+it('keeps uncontrolled query text and applies the current length limit', () => {
   createRoot((dispose) => {
     const [maxLength, setMaxLength] = createSignal(3, { ownedWrite: true })
     const onValueChange = vi.fn()
@@ -27,7 +27,7 @@ test('keeps uncontrolled query text and applies the current length limit', () =>
   })
 })
 
-test('follows a controlled value and reports changes without storing them locally', () => {
+it('follows a controlled value and reports changes without storing them locally', () => {
   createRoot((dispose) => {
     const [controlled, setControlled] = createSignal<string | undefined>('first', {
       ownedWrite: true,

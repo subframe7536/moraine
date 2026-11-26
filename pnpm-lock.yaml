@@ -237,8 +237,8 @@ importers:
         specifier: 'catalog:'
         version: 3.0.1(@babel/core@7.29.13)(@solidjs/web@2.0.3(solid-js@2.0.3))(solid-js@2.0.3)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@subf/config':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.6.3
+        version: 0.6.3
       '@subf/unocss':
         specifier: 'catalog:'
         version: 0.4.0(@jridgewell/remapping@2.3.5)(magic-string@1.4.5)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -1188,12 +1188,12 @@ packages:
     peerDependencies:
       solid-js: ^2.0.3
 
-  '@subf/config@0.6.0':
-    resolution: {integrity: sha512-/Iuk1RZmGOX1xBTmV+rsH9Zm/r8zefK8WgRPspQW8PtsOSOMGSaQKYKAx19fWgSTviSX/ERT04cjZufZOwZo9A==}
+  '@subf/config@0.6.3':
+    resolution: {integrity: sha512-dEGq7CdQr4uLAMQDAUnSTbw6PSV+nW6zbb9eZ34LCtqQZosSOwglGooojNs4Y1tlTzRSSPOkGgOhhv6bYmsmQg==}
     hasBin: true
 
-  '@subf/oxlint-plugin@0.4.0':
-    resolution: {integrity: sha512-+pTsZBeey7RR/ROrF6gJkGSYq3RdD2qActZFwfwiWgnEIDDwpgmUVIJhzJoiGV+1+esLIrkCC/U6uqQaOqP39A==}
+  '@subf/oxlint-plugin@0.4.1':
+    resolution: {integrity: sha512-XVahEKTxnY7k2A71pSspJor534VGcyE3n1tO7qOsQc68JfsLac72PWWEc+dbqe4/yA7SOwp6aRhy2lEO/rEjRg==}
 
   '@subf/unocss@0.4.0':
     resolution: {integrity: sha512-kpNxqa1pltr7tIf0dhjr16N0hSKHjwpjQ7lVTq4vwNF/DO7TIvF2/K67Wf+0Wvn8ieRQGpxc4O12owaY1+SyGw==}
@@ -1526,10 +1526,6 @@ packages:
     resolution: {integrity: sha512-AnfC1ATldl49/cvZdLPDjBfrRNwbDO05aibiOtzQu3qtlbJtomNLhF30HEtn/7iBz50dlMECqATo3fG0LrdEgw==}
     engines: {node: '>=14'}
 
-  entities@6.0.1:
-    resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
-    engines: {node: '>=0.12'}
-
   entities@9.0.0:
     resolution: {integrity: sha512-oJFNDJg3kTPwAD1cNn2+WmUq4wFoo09npc3Ydf1D7ED4smRiWrsKnaLxykrTWgyGEcusc87P5dxlAleol9kpkg==}
     engines: {node: '>=20.19.0'}
@@ -1816,9 +1812,6 @@ packages:
 
   parse5-parser-stream@8.1.1:
     resolution: {integrity: sha512-hMcVbbUJcQmP8rURWUdYrT1flRiBiBVjq/RYGguJpDUgIXSqdYKlE0CxthmdMWoSlBAuL5bUBa73g0pttSy7Hw==}
-
-  parse5@7.3.0:
-    resolution: {integrity: sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==}
 
   parse5@8.1.1:
     resolution: {integrity: sha512-EcR/6WDcU7b2N3vQSxKALCk9lXGtUMQxXio008OEMBE0kavu/7JLfBEeFPzi43nMqVDSbEn3QCK+BMCc9zO//w==}
@@ -2931,13 +2924,13 @@ snapshots:
       seroval-plugins: 1.8.0(seroval@1.8.2)
       solid-js: 2.0.3
 
-  '@subf/config@0.6.0':
+  '@subf/config@0.6.3':
     dependencies:
-      '@subf/oxlint-plugin': 0.4.0
+      '@subf/oxlint-plugin': 0.4.1
 
-  '@subf/oxlint-plugin@0.4.0':
+  '@subf/oxlint-plugin@0.4.1':
     dependencies:
-      parse5: 7.3.0
+      parse5: 8.1.1
       validate-html-nesting: 1.2.4
 
   '@subf/unocss@0.4.0(@jridgewell/remapping@2.3.5)(magic-string@1.4.5)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))':
@@ -3255,8 +3248,6 @@ snapshots:
 
   empathic@2.1.0: {}
 
-  entities@6.0.1: {}
-
   entities@9.0.0: {}
 
   es-module-lexer@2.3.2: {}
@@ -3542,10 +3533,6 @@ snapshots:
   parse5-parser-stream@8.1.1:
     dependencies:
       parse5: 8.1.1
-
-  parse5@7.3.0:
-    dependencies:
-      entities: 6.0.1
 
   parse5@8.1.1:
     dependencies:

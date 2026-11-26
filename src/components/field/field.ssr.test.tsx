@@ -1,11 +1,11 @@
 import { Show, createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import { Input } from '../input'
 
 import { Field } from './field'
-test('hydrates standalone Field semantics', () => {
+it('hydrates standalone Field semantics', () => {
   const { container } = hydrateFixture(
     '/src/components/field/field.ssr.fixture.tsx',
     'renderFieldFixture',
@@ -22,7 +22,7 @@ test('hydrates standalone Field semantics', () => {
   expect(input.getAttribute('aria-describedby')).toContain('-description')
 })
 
-test('hydrates conditional Field children and updates them after hydration', () => {
+it('hydrates conditional Field children and updates them after hydration', () => {
   const [visible, setVisible] = createSignal(true)
   const { container } = hydrateFixture(
     '/src/components/field/field.ssr.fixture.tsx',
@@ -43,7 +43,7 @@ test('hydrates conditional Field children and updates them after hydration', () 
   expect(container.querySelector('[data-testid="conditional-child"]')).toBeNull()
 })
 
-test('hydrates Field render props and keeps them reactive', () => {
+it('hydrates Field render props and keeps them reactive', () => {
   const [error, setError] = createSignal<string | undefined>('Missing')
   const { container } = hydrateFixture(
     '/src/components/field/field.ssr.fixture.tsx',
@@ -63,7 +63,7 @@ test('hydrates Field render props and keeps them reactive', () => {
   )
 })
 
-test('hydrates hidden-label Field without replacing its label or control', () => {
+it('hydrates hidden-label Field without replacing its label or control', () => {
   const { container } = hydrateFixture(
     '/src/components/field/field.ssr.fixture.tsx',
     'renderHiddenLabelFieldFixture',

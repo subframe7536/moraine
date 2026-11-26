@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { createCompositionState } from './composition'
 afterEach(() => {
@@ -6,7 +6,7 @@ afterEach(() => {
 })
 
 describe('createCompositionState', () => {
-  test('keeps the composition guard through the Safari composition-end Escape ordering', () => {
+  it('keeps the composition guard through the Safari composition-end Escape ordering', () => {
     vi.useFakeTimers()
     const state = createCompositionState()
 

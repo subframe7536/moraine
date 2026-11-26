@@ -1,10 +1,10 @@
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { CardHydrationFixture } from './card.ssr.fixture'
-test.each([true, false])(
+it.each([true, false])(
   'hydrates compound parts and updates conditional body (initially present=%s)',
   (initialBody) => {
     const [title, setTitle] = createSignal('Title')

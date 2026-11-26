@@ -1,10 +1,10 @@
 import { render } from '@solidjs/testing-library'
 import { Show, createRoot, createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { bindElement, publishElement } from './element-binding'
 describe('bindElement', () => {
-  test('binds each element and cleans up on change and disposal', async () => {
+  it('binds each element and cleans up on change and disposal', async () => {
     const log: Array<string> = []
     const [element, setElement] = createSignal<string>()
     const dispose = createRoot((dispose) => {
@@ -32,7 +32,7 @@ describe('bindElement', () => {
     expect(log.slice(-2)).toEqual(['bind c', 'release c'])
   })
 
-  test('registers elements created inside a Show branch for the branch lifetime', async () => {
+  it('registers elements created inside a Show branch for the branch lifetime', async () => {
     const mounted: Array<HTMLElement> = []
     const [open, setOpen] = createSignal(true)
 
@@ -62,7 +62,7 @@ describe('bindElement', () => {
 })
 
 describe('publishElement', () => {
-  test('clears the target only while it still holds the published element', () => {
+  it('clears the target only while it still holds the published element', () => {
     let target: string | undefined
     const publish = publishElement(
       () => target,

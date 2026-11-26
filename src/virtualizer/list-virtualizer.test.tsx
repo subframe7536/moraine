@@ -1,13 +1,13 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 
 import { createListVirtualizer } from './list-virtualizer'
 import type { VirtualRowProps as RowProps } from './virtualizer.types'
 describe('createListVirtualizer', () => {
-  test('defers scroll-element attachment and client rows until after the hydration microtask', async () => {
+  it('defers scroll-element attachment and client rows until after the hydration microtask', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const renderRow = vi.fn((item: string, _index: number, props) => <div {...props}>{item}</div>)
@@ -38,7 +38,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('clears the public instance on unmount', async () => {
+  it('clears the public instance on unmount', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
@@ -67,7 +67,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('renders every visible row with the row props from the render prop', async () => {
+  it('renders every visible row with the row props from the render prop', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const screen = render(() => {
@@ -95,7 +95,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('rebuilds row identity and content when entries are rapidly replaced', async () => {
+  it('rebuilds row identity and content when entries are rapidly replaced', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const [entries, setEntries] = createSignal([
@@ -153,7 +153,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('invalidates unmeasured layout when reactive estimates change', async () => {
+  it('invalidates unmeasured layout when reactive estimates change', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const entries = Array.from({ length: 100 }, (_, index) => `Item ${index}`)
@@ -187,7 +187,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('drops measured sizes for keys whose estimate changes', async () => {
+  it('drops measured sizes for keys whose estimate changes', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const [entries, setEntries] = createSignal([
@@ -230,7 +230,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('renders rows in a scroll element that arrives after mount and follows replacements', async () => {
+  it('renders rows in a scroll element that arrives after mount and follows replacements', async () => {
     const firstElement = document.createElement('div')
     const secondElement = document.createElement('div')
     document.body.append(firstElement, secondElement)
@@ -269,7 +269,7 @@ describe('createListVirtualizer', () => {
     secondElement.remove()
   })
 
-  test('forwards scrolling to the current instance and becomes inert after unmount', async () => {
+  it('forwards scrolling to the current instance and becomes inert after unmount', async () => {
     const scrollElement = document.createElement('div')
     const scrollTo = vi.fn()
     Object.defineProperties(scrollElement, {
@@ -307,7 +307,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('replays a scroll requested before the instance mounts', async () => {
+  it('replays a scroll requested before the instance mounts', async () => {
     const scrollElement = document.createElement('div')
     const scrollTo = vi.fn()
     Object.defineProperties(scrollElement, {
@@ -346,7 +346,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('uses logical horizontal row placement for LTR and RTL lists', async () => {
+  it('uses logical horizontal row placement for LTR and RTL lists', async () => {
     const ltrScrollElement = document.createElement('div')
     const rtlScrollElement = document.createElement('div')
     rtlScrollElement.style.direction = 'rtl'
@@ -414,7 +414,7 @@ describe('createListVirtualizer', () => {
     rtlScrollElement.remove()
   })
 
-  test('scrolls horizontal RTL indexes with negative physical offsets', async () => {
+  it('scrolls horizontal RTL indexes with negative physical offsets', async () => {
     const scrollElement = document.createElement('div')
     scrollElement.style.direction = 'rtl'
     const scrollTo = vi.fn()
@@ -451,7 +451,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('supports zero items when ResizeObserver is unavailable', async () => {
+  it('supports zero items when ResizeObserver is unavailable', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const resizeObserverDescriptor = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
@@ -484,7 +484,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('cancels a deferred attachment when unmounted before the hydration microtask', async () => {
+  it('cancels a deferred attachment when unmounted before the hydration microtask', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
@@ -510,7 +510,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('unobserves detached rows when the virtual window is replaced', async () => {
+  it('unobserves detached rows when the virtual window is replaced', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
@@ -545,7 +545,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('keeps row elements mounted when entries array identity changes with stable item references', async () => {
+  it('keeps row elements mounted when entries array identity changes with stable item references', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const item1 = { id: '1', text: 'First' }
@@ -591,7 +591,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('unmounts rows whose entries vanished before the virtualizer window shrinks', async () => {
+  it('unmounts rows whose entries vanished before the virtualizer window shrinks', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const [entries, setEntries] = createSignal(['one', 'two', 'three', 'four', 'five'])
@@ -629,7 +629,7 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('keeps measured sizes for remaining keys on middle insert and delete while pruning absent keys', async () => {
+  it('keeps measured sizes for remaining keys on middle insert and delete while pruning absent keys', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const [entries, setEntries] = createSignal([

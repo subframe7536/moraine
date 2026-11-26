@@ -1,11 +1,11 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { Show, createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { BaseSelect } from './base-select'
-test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
+it('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
   const { container } = hydrateFixture(
     '/src/components/base-select/base-select.ssr.fixture.tsx',
     'renderBaseSelectFixture',
@@ -41,7 +41,7 @@ test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
   expect(document.querySelector('[role="option"]')?.getAttribute('aria-selected')).toBe('true')
 })
 
-test('hydrates a conditional Trigger child without replacing it', () => {
+it('hydrates a conditional Trigger child without replacing it', () => {
   const [visible, setVisible] = createSignal(true)
   const { container } = hydrateFixture(
     '/src/components/base-select/base-select.ssr.fixture.tsx',
@@ -60,7 +60,7 @@ test('hydrates a conditional Trigger child without replacing it', () => {
   expect(trigger.textContent).toBe('')
 })
 
-test('hydrates Item item prop and preserves its JSX label on updates', () => {
+it('hydrates Item item prop and preserves its JSX label on updates', () => {
   const [disabled, setDisabled] = createSignal(false)
   function Label() {
     return <span>One</span>

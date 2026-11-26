@@ -1,11 +1,11 @@
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { ScrollArea } from './scroll-area'
-describe('ScrollArea SSR hydration', () => {
-  test('retains server nodes and reactive children, and measures after hydration', async () => {
+describe('scrollArea SSR hydration', () => {
+  it('retains server nodes and reactive children, and measures after hydration', async () => {
     const [fade, setFade] = createSignal(true)
     const [text, setText] = createSignal('Server content')
     const { container } = hydrateFixture(

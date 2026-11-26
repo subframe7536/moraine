@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MORAINE_COLORS } from '../../theme/tokens'
 
@@ -13,8 +13,8 @@ function queryAll(container: HTMLElement, selector: string): Array<HTMLElement> 
   return Array.from(container.querySelectorAll<HTMLElement>(selector))
 }
 
-describe('BoldSlider', () => {
-  test('renders a single slider with label, value, and accessible name', () => {
+describe('boldSlider', () => {
+  it('renders a single slider with label, value, and accessible name', () => {
     const screen = render(() => <BoldSlider label="Bounce" defaultValue={0.5} max={1} step={0.1} />)
     const root = query(screen.container, '[data-slot="slider"]')
     const thumbs = queryAll(screen.container, '[data-slot="slider-thumb"]')
@@ -34,7 +34,7 @@ describe('BoldSlider', () => {
     expect(values.map((value) => value.hasAttribute('data-fill'))).toEqual([false, true])
   })
 
-  test('renders a JSX label in both text layers without an aria-label fallback', () => {
+  it('renders a JSX label in both text layers without an aria-label fallback', () => {
     const screen = render(() => (
       <BoldSlider
         label={
@@ -50,7 +50,7 @@ describe('BoldSlider', () => {
     expect(query(screen.container, '[data-slot="slider"]').hasAttribute('aria-label')).toBe(false)
   })
 
-  test('prefers an explicit aria-label over the label', () => {
+  it('prefers an explicit aria-label over the label', () => {
     const screen = render(() => <BoldSlider label="Blur" aria-label="Background blur" />)
 
     expect(query(screen.container, '[data-slot="slider"]').getAttribute('aria-label')).toBe(
@@ -58,7 +58,7 @@ describe('BoldSlider', () => {
     )
   })
 
-  test('renders overlay parts as root children after the track and thumb', () => {
+  it('renders overlay parts as root children after the track and thumb', () => {
     const screen = render(() => <BoldSlider label="Bounce" defaultValue={30} />)
     const root = query(screen.container, '[data-slot="slider"]')
     const slots = Array.from(root.children).map((child) => child.getAttribute('data-slot'))
@@ -72,7 +72,7 @@ describe('BoldSlider', () => {
     ])
   })
 
-  test('hides the range and keeps the indicator visible when the value is at the minimum', () => {
+  it('hides the range and keeps the indicator visible when the value is at the minimum', () => {
     const [value, setValue] = createSignal(25)
     const screen = render(() => <BoldSlider value={value()} />)
     const range = query(screen.container, '[data-slot="slider-range"]')
@@ -91,7 +91,7 @@ describe('BoldSlider', () => {
     expect(range.hasAttribute('data-empty')).toBe(false)
   })
 
-  test('keeps the fill visible at value 0 when min is negative', () => {
+  it('keeps the fill visible at value 0 when min is negative', () => {
     const screen = render(() => <BoldSlider min={-50} max={50} value={0} />)
     const range = query(screen.container, '[data-slot="slider-range"]')
     const fill = query(screen.container, '[data-slot="bold-slider-fill"]')
@@ -101,7 +101,7 @@ describe('BoldSlider', () => {
     expect(fill.getAttribute('style')).toContain('* 0.5')
   })
 
-  test('formats the value from step decimals or a custom formatter', () => {
+  it('formats the value from step decimals or a custom formatter', () => {
     const [step, setStep] = createSignal<number | undefined>(0.25)
     const screen = render(() => (
       <>
@@ -124,7 +124,7 @@ describe('BoldSlider', () => {
     expect(query(stepped, '[data-slot="bold-slider-value"]').textContent).toBe('1.5')
   })
 
-  test('formats the raw value with formatOptions', () => {
+  it('formats the raw value with formatOptions', () => {
     const screen = render(() => (
       <BoldSlider defaultValue={25} max={50} formatOptions={{ style: 'unit', unit: 'percent' }} />
     ))
@@ -135,7 +135,7 @@ describe('BoldSlider', () => {
     ).toBe('25%')
   })
 
-  test('hides the label and value when they are not requested', () => {
+  it('hides the label and value when they are not requested', () => {
     const screen = render(() => <BoldSlider valueLabel={false} />)
 
     expect(screen.container.querySelector('[data-slot="bold-slider-label"]')).toBeNull()
@@ -143,7 +143,7 @@ describe('BoldSlider', () => {
     expect(queryAll(screen.container, '[data-slot="bold-slider-indicator"]')).toHaveLength(1)
   })
 
-  test('updates the displayed value from keyboard input and reports changes', () => {
+  it('updates the displayed value from keyboard input and reports changes', () => {
     const onValueChange = vi.fn()
     const onValueCommit = vi.fn()
     const screen = render(() => (
@@ -167,7 +167,7 @@ describe('BoldSlider', () => {
     ).toEqual(['60', '60'])
   })
 
-  test('applies user classes to the root, track, and indicator and sizes the padding', () => {
+  it('applies user classes to the root, track, and indicator and sizes the padding', () => {
     const [size, setSize] = createSignal<'sm' | 'md' | 'lg'>('sm')
     const screen = render(() => (
       <BoldSlider
@@ -192,7 +192,7 @@ describe('BoldSlider', () => {
     expect(root.style.getPropertyValue('--bs-pad')).toBe('17px')
   })
 
-  test('marks step markers inside the fill as active', () => {
+  it('marks step markers inside the fill as active', () => {
     const screen = render(() => <BoldSlider markers min={0} max={4} step={1} defaultValue={1} />)
     const markers = queryAll(screen.container, '[data-slot="slider-marker"]')
 
@@ -204,7 +204,7 @@ describe('BoldSlider', () => {
     ])
   })
 
-  test('shows keyboard focus state only for keyboard focus', () => {
+  it('shows keyboard focus state only for keyboard focus', () => {
     const screen = render(() => <BoldSlider label="Bounce" defaultValue={50} step={10} />)
     const track = query(screen.container, '[data-slot="slider-track"]')
     const thumb = query(screen.container, '[data-slot="slider-thumb"]')
@@ -241,7 +241,7 @@ describe('BoldSlider', () => {
     expect(thumb.hasAttribute('data-focus-visible')).toBe(false)
   })
 
-  test('calls user onFocus and onBlur when the thumb gains and loses focus', () => {
+  it('calls user onFocus and onBlur when the thumb gains and loses focus', () => {
     const onFocus = vi.fn()
     const onBlur = vi.fn()
     const screen = render(() => (
@@ -257,7 +257,7 @@ describe('BoldSlider', () => {
     expect(onBlur).toHaveBeenCalledTimes(1)
   })
 
-  test('submits its value with a native form', () => {
+  it('submits its value with a native form', () => {
     const screen = render(() => (
       <form data-testid="form">
         <BoldSlider name="opacity" defaultValue={70} />
@@ -268,7 +268,7 @@ describe('BoldSlider', () => {
     expect(data.get('opacity')).toBe('70')
   })
 
-  test('defaults to soft primary styling and switches reactively to solid', () => {
+  it('defaults to soft primary styling and switches reactively to solid', () => {
     const [variant, setVariant] = createSignal<'soft' | 'solid' | undefined>(undefined)
     const screen = render(() => <BoldSlider label="Bounce" defaultValue={50} variant={variant()} />)
     const root = query(screen.container, '[data-slot="slider"]')

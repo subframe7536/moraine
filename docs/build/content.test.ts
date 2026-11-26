@@ -6,7 +6,7 @@ import { createRequire } from 'node:module'
 import { promisify } from 'node:util'
 
 import path from 'pathe'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { validateAnatomy } from './anatomy.ts'
 import { loadComponentApiDoc } from './api-doc/load.ts'
@@ -74,7 +74,7 @@ function extractUsageSnippet(page: string, source: string): UsageSnippet | undef
   }
 }
 
-test('copyable Usage examples compile against the public component API', async () => {
+it('copyable Usage examples compile against the public component API', async () => {
   mkdirSync(CACHE_DIR, { recursive: true })
 
   const snippets = new Map<string, UsageSnippet>()
@@ -124,6 +124,7 @@ test('copyable Usage examples compile against the public component API', async (
   const require = createRequire(import.meta.url)
   const compiler = path.join(path.dirname(require.resolve('tsrs/package.json')), 'bin/tsrs')
 
+  let compilationFailure: string | undefined
   try {
     // Fence code is displayed to readers, so the MDX build alone cannot typecheck it.
     await execFileAsync(process.execPath, [compiler, '-p', configPath, '--pretty', 'false'], {
@@ -147,11 +148,12 @@ test('copyable Usage examples compile against the public component API', async (
       },
     )
 
-    expect.fail(`Usage examples failed compilation:\n${remapped}`)
+    compilationFailure = `Usage examples failed compilation:\n${remapped}`
   }
+  expect(compilationFailure, compilationFailure).toBeUndefined()
 }, 30_000)
 
-test('component pages follow the shared content and anatomy contract', async () => {
+it('component pages follow the shared content and anatomy contract', async () => {
   const failures: Array<string> = []
   for (const page of componentPages()) {
     const source = readFileSync(page, 'utf8')

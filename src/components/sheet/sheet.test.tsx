@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createComponent, createSignal, flush, onCleanup } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-util/overlay-test'
@@ -17,8 +17,8 @@ function expectAriaReferencesToResolve(content: Element): void {
   }
 }
 
-describe('Sheet', () => {
-  test.each(['left', 'right', 'top', 'bottom'] as const)(
+describe('sheet', () => {
+  it.each(['left', 'right', 'top', 'bottom'] as const)(
     'opens a %s sheet with the expanded and transition state',
     (side) => {
       render(() => (
@@ -41,7 +41,7 @@ describe('Sheet', () => {
     },
   )
 
-  test('releases body slot content when closed and recreates it when reopened', async () => {
+  it('releases body slot content when closed and recreates it when reopened', async () => {
     const [open, setOpen] = createSignal(false)
     let mounts = 0
     let cleanups = 0
@@ -83,7 +83,7 @@ describe('Sheet', () => {
     screen.unmount()
   })
 
-  test('inherits BaseDialog trigger dialog semantics through exit presence', async () => {
+  it('inherits BaseDialog trigger dialog semantics through exit presence', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Sheet open={open()}>
@@ -110,7 +110,7 @@ describe('Sheet', () => {
     screen.unmount()
   })
 
-  test('applies inset without transition state', () => {
+  it('applies inset without transition state', () => {
     render(() => (
       <Sheet
         open
@@ -136,7 +136,7 @@ describe('Sheet', () => {
     expect(content?.classList.contains('content-class')).toBe(true)
   })
 
-  test('applies a changed root content class without remounting the sheet', () => {
+  it('applies a changed root content class without remounting the sheet', () => {
     const [rootClass, setRootClass] = createSignal('first-root')
     render(() => (
       <Sheet open classes={{ content: rootClass() }}>
@@ -153,7 +153,7 @@ describe('Sheet', () => {
     expect(content.classList.contains('first-root')).toBe(false)
   })
 
-  test('renders default shell with title, description, body, footer and close button', () => {
+  it('renders default shell with title, description, body, footer and close button', () => {
     render(() => (
       <Sheet open>
         <Sheet.Trigger as="button" type="button">
@@ -173,7 +173,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-content-close"]')).not.toBeNull()
   })
 
-  test('only references mounted default title and description nodes', () => {
+  it('only references mounted default title and description nodes', () => {
     render(() => (
       <Sheet open>
         <Sheet.Content title="Sheet title" description="Sheet description">
@@ -192,7 +192,7 @@ describe('Sheet', () => {
     )
   })
 
-  test('uses aria-label for a custom header without dangling generated IDs', () => {
+  it('uses aria-label for a custom header without dangling generated IDs', () => {
     render(() => (
       <Sheet open>
         <Sheet.Content
@@ -215,7 +215,7 @@ describe('Sheet', () => {
     expectAriaReferencesToResolve(content)
   })
 
-  test('preserves native ARIA naming attributes over generated Sheet relationships', () => {
+  it('preserves native ARIA naming attributes over generated Sheet relationships', () => {
     render(() => (
       <Sheet open>
         <Sheet.Content
@@ -242,7 +242,7 @@ describe('Sheet', () => {
     expectAriaReferencesToResolve(content)
   })
 
-  test('inherits non-modal modal false behavior', async () => {
+  it('inherits non-modal modal false behavior', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
@@ -269,7 +269,7 @@ describe('Sheet', () => {
     screen.unmount()
   })
 
-  test('preserves numeric zero in every shell content slot', () => {
+  it('preserves numeric zero in every shell content slot', () => {
     render(() => (
       <Sheet open>
         <Sheet.Content title={0} description={0}>
@@ -286,7 +286,7 @@ describe('Sheet', () => {
     expectAriaReferencesToResolve(document.body.querySelector('[data-slot="sheet-content"]')!)
   })
 
-  test.each([
+  it.each([
     ['title only', 'Title', undefined, undefined, true, false],
     ['description only', undefined, 'Description', 'Description sheet', false, true],
     ['no title or description', undefined, undefined, 'Unnamed sheet', false, false],
@@ -309,7 +309,7 @@ describe('Sheet', () => {
     },
   )
 
-  test('distinguishes empty shell content from false presence', () => {
+  it('distinguishes empty shell content from false presence', () => {
     const empty = render(() => (
       <Sheet open closable={false}>
         <Sheet.Content title="" description="">
@@ -334,7 +334,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-footer"]')).toBeNull()
   })
 
-  test('renders shorthand title and description beside composed children', () => {
+  it('renders shorthand title and description beside composed children', () => {
     render(() => (
       <Sheet open>
         {createComponent(Sheet.Content, {
@@ -359,7 +359,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-footer"]')?.textContent).toBe('Footer')
   })
 
-  test('composes explicit header, reactive ARIA IDs, and body presence', () => {
+  it('composes explicit header, reactive ARIA IDs, and body presence', () => {
     const [showHeader, setShowHeader] = createSignal(true)
     const [showTitle, setShowTitle] = createSignal(true)
     const [showDescription, setShowDescription] = createSignal(true)
@@ -421,7 +421,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-footer"]')).toBeNull()
   })
 
-  test('reacts to side, inset, and transition changes without remounting content', () => {
+  it('reacts to side, inset, and transition changes without remounting content', () => {
     const [side, setSide] = createSignal<'left' | 'right'>('left')
     const [inset, setInset] = createSignal(false)
     const [transition, setTransition] = createSignal(true)
@@ -447,7 +447,7 @@ describe('Sheet', () => {
     expect(content.hasAttribute('data-transition')).toBe(false)
   })
 
-  test('releases content and scroll lock when unmounted during exit', async () => {
+  it('releases content and scroll lock when unmounted during exit', async () => {
     const screen = render(() => (
       <Sheet defaultOpen>
         <Sheet.Content aria-label="Unmounting sheet">
@@ -468,7 +468,7 @@ describe('Sheet', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
-  test('renders the trigger content as a native button root', () => {
+  it('renders the trigger content as a native button root', () => {
     render(() => (
       <Sheet open>
         <Sheet.Trigger as="button" type="button">
@@ -486,7 +486,7 @@ describe('Sheet', () => {
     expect(trigger?.getAttribute('type')).toBe('button')
   })
 
-  test('renders a span trigger root', () => {
+  it('renders a span trigger root', () => {
     render(() => (
       <Sheet>
         <Sheet.Trigger as="span">Open</Sheet.Trigger>
@@ -499,7 +499,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-trigger"]')?.tagName).toBe('SPAN')
   })
 
-  test('supports custom close content', () => {
+  it('supports custom close content', () => {
     render(() => (
       <Sheet open closeIcon={<span data-testid="custom-close">X</span>}>
         <Sheet.Trigger as="button" type="button">
@@ -514,7 +514,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-testid="custom-close"]')?.textContent).toBe('X')
   })
 
-  test('keeps automatic Content close and explicit Close styling separate', () => {
+  it('keeps automatic Content close and explicit Close styling separate', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Sheet open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
@@ -540,7 +540,7 @@ describe('Sheet', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('hides close button when closable=false', () => {
+  it('hides close button when closable=false', () => {
     render(() => (
       <Sheet open closable={false}>
         <Sheet.Trigger as="button" type="button">
@@ -555,7 +555,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-content-close"]')).toBeNull()
   })
 
-  test('renders body content and keeps shell sections', () => {
+  it('renders body content and keeps shell sections', () => {
     render(() => (
       <Sheet open>
         <Sheet.Trigger as="button" type="button">
@@ -575,7 +575,7 @@ describe('Sheet', () => {
     expect(document.body.textContent).toContain('Sheet title')
   })
 
-  test('opens by trigger click and closes through close button', async () => {
+  it('opens by trigger click and closes through close button', async () => {
     const onOpenChange = vi.fn()
 
     const screen = render(() => (
@@ -612,7 +612,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('renders into portal by default', () => {
+  it('renders into portal by default', () => {
     const screen = render(() => (
       <Sheet open>
         <Sheet.Trigger as="button" type="button">
@@ -628,7 +628,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
   })
 
-  test('supports overlay=false', () => {
+  it('supports overlay=false', () => {
     render(() => (
       <Sheet open overlay={false}>
         <Sheet.Trigger as="button" type="button">
@@ -643,7 +643,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-overlay"]')).toBeNull()
   })
 
-  test('applies an instance overlay class to the backdrop that wraps the content', () => {
+  it('applies an instance overlay class to the backdrop that wraps the content', () => {
     render(() => (
       <Sheet open classes={{ overlay: 'custom-sheet-overlay' }}>
         <Sheet.Content>
@@ -658,7 +658,7 @@ describe('Sheet', () => {
     expect(overlay.contains(content)).toBe(true)
   })
 
-  test('applies a provider theme overlay class to the backdrop', () => {
+  it('applies a provider theme overlay class to the backdrop', () => {
     render(() => (
       <MoraineProvider
         theme={defineTheme({
@@ -677,7 +677,7 @@ describe('Sheet', () => {
     expect(overlay.classList.contains('provider-sheet-overlay')).toBe(true)
   })
 
-  test('prevents close when closeOnEscape is false and emits onClosePrevented', async () => {
+  it('prevents close when closeOnEscape is false and emits onClosePrevented', async () => {
     const onClosePrevented = vi.fn()
 
     render(() => (
@@ -701,7 +701,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('emits onClosePrevented once for blocked outside pointer interaction', async () => {
+  it('emits onClosePrevented once for blocked outside pointer interaction', async () => {
     const onClosePrevented = vi.fn()
 
     const screen = render(() => (
@@ -731,7 +731,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('closes on Escape by default', async () => {
+  it('closes on Escape by default', async () => {
     const onClosePrevented = vi.fn()
     const onOpenChange = vi.fn()
 
@@ -759,7 +759,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('renders controlled overlay without a trigger', async () => {
+  it('renders controlled overlay without a trigger', async () => {
     render(() => (
       <Sheet open>
         <Sheet.Content>
@@ -775,7 +775,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('applies styles override to content', () => {
+  it('applies styles override to content', () => {
     render(() => (
       <Sheet open styles={{ content: { width: '200px' } }}>
         <Sheet.Trigger as="button" type="button">
@@ -791,7 +791,7 @@ describe('Sheet', () => {
     expect(content?.style.width).toBe('200px')
   })
 
-  test('sets a visualViewport keyboard inset and scrolls the focused field', async () => {
+  it('sets a visualViewport keyboard inset and scrolls the focused field', async () => {
     const listeners = new Map<string, EventListener>()
     const visualViewport = {
       height: 400,
@@ -836,7 +836,7 @@ describe('Sheet', () => {
     }
   })
 
-  test('preserves custom id on Sheet.Content and updates trigger aria-controls', () => {
+  it('preserves custom id on Sheet.Content and updates trigger aria-controls', () => {
     render(() => (
       <Sheet open>
         <Sheet.Trigger>Open</Sheet.Trigger>
@@ -852,7 +852,7 @@ describe('Sheet', () => {
     expect(trigger.getAttribute('aria-controls')).toBe('custom-sheet-id')
   })
 
-  test('preserves locale direction when dir is undefined and allows explicit dir override', () => {
+  it('preserves locale direction when dir is undefined and allows explicit dir override', () => {
     render(() => (
       <MoraineProvider dir="rtl">
         <Sheet open>
@@ -874,7 +874,7 @@ describe('Sheet', () => {
     expect(explicitDir.getAttribute('dir')).toBe('ltr')
   })
 
-  test('supports render function children receiving close action', () => {
+  it('supports render function children receiving close action', () => {
     const onOpenChange = vi.fn()
     render(() => (
       <Sheet defaultOpen onOpenChange={onOpenChange}>
@@ -896,7 +896,7 @@ describe('Sheet', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('reacts to Show control flow and zero-argument accessors inside Sheet.Content', () => {
+  it('reacts to Show control flow and zero-argument accessors inside Sheet.Content', () => {
     const [visible, setVisible] = createSignal(true)
     const screen = render(() => (
       <Sheet defaultOpen>
@@ -918,7 +918,7 @@ describe('Sheet', () => {
     screen.unmount()
   })
 
-  test('forwards ref to Sheet.Content DOM element', () => {
+  it('forwards ref to Sheet.Content DOM element', () => {
     let captured: HTMLDivElement | undefined
     render(() => (
       <Sheet open>
@@ -932,7 +932,7 @@ describe('Sheet', () => {
     expect(captured?.getAttribute('data-slot')).toBe('sheet-content')
   })
 
-  test('runs the consumer onKeyDown handler and honors its preventDefault', () => {
+  it('runs the consumer onKeyDown handler and honors its preventDefault', () => {
     const onKeyDown = vi.fn((event: KeyboardEvent) => {
       event.preventDefault()
     })
@@ -950,7 +950,7 @@ describe('Sheet', () => {
     expect(notCancelled).toBe(false)
   })
 
-  test('dynamically toggles overlay={false} without unmounting content or losing state', () => {
+  it('dynamically toggles overlay={false} without unmounting content or losing state', () => {
     const [overlay, setOverlay] = createSignal(true)
     render(() => (
       <Sheet open overlay={overlay()}>
@@ -980,7 +980,7 @@ describe('Sheet', () => {
     expect(input.value).toBe('user typed text')
   })
 
-  test('supports polymorphic rendering via as prop on Content', () => {
+  it('supports polymorphic rendering via as prop on Content', () => {
     render(() => (
       <Sheet open>
         <Sheet.Content as="aside" data-testid="aside-sheet">
@@ -994,7 +994,7 @@ describe('Sheet', () => {
     expect(sheet?.getAttribute('role')).toBe('dialog')
   })
 
-  test('reflects data-expanded when open and switches to data-closed during exit motion', async () => {
+  it('reflects data-expanded when open and switches to data-closed during exit motion', async () => {
     const [open, setOpen] = createSignal(true)
     render(() => (
       <Sheet open={open()}>
@@ -1023,7 +1023,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('supports transition={false} by omitting data-transition and unmounting without an exit animation', async () => {
+  it('supports transition={false} by omitting data-transition and unmounting without an exit animation', async () => {
     const [open, setOpen] = createSignal(true)
     render(() => (
       <Sheet open={open()} transition={false}>
@@ -1045,7 +1045,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('maintains expanded and closed data attributes on sheet content when overlay={false}', async () => {
+  it('maintains expanded and closed data attributes on sheet content when overlay={false}', async () => {
     const [open, setOpen] = createSignal(true)
     render(() => (
       <Sheet open={open()} overlay={false}>

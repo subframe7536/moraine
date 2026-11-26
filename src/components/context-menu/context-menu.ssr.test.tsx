@@ -1,13 +1,13 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { ContextMenu } from './context-menu'
-describe('ContextMenu SSR Hydration', () => {
-  test('hydrates the trigger once and opens from keyboard and long press', async () => {
+describe('contextMenu SSR Hydration', () => {
+  it('hydrates the trigger once and opens from keyboard and long press', async () => {
     let triggerReads = 0
 
     const { container } = hydrateFixture(

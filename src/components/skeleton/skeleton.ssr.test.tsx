@@ -1,10 +1,10 @@
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { Skeleton } from '../../index'
 import type { SkeletonT } from '../../index'
 import { hydrateFixture } from '../../test-util/ssr-test'
-test('hydrates a styled placeholder and updates forwarded props and children in place', () => {
+it('hydrates a styled placeholder and updates forwarded props and children in place', () => {
   const [label, setLabel] = createSignal('Loading')
   const [rounded, setRounded] = createSignal('rounded-full')
   const [width, setWidth] = createSignal('100px')

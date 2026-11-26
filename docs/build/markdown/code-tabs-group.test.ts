@@ -1,11 +1,11 @@
 // @vitest-environment node
 
 import { mdxToJs } from 'satteri'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { createDocsCodePlugin, createDocsCodeTabsPlugin } from './plugins.ts'
 describe('createDocsCodeTabsPlugin with group-id', () => {
-  test('transforms consecutive code blocks with group-id into CodeTabs', async () => {
+  it('transforms consecutive code blocks with group-id into CodeTabs', async () => {
     const markdown = `
 \`\`\`shell title="bun" group-id="install"
 bun add moraine
@@ -31,7 +31,7 @@ npm i moraine
     expect(res.code).toContain('npm i moraine')
   })
 
-  test('keeps ungrouped code blocks as CodeBlock while grouping group-id blocks', async () => {
+  it('keeps ungrouped code blocks as CodeBlock while grouping group-id blocks', async () => {
     const markdown = `
 \`\`\`shell title="bun" group-id="install"
 bun add moraine
@@ -57,7 +57,7 @@ console.log('standalone')
     expect(res.code).toContain('standalone')
   })
 
-  test('separates consecutive code blocks with different group-id values into distinct CodeTabs', async () => {
+  it('separates consecutive code blocks with different group-id values into distinct CodeTabs', async () => {
     const markdown = `
 \`\`\`shell title="bun" group-id="install"
 bun add moraine
@@ -84,7 +84,7 @@ pnpm dev
     expect(res.code).toContain('groupId: "run"')
   })
 
-  test('parses highlighted lines in grouped code blocks', async () => {
+  it('parses highlighted lines in grouped code blocks', async () => {
     const markdown = `
 \`\`\`ts title="wind4" {1} group-id="unocss"
 import { presetWind4 } from '@subf/unocss'
@@ -105,7 +105,7 @@ export default {}
     expect(res.code).toContain('"highlightedLines": [2]')
   })
 
-  test('normalizes explicit items into data without retaining duplicate child nodes', async () => {
+  it('normalizes explicit items into data without retaining duplicate child nodes', async () => {
     const markdown = `
 <CodeTabs>
   <CodeTabs.Item lang="ts" title="config">

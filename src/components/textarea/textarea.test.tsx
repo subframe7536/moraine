@@ -2,7 +2,7 @@ import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { createForm } from '../form'
@@ -13,8 +13,8 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Textarea', () => {
-  test('forwards ref to its only native element', () => {
+describe('textarea', () => {
+  it('forwards ref to its only native element', () => {
     let control: HTMLTextAreaElement | undefined
     const screen = render(() => <Textarea ref={(el) => (control = el)} placeholder="ref test" />)
     expect(control).toBeInstanceOf(HTMLTextAreaElement)
@@ -23,7 +23,7 @@ describe('Textarea', () => {
     expect(control?.placeholder).toBe('ref test')
   })
 
-  test('renders autoComplete as the native autocomplete attribute', () => {
+  it('renders autoComplete as the native autocomplete attribute', () => {
     const screen = render(() => <Textarea autoComplete="street-address" />)
     const textarea = screen.container.querySelector('textarea')!
 
@@ -35,7 +35,7 @@ describe('Textarea', () => {
     ).toBe(false)
   })
 
-  test('renders base attributes', () => {
+  it('renders base attributes', () => {
     const screen = render(() => (
       <Textarea id="bio" name="bio" rows={4} placeholder="Write bio" required disabled />
     ))
@@ -55,7 +55,7 @@ describe('Textarea', () => {
     expect(textarea.getAttribute('data-disabled')).toBe('')
   })
 
-  test('exposes readonly state through aria and data attributes', () => {
+  it('exposes readonly state through aria and data attributes', () => {
     const screen = render(() => <Textarea readOnly />)
     const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
     const root = screen.container.querySelector('[data-slot="textarea"]')
@@ -66,7 +66,7 @@ describe('Textarea', () => {
     expect(textarea.getAttribute('data-readonly')).toBe('')
   })
 
-  test('applies trim, lazy and empty value strategy modifiers', async () => {
+  it('applies trim, lazy and empty value strategy modifiers', async () => {
     const onTrim = vi.fn()
     const onLazy = vi.fn()
     const onPreserve = vi.fn()
@@ -112,7 +112,7 @@ describe('Textarea', () => {
     expect(onNullable).toHaveBeenLastCalledWith(null)
   })
 
-  test('clears the displayed text when a controlled value becomes null', () => {
+  it('clears the displayed text when a controlled value becomes null', () => {
     const [value, setValue] = createSignal<string | number | null>('Filled')
     const screen = render(() => <Textarea value={value()} />)
     const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
@@ -123,7 +123,7 @@ describe('Textarea', () => {
     expect(textarea.value).toBe('')
   })
 
-  test('syncs trimmed DOM value on change', async () => {
+  it('syncs trimmed DOM value on change', async () => {
     const screen = render(() => <Textarea modifiers={{ trim: true, lazy: true }} />)
     const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
 
@@ -135,7 +135,7 @@ describe('Textarea', () => {
     expect(textarea.value).toBe('value')
   })
 
-  test('autoresizes rows and respects maxrows', async () => {
+  it('autoresizes rows and respects maxrows', async () => {
     vi.spyOn(window, 'getComputedStyle').mockImplementation(
       () =>
         ({
@@ -178,7 +178,7 @@ describe('Textarea', () => {
     expect(maxLimited.rows).toBe(3)
   })
 
-  test('measures autoresize with the owner window of an iframe-hosted textarea', () => {
+  it('measures autoresize with the owner window of an iframe-hosted textarea', () => {
     vi.useFakeTimers()
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
@@ -207,21 +207,21 @@ describe('Textarea', () => {
     iframe.remove()
   })
 
-  test('applies classes.root to the root element', () => {
+  it('applies classes.root to the root element', () => {
     const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="textarea"]')
 
     expect(root?.className).toContain('root-override')
   })
 
-  test('applies styles.root override', () => {
+  it('applies styles.root override', () => {
     const screen = render(() => <Textarea styles={{ root: { width: '200px' } }} />)
     const root = screen.container.querySelector<HTMLElement>('[data-slot="textarea"]')
 
     expect(root?.style.width).toBe('200px')
   })
 
-  test('accepts controlled updates from native onInput', () => {
+  it('accepts controlled updates from native onInput', () => {
     const [value, setValue] = createSignal('abc')
     const screen = render(() => (
       <Textarea value={value()} onInput={(event) => setValue(event.currentTarget.value)} />
@@ -233,7 +233,7 @@ describe('Textarea', () => {
     expect(textarea.value).toBe('abcd')
   })
 
-  test('keeps the DOM and Field aligned when a controlled edit is rejected', async () => {
+  it('keeps the DOM and Field aligned when a controlled edit is rejected', async () => {
     const [value, setValue] = createSignal('Locked')
     const onValueChange = vi.fn()
     const { screen, value: form } = renderWithOwner(
@@ -263,7 +263,7 @@ describe('Textarea', () => {
     expect(getInput(form)).toEqual({ value: 'Accepted' })
   })
 
-  test('defers controlled rollback until composition completes', async () => {
+  it('defers controlled rollback until composition completes', async () => {
     const screen = render(() => <Textarea value="Locked" />)
     const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
 
@@ -286,7 +286,7 @@ describe('Textarea', () => {
     expect(textarea.value).toBe('Locked')
   })
 
-  test('keeps a lazy controlled composition draft until change commits it once', async () => {
+  it('keeps a lazy controlled composition draft until change commits it once', async () => {
     const [value, setValue] = createSignal('')
     const onValueChange = vi.fn((nextValue: string) => setValue(nextValue))
     const screen = render(() => (
@@ -315,7 +315,7 @@ describe('Textarea', () => {
     expect(textarea.value).toBe('拼音')
   })
 
-  test('keeps a lazy Formisch composition draft until change commits it once', async () => {
+  it('keeps a lazy Formisch composition draft until change commits it once', async () => {
     const onValueChange = vi.fn()
     const { screen, value: form } = renderWithOwner(
       () =>
@@ -354,7 +354,7 @@ describe('Textarea', () => {
     expect(getInput(form)).toEqual({ value: '拼音' })
   })
 
-  test('resizes for external Formisch values and reactive row constraints', () => {
+  it('resizes for external Formisch values and reactive row constraints', () => {
     vi.useFakeTimers()
     vi.spyOn(window, 'getComputedStyle').mockImplementation(
       () =>
@@ -410,7 +410,7 @@ describe('Textarea', () => {
     expect(textarea.style.overflow).toBe('')
   })
 
-  test('does not focus or resize after unmount while timers are pending', () => {
+  it('does not focus or resize after unmount while timers are pending', () => {
     vi.useFakeTimers()
     vi.spyOn(window, 'getComputedStyle').mockReturnValue({
       paddingTop: '4',

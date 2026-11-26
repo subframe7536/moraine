@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import {
   createSource,
@@ -8,14 +8,14 @@ import {
   labelString,
 } from './collection'
 describe('canonical select collection', () => {
-  test('preserves raw items and flattens one-level groups', () => {
+  it('preserves raw items and flattens one-level groups', () => {
     const item = { value: 1, label: 'One', metadata: { name: 'custom' } }
     const collection = createSource([{ type: 'group', label: 'Numbers', children: [item] }])
     expect(collection.items).toEqual([item])
     expect(collection.byValue.get(1)).toBe(item)
   })
 
-  test('canonicalizes duplicate values sequentially with the first occurrence winning', () => {
+  it('canonicalizes duplicate values sequentially with the first occurrence winning', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const first = { value: 'flat-duplicate', label: 'First' }
     const sameGroupFirst = { value: 'same-group-duplicate', label: 'Same group first' }
@@ -67,7 +67,7 @@ describe('canonical select collection', () => {
     error.mockRestore()
   })
 
-  test('keeps string and number identities distinct while treating zero signs alike', () => {
+  it('keeps string and number identities distinct while treating zero signs alike', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     expect(
       createSource([
@@ -85,7 +85,7 @@ describe('canonical select collection', () => {
     error.mockRestore()
   })
 
-  test('gives every row a unique key even when raw values collide as strings', () => {
+  it('gives every row a unique key even when raw values collide as strings', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const source = createSource([
       {
@@ -115,7 +115,7 @@ describe('canonical select collection', () => {
     error.mockRestore()
   })
 
-  test('treats a valued business item with type group as a leaf', () => {
+  it('treats a valued business item with type group as a leaf', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const leaf = { type: 'group' as const, value: 'business', label: 'Business item', rank: 1 }
     const group = { type: 'group' as const, label: 'Real group', children: [leaf] }
@@ -125,11 +125,11 @@ describe('canonical select collection', () => {
     error.mockRestore()
   })
 
-  test('empty groups contain no selectable items', () => {
+  it('empty groups contain no selectable items', () => {
     expect(createSource([{ type: 'group', label: 'Empty', children: [] }]).items).toEqual([])
   })
 
-  test('resolves machine text independently of the visual label', () => {
+  it('resolves machine text independently of the visual label', () => {
     const item = { value: 42, label: undefined }
     expect(labelString(item)).toBe('42')
     expect(labelString({ ...item, label: 'Answer' })).toBe('Answer')
@@ -137,7 +137,7 @@ describe('canonical select collection', () => {
   })
 })
 
-test('shares filtered rows without changing canonical lookup', () => {
+it('shares filtered rows without changing canonical lookup', () => {
   const first = { value: 1, label: 'One', extra: 'raw' }
   const second = { value: 2, label: 'Two', extra: 'raw' }
   const source = createSource([{ type: 'group', label: 'Numbers', children: [first, second] }])
@@ -148,7 +148,7 @@ test('shares filtered rows without changing canonical lookup', () => {
   expect(source.byValue.get(1)).toBe(first)
 })
 
-test('normalizes string shorthand and preserves object identity across mixed groups', () => {
+it('normalizes string shorthand and preserves object identity across mixed groups', () => {
   const object = { value: 1, label: 'One', extra: true }
   const entries = normalizeSelectEntries<string | typeof object>([
     '',
@@ -169,7 +169,7 @@ test('normalizes string shorthand and preserves object identity across mixed gro
   expect(source.rows.some((row) => row.type === 'label' && row.label === 'Fruit')).toBe(true)
 })
 
-test('applies the same duplicate policy to string and object entries', () => {
+it('applies the same duplicate policy to string and object entries', () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
   const source = createSource(
     normalizeSelectEntries([
@@ -184,7 +184,7 @@ test('applies the same duplicate policy to string and object entries', () => {
   error.mockRestore()
 })
 
-test('filters separators with their surrounding options without selecting them', () => {
+it('filters separators with their surrounding options without selecting them', () => {
   const source = createSource(
     normalizeSelectEntries([
       { type: 'separator' },

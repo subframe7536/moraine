@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { CopyButton } from './copy-button'
 const writeText = vi.fn<(text: string) => Promise<void>>()
@@ -25,8 +25,8 @@ async function flushMicrotasks() {
   }
 }
 
-describe('CopyButton', () => {
-  test('renders default icon-button with accessible label, data-slot, and status transitions', async () => {
+describe('copyButton', () => {
+  it('renders default icon-button with accessible label, data-slot, and status transitions', async () => {
     const screen = render(() => <CopyButton value="moraine-package" />)
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
     expect(button.getAttribute('data-slot')).toBe('copy-button')
@@ -53,7 +53,7 @@ describe('CopyButton', () => {
     expect(button.getAttribute('aria-label')).toBe('Copy to clipboard')
   })
 
-  test('renders text label alongside icon', () => {
+  it('renders text label alongside icon', () => {
     const screen = render(() => (
       <CopyButton value="git clone repo">
         <span>Copy clone url</span>
@@ -65,7 +65,7 @@ describe('CopyButton', () => {
     expect(label.textContent).toBe('Copy clone url')
   })
 
-  test('supports render-prop children receiving reactive copy state', async () => {
+  it('supports render-prop children receiving reactive copy state', async () => {
     const screen = render(() => (
       <CopyButton value="render-prop-data">
         {(state) => <span>{state.copied ? 'Copied URL' : 'Copy URL'}</span>}
@@ -83,7 +83,7 @@ describe('CopyButton', () => {
     expect(label.textContent).toBe('Copy URL')
   })
 
-  test('supports iconPosition="trailing"', () => {
+  it('supports iconPosition="trailing"', () => {
     const screen = render(() => (
       <CopyButton value="trailing" iconPosition="trailing">
         <span>Trailing icon</span>
@@ -98,7 +98,7 @@ describe('CopyButton', () => {
     expect(labelIdx).toBeLessThan(iconIdx)
   })
 
-  test('sets aria-invalid on copy failure and clears it after the copied duration', async () => {
+  it('sets aria-invalid on copy failure and clears it after the copied duration', async () => {
     writeText.mockRejectedValueOnce(new Error('Clipboard write error'))
     const onCopyError = vi.fn()
     const screen = render(() => <CopyButton value="failed-copy" onCopyError={onCopyError} />)
@@ -119,7 +119,7 @@ describe('CopyButton', () => {
     expect(button.getAttribute('aria-label')).toBe('Copy to clipboard')
   })
 
-  test('uses instance translations for the status labels', async () => {
+  it('uses instance translations for the status labels', async () => {
     writeText.mockRejectedValueOnce(new Error('Clipboard write error'))
     const screen = render(() => (
       <CopyButton
@@ -139,7 +139,7 @@ describe('CopyButton', () => {
     expect(button.getAttribute('aria-label')).toBe('Token copied')
   })
 
-  test('disabled button prevents copy', () => {
+  it('disabled button prevents copy', () => {
     const screen = render(() => <CopyButton value="disabled-value" disabled />)
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
     expect(button.hasAttribute('disabled')).toBe(true)
@@ -148,7 +148,7 @@ describe('CopyButton', () => {
     expect(writeText).not.toHaveBeenCalled()
   })
 
-  test('calls onCopySuccess and onStatusChange callbacks', async () => {
+  it('calls onCopySuccess and onStatusChange callbacks', async () => {
     const onCopySuccess = vi.fn()
     const onStatusChange = vi.fn()
     const screen = render(() => (
@@ -170,7 +170,7 @@ describe('CopyButton', () => {
     expect(onStatusChange.mock.calls).toEqual([['copied'], ['idle']])
   })
 
-  test('omits icon when icon={false}', () => {
+  it('omits icon when icon={false}', () => {
     const screen = render(() => (
       <CopyButton value="no-icon" icon={false}>
         <span>Text only</span>
@@ -181,7 +181,7 @@ describe('CopyButton', () => {
     expect(button.querySelector('[data-slot="copy-button-label"]')).not.toBeNull()
   })
 
-  test('resolves square sizes from the label even when size is explicit', () => {
+  it('resolves square sizes from the label even when size is explicit', () => {
     const screen = render(() => (
       <>
         <CopyButton value="a" size="sm" />
@@ -196,7 +196,7 @@ describe('CopyButton', () => {
     expect(labeled!.className).not.toContain('size-7')
   })
 
-  test('reports a synchronous value error through onCopyError', async () => {
+  it('reports a synchronous value error through onCopyError', async () => {
     const error = new Error('no value')
     const onCopyError = vi.fn()
     const screen = render(() => (

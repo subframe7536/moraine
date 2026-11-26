@@ -1,10 +1,10 @@
 import { Show, createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Resizable } from './resizable'
-test('renders record-driven panel sizes on the server without measurement', () => {
+it('renders record-driven panel sizes on the server without measurement', () => {
   const { container } = hydrateFixture(
     '/src/components/resizable/resizable.ssr.fixture.tsx',
     'renderResizableFixture',
@@ -39,7 +39,7 @@ test('renders record-driven panel sizes on the server without measurement', () =
   expect(container.textContent).toContain('NavigationResizeMain content')
 })
 
-test('renders collapsed pre-settle state on the server without normalization', () => {
+it('renders collapsed pre-settle state on the server without normalization', () => {
   const { container } = hydrateFixture(
     '/src/components/resizable/resizable.ssr.fixture.tsx',
     'renderResizableCollapsedFixture',
@@ -70,7 +70,7 @@ test('renders collapsed pre-settle state on the server without normalization', (
   expect(panel.hasAttribute('data-collapsed')).toBe(true)
 })
 
-test('hydrates a conditional handle child and updates it', () => {
+it('hydrates a conditional handle child and updates it', () => {
   const [visible, setVisible] = createSignal(true)
   const { container } = hydrateFixture(
     '/src/components/resizable/resizable.ssr.fixture.tsx',

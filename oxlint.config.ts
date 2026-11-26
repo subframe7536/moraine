@@ -1,20 +1,17 @@
-import { subfLint, unocss } from '@subf/config/oxlint'
+import { subfLint } from '@subf/config/oxlint'
 
 export default subfLint({
   solid: true,
+  unocss: {
+    order: {
+      unoFunctions: ['cn', 'cva', 'defineRecipe'],
+      unoVariables: ['^cls', 'classNames?$', '_CLASS$'],
+    },
+  },
   overrides: [
     {
       files: ['**/*.{ts,tsx}'],
       rules: {
-        // Lazy accessors (useRecipe `data`, `own`, `enforced`) may reference later declarations;
-        // same-scope reads before the declaration are still reported.
-        'no-use-before-define': ['error', { classes: false, functions: false, variables: false }],
-        // Library dev-mode diagnostics legitimately use console.warn / console.error.
-        'no-console': ['warn', { allow: ['warn', 'error'] }],
-        // Valibot's official idiomatic import is `import * as v from 'valibot'`.
-        'import/no-namespace': ['error', { ignore: ['valibot'] }],
-        // Public `*Base {}` and `MoraineTypeConfig {}` interfaces are intentional augmentation targets.
-        'typescript/no-empty-object-type': ['error', { allowInterfaces: 'always' }],
         'subf/solid-reactivity': [
           'warn',
           {
@@ -25,7 +22,6 @@ export default subfLint({
               'settle',
               'attachEventListener',
               'callRef',
-              // Workaround: @subf/oxlint-plugin@0.4.0 omits queueMicrotask from async callbacks.
               'queueMicrotask',
             ],
           },
@@ -33,15 +29,13 @@ export default subfLint({
       },
     },
     {
-      // Workaround: @subf/config@0.6.0 vitest.files uses extglob `?([cm])[jt]s?(x)` which
-      // oxlint's globset does not match. Remove once @subf/config uses `{ts,tsx,mts,cts}`.
       files: ['**/*.{test,spec}.{ts,tsx,mts,cts}'],
+      plugins: ['vitest'],
       rules: {
-        'no-unused-expressions': 'off',
         'subf/solid-reactivity': 'off',
-        'typescript/no-explicit-any': 'off',
-        'typescript/no-non-null-assertion': 'off',
         'unicorn/consistent-function-scoping': 'off',
+        'vitest/require-mock-type-parameters': 'off',
+        'vitest/valid-expect': ['error', { maxArgs: 2 }],
       },
     },
     {
@@ -53,19 +47,6 @@ export default subfLint({
         'subf/solid-no-module-scope-reactive-primitive': 'off',
         'typescript/no-explicit-any': 'off',
         'typescript/no-non-null-assertion': 'off',
-      },
-    },
-    {
-      ...unocss,
-      rules: {
-        ...unocss.rules,
-        'uno/order': [
-          'warn',
-          {
-            unoFunctions: ['cn', 'cva', 'defineRecipe'],
-            unoVariables: ['^cls', 'classNames?$', '_CLASS$'],
-          },
-        ],
       },
     },
   ],

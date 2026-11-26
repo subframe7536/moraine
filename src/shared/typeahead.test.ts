@@ -1,9 +1,9 @@
 import { createRoot } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { createTypeahead } from './typeahead'
 describe('createTypeahead', () => {
-  test('cycles repeated Unicode characters, skips disabled items, and resets after the timeout', () => {
+  it('cycles repeated Unicode characters, skips disabled items, and resets after the timeout', () => {
     vi.useFakeTimers()
     const items = [
       { disabled: false, text: 'Ａlpha' },
@@ -36,7 +36,7 @@ describe('createTypeahead', () => {
     vi.useRealTimers()
   })
 
-  test('ignores modifiers and leaves no pending timers after its owner is disposed', () => {
+  it('ignores modifiers and leaves no pending timers after its owner is disposed', () => {
     vi.useFakeTimers()
     const dispose = createRoot((dispose) => {
       const typeahead = createTypeahead({

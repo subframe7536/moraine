@@ -1,11 +1,11 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { dataSlotName } from './data-slot'
 describe('dataSlotName', () => {
-  test.each([
+  it.each([
     ['button', 'root', 'button'],
     ['button', 'label', 'button-label'],
     ['avatar-group', 'item', 'avatar-group-item'],
@@ -15,7 +15,7 @@ describe('dataSlotName', () => {
   })
 })
 
-test('library anatomy uses component-prefixed slot names', () => {
+it('library anatomy uses component-prefixed slot names', () => {
   const sourceRoot = path.resolve(import.meta.dirname, '..')
   const files = readdirSync(sourceRoot, { recursive: true, encoding: 'utf8' })
     .filter((file) => /\.(ts|tsx)$/.test(file) && !file.endsWith('.test.tsx'))

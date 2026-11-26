@@ -1,12 +1,12 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Breadcrumb } from './breadcrumb'
 import { renderBreadcrumbItem } from './breadcrumb.ssr.fixture'
-describe('Breadcrumb SSR Hydration', () => {
-  test('hydrates the default page branch without replacing the trail', () => {
+describe('breadcrumb SSR Hydration', () => {
+  it('hydrates the default page branch without replacing the trail', () => {
     const { container } = hydrateFixture(
       '/src/components/breadcrumb/breadcrumb.ssr.fixture.tsx',
       'renderBreadcrumbDefaultFixture',
@@ -31,7 +31,7 @@ describe('Breadcrumb SSR Hydration', () => {
     expect(separator).not.toBeNull()
   })
 
-  test('hydrates a custom renderer without replacing the trail and preserves activation', () => {
+  it('hydrates a custom renderer without replacing the trail and preserves activation', () => {
     const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
 
     const { container } = hydrateFixture(

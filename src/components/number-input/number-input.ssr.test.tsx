@@ -1,12 +1,12 @@
 import { waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { NumberInput } from './number-input'
-describe('NumberInput SSR Hydration', () => {
-  test('hydrates a formatted controlled value without replacing horizontal nodes', async () => {
+describe('numberInput SSR Hydration', () => {
+  it('hydrates a formatted controlled value without replacing horizontal nodes', async () => {
     const [value, setValue] = createSignal(12.5)
 
     const { container } = hydrateFixture(
@@ -29,7 +29,7 @@ describe('NumberInput SSR Hydration', () => {
     await waitFor(() => expect(horizontalInput.value).toBe('13,5'))
   })
 
-  test('hydrates vertical control order without replacing server nodes', () => {
+  it('hydrates vertical control order without replacing server nodes', () => {
     const { container } = hydrateFixture(
       '/src/components/number-input/number-input.ssr.fixture.tsx',
       'renderVerticalNumberInputFixture',
@@ -56,7 +56,7 @@ describe('NumberInput SSR Hydration', () => {
     ])
   })
 
-  test('hydrates with both conditional controls hidden', () => {
+  it('hydrates with both conditional controls hidden', () => {
     const { container } = hydrateFixture(
       '/src/components/number-input/number-input.ssr.fixture.tsx',
       'renderHiddenNumberInputFixture',

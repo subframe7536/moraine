@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { Show, createSignal, flush, onCleanup } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { callHandler } from '../../shared/utils'
@@ -13,8 +13,8 @@ import { pushOverlayLayer } from '../shared/overlay/overlay-stack'
 import { Sheet } from '../sheet/sheet'
 
 import { BaseDialog } from './base-dialog'
-describe('BaseDialog primitives', () => {
-  test('passes each mounted content element to the ref once and dismisses reopened content', async () => {
+describe('baseDialog primitives', () => {
+  it('passes each mounted content element to the ref once and dismisses reopened content', async () => {
     const ref = vi.fn()
     const [open, setOpen] = createSignal(true)
     const onOpenChange = vi.fn(setOpen)
@@ -53,7 +53,7 @@ describe('BaseDialog primitives', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(false)
     expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
   })
-  test('honors a custom trigger that cancels click before forwarding it', async () => {
+  it('honors a custom trigger that cancels click before forwarding it', async () => {
     const onOpenChange = vi.fn()
     const onCustomClick = vi.fn()
     const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
@@ -81,7 +81,7 @@ describe('BaseDialog primitives', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('isolates a modal in a ShadowRoot without hiding its host', async () => {
+  it('isolates a modal in a ShadowRoot without hiding its host', async () => {
     const outside = document.createElement('main')
     const host = document.createElement('div')
     const shadowRoot = host.attachShadow({ mode: 'open' })
@@ -103,7 +103,7 @@ describe('BaseDialog primitives', () => {
     host.remove()
   })
 
-  test('restores outer isolation after a nested shadow modal closes', async () => {
+  it('restores outer isolation after a nested shadow modal closes', async () => {
     const outside = document.createElement('main')
     const host = document.createElement('div')
     const shadowRoot = host.attachShadow({ mode: 'open' })
@@ -146,7 +146,7 @@ describe('BaseDialog primitives', () => {
     }
   })
 
-  test('opens from a native trigger in a foreign Document', async () => {
+  it('opens from a native trigger in a foreign Document', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = iframe.contentDocument!
@@ -180,7 +180,7 @@ describe('BaseDialog primitives', () => {
     }
   })
 
-  test.each([
+  it.each([
     [true, true, 'true', 'true', 'hidden'],
     [true, false, 'true', 'true', ''],
     [false, true, null, null, 'hidden'],
@@ -208,7 +208,7 @@ describe('BaseDialog primitives', () => {
     },
   )
 
-  test('defaults preventScroll to the value of modal', async () => {
+  it('defaults preventScroll to the value of modal', async () => {
     const nonModal = render(() => (
       <BaseDialog defaultOpen modal={false}>
         <BaseDialog.Portal>
@@ -233,7 +233,7 @@ describe('BaseDialog primitives', () => {
     expect(document.body.style.overflow).toBe('hidden')
     locking.unmount()
   })
-  test.each([
+  it.each([
     [
       'dialog',
       () => (
@@ -268,7 +268,7 @@ describe('BaseDialog primitives', () => {
     expect(document.body.querySelectorAll('[data-slot="base-dialog-content"]')).toHaveLength(1)
   })
 
-  test.each(['Trigger', 'Close'] as const)(
+  it.each(['Trigger', 'Close'] as const)(
     'renders %s children across polymorphic root replacement',
     (part) => {
       const Part = BaseDialog[part]
@@ -291,7 +291,7 @@ describe('BaseDialog primitives', () => {
     },
   )
 
-  test('updates scroll prevention while present', async () => {
+  it('updates scroll prevention while present', async () => {
     const [open, setOpen] = createSignal(true)
     const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
@@ -334,7 +334,7 @@ describe('BaseDialog primitives', () => {
     }
   })
 
-  test('does not render closed content until the modal opens', () => {
+  it('does not render closed content until the modal opens', () => {
     const screen = render(() => (
       <BaseDialog>
         <BaseDialog.Trigger>Open lazy content</BaseDialog.Trigger>
@@ -350,7 +350,7 @@ describe('BaseDialog primitives', () => {
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toBe('Lazy content')
   })
 
-  test('updates conditional content after opening', () => {
+  it('updates conditional content after opening', () => {
     const [visible, setVisible] = createSignal(true)
     render(() => (
       <BaseDialog defaultOpen>
@@ -369,7 +369,7 @@ describe('BaseDialog primitives', () => {
     expect(document.body.textContent).not.toContain('Visible content')
   })
 
-  test('closes from a content render prop', () => {
+  it('closes from a content render prop', () => {
     const onOpenChange = vi.fn()
     render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
@@ -391,7 +391,7 @@ describe('BaseDialog primitives', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('releases closed content and creates a fresh instance when reopened', async () => {
+  it('releases closed content and creates a fresh instance when reopened', async () => {
     const [open, setOpen] = createSignal(false)
     let mounts = 0
     let cleanups = 0
@@ -433,7 +433,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('replaces modal Design without replacing the focused surface', () => {
+  it('replaces modal Design without replacing the focused surface', () => {
     const [design, setDesign] = createSignal(
       defineTheme({
         baseDialog: { base: { content: 'first-surface', overlay: 'first-overlay' } },
@@ -470,7 +470,7 @@ describe('BaseDialog primitives', () => {
     )
   })
 
-  test('Close honors cancellation and keyboard activation', () => {
+  it('close honors cancellation and keyboard activation', () => {
     const onOpenChange = vi.fn()
     const [canceled, setCanceled] = createSignal(true)
     render(() => (
@@ -493,7 +493,7 @@ describe('BaseDialog primitives', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('forwards trigger props and honors canceled clicks', async () => {
+  it('forwards trigger props and honors canceled clicks', async () => {
     const onOpenChange = vi.fn()
     const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
     let triggerElement: HTMLElement | undefined
@@ -530,7 +530,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('renders a native button trigger with BaseDialog accessibility state', async () => {
+  it('renders a native button trigger with BaseDialog accessibility state', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <BaseDialog onOpenChange={onOpenChange}>
@@ -572,7 +572,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('applies direct trigger class and style', () => {
+  it('applies direct trigger class and style', () => {
     const screen = render(() => (
       <BaseDialog>
         <BaseDialog.Trigger
@@ -597,7 +597,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('composed overlays use their own Design without inheriting BaseDialog presentation', () => {
+  it('composed overlays use their own Design without inheriting BaseDialog presentation', () => {
     const screen = render(() => (
       <MoraineProvider
         theme={defineTheme({
@@ -645,7 +645,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('respects disabled and canceled trigger activation', async () => {
+  it('respects disabled and canceled trigger activation', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
@@ -683,7 +683,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('supports non-native and Button trigger roots', async () => {
+  it('supports non-native and Button trigger roots', async () => {
     let triggerElement: HTMLElement | undefined
     const screen = render(() => (
       <>
@@ -730,7 +730,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('forwards an explicit accessible name to modal content', () => {
+  it('forwards an explicit accessible name to modal content', () => {
     render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -746,7 +746,7 @@ describe('BaseDialog primitives', () => {
     )
   })
 
-  test('focuses the first input when a modal opens', async () => {
+  it('focuses the first input when a modal opens', async () => {
     const screen = render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -766,7 +766,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('focuses the dialog surface when opened by touch', async () => {
+  it('focuses the dialog surface when opened by touch', async () => {
     const screen = render(() => (
       <BaseDialog>
         <BaseDialog.Trigger>Open</BaseDialog.Trigger>
@@ -790,7 +790,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('focuses the initialFocus target when a modal opens', async () => {
+  it('focuses the initialFocus target when a modal opens', async () => {
     let input!: HTMLInputElement
     const screen = render(() => (
       <BaseDialog defaultOpen initialFocus={() => input}>
@@ -807,7 +807,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('skips the open-time focus move when initialFocus is false', async () => {
+  it('skips the open-time focus move when initialFocus is false', async () => {
     const screen = render(() => (
       <BaseDialog defaultOpen initialFocus={false}>
         <BaseDialog.Portal>
@@ -829,7 +829,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('prefers a data-autofocus element over the first focusable', async () => {
+  it('prefers a data-autofocus element over the first focusable', async () => {
     const screen = render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -849,7 +849,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('focuses the finalFocus target instead of the trigger after close', async () => {
+  it('focuses the finalFocus target instead of the trigger after close', async () => {
     const target = document.createElement('button')
     document.body.append(target)
     const screen = render(() => (
@@ -884,7 +884,7 @@ describe('BaseDialog primitives', () => {
     target.remove()
   })
 
-  test('skips the close-time focus restore when finalFocus is false', async () => {
+  it('skips the close-time focus restore when finalFocus is false', async () => {
     const screen = render(() => (
       <BaseDialog finalFocus={false}>
         <BaseDialog.Trigger>Open</BaseDialog.Trigger>
@@ -918,7 +918,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('lets content override role', async () => {
+  it('lets content override role', async () => {
     const screen = render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -938,7 +938,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('does not acquire modal resources when an open root has no surfaces', async () => {
+  it('does not acquire modal resources when an open root has no surfaces', async () => {
     document.body.style.overflow = 'auto'
     const onOpenChange = vi.fn()
     const screen = render(() => <BaseDialog defaultOpen onOpenChange={onOpenChange} />)
@@ -953,7 +953,7 @@ describe('BaseDialog primitives', () => {
     document.body.style.overflow = ''
   })
 
-  test('lets overlay activate the modal runtime', async () => {
+  it('lets overlay activate the modal runtime', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
@@ -975,7 +975,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('applies a custom content class alongside the modal content anatomy', () => {
+  it('applies a custom content class alongside the modal content anatomy', () => {
     render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -991,7 +991,7 @@ describe('BaseDialog primitives', () => {
     expect(content?.getAttribute('role')).toBe('dialog')
   })
 
-  test('shares data attributes and waits for both surfaces before exiting', async () => {
+  it('shares data attributes and waits for both surfaces before exiting', async () => {
     const [open, setOpen] = createSignal(true)
     const onExitComplete = vi.fn()
     const screen = render(() => (
@@ -1028,7 +1028,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('does not call onExitComplete when Content is removed while open', async () => {
+  it('does not call onExitComplete when Content is removed while open', async () => {
     const [showContent, setShowContent] = createSignal(true)
     const onExitComplete = vi.fn()
     const screen = render(() => (
@@ -1050,7 +1050,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('unmounts content and overlay without waiting for an animation when transition is false', async () => {
+  it('unmounts content and overlay without waiting for an animation when transition is false', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <BaseDialog open={open()} transition={false}>
@@ -1083,7 +1083,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('keeps content mounted through the exit animation when transition is enabled', async () => {
+  it('keeps content mounted through the exit animation when transition is enabled', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <BaseDialog open={open()}>
@@ -1108,7 +1108,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('renders BaseDialog.Content without children', () => {
+  it('renders BaseDialog.Content without children', () => {
     const screen = render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -1121,7 +1121,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('does not render an overlay by default', () => {
+  it('does not render an overlay by default', () => {
     render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -1136,7 +1136,7 @@ describe('BaseDialog primitives', () => {
     expect(document.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull()
   })
 
-  test('renders overlay and content and forwards refs', () => {
+  it('renders overlay and content and forwards refs', () => {
     const overlayRef = vi.fn()
     const contentRef = vi.fn()
 
@@ -1167,7 +1167,7 @@ describe('BaseDialog primitives', () => {
     expect(contentRef).toHaveBeenCalledTimes(1)
   })
 
-  test('mounts both parts in a custom portal target', () => {
+  it('mounts both parts in a custom portal target', () => {
     const mount = document.createElement('div')
     document.body.append(mount)
     const screen = render(() => (
@@ -1185,7 +1185,7 @@ describe('BaseDialog primitives', () => {
     mount.remove()
   })
 
-  test('prefers the Portal mount over the root portal destination', () => {
+  it('prefers the Portal mount over the root portal destination', () => {
     const rootMount = document.createElement('div')
     const mount = document.createElement('div')
     document.body.append(rootMount, mount)
@@ -1204,7 +1204,7 @@ describe('BaseDialog primitives', () => {
     mount.remove()
   })
 
-  test('uses the trigger document body when no portal destination is specified', () => {
+  it('uses the trigger document body when no portal destination is specified', () => {
     const otherDocument = document.implementation.createHTMLDocument('trigger owner')
     const host = otherDocument.createElement('div')
     otherDocument.body.append(host)
@@ -1225,7 +1225,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('leaves inline parts mounted without Portal', async () => {
+  it('leaves inline parts mounted without Portal', async () => {
     const [open, setOpen] = createSignal(true)
     const onExitComplete = vi.fn()
     const screen = render(() => (
@@ -1250,7 +1250,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('can contain the content inside a scrolling overlay', () => {
+  it('can contain the content inside a scrolling overlay', () => {
     render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -1269,7 +1269,7 @@ describe('BaseDialog primitives', () => {
     expect(overlay?.contains(content ?? null)).toBe(true)
   })
 
-  test('aria-hides background siblings while modal content is present and restores them on cleanup', async () => {
+  it('aria-hides background siblings while modal content is present and restores them on cleanup', async () => {
     const background = document.createElement('main')
     background.textContent = 'Application'
     document.body.append(background)
@@ -1294,7 +1294,7 @@ describe('BaseDialog primitives', () => {
     background.remove()
   })
 
-  test('reference-counts background isolation across nested layers and newly added siblings', async () => {
+  it('reference-counts background isolation across nested layers and newly added siblings', async () => {
     const background = document.createElement('main')
     document.body.append(background)
     const [showInner, setShowInner] = createSignal(true)
@@ -1349,7 +1349,7 @@ describe('BaseDialog primitives', () => {
     lateSibling.remove()
   })
 
-  test('keeps a registered descendant overlay portal exposed to assistive technology', async () => {
+  it('keeps a registered descendant overlay portal exposed to assistive technology', async () => {
     const screen = render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -1378,7 +1378,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test.each([
+  it.each([
     ['reserves the scrollbar gutter', true, '4px'],
     ['pads the body when the gutter is ignored', false, '24px'],
   ] as const)(
@@ -1440,7 +1440,7 @@ describe('BaseDialog primitives', () => {
     },
   )
 
-  test('locks <html> instead of <body> when <html> is the page scroller', async () => {
+  it('locks <html> instead of <body> when <html> is the page scroller', async () => {
     const html = document.documentElement
     html.style.overflowY = 'auto'
     const screen = render(() => (
@@ -1461,7 +1461,7 @@ describe('BaseDialog primitives', () => {
     html.style.overflowY = ''
   })
 
-  test('prevents the handled Escape event when dismissing the top modal', async () => {
+  it('prevents the handled Escape event when dismissing the top modal', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
@@ -1487,7 +1487,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('ignores Escape while an IME composition is active', async () => {
+  it('ignores Escape while an IME composition is active', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
@@ -1516,7 +1516,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('dismisses a completed touch tap but not touch pointerdown, movement, or multitouch', async () => {
+  it('dismisses a completed touch tap but not touch pointerdown, movement, or multitouch', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
     const onOpenChange = vi.fn()
@@ -1560,7 +1560,7 @@ describe('BaseDialog primitives', () => {
     outside.remove()
   })
 
-  test('does not dismiss or report prevention for an outside right-click', async () => {
+  it('does not dismiss or report prevention for an outside right-click', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
     const onOpenChange = vi.fn()
@@ -1585,7 +1585,7 @@ describe('BaseDialog primitives', () => {
     outside.remove()
   })
 
-  test('preserves cancellation from outside pointer and content Escape handlers', async () => {
+  it('preserves cancellation from outside pointer and content Escape handlers', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
@@ -1622,7 +1622,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('recovers escaped focus to the last focused element inside the top modal', async () => {
+  it('recovers escaped focus to the last focused element inside the top modal', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
     const screen = render(() => (
@@ -1654,7 +1654,7 @@ describe('BaseDialog primitives', () => {
     outside.remove()
   })
 
-  test('recovers focus when the focused child removes itself during pointerdown', async () => {
+  it('recovers focus when the focused child removes itself during pointerdown', async () => {
     const [showButton, setShowButton] = createSignal(true)
     const screen = render(() => (
       <BaseDialog defaultOpen>
@@ -1689,7 +1689,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('initial focus skips controls hidden with CSS', async () => {
+  it('initial focus skips controls hidden with CSS', async () => {
     const screen = render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -1716,7 +1716,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('restores the previously focused element when an open modal has no trigger', async () => {
+  it('restores the previously focused element when an open modal has no trigger', async () => {
     const previous = document.createElement('button')
     document.body.append(previous)
     previous.focus()
@@ -1749,7 +1749,7 @@ describe('BaseDialog primitives', () => {
     previous.remove()
   })
 
-  test('recaptures the restore target on each activation of a controlled modal', async () => {
+  it('recaptures the restore target on each activation of a controlled modal', async () => {
     const [open, setOpen] = createSignal(false)
     const buttonA = document.createElement('button')
     const buttonB = document.createElement('button')
@@ -1788,7 +1788,7 @@ describe('BaseDialog primitives', () => {
     buttonB.remove()
   })
 
-  test('restores nested modal focus in stack order', async () => {
+  it('restores nested modal focus in stack order', async () => {
     const screen = render(() => (
       <BaseDialog>
         <BaseDialog.Trigger data-testid="outer-trigger">Open outer</BaseDialog.Trigger>
@@ -1851,7 +1851,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('focuses the first enabled control and loops Tab at both content boundaries', async () => {
+  it('focuses the first enabled control and loops Tab at both content boundaries', async () => {
     const screen = render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -1903,7 +1903,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('traps focus from container element to first and last focusables', async () => {
+  it('traps focus from container element to first and last focusables', async () => {
     const screen = render(() => (
       <BaseDialog defaultOpen>
         <BaseDialog.Portal>
@@ -1949,7 +1949,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('keeps modal false surfaces consistently non-modal', async () => {
+  it('keeps modal false surfaces consistently non-modal', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
@@ -2004,7 +2004,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test.each([
+  it.each([
     { closeOnOutsideClick: true, closeOnEscape: true, closes: 2, prevents: 0 },
     { closeOnOutsideClick: false, closeOnEscape: false, closes: 0, prevents: 2 },
   ])(
@@ -2055,7 +2055,7 @@ describe('BaseDialog primitives', () => {
     },
   )
 
-  test('restores trigger focus after enabling modal behavior while open', async () => {
+  it('restores trigger focus after enabling modal behavior while open', async () => {
     const [open, setOpen] = createSignal(true)
     const [modal, setModal] = createSignal(false)
     const screen = render(() => (
@@ -2082,7 +2082,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('updates modal isolation when modal changes while open', async () => {
+  it('updates modal isolation when modal changes while open', async () => {
     const [modal, setModal] = createSignal(false)
     const screen = render(() => (
       <>
@@ -2117,7 +2117,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('does not restore focus to a trigger that became disabled while open', async () => {
+  it('does not restore focus to a trigger that became disabled while open', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (
       <BaseDialog>
@@ -2151,7 +2151,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('does not restore focus to a trigger removed while open', async () => {
+  it('does not restore focus to a trigger removed while open', async () => {
     const [showTrigger, setShowTrigger] = createSignal(true)
     const screen = render(() => (
       <BaseDialog>
@@ -2186,7 +2186,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('cancels stale exit completion and focus restoration on rapid reopen', async () => {
+  it('cancels stale exit completion and focus restoration on rapid reopen', async () => {
     const [open, setOpen] = createSignal(false)
     const onExitComplete = vi.fn()
     const screen = render(() => (
@@ -2235,7 +2235,7 @@ describe('BaseDialog primitives', () => {
     screen.unmount()
   })
 
-  test('modal retargets isolation when overlayScroll replaces content', async () => {
+  it('modal retargets isolation when overlayScroll replaces content', async () => {
     const [scroll, setScroll] = createSignal(false)
     const screen = render(() => (
       <BaseDialog defaultOpen>
@@ -2281,7 +2281,7 @@ describe('BaseDialog primitives', () => {
     }
   })
 
-  test('toggles open state on trigger activation when modal is false', async () => {
+  it('toggles open state on trigger activation when modal is false', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <BaseDialog modal={false} onOpenChange={onOpenChange}>
@@ -2299,7 +2299,7 @@ describe('BaseDialog primitives', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('preserves custom id on BaseDialog.Content and updates trigger aria-controls', () => {
+  it('preserves custom id on BaseDialog.Content and updates trigger aria-controls', () => {
     render(() => (
       <BaseDialog open>
         <BaseDialog.Trigger>Open</BaseDialog.Trigger>
@@ -2317,7 +2317,7 @@ describe('BaseDialog primitives', () => {
     expect(trigger.getAttribute('aria-controls')).toBe('custom-modal-id')
   })
 
-  test('runs the consumer onKeyDown handler and honors its preventDefault', () => {
+  it('runs the consumer onKeyDown handler and honors its preventDefault', () => {
     const onKeyDown = vi.fn((event: KeyboardEvent) => {
       event.preventDefault()
     })
@@ -2337,7 +2337,7 @@ describe('BaseDialog primitives', () => {
     expect(notCancelled).toBe(false)
   })
 
-  test('supports polymorphic rendering via as prop on Content', () => {
+  it('supports polymorphic rendering via as prop on Content', () => {
     render(() => (
       <BaseDialog open>
         <BaseDialog.Portal>

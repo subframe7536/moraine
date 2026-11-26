@@ -1,10 +1,10 @@
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, expectTypeOf, test } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 
 import { createDataAttributes } from './style-contract'
 import type { DataAttributeContract } from './style-contract'
 describe('style contract helpers', () => {
-  test('normalizes static data attribute values and prefixes their names', () => {
+  it('normalizes static data attribute values and prefixes their names', () => {
     const attributes = createDataAttributes(
       'truthy',
       'falsy',
@@ -31,7 +31,7 @@ describe('style contract helpers', () => {
     })
   })
 
-  test('reads accessor state lazily on every attribute read', () => {
+  it('reads accessor state lazily on every attribute read', () => {
     const [open, setOpen] = createSignal(false)
     const attributes = createDataAttributes('expanded')(() => state)
     const state = { expanded: open }
@@ -41,7 +41,7 @@ describe('style contract helpers', () => {
     expect(attributes['data-expanded']).toBe('')
   })
 
-  test('infers camel-case state and exact data attribute keys', () => {
+  it('infers camel-case state and exact data attribute keys', () => {
     const overlay = createDataAttributes('closed', 'overlay-scroll')
     const attributes = overlay({ closed: true, overlayScroll: 'auto' })
 
@@ -55,7 +55,7 @@ describe('style contract helpers', () => {
     createDataAttributes('data-expanded')
   })
 
-  test('constrains contract targets without erasing resolver state', () => {
+  it('constrains contract targets without erasing resolver state', () => {
     const contract = {
       root: createDataAttributes('disabled'),
     } satisfies DataAttributeContract<'root' | 'trigger'>

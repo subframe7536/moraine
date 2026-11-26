@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { variantGroupPlugin } from './vite-plugin-variant-group'
 describe('variantGroupPlugin', () => {
-  test('uses an object transform hook and expands variant groups', async () => {
+  it('uses an object transform hook and expands variant groups', async () => {
     const transform = variantGroupPlugin().transform
     expect(transform).toBeDefined()
     expect(typeof transform).not.toBe('function')
@@ -25,7 +25,7 @@ describe('variantGroupPlugin', () => {
     })
   })
 
-  test('returns null when the transformer makes no change', async () => {
+  it('returns null when the transformer makes no change', async () => {
     const transform = variantGroupPlugin().transform
     if (!transform || typeof transform === 'function') {
       throw new Error('Expected an object transform hook')

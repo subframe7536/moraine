@@ -1,11 +1,11 @@
 import { render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { Show, createSignal, flush, onCleanup } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { renderWithProps } from './render-with-props'
 describe('renderWithProps', () => {
-  test('returns static JSX unchanged without props argument', () => {
+  it('returns static JSX unchanged without props argument', () => {
     let element!: JSX.Element
     const screen = render(() => {
       element = <span>Static content</span>
@@ -15,7 +15,7 @@ describe('renderWithProps', () => {
     expect(screen.container.firstChild).toBe(element)
   })
 
-  test('mounts a renderer with reactive props', () => {
+  it('mounts a renderer with reactive props', () => {
     const [value, setValue] = createSignal('first')
     const Value = (props: { value: string }) => <span>{props.value}</span>
     const screen = render(() =>
@@ -33,7 +33,7 @@ describe('renderWithProps', () => {
     expect(screen.container.textContent).toBe('second')
   })
 
-  test('preserves undefined and static primitive values without props', () => {
+  it('preserves undefined and static primitive values without props', () => {
     const screen = render(() => (
       <div>
         <span data-testid="undefined">{renderWithProps(undefined)}</span>
@@ -47,7 +47,7 @@ describe('renderWithProps', () => {
     expect(screen.getByTestId('false').textContent).toBe('')
   })
 
-  test('mounts a zero-argument renderer without props', () => {
+  it('mounts a zero-argument renderer without props', () => {
     const screen = render(() => (
       <div>
         {renderWithProps(() => (
@@ -59,7 +59,7 @@ describe('renderWithProps', () => {
     expect(screen.container.textContent).toBe('Zero props')
   })
 
-  test('owns renderer cleanup across conditional mounts', () => {
+  it('owns renderer cleanup across conditional mounts', () => {
     const cleanup = vi.fn()
     const Owned = () => {
       onCleanup(cleanup)

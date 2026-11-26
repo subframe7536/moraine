@@ -1,10 +1,10 @@
 import { createSignal, flush } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { TableHydrationFixture } from './table.ssr.fixture'
-test.each([true, false])(
+it.each([true, false])(
   'hydrates compound table parts and updates conditional rows (initially present=%s)',
   (initialExtraRow) => {
     const [title, setTitle] = createSignal('Header')

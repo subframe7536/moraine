@@ -1,5 +1,5 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
-import { afterEach, expect, test, vi } from 'vitest'
+import { afterEach, expect, vi, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
@@ -59,7 +59,7 @@ afterEach(() => {
   window.matchMedia = originalMatchMedia
 })
 
-test('turns the server desktop markup into one drawer trigger on a mobile client', async () => {
+it('turns the server desktop markup into one drawer trigger on a mobile client', async () => {
   window.matchMedia = vi
     .fn()
     .mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })
@@ -104,7 +104,7 @@ test('turns the server desktop markup into one drawer trigger on a mobile client
   ).toBe('sidebar-fixture')
 })
 
-test('renders the rail and pixel width custom property on the server', async () => {
+it('renders the rail and pixel width custom property on the server', async () => {
   const markup = renderSsrFixture(
     '/src/components/sidebar/sidebar.ssr.fixture.tsx',
     'renderSidebarRailFixture',

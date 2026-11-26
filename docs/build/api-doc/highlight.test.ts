@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { JSDOM } from 'jsdom'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { highlightApiTypes, renderDescriptionHtml } from './highlight.ts'
 import type { ComponentApi } from './types.ts'
@@ -8,8 +8,8 @@ import type { ComponentApi } from './types.ts'
 // this file runs in the Node environment and builds its own document for markup assertions.
 const { document } = new JSDOM('').window
 
-describe('API type highlighting', () => {
-  test.each([
+describe('aPI type highlighting', () => {
+  it.each([
     ['(value: string | null) => void', '((value: string | null) => void) | undefined'],
     [
       '(string | {\n  /** Item label. */\n  label: string;\n})[]',
@@ -44,7 +44,7 @@ describe('API type highlighting', () => {
     expect(result.parts[0]!.props[0]!.type).toBe('Item[]')
   })
 
-  test('highlights the same optional callback type shown in the expanded row', async () => {
+  it('highlights the same optional callback type shown in the expanded row', async () => {
     const api: ComponentApi = {
       key: 'test',
       name: 'Test',
@@ -69,7 +69,7 @@ describe('API type highlighting', () => {
     expect(api.parts[0]!.props[0]).not.toHaveProperty('typeHtml')
   })
 
-  test('renders prop descriptions as markdown and examples as highlighted code', async () => {
+  it('renders prop descriptions as markdown and examples as highlighted code', async () => {
     const api: ComponentApi = {
       key: 'test',
       name: 'Test',
@@ -107,7 +107,7 @@ describe('API type highlighting', () => {
     expect(api.parts[0]!.props[0]).not.toHaveProperty('examplesHtml')
   })
 
-  test('escapes raw HTML in prose but keeps code spans', async () => {
+  it('escapes raw HTML in prose but keeps code spans', async () => {
     const html = renderDescriptionHtml('Renders <script>alert(1)</script> or `<div>`.')
     const container = document.createElement('div')
     container.innerHTML = html

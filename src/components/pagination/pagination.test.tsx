@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { Pagination } from './pagination'
 function ItemLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
@@ -12,14 +12,14 @@ function ControlLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a data-custom-control="" {...props} />
 }
 
-describe('Pagination', () => {
-  test('forwards ref to root nav element', () => {
+describe('pagination', () => {
+  it('forwards ref to root nav element', () => {
     let navRef: HTMLElement | undefined
     render(() => <Pagination ref={(el) => (navRef = el)} total={30} pageSize={10} />)
     expect(navRef).toBeInstanceOf(HTMLElement)
     expect(navRef?.tagName).toBe('NAV')
   })
-  test('renders semantic root attributes by default', () => {
+  it('renders semantic root attributes by default', () => {
     const screen = render(() => <Pagination total={30} pageSize={10} />)
     const root = screen.container.querySelector('[data-slot="pagination"]')
 
@@ -27,7 +27,7 @@ describe('Pagination', () => {
     expect(root?.getAttribute('role')).toBe('navigation')
   })
 
-  test('derives page count from total and pageSize', () => {
+  it('derives page count from total and pageSize', () => {
     const screen = render(() => (
       <Pagination total={42} pageSize={10} siblingCount={1} controls={false} />
     ))
@@ -36,7 +36,7 @@ describe('Pagination', () => {
     expect(screen.getByText('5')).not.toBeNull()
   })
 
-  test('normalizes non-finite pagination inputs to finite defaults', () => {
+  it('normalizes non-finite pagination inputs to finite defaults', () => {
     const screen = render(() => (
       <Pagination
         total={Number.POSITIVE_INFINITY}
@@ -52,7 +52,7 @@ describe('Pagination', () => {
     expect(screen.container.textContent).not.toContain('NaN')
   })
 
-  test.each([
+  it.each([
     [{ total: -5 }, 'Page 1 of 1'],
     [{ total: 42.9, pageSize: 10.9, page: 3.9 }, 'Page 3 of 5'],
     [{ total: 3, pageSize: 0, defaultPage: -4 }, 'Page 1 of 3'],
@@ -64,7 +64,7 @@ describe('Pagination', () => {
     expect(status?.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe(expected)
   })
 
-  test('bounds very large finite sibling counts without allocating an unbounded range', () => {
+  it('bounds very large finite sibling counts without allocating an unbounded range', () => {
     const screen = render(() => (
       <Pagination
         total={Number.MAX_SAFE_INTEGER}
@@ -83,7 +83,7 @@ describe('Pagination', () => {
     ).not.toBeNull()
   })
 
-  test('retains the requested page while the reactive page domain temporarily shrinks', () => {
+  it('retains the requested page while the reactive page domain temporarily shrinks', () => {
     const [total, setTotal] = createSignal(100)
     const onPageChange = vi.fn()
     const screen = render(() => (
@@ -103,7 +103,7 @@ describe('Pagination', () => {
     expect(onPageChange).not.toHaveBeenCalled()
   })
 
-  test('clamps a controlled request without publishing during page-domain changes', () => {
+  it('clamps a controlled request without publishing during page-domain changes', () => {
     const [total, setTotal] = createSignal(20)
     const onPageChange = vi.fn()
     const screen = render(() => (
@@ -121,7 +121,7 @@ describe('Pagination', () => {
     expect(onPageChange).not.toHaveBeenCalled()
   })
 
-  test('supports controlled page changes', async () => {
+  it('supports controlled page changes', async () => {
     const onPageChange = vi.fn()
 
     const screen = render(() => (
@@ -138,7 +138,7 @@ describe('Pagination', () => {
     expect(current?.textContent).toBe('2')
   })
 
-  test('does not change pages when a caller cancels the click during capture', async () => {
+  it('does not change pages when a caller cancels the click during capture', async () => {
     const onPageChange = vi.fn()
     const screen = render(() => (
       <Pagination
@@ -159,7 +159,7 @@ describe('Pagination', () => {
     expect(screen.getByLabelText('Page 2 of 5, current page')).not.toBeNull()
   })
 
-  test('toggles controls visibility', () => {
+  it('toggles controls visibility', () => {
     const withControls = render(() => <Pagination total={30} pageSize={10} controls />)
 
     expect(withControls.container.querySelector('[data-slot="pagination-prev"]')).not.toBeNull()
@@ -171,7 +171,7 @@ describe('Pagination', () => {
     expect(withoutControls.container.querySelector('[data-slot="pagination-next"]')).toBeNull()
   })
 
-  test('renders icon-only controls with icons in Button children', () => {
+  it('renders icon-only controls with icons in Button children', () => {
     const screen = render(() => <Pagination total={30} pageSize={10} controls />)
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
     const next = screen.container.querySelector('[data-slot="pagination-next"]')
@@ -182,7 +182,7 @@ describe('Pagination', () => {
     expect(next?.querySelector('[data-slot="button-label"] > [aria-hidden="true"]')).not.toBeNull()
   })
 
-  test('renders text controls with icons in their leading and trailing slots', () => {
+  it('renders text controls with icons in their leading and trailing slots', () => {
     const screen = render(() => (
       <Pagination total={30} pageSize={10} prevText="Previous" nextText="Next" controls />
     ))
@@ -195,7 +195,7 @@ describe('Pagination', () => {
     expect(next?.querySelector('[data-slot="button-label"]')?.textContent).toBe('Next')
   })
 
-  test('forwards control label classes and styles to Button-owned labels', () => {
+  it('forwards control label classes and styles to Button-owned labels', () => {
     const screen = render(() => (
       <Pagination
         total={30}
@@ -216,7 +216,7 @@ describe('Pagination', () => {
     }
   })
 
-  test('renders page items and controls as links when `getPageHref` is provided', () => {
+  it('renders page items and controls as links when `getPageHref` is provided', () => {
     const screen = render(() => (
       <Pagination page={2} total={30} pageSize={10} getPageHref={(page) => `/page/${page}`} />
     ))
@@ -235,7 +235,7 @@ describe('Pagination', () => {
     expect(next?.getAttribute('href')).toBe('/page/3')
   })
 
-  test('keeps itemRender and controlRender independent while forwarding destinations', () => {
+  it('keeps itemRender and controlRender independent while forwarding destinations', () => {
     const screen = render(() => (
       <Pagination
         page={2}
@@ -263,7 +263,7 @@ describe('Pagination', () => {
     expect(next?.getAttribute('rel')).toBe('next')
   })
 
-  test('honors explicit itemRender without a destination', () => {
+  it('honors explicit itemRender without a destination', () => {
     const screen = render(() => (
       <Pagination total={30} pageSize={10} itemRender={ItemLink} controls={false} />
     ))
@@ -277,7 +277,7 @@ describe('Pagination', () => {
     }
   })
 
-  test('renders unavailable custom controls as native disabled buttons', () => {
+  it('renders unavailable custom controls as native disabled buttons', () => {
     const firstPage = render(() => (
       <Pagination
         page={1}
@@ -326,7 +326,7 @@ describe('Pagination', () => {
     }
   })
 
-  test('keeps current-page activation a no-op when destinations are provided', async () => {
+  it('keeps current-page activation a no-op when destinations are provided', async () => {
     const href = vi.fn((page: number) => `/page/${page}`)
     const onPageChange = vi.fn()
     const screen = render(() => (
@@ -351,7 +351,7 @@ describe('Pagination', () => {
     expect(screen.getByLabelText('Go to page 3 of 3').getAttribute('href')).toBe('/page/3')
   })
 
-  test('uses disabled buttons when boundary is reached or `getPageHref` is absent', () => {
+  it('uses disabled buttons when boundary is reached or `getPageHref` is absent', () => {
     const firstPage = render(() => (
       <Pagination
         page={1}
@@ -378,7 +378,7 @@ describe('Pagination', () => {
     expect(pageControl?.tagName).toBe('BUTTON')
   })
 
-  test('keeps focus on a page that stays visible when the current page changes', () => {
+  it('keeps focus on a page that stays visible when the current page changes', () => {
     const [page, setPage] = createSignal(5)
     const screen = render(() => (
       <Pagination page={page()} total={100} pageSize={10} siblingCount={1} controls={false} />
@@ -392,7 +392,7 @@ describe('Pagination', () => {
     expect(document.activeElement).toBe(first)
   })
 
-  test('releases focus when a reactive boundary link becomes a disabled button', () => {
+  it('releases focus when a reactive boundary link becomes a disabled button', () => {
     const [page, setPage] = createSignal(2)
     const screen = render(() => (
       <Pagination
@@ -416,7 +416,7 @@ describe('Pagination', () => {
     expect(document.activeElement).toBe(document.body)
   })
 
-  test('applies current-page aria attributes and labels', () => {
+  it('applies current-page aria attributes and labels', () => {
     const screen = render(() => (
       <Pagination page={5} total={100} pageSize={10} siblingCount={1} controls />
     ))
@@ -428,7 +428,7 @@ describe('Pagination', () => {
     expect(anotherPage?.getAttribute('aria-current')).toBeNull()
   })
 
-  test('renders ellipsis in `li[data-slot=list-item][aria-hidden]`', () => {
+  it('renders ellipsis in `li[data-slot=list-item][aria-hidden]`', () => {
     const screen = render(() => (
       <Pagination page={5} total={100} pageSize={10} siblingCount={1} controls={false} />
     ))
@@ -440,7 +440,7 @@ describe('Pagination', () => {
     expect(ellipsisNodes.length).toBe(2)
   })
 
-  test('announces current page via a polite live region', async () => {
+  it('announces current page via a polite live region', async () => {
     const [page, setPage] = createSignal(1)
 
     const screen = render(() => (
@@ -459,7 +459,7 @@ describe('Pagination', () => {
     expect(status?.textContent?.replaceAll(/\s+/g, ' ').trim()).toBe('Page 3 of 5')
   })
 
-  test('exposes target page in previous and next labels', () => {
+  it('exposes target page in previous and next labels', () => {
     const middle = render(() => <Pagination page={3} total={50} pageSize={10} controls />)
 
     expect(middle.getByLabelText('Go to previous page, page 2')).not.toBeNull()
@@ -476,7 +476,7 @@ describe('Pagination', () => {
     expect(end.getByLabelText('Go to next page')).not.toBeNull()
   })
 
-  test('applies classes overrides to root, list, list item, item, prev, next and ellipsis', () => {
+  it('applies classes overrides to root, list, list item, item, prev, next and ellipsis', () => {
     const screen = render(() => (
       <Pagination
         page={5}

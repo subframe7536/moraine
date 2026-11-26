@@ -1,7 +1,7 @@
 import { access, readFile, stat } from 'node:fs/promises'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { resolveDocsPageContext } from '../core/paths.ts'
 import type { DocsPageSource } from '../routes.ts'
@@ -38,7 +38,7 @@ function pageSource(sourcePath: string): DocsPageSource {
 }
 
 describe('writeJsonFiles', () => {
-  test('writes changed files, preserves unchanged files, and removes stale files', async () => {
+  it('writes changed files, preserves unchanged files, and removes stale files', async () => {
     const projectRoot = await createFileFixture({
       'docs/pages/components/(general)/demo/demo.mdx': '---\ntitle: Demo\n---\n',
       'docs/pages/components/(general)/demo/api.json': '{"stale":true}',
@@ -60,14 +60,14 @@ describe('writeJsonFiles', () => {
       result.indexDoc,
     )
     expect(JSON.parse(await readFile(apiPath, 'utf8'))).toMatchObject({ key: 'demo' })
-    await expect(access(stalePath)).rejects.toThrow()
+    await expect(access(stalePath)).rejects.toThrow(/ENOENT/)
 
     const modifiedAt = (await stat(apiPath)).mtimeMs
     await writeJsonFiles(pagesRoot, [pageSource(path.join(pageDir, 'demo.mdx'))], result)
     expect((await stat(apiPath)).mtimeMs).toBe(modifiedAt)
   })
 
-  test('preserves existing files when validation fails', async () => {
+  it('preserves existing files when validation fails', async () => {
     const projectRoot = await createFileFixture({
       'docs/pages/components/(general)/demo/demo.mdx': '---\ntitle: Demo\n---\n',
       'docs/pages/components/(general)/demo/api.json': '{"original":true}',

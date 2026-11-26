@@ -1,7 +1,7 @@
 import { render } from '@solidjs/testing-library'
 import { Portal } from '@solidjs/web'
 import { createComponent, createSignal, flush, onCleanup } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { BaseDialog } from '../components/base-dialog/base-dialog'
 import { Button } from '../components/button/button'
@@ -26,7 +26,7 @@ function Probe(props: { id: string }) {
 }
 
 describe('scoped cn', () => {
-  test('uses defaults without a Provider and replaces or restores nested inheritance', () => {
+  it('uses defaults without a Provider and replaces or restores nested inheritance', () => {
     const [outer, setOuter] = createSignal(densityConfig)
     const [inner, setInner] = createSignal<CnConfig>()
     const screen = render(() => (
@@ -65,7 +65,7 @@ describe('scoped cn', () => {
     expect(cn(classes)).toBe('p-4 density-roomy density-compact')
   })
 
-  test('keeps captured handles current in events and async continuations', async () => {
+  it('keeps captured handles current in events and async continuations', async () => {
     const [config, setConfig] = createSignal<CnConfig>({})
     let handle!: Cn
     let result: string | undefined
@@ -99,7 +99,7 @@ describe('scoped cn', () => {
     expect(handle(classes)).toBe(result)
   })
 
-  test('applies live cnConfig and theme changes to nested buttons independently', () => {
+  it('applies live cnConfig and theme changes to nested buttons independently', () => {
     const theme = defineTheme({
       button: {
         base: { root: 'p-2 density-roomy' },
@@ -135,7 +135,7 @@ describe('scoped cn', () => {
     expect(screen.getByRole('button', { name: 'Live' })).toBe(live)
   })
 
-  test('preserves JSX ownership, input edits, focus, selection, and open Portal content', () => {
+  it('preserves JSX ownership, input edits, focus, selection, and open Portal content', () => {
     const [config, setConfig] = createSignal<CnConfig>({})
     let cleanups = 0
     function Content() {
@@ -188,7 +188,7 @@ describe('scoped cn', () => {
   })
 })
 
-test('keeps independent part merging bound to its own Provider', () => {
+it('keeps independent part merging bound to its own Provider', () => {
   const screen = render(() => (
     <MoraineProvider cnConfig={densityConfig}>
       <Sidebar>
@@ -201,7 +201,7 @@ test('keeps independent part merging bound to its own Provider', () => {
   expect(screen.getByText('Main').className).toContain(classes)
 })
 
-test('preserves recipe merge boundaries with non-transitive conflicts', () => {
+it('preserves recipe merge boundaries with non-transitive conflicts', () => {
   const config: CnConfig = {
     extend: {
       classGroups: { a: ['app-a'], b: ['app-b'], c: ['app-c'] },

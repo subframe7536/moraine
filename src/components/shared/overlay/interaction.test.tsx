@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { createSignal, flush, untrack } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { useOverlayInteraction } from './interaction'
 function RebindableInteraction(props: {
@@ -25,7 +25,7 @@ function RebindableInteraction(props: {
 }
 
 describe('useOverlayInteraction', () => {
-  test('rebinds document interactions when the mounted content changes documents', async () => {
+  it('rebinds document interactions when the mounted content changes documents', async () => {
     const onEscape = vi.fn()
     const foreignDocument = document.implementation.createHTMLDocument('foreign')
     let setContent: (content: HTMLElement) => void = () => undefined
@@ -51,7 +51,7 @@ describe('useOverlayInteraction', () => {
     expect(onEscape).toHaveBeenCalledTimes(2)
   })
 
-  test('does not trigger onPointerOutside when pointerdown starts inside and releases outside', () => {
+  it('does not trigger onPointerOutside when pointerdown starts inside and releases outside', () => {
     const onPointerOutside = vi.fn()
     const content = document.createElement('div')
     const outside = document.createElement('div')

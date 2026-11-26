@@ -3,7 +3,7 @@
 import { writeFile } from 'node:fs/promises'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { createFileFixture } from '../test-util/file-fixture.ts'
 
@@ -17,7 +17,7 @@ async function writeIndex(projectRoot: string, key: string): Promise<void> {
 }
 
 describe('loadApiDocIndex', () => {
-  test('reads the latest index json', async () => {
+  it('reads the latest index json', async () => {
     const projectRoot = await createFileFixture({ 'docs/pages/_api-index.json': '' })
 
     await writeIndex(projectRoot, 'first')
@@ -27,7 +27,7 @@ describe('loadApiDocIndex', () => {
     expect(loadApiDocIndex(projectRoot)?.components[0]?.key).toBe('second')
   })
 
-  test('throws on malformed index json instead of silently returning null', async () => {
+  it('throws on malformed index json instead of silently returning null', async () => {
     const projectRoot = await createFileFixture({ 'docs/pages/_api-index.json': '' })
     await writeFile(path.join(projectRoot, 'docs/pages/_api-index.json'), 'invalid json {', 'utf8')
 

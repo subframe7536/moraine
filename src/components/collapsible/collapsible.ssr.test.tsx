@@ -1,11 +1,11 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Collapsible } from './collapsible'
-describe('Collapsible SSR Hydration', () => {
-  test('hydrates public content state and retains it through animated toggles', async () => {
+describe('collapsible SSR Hydration', () => {
+  it('hydrates public content state and retains it through animated toggles', async () => {
     const fixture = '/src/components/collapsible/collapsible.ssr.fixture.tsx'
     const server = document.createElement('div')
     server.innerHTML = renderSsrFixture(fixture, 'renderOpenCollapsibleFixture')
@@ -45,7 +45,7 @@ describe('Collapsible SSR Hydration', () => {
     expect(wrapper.hidden).toBe(false)
   })
 
-  test('hydrates closed composable markup without content and supports open, close, and reopen', async () => {
+  it('hydrates closed composable markup without content and supports open, close, and reopen', async () => {
     let contentMounts = 0
     const Content = () => {
       contentMounts += 1

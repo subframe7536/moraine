@@ -88,7 +88,7 @@ describe('createTable', () => {
     })
   })
 
-  it('FlexRender re-renders when its header changes', () => {
+  it('flexRender re-renders when its header changes', () => {
     // `render` creates its own root; nesting it inside `createRoot` stalls updates.
     const [headers, dispose] = createRoot((d) => {
       const table = createTable({ features, columns, data })
@@ -104,7 +104,7 @@ describe('createTable', () => {
     dispose()
   })
 
-  it('FlexRender suppresses placeholder headers and footers', () => {
+  it('flexRender suppresses placeholder headers and footers', () => {
     interface NestedRow {
       a: string
       b: string
@@ -150,16 +150,15 @@ describe('createTable', () => {
     const placeholderFooter = footerHeaders.find((h) => h.isPlaceholder)
     const realFooter = footerHeaders.find((h) => !h.isPlaceholder && h.column.columnDef.footer)
 
-    if (placeholderFooter) {
-      const { container: placeholderFooterContainer } = render(() => (
-        <FlexRender footer={placeholderFooter} />
-      ))
-      expect(placeholderFooterContainer.textContent).toBe('')
-    }
-    if (realFooter) {
-      const { container: realFooterContainer } = render(() => <FlexRender footer={realFooter} />)
-      expect(realFooterContainer.textContent).not.toBe('')
-    }
+    expect(placeholderFooter).toBeDefined()
+    const { container: placeholderFooterContainer } = render(() => (
+      <FlexRender footer={placeholderFooter!} />
+    ))
+    expect(placeholderFooterContainer.textContent).toBe('')
+
+    expect(realFooter).toBeDefined()
+    const { container: realFooterContainer } = render(() => <FlexRender footer={realFooter!} />)
+    expect(realFooterContainer.textContent).not.toBe('')
 
     dispose()
   })

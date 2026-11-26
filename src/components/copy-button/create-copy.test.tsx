@@ -1,5 +1,5 @@
 import { createRoot } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { createCopy } from './create-copy'
 const writeText = vi.fn<(text: string) => Promise<void>>()
@@ -33,7 +33,7 @@ function setup(options = {}) {
 }
 
 describe('createCopy', () => {
-  test('copies strings and resets feedback after resetDelay', async () => {
+  it('copies strings and resets feedback after resetDelay', async () => {
     const clipboard = setup()
     expect(clipboard.status()).toBe('idle')
     expect(clipboard.isCopied()).toBe(false)
@@ -52,7 +52,7 @@ describe('createCopy', () => {
     expect(clipboard.isError()).toBe(false)
   })
 
-  test('copies ClipboardItem using modern navigator.clipboard.write', async () => {
+  it('copies ClipboardItem using modern navigator.clipboard.write', async () => {
     const clipboard = setup()
     const item = { types: ['text/plain'] } as unknown as ClipboardItem
 
@@ -62,7 +62,7 @@ describe('createCopy', () => {
     expect(clipboard.status()).toBe('copied')
   })
 
-  test('falls back to command when navigator.clipboard is unavailable', async () => {
+  it('falls back to command when navigator.clipboard is unavailable', async () => {
     vi.stubGlobal('navigator', {})
     const execCommand = vi.fn().mockReturnValue(true)
     document.execCommand = execCommand
@@ -74,7 +74,7 @@ describe('createCopy', () => {
     expect(clipboard.status()).toBe('copied')
   })
 
-  test('falls back to command when navigator.clipboard.writeText rejects', async () => {
+  it('falls back to command when navigator.clipboard.writeText rejects', async () => {
     writeText.mockRejectedValueOnce(new Error('Permission denied'))
     const execCommand = vi.fn().mockReturnValue(true)
     document.execCommand = execCommand
@@ -86,7 +86,7 @@ describe('createCopy', () => {
     expect(clipboard.status()).toBe('copied')
   })
 
-  test('extracts text/plain from ClipboardItem on legacy fallback', async () => {
+  it('extracts text/plain from ClipboardItem on legacy fallback', async () => {
     vi.stubGlobal('navigator', {})
     const execCommand = vi.fn().mockReturnValue(true)
     document.execCommand = execCommand
@@ -105,7 +105,7 @@ describe('createCopy', () => {
     expect(clipboard.status()).toBe('copied')
   })
 
-  test('copies the JSON form of a ClipboardItem without a text type on legacy fallback', async () => {
+  it('copies the JSON form of a ClipboardItem without a text type on legacy fallback', async () => {
     vi.stubGlobal('navigator', {})
     let copiedContent: string | undefined
     document.execCommand = vi.fn(() => {
@@ -121,7 +121,7 @@ describe('createCopy', () => {
     expect(clipboard.status()).toBe('copied')
   })
 
-  test('reports failure when modern API and execCommand both fail', async () => {
+  it('reports failure when modern API and execCommand both fail', async () => {
     writeText.mockRejectedValue(new Error('Modern writeText failed'))
     document.execCommand = vi.fn().mockReturnValue(false)
 
@@ -140,7 +140,7 @@ describe('createCopy', () => {
     expect(clipboard.isError()).toBe(false)
   })
 
-  test('fires onStatusChange for transitions', async () => {
+  it('fires onStatusChange for transitions', async () => {
     const onStatusChange = vi.fn()
     const clipboard = setup({ onStatusChange })
 
@@ -151,7 +151,7 @@ describe('createCopy', () => {
     expect(onStatusChange.mock.calls).toEqual([['copied'], ['idle']])
   })
 
-  test('reports idle when a new copy starts only if the previous result is still shown', async () => {
+  it('reports idle when a new copy starts only if the previous result is still shown', async () => {
     const onStatusChange = vi.fn()
     const clipboard = setup({ onStatusChange })
 
@@ -160,7 +160,7 @@ describe('createCopy', () => {
     expect(onStatusChange.mock.calls).toEqual([['copied'], ['idle'], ['copied']])
   })
 
-  test('reset returns to idle and prevents the pending reset from reporting again', async () => {
+  it('reset returns to idle and prevents the pending reset from reporting again', async () => {
     const onStatusChange = vi.fn()
     const clipboard = setup({ onStatusChange })
     await clipboard.copy('test')
@@ -174,7 +174,7 @@ describe('createCopy', () => {
     expect(onStatusChange).not.toHaveBeenCalled()
   })
 
-  test('reports no status changes after the owner is disposed', async () => {
+  it('reports no status changes after the owner is disposed', async () => {
     const onStatusChange = vi.fn()
     const clipboard = setup({ onStatusChange })
     await clipboard.copy('unmount-test')

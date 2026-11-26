@@ -1,12 +1,12 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
 import { Badge } from './badge'
-describe('Badge', () => {
-  test('renders default badge semantics and label', () => {
+describe('badge', () => {
+  it('renders default badge semantics and label', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Badge>New</Badge>
@@ -19,13 +19,13 @@ describe('Badge', () => {
     expect(label?.textContent).toBe('New')
   })
 
-  test('renders children as the label content', () => {
+  it('renders children as the label content', () => {
     const screen = render(() => <Badge>Label</Badge>)
 
     expect(screen.container.querySelector('[data-slot="badge-label"]')?.textContent).toBe('Label')
   })
 
-  test('renders a native button with forwarded attributes and events', () => {
+  it('renders a native button with forwarded attributes and events', () => {
     const onClick = vi.fn()
     const screen = render(() => (
       <Badge as="button" type="button" disabled aria-pressed="true" onClick={onClick}>
@@ -42,7 +42,7 @@ describe('Badge', () => {
     expect(onClick).not.toHaveBeenCalled()
   })
 
-  test('merges reactive class arrays', () => {
+  it('merges reactive class arrays', () => {
     const [active, setActive] = createSignal(false)
     const screen = render(() => (
       <Badge class={['custom-badge', active() && 'active-state']}>State</Badge>
@@ -55,14 +55,14 @@ describe('Badge', () => {
     expect(badge.className).toContain('active-state')
   })
 
-  test('supports hiding decorative badges from the accessibility tree', () => {
+  it('supports hiding decorative badges from the accessibility tree', () => {
     const screen = render(() => <Badge aria-hidden="true">2</Badge>)
     const badge = screen.container.querySelector('[data-slot="badge"]')
 
     expect(badge?.getAttribute('aria-hidden')).toBe('true')
   })
 
-  test('forwards root attributes and lets callers override generated metadata', () => {
+  it('forwards root attributes and lets callers override generated metadata', () => {
     const screen = render(() => (
       <Badge data-slot="tag" data-variant="custom" aria-label="status">
         Ready
@@ -74,7 +74,7 @@ describe('Badge', () => {
     expect(badge?.getAttribute('aria-label')).toBe('status')
   })
 
-  test('renders leading and trailing icon slots', () => {
+  it('renders leading and trailing icon slots', () => {
     const screen = render(() => (
       <Badge leading="i-lucide-sparkles" trailing="i-lucide-arrow-right">
         Label
@@ -88,7 +88,7 @@ describe('Badge', () => {
     expect(trailing?.className).toContain('i-lucide-arrow-right')
   })
 
-  test('forwards pointer handlers including tuple handlers and composes ancestors', () => {
+  it('forwards pointer handlers including tuple handlers and composes ancestors', () => {
     const onPointerDown = vi.fn()
     const onAncestorPointerDown = vi.fn()
     const screen = render(() => (
@@ -107,13 +107,13 @@ describe('Badge', () => {
     expect(onAncestorPointerDown).toHaveBeenCalledTimes(1)
   })
 
-  test('renders zero as label content', () => {
+  it('renders zero as label content', () => {
     const screen = render(() => <Badge>{0}</Badge>)
 
     expect(screen.container.querySelector('[data-slot="badge-label"]')?.textContent).toBe('0')
   })
 
-  test('evaluates getter-backed conditional JSX inputs once', () => {
+  it('evaluates getter-backed conditional JSX inputs once', () => {
     const reads = {
       children: 0,
       leading: 0,
@@ -144,7 +144,7 @@ describe('Badge', () => {
     })
   })
 
-  test('supports slot and attribute overrides used by select tags', () => {
+  it('supports slot and attribute overrides used by select tags', () => {
     const screen = render(() => (
       <Badge
         data-slot="tag"
@@ -168,7 +168,7 @@ describe('Badge', () => {
     expect(remove?.className).toContain('trailing-override')
   })
 
-  test('supports style overrides', () => {
+  it('supports style overrides', () => {
     const screen = render(() => (
       <Badge
         data-slot="tag"

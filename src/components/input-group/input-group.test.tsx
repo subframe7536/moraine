@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { Portal } from '@solidjs/web'
 import { Show, createSignal, flush, onCleanup } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { defineTheme } from '../../theme/create-theme'
@@ -14,8 +14,8 @@ import { Textarea } from '../textarea/textarea'
 
 import { InputGroup } from './input-group'
 import type { InputGroupT } from './input-group.types'
-describe('InputGroup', () => {
-  test('keeps Leading and Trailing scoped to InputGroup', () => {
+describe('inputGroup', () => {
+  it('keeps Leading and Trailing scoped to InputGroup', () => {
     expect(() => render(() => <InputGroup.Leading>Prefix</InputGroup.Leading>)).toThrow(
       'InputGroup.Leading must be used within InputGroup',
     )
@@ -24,7 +24,7 @@ describe('InputGroup', () => {
     )
   })
 
-  test('forwards the root ref without requiring a provider', () => {
+  it('forwards the root ref without requiring a provider', () => {
     let group: HTMLDivElement | undefined
     const screen = render(() => (
       <InputGroup
@@ -40,7 +40,7 @@ describe('InputGroup', () => {
     expect(group?.contains(screen.getByRole('textbox'))).toBe(true)
   })
 
-  test.each([Input, Textarea])(
+  it.each([Input, Textarea])(
     'hides the decorative frame from assistive technology for %s',
     (Control) => {
       const screen = render(() => (
@@ -56,7 +56,7 @@ describe('InputGroup', () => {
     },
   )
 
-  test('uses DOM order and root orientation for leading and trailing content', () => {
+  it('uses DOM order and root orientation for leading and trailing content', () => {
     const [orientation, setOrientation] =
       createSignal<InputGroupT.Variants['orientation']>('horizontal')
     const screen = render(() => (
@@ -92,7 +92,7 @@ describe('InputGroup', () => {
     expect(screen.getByTestId('trailing')).toBe(trailing)
   })
 
-  test('uses data-compact to remove only the control-side padding without replacing nodes', () => {
+  it('uses data-compact to remove only the control-side padding without replacing nodes', () => {
     const [compact, setCompact] = createSignal(false)
     const screen = render(() => (
       <InputGroup>
@@ -122,7 +122,7 @@ describe('InputGroup', () => {
     expect(trailing.hasAttribute('data-compact')).toBe(false)
   })
 
-  test('resolves data-compact from theme defaults with explicit prop precedence', () => {
+  it('resolves data-compact from theme defaults with explicit prop precedence', () => {
     const [theme, setTheme] = createSignal(
       defineTheme({ inputGroup: { defaultVariants: { compact: true } } }),
     )
@@ -147,7 +147,7 @@ describe('InputGroup', () => {
     expect(explicit.hasAttribute('data-compact')).toBe(false)
   })
 
-  test('does not infer compact spacing from button or kbd children', () => {
+  it('does not infer compact spacing from button or kbd children', () => {
     const screen = render(() => (
       <InputGroup>
         <InputGroup.Leading data-testid="leading">
@@ -164,7 +164,7 @@ describe('InputGroup', () => {
     expect(screen.getByTestId('trailing').hasAttribute('data-compact')).toBe(false)
   })
 
-  test('uses compact explicitly for button and kbd children', () => {
+  it('uses compact explicitly for button and kbd children', () => {
     const screen = render(() => (
       <InputGroup>
         <InputGroup.Leading compact data-testid="leading">
@@ -181,7 +181,7 @@ describe('InputGroup', () => {
     expect(screen.getByTestId('trailing').hasAttribute('data-compact')).toBe(true)
   })
 
-  test.each([Input, Textarea])('focuses only from non-interactive space for %s', (Control) => {
+  it.each([Input, Textarea])('focuses only from non-interactive space for %s', (Control) => {
     const onPointerDown = vi.fn()
     const screen = render(() => (
       <InputGroup onPointerDown={onPointerDown}>
@@ -215,7 +215,7 @@ describe('InputGroup', () => {
     expect(document.activeElement).toBe(screen.getByRole('button'))
   })
 
-  test('does not redirect focus from interactive addons in an iframe', () => {
+  it('does not redirect focus from interactive addons in an iframe', () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const iframeDocument = iframe.contentDocument!
@@ -255,7 +255,7 @@ describe('InputGroup', () => {
     iframe.remove()
   })
 
-  test('respects root pointer cancellation and disabled controls without disabling parts', () => {
+  it('respects root pointer cancellation and disabled controls without disabling parts', () => {
     const [cancel, setCancel] = createSignal(true)
     const [disabled, setDisabled] = createSignal(false)
     const action = vi.fn()
@@ -294,7 +294,7 @@ describe('InputGroup', () => {
     expect(document.activeElement).toBe(control)
   })
 
-  test('keeps user classes and styles on group slots through theme updates without replacing children', () => {
+  it('keeps user classes and styles on group slots through theme updates without replacing children', () => {
     const [leadingClass, setLeadingClass] = createSignal('first-leading')
     const screen = render(() => (
       <InputGroup
@@ -324,7 +324,7 @@ describe('InputGroup', () => {
     expect(leading.className).not.toContain('first-leading')
   })
 
-  test('resolves root orientation from theme variants and explicit reactive props', () => {
+  it('resolves root orientation from theme variants and explicit reactive props', () => {
     const [theme, setTheme] = createSignal(
       defineTheme({
         inputGroup: {
@@ -367,7 +367,7 @@ describe('InputGroup', () => {
     expect(explicit.getAttribute('data-orientation')).toBe('horizontal')
   })
 
-  test('keeps native value, selection and focus when part content changes', () => {
+  it('keeps native value, selection and focus when part content changes', () => {
     const [show, setShow] = createSignal(true)
     const [text, setText] = createSignal('First')
     const cleanup = vi.fn()
@@ -402,7 +402,7 @@ describe('InputGroup', () => {
     screen.unmount()
   })
 
-  test('keeps native form ownership, invalid state and reset behavior on the control', async () => {
+  it('keeps native form ownership, invalid state and reset behavior on the control', async () => {
     const [error, setError] = createSignal<string | undefined>('Invalid')
     const screen = render(() => (
       <form>
@@ -428,7 +428,7 @@ describe('InputGroup', () => {
     expect(screen.getByRole('group').hasAttribute('aria-invalid')).toBe(false)
   })
 
-  test('does not focus control when pointerdown targets a portaled child', () => {
+  it('does not focus control when pointerdown targets a portaled child', () => {
     let portalTarget: HTMLDivElement | undefined
     const screen = render(() => (
       <InputGroup>
@@ -452,7 +452,7 @@ describe('InputGroup', () => {
     expect(document.activeElement).not.toBe(control)
   })
 
-  test('does not focus control when the dropdown trigger in an addon is clicked', () => {
+  it('does not focus control when the dropdown trigger in an addon is clicked', () => {
     const screen = render(() => (
       <InputGroup>
         <Input aria-label="File name" placeholder="Enter file name" />
@@ -475,7 +475,7 @@ describe('InputGroup', () => {
     expect(document.activeElement).not.toBe(control)
   })
 
-  test('supports polymorphic rendering on Leading and Trailing', () => {
+  it('supports polymorphic rendering on Leading and Trailing', () => {
     const screen = render(() => (
       <InputGroup>
         <InputGroup.Leading as="label" for="test-input" data-testid="leading">

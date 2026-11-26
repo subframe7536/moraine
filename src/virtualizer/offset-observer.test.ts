@@ -1,6 +1,6 @@
 import type { Virtualizer } from '@tanstack/virtual-core'
 import { createRoot, createSignal, createRenderEffect } from 'solid-js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { createSharedElementOffsetObserver } from './offset-observer'
 function scrollableElement() {
@@ -37,7 +37,7 @@ describe('createSharedElementOffsetObserver', () => {
     document.body.replaceChildren()
   })
 
-  test('reports the vertical, horizontal, and RTL offsets of one scroll element', () => {
+  it('reports the vertical, horizontal, and RTL offsets of one scroll element', () => {
     const { element, position } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
     const vertical = vi.fn()
@@ -63,7 +63,7 @@ describe('createSharedElementOffsetObserver', () => {
     expect(vertical).not.toHaveBeenCalled()
   })
 
-  test('notifies every subscriber of one scroll event in a single batch', () => {
+  it('notifies every subscriber of one scroll event in a single batch', () => {
     const { element, position } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
     const [top, setTop] = createSignal(0)
@@ -89,7 +89,7 @@ describe('createSharedElementOffsetObserver', () => {
     dispose()
   })
 
-  test('reports the end of scrolling after the reset delay without scrollend', () => {
+  it('reports the end of scrolling after the reset delay without scrollend', () => {
     vi.useFakeTimers()
     const { element, position } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
@@ -110,7 +110,7 @@ describe('createSharedElementOffsetObserver', () => {
     expect(callback).toHaveBeenLastCalledWith(5, false)
   })
 
-  test('drops the pending end-of-scroll report when the last subscriber leaves', () => {
+  it('drops the pending end-of-scroll report when the last subscriber leaves', () => {
     vi.useFakeTimers()
     const { element } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
@@ -123,7 +123,7 @@ describe('createSharedElementOffsetObserver', () => {
     expect(callback).toHaveBeenCalledTimes(1)
   })
 
-  test('returns no subscription before the instance has a scroll element', () => {
+  it('returns no subscription before the instance has a scroll element', () => {
     const observe = createSharedElementOffsetObserver()
     const instance = {
       scrollElement: null,

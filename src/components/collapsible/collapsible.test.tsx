@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
@@ -31,8 +31,8 @@ function renderCollapsible(props?: {
   ))
 }
 
-describe('Collapsible', () => {
-  test('renders closed by default, unmounts closed content, and toggles on trigger click', () => {
+describe('collapsible', () => {
+  it('renders closed by default, unmounts closed content, and toggles on trigger click', () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false} transition={false}>
         <Collapsible.Trigger>Toggle Details</Collapsible.Trigger>
@@ -64,7 +64,7 @@ describe('Collapsible', () => {
     expect(root?.hasAttribute('data-closed')).toBe(true)
   })
 
-  test('renders open state with content', () => {
+  it('renders open state with content', () => {
     const screen = renderCollapsible({ open: true })
 
     expect(screen.getByTestId('content')).not.toBeNull()
@@ -77,7 +77,7 @@ describe('Collapsible', () => {
     expect(trigger.getAttribute('aria-controls')).toBe(wrapper?.getAttribute('id'))
   })
 
-  test('allows callers to override generated root state attributes', () => {
+  it('allows callers to override generated root state attributes', () => {
     const screen = render(() => (
       <Collapsible defaultOpen data-expanded="caller-expanded" data-closed="caller-closed">
         <Collapsible.Trigger>Trigger</Collapsible.Trigger>
@@ -92,7 +92,7 @@ describe('Collapsible', () => {
     expect(root?.getAttribute('data-closed')).toBe('caller-closed')
   })
 
-  test('controlled open does not self-mutate and calls onOpenChange', async () => {
+  it('controlled open does not self-mutate and calls onOpenChange', async () => {
     const onOpenChange = vi.fn()
     const screen = renderCollapsible({ open: true, onOpenChange })
     const trigger = screen.getByTestId('trigger-control')
@@ -105,7 +105,7 @@ describe('Collapsible', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('publishes each uncontrolled state change exactly once in order', async () => {
+  it('publishes each uncontrolled state change exactly once in order', async () => {
     const onOpenChange = vi.fn()
     const screen = renderCollapsible({ defaultOpen: false, onOpenChange })
     const trigger = screen.getByTestId('trigger-control')
@@ -116,7 +116,7 @@ describe('Collapsible', () => {
     expect(onOpenChange.mock.calls).toEqual([[true], [false]])
   })
 
-  test('disabled prevents toggling', async () => {
+  it('disabled prevents toggling', async () => {
     const onOpenChange = vi.fn()
     const screen = renderCollapsible({
       defaultOpen: false,
@@ -133,7 +133,7 @@ describe('Collapsible', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('reactive disabled state suppresses trigger', async () => {
+  it('reactive disabled state suppresses trigger', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const onOpenChange = vi.fn()
     const screen = render(() => (
@@ -152,7 +152,7 @@ describe('Collapsible', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('honors a canceled trigger event before toggling', () => {
+  it('honors a canceled trigger event before toggling', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Collapsible onOpenChange={onOpenChange}>
@@ -172,7 +172,7 @@ describe('Collapsible', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('cancels stale close completion when controlled state reopens', async () => {
+  it('cancels stale close completion when controlled state reopens', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Collapsible open={open()} transition>
@@ -192,7 +192,7 @@ describe('Collapsible', () => {
     expect(wrapper.firstElementChild?.getAttribute('data-expanded')).toBe('')
   })
 
-  test('keeps nested collapsible ids and state independent', async () => {
+  it('keeps nested collapsible ids and state independent', async () => {
     const screen = render(() => (
       <Collapsible defaultOpen>
         <Collapsible.Trigger>Outer</Collapsible.Trigger>
@@ -216,7 +216,7 @@ describe('Collapsible', () => {
     expect(inner.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('keeps aria-controls pointing at the stable shell', async () => {
+  it('keeps aria-controls pointing at the stable shell', async () => {
     const screen = renderCollapsible({ defaultOpen: false })
     const trigger = screen.getByTestId('trigger-control')
 
@@ -238,7 +238,7 @@ describe('Collapsible', () => {
     expect(trigger.getAttribute('aria-controls')).toBe(contentId)
   })
 
-  test('transition=true keeps content mounted until close transition ends', async () => {
+  it('transition=true keeps content mounted until close transition ends', async () => {
     const screen = renderCollapsible({ defaultOpen: true, transition: true })
     const trigger = screen.getByTestId('trigger-control')
     const content = screen.container.querySelector(
@@ -259,7 +259,7 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('content')).toBeNull()
   })
 
-  test('transition defaults to true and transition=false unmounts content immediately', async () => {
+  it('transition defaults to true and transition=false unmounts content immediately', async () => {
     const animated = renderCollapsible({ defaultOpen: true })
     const animatedTrigger = animated.getByTestId('trigger-control')
     const wrapper = animated.container.querySelector(
@@ -281,7 +281,7 @@ describe('Collapsible', () => {
     expect(immediate.queryByTestId('content')).toBeNull()
   })
 
-  test('initial open with transition suppresses entrance animation until toggled', async () => {
+  it('initial open with transition suppresses entrance animation until toggled', async () => {
     const screen = renderCollapsible({ defaultOpen: true, transition: true })
     const trigger = screen.getByTestId('trigger-control')
     const wrapper = screen.container.querySelector(
@@ -307,7 +307,7 @@ describe('Collapsible', () => {
     expect(wrapper.style.height).toBe('')
   })
 
-  test('forwards root, trigger, and content class and style props to their own elements', () => {
+  it('forwards root, trigger, and content class and style props to their own elements', () => {
     const screen = render(() => (
       <Collapsible open class="root-override" style={{ width: '100px' }}>
         <Collapsible.Trigger
@@ -335,7 +335,7 @@ describe('Collapsible', () => {
     expect(content.style.width).toBe('300px')
   })
 
-  test('forwards id to root', async () => {
+  it('forwards id to root', async () => {
     const screen = render(() => (
       <Collapsible id="collapsible-root">
         <Collapsible.Trigger>Trigger</Collapsible.Trigger>
@@ -350,7 +350,7 @@ describe('Collapsible', () => {
     })
   })
 
-  test('polymorphic trigger supporting as="div" and keyboard Enter / Space activation', async () => {
+  it('polymorphic trigger supporting as="div" and keyboard Enter / Space activation', async () => {
     const screen = render(() => (
       <Collapsible transition={false}>
         <Collapsible.Trigger as="div" class="custom-div-trigger">
@@ -374,7 +374,7 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('keyboard-content')).toBeNull()
   })
 
-  test('forceMount keeps content mounted in DOM when closed', async () => {
+  it('forceMount keeps content mounted in DOM when closed', async () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false} forceMount>
         <Collapsible.Trigger>Keep Mounted Trigger</Collapsible.Trigger>
@@ -394,7 +394,7 @@ describe('Collapsible', () => {
     expect(screen.getByTestId('force-mount-content')).not.toBeNull()
   })
 
-  test('kept-mounted closed content uses hidden="until-found" and expands on beforematch', async () => {
+  it('kept-mounted closed content uses hidden="until-found" and expands on beforematch', async () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false} forceMount>
         <Collapsible.Trigger>Find Trigger</Collapsible.Trigger>
@@ -417,7 +417,7 @@ describe('Collapsible', () => {
     expect(wrapper.hasAttribute('hidden')).toBe(false)
   })
 
-  test('hides retained closed content from visual, keyboard, and accessibility trees', () => {
+  it('hides retained closed content from visual, keyboard, and accessibility trees', () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false} forceMount>
         <Collapsible.Trigger>Keep Mounted Trigger</Collapsible.Trigger>
@@ -445,7 +445,7 @@ describe('Collapsible', () => {
     expect(screen.getByRole('link', { name: 'Retained details' })).not.toBeNull()
   })
 
-  test('keeps retained content inaccessible during and after an exit transition', async () => {
+  it('keeps retained content inaccessible during and after an exit transition', async () => {
     const screen = render(() => (
       <Collapsible defaultOpen transition forceMount>
         <Collapsible.Trigger>Retained transition trigger</Collapsible.Trigger>
@@ -476,7 +476,7 @@ describe('Collapsible', () => {
     ).not.toBeNull()
   })
 
-  test('restores trigger focus when a controlled close hides focused content', () => {
+  it('restores trigger focus when a controlled close hides focused content', () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Collapsible open={open()}>
@@ -497,7 +497,7 @@ describe('Collapsible', () => {
     expect(document.activeElement).toBe(trigger)
   })
 
-  test('does not restore trigger focus after focus leaves open content', () => {
+  it('does not restore trigger focus after focus leaves open content', () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <>
@@ -520,7 +520,7 @@ describe('Collapsible', () => {
     expect(document.activeElement).toBe(outside)
   })
 
-  test('restores focus within the content owner document on controlled close', () => {
+  it('restores focus within the content owner document on controlled close', () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const iframeDocument = iframe.contentDocument!
@@ -553,7 +553,7 @@ describe('Collapsible', () => {
     iframe.remove()
   })
 
-  test('forwards Content polymorphism, class, and ref to the rendered element', () => {
+  it('forwards Content polymorphism, class, and ref to the rendered element', () => {
     let contentRef: HTMLElement | undefined
 
     const screen = render(() => (
@@ -577,7 +577,7 @@ describe('Collapsible', () => {
     expect(screen.getByText('Section Body')).not.toBeNull()
   })
 
-  test('renders the trigger and lazily renders Content children only while open', async () => {
+  it('renders the trigger and lazily renders Content children only while open', async () => {
     const screen = render(() => (
       <Collapsible transition={false}>
         {createComponent(Collapsible.Trigger, {
@@ -599,7 +599,7 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('lazy-composable-content')).toBeNull()
   })
 
-  test('applies Provider theme slots and user class/style props to the right slots', () => {
+  it('applies Provider theme slots and user class/style props to the right slots', () => {
     const parent = defineTheme({
       collapsible: {
         base: {
@@ -650,7 +650,7 @@ describe('Collapsible', () => {
     expect(trigger.className).not.toContain('user-trigger-a')
   })
 
-  test('stays functional with an empty theme and exposes transition state', () => {
+  it('stays functional with an empty theme and exposes transition state', () => {
     const design = defineTheme({})
     const screen = render(() => (
       <MoraineProvider theme={design}>

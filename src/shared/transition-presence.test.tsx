@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
 import { Show, createRoot, createSignal, flush } from 'solid-js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { bindElement } from './element-binding'
 import { createTransitionPresence } from './transition-presence'
@@ -95,7 +95,7 @@ afterEach(() => {
 })
 
 describe('createTransitionPresence', () => {
-  test('keeps a stable shell registered across repeated exits', async () => {
+  it('keeps a stable shell registered across repeated exits', async () => {
     let element: HTMLElement | undefined
     let setOpen: ((open: boolean) => void) | undefined
     let presence: TransitionPresenceState | undefined
@@ -133,7 +133,7 @@ describe('createTransitionPresence', () => {
     screen.unmount()
   })
 
-  test('is browser-independent while initially closed and reacts to opening', async () => {
+  it('is browser-independent while initially closed and reacts to opening', async () => {
     const lifecycle = createRoot((dispose) => {
       const [open, setOpen] = createSignal(false)
       const presence = createTransitionPresence({ open })
@@ -155,7 +155,7 @@ describe('createTransitionPresence', () => {
     lifecycle.dispose()
   })
 
-  test('settles synchronously when no elements are registered', () => {
+  it('settles synchronously when no elements are registered', () => {
     const lifecycle = createRoot((dispose) => {
       const [open, setOpen] = createSignal(true)
       const presence = createTransitionPresence({ open })
@@ -169,7 +169,7 @@ describe('createTransitionPresence', () => {
     lifecycle.dispose()
   })
 
-  test('settles when the closed state has no exit animation', async () => {
+  it('settles when the closed state has no exit animation', async () => {
     const fixture = renderPresence()
     let closed = false
     installComputedStyle(() => ({
@@ -185,7 +185,7 @@ describe('createTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 
-  test('waits for an animation event when the environment cannot resolve animation styles', async () => {
+  it('waits for an animation event when the environment cannot resolve animation styles', async () => {
     const fixture = renderPresence()
     installComputedStyle(() => ({
       animationDuration: 'auto',
@@ -201,7 +201,7 @@ describe('createTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 
-  test('keeps content mounted until its current exit animation settles', async () => {
+  it('keeps content mounted until its current exit animation settles', async () => {
     const fixture = renderPresence()
     let closed = false
     installComputedStyle(() => ({
@@ -223,7 +223,7 @@ describe('createTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 
-  test('settles an exit animation when it is cancelled', async () => {
+  it('settles an exit animation when it is cancelled', async () => {
     const fixture = renderPresence()
     let closed = false
     installComputedStyle(() => ({
@@ -239,7 +239,7 @@ describe('createTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 
-  test('waits for every changed animation name', async () => {
+  it('waits for every changed animation name', async () => {
     const fixture = renderPresence()
     let closed = false
     installComputedStyle(() => ({
@@ -258,7 +258,7 @@ describe('createTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 
-  test('waits for every registered element', async () => {
+  it('waits for every registered element', async () => {
     let first: HTMLElement | undefined
     let second: HTMLElement | undefined
     let presence: TransitionPresenceState | undefined
@@ -309,7 +309,7 @@ describe('createTransitionPresence', () => {
     screen.unmount()
   })
 
-  test('does not wait for an element removed while hiding', async () => {
+  it('does not wait for an element removed while hiding', async () => {
     let first: HTMLElement | undefined
     let second: HTMLElement | undefined
     let unregisterSecond: (() => void) | undefined
@@ -363,7 +363,7 @@ describe('createTransitionPresence', () => {
     screen.unmount()
   })
 
-  test('tracks a replacement element registered while hiding', async () => {
+  it('tracks a replacement element registered while hiding', async () => {
     const fixture = renderPresence()
     const replacement = document.createElement('div')
     document.body.append(replacement)
@@ -390,7 +390,7 @@ describe('createTransitionPresence', () => {
     replacement.remove()
   })
 
-  test('uses the computed exit duration as a fallback when an event is missing', async () => {
+  it('uses the computed exit duration as a fallback when an event is missing', async () => {
     vi.useFakeTimers()
     const fixture = renderPresence()
     let closed = false
@@ -410,7 +410,7 @@ describe('createTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 
-  test('cancels a pending exit when reopened', async () => {
+  it('cancels a pending exit when reopened', async () => {
     vi.useFakeTimers()
     const fixture = renderPresence()
     let closed = false
@@ -430,7 +430,7 @@ describe('createTransitionPresence', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
-  test('ignores exit events that arrive after its owner is disposed mid-exit', async () => {
+  it('ignores exit events that arrive after its owner is disposed mid-exit', async () => {
     let closed = false
     installComputedStyle(() => ({
       animationDuration: '100ms',
@@ -468,7 +468,7 @@ describe('createTransitionPresence', () => {
     expect(exit).toHaveBeenCalledTimes(callsAtUnmount)
   })
 
-  test('does not report an exit when its owner unmounts before the exit starts', async () => {
+  it('does not report an exit when its owner unmounts before the exit starts', async () => {
     let closed = false
     installComputedStyle(() => ({
       animationDuration: '100ms',
@@ -495,7 +495,7 @@ describe('createTransitionPresence', () => {
     expect(exit).not.toHaveBeenCalled()
   })
 
-  test('does not report an exit when its owner unmounts mid-exit', async () => {
+  it('does not report an exit when its owner unmounts mid-exit', async () => {
     let closed = false
     installComputedStyle(() => ({
       animationDuration: '100ms',
@@ -523,7 +523,7 @@ describe('createTransitionPresence', () => {
     expect(exit).not.toHaveBeenCalled()
   })
 
-  test('reports an exit when its element is removed while hiding', async () => {
+  it('reports an exit when its element is removed while hiding', async () => {
     let closed = false
     installComputedStyle(() => ({
       animationDuration: '100ms',
@@ -559,7 +559,7 @@ describe('createTransitionPresence', () => {
     screen.unmount()
   })
 
-  test('ignores animation events from descendants', async () => {
+  it('ignores animation events from descendants', async () => {
     const fixture = renderPresence()
     const child = document.createElement('span')
     fixture.element.append(child)
@@ -581,7 +581,7 @@ describe('createTransitionPresence', () => {
   })
 })
 
-test('notifies completed exits without animations and never initial absence or disposal', async () => {
+it('notifies completed exits without animations and never initial absence or disposal', async () => {
   installComputedStyle()
   const exit = vi.fn()
   const [open, setOpen] = createSignal(false)

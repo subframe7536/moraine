@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { buttonRecipe } from '../components/button/button.recipe'
 import type { ButtonT } from '../components/button/button.types'
@@ -27,7 +27,7 @@ vi.mock('./cn', async (importOriginal) => {
 })
 
 describe('useRecipe', () => {
-  test('keeps undefined-only precedence reactive and preserves node identity', () => {
+  it('keeps undefined-only precedence reactive and preserves node identity', () => {
     const base = defineTheme({
       button: {
         base: { root: 'p-2' },
@@ -84,7 +84,7 @@ describe('useRecipe', () => {
     expect(screen.getByRole('button')).toBe(button)
   })
 
-  test('merges context, own, user, and enforced layers with undefined skip', () => {
+  it('merges context, own, user, and enforced layers with undefined skip', () => {
     const [classes, setClasses] = createSignal<ButtonT.Classes>({ root: 'p-3', label: 'text-lg' })
     const [slotStyles, setSlotStyles] = createSignal<ButtonT.Styles>({ root: { color: 'blue' } })
     function Fixture() {
@@ -144,7 +144,7 @@ describe('useRecipe', () => {
     expect(screen.getByText('Save')).toBe(label)
   })
 
-  test('preserves false over context and theme defaults', () => {
+  it('preserves false over context and theme defaults', () => {
     const theme = defineTheme({
       tooltip: {
         base: { '--tooltip-color': 'purple' },
@@ -182,7 +182,7 @@ describe('useRecipe', () => {
     expect(root.className).toContain('inverted')
   })
 
-  test('updating a slot own class leaves the other slot unchanged', () => {
+  it('updating a slot own class leaves the other slot unchanged', () => {
     const recipe = defineRecipe<{ root: string; label: string }>('layerIsolation', {
       base: { root: 'base-root', label: 'base-label' },
     })
@@ -213,7 +213,7 @@ describe('useRecipe', () => {
     expect(slots.label.class).toContain('fixed-label')
   })
 
-  test('overrides helper provides reactive forwarders with slot mapping', () => {
+  it('overrides helper provides reactive forwarders with slot mapping', () => {
     const [color, setColor] = createSignal('red')
     const [extraClass, setExtraClass] = createSignal('dynamic-class')
 
@@ -247,7 +247,7 @@ describe('useRecipe', () => {
   })
 })
 
-test.each([undefined, 'label'] as const)(
+it.each([undefined, 'label'] as const)(
   'inherits theme variables on %s and removes stale values without replacing nodes',
   (varsSlot) => {
     const parent = defineTheme({
@@ -319,7 +319,7 @@ test.each([undefined, 'label'] as const)(
   },
 )
 
-test('applies own instance variables after recipe keys and context, before caller styles', () => {
+it('applies own instance variables after recipe keys and context, before caller styles', () => {
   const theme = defineTheme({
     button: {
       base: { '--size': '4px', '--shared': 'recipe' },
@@ -368,7 +368,7 @@ test('applies own instance variables after recipe keys and context, before calle
   expect(screen.getByRole('button')).toBe(button)
 })
 
-test.each(['root', 'label'] as const)(
+it.each(['root', 'label'] as const)(
   'layers theme variables on %s before group, slot, and root styles',
   (slot) => {
     const theme = defineTheme({
@@ -410,7 +410,7 @@ test.each(['root', 'label'] as const)(
   },
 )
 
-test('slotWith accepts accessors and reacts to dynamic style updates', () => {
+it('slotWith accepts accessors and reacts to dynamic style updates', () => {
   const [extraClass, setExtraClass] = createSignal('item-custom')
   const [pos, setPos] = createSignal('10px')
 
@@ -437,7 +437,7 @@ test('slotWith accepts accessors and reacts to dynamic style updates', () => {
 describe('data option', () => {
   const states = createDataAttributes('expanded', 'disabled')
 
-  test('slot bindings carry reactive data attributes', () => {
+  it('slot bindings carry reactive data attributes', () => {
     const [expanded, setExpanded] = createSignal(false)
 
     function Fixture(props: { 'data-disabled'?: string }) {
@@ -460,7 +460,7 @@ describe('data option', () => {
     expect(button.getAttribute('data-expanded')).toBe('')
   })
 
-  test('caller attributes spread after the binding overload data attributes', () => {
+  it('caller attributes spread after the binding overload data attributes', () => {
     function Fixture() {
       const { slots } = useRecipe(
         buttonRecipe,
@@ -474,7 +474,7 @@ describe('data option', () => {
     expect(screen.getByRole('button').getAttribute('data-expanded')).toBe('caller')
   })
 
-  test('slotWith adds item data after the parent slot data', () => {
+  it('slotWith adds item data after the parent slot data', () => {
     const [active, setActive] = createSignal(false)
     const parentStates = createDataAttributes('disabled')
     const itemStates = createDataAttributes('expanded')
@@ -503,7 +503,7 @@ describe('data option', () => {
   })
 })
 
-test('ensureVariant is lazy and preserves owner when theme variants are introduced', () => {
+it('ensureVariant is lazy and preserves owner when theme variants are introduced', () => {
   type Slots = { root: string }
   type Variants = { size: 'sm' | 'lg'; custom?: 'a' | 'b' }
   const recipe = defineRecipe<Slots, Variants>('button', {
@@ -552,7 +552,7 @@ test('ensureVariant is lazy and preserves owner when theme variants are introduc
   expect((capturedVariants as any).custom).toBe('b')
 })
 
-test('per-slot own accessors update only the slot they belong to', () => {
+it('per-slot own accessors update only the slot they belong to', () => {
   type TestSlots = { root: string; leading: string; trailing: string }
   const recipe = defineRecipe<TestSlots>('test', {
     base: {
@@ -619,7 +619,7 @@ describe('fine-grained recomputation', () => {
     return [...slots].sort()
   }
 
-  test('a variant change only re-merges slots that depend on it and never touches unread slots', () => {
+  it('a variant change only re-merges slots that depend on it and never touches unread slots', () => {
     const [size, setSize] = createSignal<Variants['size']>('sm')
     const [tone, setTone] = createSignal<Variants['tone']>('a')
     function Fixture() {
@@ -654,7 +654,7 @@ describe('fine-grained recomputation', () => {
     expect(screen.getByTestId('label')).toBe(label)
   })
 
-  test('a context class change for one slot does not re-merge other slots', () => {
+  it('a context class change for one slot does not re-merge other slots', () => {
     const [rootClass, setRootClass] = createSignal('ctx-a')
     function Fixture() {
       const { slots } = useRecipe(
@@ -679,7 +679,7 @@ describe('fine-grained recomputation', () => {
     expect(mergedSlots()).toEqual(['root'])
   })
 
-  test('a context variant change only re-merges slots whose entries test that variant', () => {
+  it('a context variant change only re-merges slots whose entries test that variant', () => {
     const [tone, setTone] = createSignal<Variants['tone']>('a')
     function Fixture() {
       const { slots } = useRecipe(

@@ -1,5 +1,5 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
@@ -16,8 +16,8 @@ function expectAriaReferencesToResolve(content: Element): void {
   }
 }
 
-describe('Drawer SSR Hydration', () => {
-  test('hydrates composed part IDs without replacing nodes', () => {
+describe('drawer SSR Hydration', () => {
+  it('hydrates composed part IDs without replacing nodes', () => {
     const { container } = hydrateFixture(
       '/src/components/drawer/drawer.ssr.fixture.tsx',
       'renderPartsFixture',
@@ -46,7 +46,7 @@ describe('Drawer SSR Hydration', () => {
     expect(container.querySelector('[data-slot="drawer-description"]')?.id).toBeTruthy()
   })
 
-  test('server renders composable parts with stable IDs', () => {
+  it('server renders composable parts with stable IDs', () => {
     const html = renderSsrFixture(
       '/src/components/drawer/drawer.ssr.fixture.tsx',
       'renderPartsFixture',
@@ -56,7 +56,7 @@ describe('Drawer SSR Hydration', () => {
     expect(html).toContain('data-slot="drawer-body"')
     expect(html).toContain('data-slot="drawer-footer"')
   })
-  test('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
+  it('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
     const { container } = hydrateFixture(
       '/src/components/drawer/drawer.ssr.fixture.tsx',
       'renderDrawerFixture',

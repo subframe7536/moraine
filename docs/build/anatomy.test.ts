@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { renderAnatomyText } from '../shared/anatomy.ts'
 
@@ -30,8 +30,8 @@ const config = {
   ],
 }
 
-describe('Anatomy static config', () => {
-  test('parses DOM roots, nested parts and slots, internal wrappers, and element annotations', async () => {
+describe('anatomy static config', () => {
+  it('parses DOM roots, nested parts and slots, internal wrappers, and element annotations', async () => {
     expect(await validateAnatomy(source(JSON.stringify(config)), 'card.mdx', api)).toEqual(config)
     expect(
       await validateAnatomy(
@@ -42,7 +42,7 @@ describe('Anatomy static config', () => {
     ).toEqual({ root: { noDom: true }, children: [{ internal: 'positioner' }] })
   })
 
-  test('serializes the shared hierarchy as a dense text tree', () => {
+  it('serializes the shared hierarchy as a dense text tree', () => {
     expect(renderAnatomyText('Card', validateAnatomyConfig(config, 'card.mdx', api))).toBe(
       [
         'Card [component; slot=root; <section>]',
@@ -58,7 +58,7 @@ describe('Anatomy static config', () => {
     )
   })
 
-  test.each([
+  it.each([
     [{ root: {} }, 'root requires'],
     [{ root: { slot: 'other' } }, 'root requires'],
     [{ root: { slot: 'root', noDom: true } }, 'root requires'],
@@ -88,7 +88,7 @@ describe('Anatomy static config', () => {
     expect(() => validateAnatomyConfig(value, 'components/card.mdx', api)).toThrow(message)
   })
 
-  test.each([
+  it.each([
     'config',
     '{root: makeRoot()}',
     "{root: {slot: 'root'}, ...config}",
@@ -104,14 +104,14 @@ describe('Anatomy static config', () => {
     await expect(extractAnatomyConfig(source(value), 'card.mdx')).rejects.toThrow('card.mdx')
   })
 
-  test('allows omitted Anatomy, including examples that only appear in code fences', async () => {
+  it('allows omitted Anatomy, including examples that only appear in code fences', async () => {
     await expect(validateAnatomy('## Usage\n\nUse Card.', 'card.mdx', api)).resolves.toBeUndefined()
     await expect(
       validateAnatomy('```mdx\n## Anatomy\n<Anatomy value={config} />\n```', 'card.mdx', api),
     ).resolves.toBeUndefined()
   })
 
-  test('requires one heading and one component when present, ignoring examples in code fences', async () => {
+  it('requires one heading and one component when present, ignoring examples in code fences', async () => {
     await expect(
       extractAnatomyConfig('## Anatomy\n```text\nCard\n```', 'card.mdx'),
     ).rejects.toThrow('exactly one')

@@ -1,11 +1,11 @@
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Progress } from './progress'
-describe('Progress SSR Hydration', () => {
-  test('hydrates stable slot order through determinate, indeterminate, and complete states', () => {
+describe('progress SSR Hydration', () => {
+  it('hydrates stable slot order through determinate, indeterminate, and complete states', () => {
     const [value, setValue] = createSignal<number | undefined>(50)
 
     const { container } = hydrateFixture(

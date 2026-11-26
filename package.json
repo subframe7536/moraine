@@ -100,7 +100,7 @@
     "@solidjs/compiler": "catalog:",
     "@solidjs/testing-library": "^1.0.0-rc.2",
     "@solidjs/vite-plugin": "catalog:",
-    "@subf/config": "^0.6.0",
+    "@subf/config": "^0.6.3",
     "@subf/unocss": "catalog:",
     "@tanstack/table-core": "^9.3.1",
     "@tanstack/virtual-core": "^3.19.11",

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, vi, it } from 'vitest'
 
 import type {
   SplitterHandleRegistration,
@@ -120,7 +120,7 @@ describe('splitter-manager', () => {
     document.head.innerHTML = ''
   })
 
-  test('keeps intersection results stable with many handles in one root', async () => {
+  it('keeps intersection results stable with many handles in one root', async () => {
     const { refreshSplitterIntersections, registerSplitterHandle } = await import('./manager')
 
     const root = createRootElement()
@@ -183,7 +183,7 @@ describe('splitter-manager', () => {
     }
   })
 
-  test('drags both crossed handles and passes the event altKey to each', async () => {
+  it('drags both crossed handles and passes the event altKey to each', async () => {
     const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
       await import('./manager')
 
@@ -241,7 +241,7 @@ describe('splitter-manager', () => {
     unregisterInner()
   })
 
-  test('keeps drag target resolution consistent for handle/start/end intersections', async () => {
+  it('keeps drag target resolution consistent for handle/start/end intersections', async () => {
     const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
       await import('./manager')
 
@@ -321,7 +321,7 @@ describe('splitter-manager', () => {
     unregisterEnd()
   })
 
-  test('keeps drag listeners, selection locks, and handles scoped to each owner document', async () => {
+  it('keeps drag listeners, selection locks, and handles scoped to each owner document', async () => {
     const { registerSplitterHandle, startSplitterDrag } = await import('./manager')
     const iframe = document.createElement('iframe')
     const hostRoot = createRootElement()

@@ -1,12 +1,12 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { ToggleButton } from './toggle-button'
-describe('ToggleButton SSR hydration', () => {
-  test('preserves roots, icons, JSX children and reactive render functions while toggling', () => {
+describe('toggleButton SSR hydration', () => {
+  it('preserves roots, icons, JSX children and reactive render functions while toggling', () => {
     const [text, setText] = createSignal('Server content')
     const [loading, setLoading] = createSignal(false)
     const { container } = hydrateFixture(
