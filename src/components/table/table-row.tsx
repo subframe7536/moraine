@@ -1,8 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
-import { pick } from '../../shared/utils'
-
 import { useTablePart } from './table-part'
 import { tableDataAttributes } from './table.recipe'
 import type { TableT } from './table.types'
@@ -27,10 +25,9 @@ import type { TableT } from './table.types'
  * ```
  */
 export function TableRow(props: TableT.RowProps): JSX.Element {
-  const local = pick(props, 'selected', 'class', 'style')
   const rest = omit(props, 'selected', 'class', 'style')
-  const { row: rowSlot } = useTablePart('row', local, {
-    data: tableDataAttributes.row({ selected: () => local.selected }),
+  const { row: rowSlot } = useTablePart('row', props, {
+    data: tableDataAttributes.row({ selected: () => props.selected }),
   })
 
   // Selection is presentation only: `aria-selected` is not valid on rows of a static table.

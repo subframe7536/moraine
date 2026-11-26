@@ -8,7 +8,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId, toIdSegment, pick } from '../../shared/utils'
+import { createId, toIdSegment } from '../../shared/utils'
 import { Icon } from '../icon/index'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -53,26 +53,6 @@ interface NormalizedStepperItem {
  * ```
  */
 export function Stepper(props: StepperProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'value',
-    'defaultValue',
-    'onValueChange',
-    'orientation',
-    'activationMode',
-    'items',
-    'navigation',
-    'disabled',
-    'loop',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'aria-label',
-    'aria-labelledby',
-  )
   const rest = omit(
     props,
     'id',
@@ -104,7 +84,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     },
     variants,
     slotWith,
-  } = useRecipe(stepperRecipe, local, {
+  } = useRecipe(stepperRecipe, props, {
     data: { content: stepperDataAttributes.content({ selected: true }) },
   })
   const direction = useLocale().dir
@@ -117,7 +97,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       navigation: 'none',
       loop: false,
     },
-    local,
+    props,
   )
 
   const id = createId(() => merged.id, 'stepper')
@@ -267,8 +247,8 @@ export function Stepper(props: StepperProps): JSX.Element {
         }}
         role="tablist"
         aria-owns={tabIds()}
-        aria-label={local['aria-label']}
-        aria-labelledby={local['aria-labelledby']}
+        aria-label={props['aria-label']}
+        aria-labelledby={props['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
         data-slot="stepper-header"
         {...headerSlot}
