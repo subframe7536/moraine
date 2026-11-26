@@ -1,8 +1,7 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup, untrack, omit } from 'solid-js'
+import { createEffect, createSignal, onCleanup, untrack, omit, createRenderEffect } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef, pick } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
@@ -83,7 +82,12 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
       )
     },
   )
-  bindElement(scrollElement, (element) => state.navigation.registerRoot(element))
+  createRenderEffect(scrollElement, (element) => {
+    if (!element) {
+      return
+    }
+    return state.navigation.registerRoot(element)
+  })
   onCleanup(() => {
     state.navigation.registerScroller(undefined)
   })
