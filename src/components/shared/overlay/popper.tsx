@@ -26,7 +26,6 @@ import {
   callHandler,
   callRef,
   createId,
-  pick,
   resolvePropsChildren,
   publishElement,
 } from '../../../shared/utils'
@@ -178,17 +177,16 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   props: PopperTriggerProps<T> & { context: PopperTriggerState },
 ): JSX.Element {
   const refKey = 'ref' as keyof (PopperTriggerProps<T> & { context: PopperTriggerState })
-  const local = pick(props, 'context', 'as', 'disabled', 'ariaRelation', 'toggleOnClick', refKey)
   const rest = omit(props, 'context', 'as', 'disabled', 'ariaRelation', 'toggleOnClick', refKey)
   const context = untrack(() => props.context)
-  const tag = () => local.as ?? 'button'
+  const tag = () => props.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
     bridgeClick: true,
-    ref: () => (local as { ref?: (el: HTMLElement) => void }).ref,
+    ref: () => (props as { ref?: (el: HTMLElement) => void }).ref,
     registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
-  const disabled = () => Boolean(local.disabled || context.options.disabled)
+  const disabled = () => Boolean(props.disabled || context.options.disabled)
   const interaction = useButtonInteraction(
     {
       disabled,
@@ -196,7 +194,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       element: root.element,
       tag,
       onPress: () => {
-        if (local.toggleOnClick ?? true) {
+        if (props.toggleOnClick ?? true) {
           context.setOpen(!context.isOpen())
         }
       },
@@ -216,19 +214,19 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     <Root
       data-slot={context.slotName('trigger')}
       {...triggerData}
-      aria-haspopup={(local.ariaRelation ?? 'popup') === 'popup' ? 'true' : undefined}
+      aria-haspopup={(props.ariaRelation ?? 'popup') === 'popup' ? 'true' : undefined}
       aria-controls={
-        (local.ariaRelation ?? 'popup') === 'popup' && context.contentPresence.present()
+        (props.ariaRelation ?? 'popup') === 'popup' && context.contentPresence.present()
           ? context.contentId()
           : undefined
       }
       aria-describedby={
-        local.ariaRelation === 'description' && context.contentPresence.present()
+        props.ariaRelation === 'description' && context.contentPresence.present()
           ? context.contentId()
           : undefined
       }
       aria-expanded={
-        (local.ariaRelation ?? 'popup') === 'popup'
+        (props.ariaRelation ?? 'popup') === 'popup'
           ? context.isOpen()
             ? 'true'
             : 'false'

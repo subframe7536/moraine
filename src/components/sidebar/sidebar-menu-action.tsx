@@ -3,7 +3,6 @@ import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
 import { sidebarDataAttributes } from './sidebar.recipe'
@@ -36,7 +35,7 @@ export function SidebarMenuAction<T extends ValidComponent = 'div'>(
   props: SidebarT.MenuActionProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const local = pick(props as SidebarT.MenuActionProps, 'as', 'class', 'style')
+  const local = props as SidebarT.MenuActionProps
   const rest = omit(props as SidebarT.MenuActionProps, 'as', 'class', 'style')
   const { slotWith } = useSidebarStyles('menuAction', local)
   const menuActionSlot = slotWith('menuAction', {

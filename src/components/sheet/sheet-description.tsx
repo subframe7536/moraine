@@ -4,7 +4,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { useRegisteredContentId } from '../shared/overlay/content-anatomy'
 
 import { useSheetContent, useSheetContext } from './sheet-context'
@@ -33,18 +32,17 @@ import type { SheetT } from './sheet.types'
 export function SheetDescription<T extends ValidComponent = 'p'>(
   props: SheetT.DescriptionProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style', 'id')
   const rest = omit(props, 'as', 'class', 'style', 'id')
   const sheet = useSheetContext()
   const content = useSheetContent()
-  const id = useRegisteredContentId(() => local.id, content.registerDescription)
+  const id = useRegisteredContentId(() => props.id, content.registerDescription)
   const {
     slots: { description: descriptionSlot },
-  } = useRecipe(sheetRecipe, local, {
+  } = useRecipe(sheetRecipe, props, {
     slot: 'description',
     context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'p')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'p')
   return (
     <Root
       data-slot="sheet-description"

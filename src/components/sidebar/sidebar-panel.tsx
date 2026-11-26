@@ -4,7 +4,7 @@ import { Show, createRenderEffect, createSignal, onCleanup, omit } from 'solid-j
 
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick, resolvePropsChildren, publishElement } from '../../shared/utils'
+import { callRef, resolvePropsChildren, publishElement } from '../../shared/utils'
 import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -32,16 +32,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const local = pick(
-    props as SidebarT.PanelProps,
-    'as',
-    'aria-label',
-    'children',
-    'class',
-    'id',
-    'style',
-    'ref',
-  )
+  const local = props as SidebarT.PanelProps
   const rest = omit(
     props as SidebarT.PanelProps,
     'as',

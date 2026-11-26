@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import { Show, omit } from 'solid-js'
 
 import { createKeyDownHandler } from '../../../shared/keyboard'
-import { callHandler, pick } from '../../../shared/utils'
+import { callHandler } from '../../../shared/utils'
 import { CHECKBOX_ICON_CLASS } from '../../checkbox/checkbox.recipe'
 import { Icon } from '../../icon'
 import type { IconT } from '../../icon'
@@ -34,19 +34,6 @@ export interface CheckControlProps extends Omit<
  * `treeitem` with `aria-checked`) hide it with `aria-hidden` and `tabindex={-1}`.
  */
 export function CheckControl(props: CheckControlProps): JSX.Element {
-  const local = pick(
-    props,
-    'checked',
-    'disabled',
-    'slotName',
-    'checkedIcon',
-    'indeterminateIcon',
-    'class',
-    'style',
-    'onCheckedChange',
-    'onClick',
-    'onKeyDown',
-  )
   const rest = omit(
     props,
     'checked',
@@ -63,31 +50,31 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
   // Checkboxes toggle with Space only; Enter implicitly submits the form instead of
   // activating the button, matching a native checkbox.
   const onKeyDown = createKeyDownHandler<HTMLButtonElement>({
-    onKeyDown: () => local.onKeyDown,
+    onKeyDown: () => props.onKeyDown,
     keys: { Enter: (event) => submitFormDefault(event.currentTarget) },
   })
-  const checked = () => local.checked === true
-  const indeterminate = () => local.checked === 'indeterminate'
-  const unchecked = () => local.checked === false
-  const disabled = () => Boolean(local.disabled)
+  const checked = () => props.checked === true
+  const indeterminate = () => props.checked === 'indeterminate'
+  const unchecked = () => props.checked === false
+  const disabled = () => Boolean(props.disabled)
 
   return (
     <button
       type="button"
       role="checkbox"
-      data-slot={local.slotName}
+      data-slot={props.slotName}
       // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- Private host without a recipe; callers pass class and style.
       {...checkControlDataAttributes({ checked, unchecked, indeterminate, disabled })}
       {...rest}
-      class={local.class}
-      style={local.style}
+      class={props.class}
+      style={props.style}
       disabled={disabled()}
       aria-checked={indeterminate() ? 'mixed' : checked() ? 'true' : 'false'}
       onClick={(event) => {
-        if (callHandler(event, local.onClick).defaultPrevented || disabled()) {
+        if (callHandler(event, props.onClick).defaultPrevented || disabled()) {
           return
         }
-        local.onCheckedChange(!checked())
+        props.onCheckedChange(!checked())
       }}
       onKeyDown={onKeyDown}
     >
@@ -95,10 +82,10 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
         <Icon
           name={
             indeterminate()
-              ? (local.indeterminateIcon ?? 'icon-minus')
-              : (local.checkedIcon ?? 'icon-check')
+              ? (props.indeterminateIcon ?? 'icon-minus')
+              : (props.checkedIcon ?? 'icon-check')
           }
-          data-slot={`${local.slotName}-icon`}
+          data-slot={`${props.slotName}-icon`}
           class={CHECKBOX_ICON_CLASS}
         />
       </Show>

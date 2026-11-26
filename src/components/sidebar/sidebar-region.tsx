@@ -3,7 +3,6 @@ import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import type { SlotClassValue } from '../../theme/style-types'
 
 import { useSidebarStyles } from './sidebar-context'
@@ -29,12 +28,11 @@ export function createRegion<S extends RegionSlot>(
   return function SidebarRegion<T extends ValidComponent = 'div'>(
     props: RegionProps<T>,
   ): JSX.Element {
-    const local = pick(props, 'as', 'class', 'style')
     const rest = omit(props, 'as', 'class', 'style')
     const {
       slots: { [slot]: regionSlot },
-    } = useSidebarStyles(slot, local)
-    const Root = dynamic<ValidComponent>(() => local.as ?? defaultTag)
+    } = useSidebarStyles(slot, props)
+    const Root = dynamic<ValidComponent>(() => props.as ?? defaultTag)
     return <Root data-slot={dataSlot} {...regionSlot} {...(rest as Record<string, unknown>)} />
   }
 }

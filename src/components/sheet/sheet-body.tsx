@@ -4,7 +4,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
@@ -28,17 +27,16 @@ import type { SheetT } from './sheet.types'
 export function SheetBody<T extends ValidComponent = 'div'>(
   props: SheetT.BodyProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style')
   const rest = omit(props, 'as', 'class', 'style')
   const sheet = useSheetContext()
   const content = useSheetContent()
   const {
     slots: { body: bodySlot },
-  } = useRecipe(sheetRecipe, local, {
+  } = useRecipe(sheetRecipe, props, {
     slot: 'body',
     data: { body: sheetDataAttributes.body({ header: content.hasHeader }) },
     context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
   return <Root data-slot="sheet-body" {...bodySlot} {...(rest as Record<string, unknown>)} />
 }
