@@ -1,11 +1,10 @@
 import { DelegatedEvents, delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createSignal, merge, omit } from 'solid-js'
+import { createSignal, merge, omit, createRenderEffect } from 'solid-js'
 
-import { bindElement, publishElement } from './element-binding'
 import { attachEventListener } from './event-listener'
 import type { ValidComponent } from './types'
-import { callHandler, callRef } from './utils'
+import { callHandler, callRef, publishElement } from './utils'
 const DELEGATED_EVENTS = [
   'click',
   'keydown',
@@ -81,56 +80,74 @@ export function createPolymorphicRoot(options: {
   let boundProps: Record<string, unknown> | undefined
 
   if (options.registration) {
-    bindElement(
-      element,
-      publishElement(options.registration.element, options.registration.setElement),
-    )
+    const publish = publishElement(options.registration.element, options.registration.setElement)
+    createRenderEffect(element, (node) => {
+      if (!node) {
+        return
+      }
+      return publish(node)
+    })
   }
 
-  bindElement(element, (root) => {
-    const bridgeCustomClick = options.bridgeClick && typeof options.tag() !== 'string'
-    let bridgeDocument: Document | undefined
-    let releaseDocument: VoidFunction | undefined
-    const bridgeClick = (event: MouseEvent) => {
-      // A custom root can unmount its element without telling this root; ignore it once detached.
-      if (element() !== root || !root.isConnected || !event.composedPath().includes(root)) {
+  createRenderEffect(
+    () => {
+      const root = element()
+      if (!root) {
+        return undefined
+      }
+      return {
+        root,
+        bridgeCustomClick: Boolean(options.bridgeClick && typeof options.tag() !== 'string'),
+      }
+    },
+    (binding) => {
+      if (!binding) {
         return
       }
-      const descriptor = Object.getOwnPropertyDescriptor(event, 'currentTarget')
-      Object.defineProperty(event, 'currentTarget', { configurable: true, value: root })
-      try {
-        callHandler(event, boundProps?.onClick)
-      } finally {
-        if (descriptor) {
-          Object.defineProperty(event, 'currentTarget', descriptor)
-        } else {
-          delete (event as { currentTarget?: EventTarget | null }).currentTarget
+      const { root, bridgeCustomClick } = binding
+      let bridgeDocument: Document | undefined
+      let releaseDocument: VoidFunction | undefined
+      const bridgeClick = (event: MouseEvent) => {
+        // A custom root can unmount its element without telling this root; ignore it once detached.
+        if (element() !== root || !root.isConnected || !event.composedPath().includes(root)) {
+          return
+        }
+        const descriptor = Object.getOwnPropertyDescriptor(event, 'currentTarget')
+        Object.defineProperty(event, 'currentTarget', { configurable: true, value: root })
+        try {
+          callHandler(event, boundProps?.onClick)
+        } finally {
+          if (descriptor) {
+            Object.defineProperty(event, 'currentTarget', descriptor)
+          } else {
+            delete (event as { currentTarget?: EventTarget | null }).currentTarget
+          }
         }
       }
-    }
-    const registerDocument = () => {
-      if (bridgeDocument === root.ownerDocument) {
-        return
+      const registerDocument = () => {
+        if (bridgeDocument === root.ownerDocument) {
+          return
+        }
+        releaseDocument?.()
+        bridgeDocument = root.ownerDocument
+        // Let Solid dispatch the target's handlers before trigger behavior, including in iframes.
+        delegateEvents(DELEGATED_EVENTS)
+        registerDelegatedContainer(bridgeDocument)
+        releaseDocument = bridgeCustomClick
+          ? attachClickBridge(bridgeDocument, seq, bridgeClick)
+          : undefined
       }
-      releaseDocument?.()
-      bridgeDocument = root.ownerDocument
-      // Let Solid dispatch the target's handlers before trigger behavior, including in iframes.
-      delegateEvents(DELEGATED_EVENTS)
-      registerDelegatedContainer(bridgeDocument)
-      releaseDocument = bridgeCustomClick
-        ? attachClickBridge(bridgeDocument, seq, bridgeClick)
-        : undefined
-    }
-    registerDocument()
-    // A root may be adopted after mounting. Register on its new document before bubbling.
-    const releases = DELEGATED_EVENTS.map((name) =>
-      attachEventListener(root, name as keyof HTMLElementEventMap, registerDocument, true),
-    )
-    return () => {
-      releases.forEach((dispose) => dispose())
-      releaseDocument?.()
-    }
-  })
+      registerDocument()
+      // A root may be adopted after mounting. Register on its new document before bubbling.
+      const releases = DELEGATED_EVENTS.map((name) =>
+        attachEventListener(root, name as keyof HTMLElementEventMap, registerDocument, true),
+      )
+      return () => {
+        releases.forEach((dispose) => dispose())
+        releaseDocument?.()
+      }
+    },
+  )
 
   function bind<T extends object>(
     props: T,

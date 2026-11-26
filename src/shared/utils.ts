@@ -250,25 +250,20 @@ export function resolvePropsChildren(props: {
 }
 
 /**
- * Per-key memoized predicate over a reactive source — the `createSelector` replacement.
- * `isSelected(key)` reads a per-key memo, so unrelated key changes do not re-run observers.
+ * Publishes an element to a longer-lived signal, such as a parent context.
+ *
+ * The cleanup clears the signal only while it still holds this element.
  */
-export function createSelector<S, K>(
-  source: () => S,
-  fn: (key: K, source: S) => boolean = (key, src) => key === (src as unknown as K),
-): (key: K) => boolean {
-  const memos = new Map<K, Accessor<boolean>>()
-  // Memos must outlive the scope that first reads a key: a memo created inside
-  // a binding is disposed when that binding re-runs and would stay stale in the
-  // map, so they attach to the selector's own owner instead.
-  const owner = getOwner()
-  return (key) => {
-    let memo = memos.get(key)
-    if (!memo) {
-      const create = () => createMemo(() => fn(key, source()))
-      memo = owner ? runWithOwner(owner, create) : create()
-      memos.set(key, memo)
+export function publishElement<T>(
+  get: Accessor<T | undefined>,
+  set: (element: T | undefined) => void,
+): (element: T) => VoidFunction {
+  return (element) => {
+    set(element)
+    return () => {
+      if (untrack(get) === element) {
+        set(undefined)
+      }
     }
-    return memo()
   }
 }
