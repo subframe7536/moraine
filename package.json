@@ -86,7 +86,8 @@
     "oxc": "pnpm run lint && pnpm run format",
     "qa": "pnpm run lint && pnpm run format && pnpm run typecheck",
     "release": "pnpm i && pnpm run test && pnpm run qa && bumpp --all",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "test:diagnostics": "node build/collect-solid-diagnostics.mjs"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:",
