@@ -117,14 +117,17 @@ describe('scrollArea', () => {
 
     flush(() => setDimensions(viewport, { scrollHeight: 300 }))
     resize()
+    flush()
     expect(viewport.tabIndex).toBe(0)
   })
 
   it('measures a viewport that binds before it joins the document', async () => {
-    const element = createRoot((dispose) => {
+    const rendered = createRoot((dispose) => {
       onTestFinished(dispose)
       return <ScrollArea />
-    }) as HTMLElement
+    })
+    const raw: unknown = rendered
+    const element = (typeof raw === 'function' ? (raw as () => HTMLElement)() : raw) as HTMLElement
     document.body.append(element)
     onTestFinished(() => element.remove())
     const { root, viewport } = parts(document.body)
@@ -290,6 +293,7 @@ describe('scrollArea', () => {
     fireEvent.pointerLeave(root)
     expect(visible()).toBe(true)
     vi.advanceTimersByTime(300)
+    flush()
     expect(visible()).toBe(false)
 
     flush(() => setMode('scroll'))
@@ -299,6 +303,7 @@ describe('scrollArea', () => {
     expect(visible()).toBe(true)
     expect(root.hasAttribute('data-scrolling')).toBe(true)
     vi.advanceTimersByTime(300)
+    flush()
     expect(visible()).toBe(false)
 
     flush(() => setMode('always'))
@@ -409,6 +414,7 @@ describe('scrollArea', () => {
 
     flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
     resize()
+    flush()
     expect(edges(root, 'y')).toEqual([false, true])
 
     screen.unmount()

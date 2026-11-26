@@ -44,13 +44,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
     () => new Map(props.view.items.map((item, index) => [item.value, index + 1])),
   )
   createEffect(
-    () => [
-      state.highlightedValue(),
-      state.open(),
-      listbox(),
-      (() => props.view.rows)(),
-      (() => props.virtualizer)(),
-    ],
+    () => [state.highlightedValue(), state.open(), listbox(), props.view.rows, props.virtualizer],
     ([key, open, listbox, rows, virtualizer]) => {
       // Rows outside the virtual window have no element to scroll into view.
       if (key === undefined || !open || !listbox || !virtualizer) {
@@ -159,7 +153,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
               </>
             }
           >
-            {(render) => renderWithProps(render, presentation)}
+            {(render) => <>{renderWithProps(render, presentation)}</>}
           </Show>
         )}
       </BaseSelect.Item>

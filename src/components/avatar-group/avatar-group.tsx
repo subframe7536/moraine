@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { For, Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 import { Avatar } from '../avatar/avatar'
 
 import { avatarGroupRecipe } from './avatar-group.recipe'
@@ -29,23 +28,22 @@ import type { AvatarGroupProps } from './avatar-group.types'
  * ```
  */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
-  const local = pick(props, 'items', 'maxVisible', 'size', 'classes', 'styles', 'class', 'style')
   const rest = omit(props, 'items', 'maxVisible', 'size', 'classes', 'styles', 'class', 'style')
   const {
     slots: { root: rootSlot, item: itemSlot, count: countSlot },
     variants,
     overrides,
-  } = useRecipe(avatarGroupRecipe, local)
+  } = useRecipe(avatarGroupRecipe, props)
 
   const size = () => variants.size
-  const items = createMemo(() => local.items ?? [])
+  const items = createMemo(() => props.items ?? [])
   const visibleItems = createMemo(() => {
     const allItems = items()
     if (allItems.length === 0) {
       return []
     }
 
-    const maxVisible = local.maxVisible
+    const maxVisible = props.maxVisible
     return maxVisible === undefined
       ? allItems
       : allItems.slice(0, Math.max(0, Math.floor(maxVisible)))

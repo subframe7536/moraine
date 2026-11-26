@@ -1,11 +1,10 @@
 import type { JSX } from '@solidjs/web'
 import { Portal, isServer } from '@solidjs/web'
-import { createEffect, createSignal, Show, omit } from 'solid-js'
+import { createEffect, createSignal, Show, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { useFloatingPosition } from '../shared/overlay/floating'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
 import { resolveFloatingPlacement } from '../shared/overlay/placement'
@@ -40,11 +39,10 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectContext()
-  const local = pick(props, 'ref', 'class', 'style')
   const rest = omit(props, 'ref', 'class', 'style')
   const {
     slots: { content: contentSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'content',
     data: {
       content: baseSelectDataAttributes.content(() => ({
@@ -65,7 +63,12 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
   const [content, setContent] = createSignal<HTMLDivElement>()
   const [positioner, setPositioner] = createSignal<HTMLDivElement>()
   const [side, setSide] = createSignal('bottom')
-  bindElement(content, presence.registerElement)
+  createRenderEffect(content, (node) => {
+    if (!node) {
+      return
+    }
+    return presence.registerElement(node)
+  })
   useFloatingPosition({
     contentElement: content,
     floatingElement: positioner,
@@ -142,7 +145,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
             {...rest}
             ref={(element) => {
               setContent(element)
-              callRef(() => local.ref, element)
+              callRef(() => props.ref, element)
             }}
           />
         </div>

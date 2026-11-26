@@ -1,11 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
-import {
-  attachEventListenerMap,
-  createEventListener,
-  createEventListenerMap,
-} from '../../shared/event-listener'
+import { attachEventListener, attachEventListenerMap } from '../../shared/event-listener'
 import type { BaseDialogContext } from '../base-dialog/base-dialog-context'
 import { containsComposed, getActiveElement, isElement } from '../shared/overlay/dom'
 import { containsOverlayContentAbove } from '../shared/overlay/overlay-stack'
@@ -327,14 +323,14 @@ export function createDrawerSwipe(
   modal: BaseDialogContext,
   side: Accessor<NonNullable<DrawerT.Variants['side']>>,
 ): DrawerSwipeController {
-  const [swiping, setSwiping] = createSignal(false, { ownedWrite: true })
-  const [displacement, setDisplacement] = createSignal(0, { ownedWrite: true })
+  const [swiping, setSwiping] = createSignal(false)
+  const [displacement, setDisplacement] = createSignal(0)
   // The rendered translate captured when the gesture claimed the drag, so a
   // swipe mid enter/snap transition continues from the visual position.
-  const [baseline, setBaseline] = createSignal(0, { ownedWrite: true })
-  const [popupWidth, setPopupWidth] = createSignal(0, { ownedWrite: true })
-  const [viewportHeight, setViewportHeight] = createSignal(0, { ownedWrite: true })
-  const [rootFontSize, setRootFontSize] = createSignal(16, { ownedWrite: true })
+  const [baseline, setBaseline] = createSignal(0)
+  const [popupWidth, setPopupWidth] = createSignal(0)
+  const [viewportHeight, setViewportHeight] = createSignal(0)
+  const [rootFontSize, setRootFontSize] = createSignal(16)
 
   // The content element the gesture is bound to, for transform reads at claim.
   let swipeElement: HTMLElement | null = null
@@ -667,7 +663,16 @@ export function createDrawerSwipe(
     return true
   }
 
-  function attach(content: HTMLElement): void {
+  let remeasureSize: VoidFunction | undefined
+  // A nested stack pins the popup's measured size; once it fully unmounts,
+  // re-measure so a height changed while pinned is picked up.
+  createEffect(drawer.nested.openCount, (count) => {
+    if (count === 0) {
+      remeasureSize?.()
+    }
+  })
+
+  function attach(content: HTMLElement): VoidFunction {
     // The content mounts fresh on each open; drop any state left by a swipe close.
     drag = null
     resetDrag()
@@ -684,7 +689,7 @@ export function createDrawerSwipe(
       // `popupHeight() === 0` covers a mount into an already-open stack: the
       // first report can land before this attach runs, so the unmeasured
       // popup must still capture a size instead of staying pinned at 0.
-      if (drawer.nested.openCount() === 0 || popupHeight() === 0) {
+      if (untrack(drawer.nested.openCount) === 0 || untrack(popupHeight) === 0) {
         drawer.nested.setPopupHeight(content.offsetHeight)
         setPopupWidth(content.offsetWidth)
       }
@@ -702,6 +707,7 @@ export function createDrawerSwipe(
         setRootFontSize(fontSize)
       }
     }
+    remeasureSize = measureSize
     measureSize()
     measureViewport()
 
@@ -909,54 +915,57 @@ export function createDrawerSwipe(
       endDrag(state, false)
     }
 
-    createEventListener(ownerWindow, 'resize', () => {
-      measureSize()
-      measureViewport()
-    })
+    const cleanups: Array<VoidFunction> = [
+      attachEventListener(ownerWindow, 'resize', () => {
+        measureSize()
+        measureViewport()
+      }),
+    ]
     // Visual viewport changes (mobile chrome, on-screen keyboard) resize the
     // layout viewport for snap-point resolution without a window resize.
     const visualViewport = ownerWindow?.visualViewport
     if (visualViewport) {
-      createEventListenerMap(visualViewport, {
-        resize: measureViewport,
-        scroll: measureViewport,
-      })
+      cleanups.push(
+        attachEventListenerMap(visualViewport, {
+          resize: measureViewport,
+          scroll: measureViewport,
+        }),
+      )
     }
-    // A nested stack pins the popup's measured size; once it fully unmounts,
-    // re-measure so a height changed while pinned is picked up.
-    createEffect(drawer.nested.openCount, (count) => {
-      if (count === 0) {
-        untrack(() => measureSize())
-      }
-    })
-    createEventListenerMap(content, {
-      pointerdown: onPointerDown,
-      touchstart: onTouchStart,
-    })
-    // Touch continuation is tracked on the document: touch events dispatch to
-    // the gesture's original target, which may leave the DOM mid-drag (list
-    // virtualization, conditional content), silently stranding the gesture.
-    createEventListenerMap(ownerDocument, {
-      touchmove: [onTouchMove, { passive: false }],
-      touchend: onTouchEnd,
-      touchcancel: onTouchCancel,
-    })
+    cleanups.push(
+      attachEventListenerMap(content, {
+        pointerdown: onPointerDown,
+        touchstart: onTouchStart,
+      }),
+      // Touch continuation is tracked on the document: touch events dispatch to
+      // the gesture's original target, which may leave the DOM mid-drag (list
+      // virtualization, conditional content), silently stranding the gesture.
+      attachEventListenerMap(ownerDocument, {
+        touchmove: [onTouchMove, { passive: false }],
+        touchend: onTouchEnd,
+        touchcancel: onTouchCancel,
+      }),
+    )
 
     if (typeof ResizeObserver === 'function') {
       const observer = new ResizeObserver(measureSize)
       observer.observe(content)
-      onCleanup(() => observer.disconnect())
+      cleanups.push(() => observer.disconnect())
     }
 
-    onCleanup(() => {
+    return () => {
+      for (const cleanup of cleanups) {
+        cleanup()
+      }
       drag?.docCleanup?.()
       drag = null
       swipeElement = null
+      remeasureSize = undefined
       // The root-level channel signals outlive this content; drop the measured
       // size so a remount reports 0 first and ancestors transition like on the
       // first open instead of snapping to a stale height.
       drawer.nested.setPopupHeight(0)
-    })
+    }
   }
 
   return {

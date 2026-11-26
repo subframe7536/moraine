@@ -1,6 +1,5 @@
 import { useNavigate } from '@solidjs/router'
 import type { JSX } from '@solidjs/web'
-import { pick } from '@src/shared/utils'
 import type { Accessor } from 'solid-js'
 import { Show, createMemo, createSignal, onSettled, omit } from 'solid-js'
 
@@ -138,9 +137,8 @@ function createDocsCommandItem(
 export function DocsSearchTrigger(
   props: DialogT.TriggerProps & { variant?: DocsCommandPaletteVariant },
 ): JSX.Element {
-  const local = pick(props, 'variant')
   const triggerProps = omit(props, 'variant')
-  const variant = () => local.variant ?? 'responsive'
+  const variant = () => props.variant ?? 'responsive'
 
   return (
     <Button

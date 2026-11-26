@@ -1,10 +1,9 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup, createRenderEffect } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import { bindElement, publishElement } from '../../shared/element-binding'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { isAndroidUserAgent } from '../../shared/utils'
+import { isAndroidUserAgent, publishElement } from '../../shared/utils'
 import { createCompositionState } from '../shared/overlay/composition'
 
 import type { BaseSelectT } from './base-select.types'
@@ -48,7 +47,12 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
   const enabled = () => options.enabled?.() ?? true
   onCleanup(() => composition.dispose())
   const [input, setInput] = createSignal<HTMLInputElement>()
-  bindElement(input, publishElement(state.focusOwner, state.setFocusOwner))
+  createRenderEffect(input, (node) => {
+    if (!node) {
+      return
+    }
+    return publishElement(state.focusOwner, state.setFocusOwner)(node)
+  })
 
   function commit(value: string): string {
     const next = options.setSearchValue(options.transformInput?.(value) ?? value)
@@ -114,7 +118,10 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
         setCompositionDraft(target.value)
         return
       }
-      commit(target.value)
+      const committed = commit(target.value)
+      if (target.value !== committed) {
+        target.value = committed
+      }
     },
     onCompositionStart(event: CompositionEvent) {
       if (isAndroidUserAgent()) {

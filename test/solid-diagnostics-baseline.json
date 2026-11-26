@@ -1,0 +1,12 @@
+{
+  "total": 1,
+  "tracked": {
+    "STRICT_READ_UNTRACKED": 0,
+    "REACTIVE_WRITE_IN_OWNED_SCOPE": 0,
+    "FLUSH_IN_EFFECT_CALLBACK": 0,
+    "UNCOMMITTED_INPUT_OVERWRITTEN": 0
+  },
+  "all": {
+    "SERVER_WRITE": 1
+  }
+}

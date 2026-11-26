@@ -10,7 +10,7 @@ import type { ButtonProps } from '../components/button'
 import { createPolymorphicRoot } from './create-polymorphic-root'
 import type { ValidComponent } from './types'
 import { useButtonInteraction } from './use-button-interaction'
-import { callHandler, pick } from './utils'
+import { callHandler } from './utils'
 const NativeButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
 const NativeLink = (props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />
 const NativeSpan = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
@@ -36,15 +36,6 @@ function Root(
     bridgeClick?: boolean
   },
 ) {
-  const local = pick(
-    props,
-    'as',
-    'disabled',
-    'focusableWhenDisabled',
-    'ref',
-    'onPress',
-    'bridgeClick',
-  )
   const rest = omit(
     props,
     'as',
@@ -54,20 +45,20 @@ function Root(
     'onPress',
     'bridgeClick',
   )
-  const tag = () => local.as ?? 'button'
+  const tag = () => props.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
-    bridgeClick: untrack(() => local.bridgeClick),
-    ref: () => local.ref,
+    bridgeClick: untrack(() => props.bridgeClick),
+    ref: () => props.ref,
   })
   const binding = root.bind(
     useButtonInteraction(
       {
         tag,
         element: root.element,
-        disabled: () => Boolean(local.disabled),
-        focusableWhenDisabled: () => Boolean(local.focusableWhenDisabled),
-        onPress: () => local.onPress?.(),
+        disabled: () => Boolean(props.disabled),
+        focusableWhenDisabled: () => Boolean(props.focusableWhenDisabled),
+        onPress: () => props.onPress?.(),
       },
       rest,
     ),

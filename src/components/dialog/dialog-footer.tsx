@@ -1,10 +1,9 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { onCleanup, omit } from 'solid-js'
+import { omit, onSettled } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useDialogContent, useDialogContext } from './dialog-context'
 import { dialogRecipe } from './dialog.recipe'
@@ -32,18 +31,16 @@ import type { DialogT } from './dialog.types'
 export function DialogFooter<T extends ValidComponent = 'div'>(
   props: DialogT.FooterProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style')
   const rest = omit(props, 'as', 'class', 'style')
   const dialog = useDialogContext()
   const content = useDialogContent()
-  const unregister = content.registerFooter()
-  onCleanup(unregister)
+  onSettled(() => content.registerFooter())
   const {
     slots: { footer: footerSlot },
-  } = useRecipe(dialogRecipe, local, {
+  } = useRecipe(dialogRecipe, props, {
     slot: 'footer',
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
   return <Root data-slot="dialog-footer" {...footerSlot} {...(rest as Record<string, unknown>)} />
 }

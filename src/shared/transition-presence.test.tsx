@@ -1,9 +1,8 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
-import { Show, createRoot, createSignal, flush } from 'solid-js'
+import { Show, createRoot, createSignal, flush, createRenderEffect } from 'solid-js'
 import { afterEach, describe, expect, vi, it } from 'vitest'
 
-import { bindElement } from './element-binding'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
 /** Renders a div registered with the presence for its mounted lifetime. */
@@ -13,12 +12,17 @@ function PresenceElement(props: {
   attrs?: TransitionPresenceState['dataAttrs']
 }): JSX.Element {
   const [element, setElement] = createSignal<HTMLDivElement>()
-  bindElement(element, (node) => props.presence.registerElement(node))
+  createRenderEffect(element, (node) => {
+    if (!node) {
+      return
+    }
+    return props.presence.registerElement(node)
+  })
   return (
     <div
       {...props.attrs}
       ref={(node) => {
-        flush(() => setElement(node))
+        setElement(node)
         props.onElement?.(node)
       }}
     />
@@ -407,6 +411,7 @@ describe('createTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(true)
 
     vi.advanceTimersByTime(1)
+    await Promise.resolve()
     expect(fixture.presence.present()).toBe(false)
   })
 

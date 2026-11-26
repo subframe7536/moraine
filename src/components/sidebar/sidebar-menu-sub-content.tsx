@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { Collapsible } from '../collapsible'
 
 import { useSidebarStyles } from './sidebar-context'
@@ -36,15 +35,14 @@ import type { SidebarT } from './sidebar.types'
 export function SidebarMenuSubContent<T extends ValidComponent = 'ul'>(
   props: SidebarT.MenuSubContentProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style')
   const rest = omit(props, 'as', 'class', 'style')
   const {
     slots: { menuSubContent: menuSubContentSlot },
-  } = useSidebarStyles('menuSubContent', local)
+  } = useSidebarStyles('menuSubContent', props)
 
   return (
-    <Collapsible.Content
-      as={(local.as ?? 'ul') as ValidComponent}
+    <Collapsible.Content<ValidComponent>
+      as={props.as ?? 'ul'}
       data-slot="sidebar-menu-sub-content"
       {...menuSubContentSlot}
       {...(rest as object)}

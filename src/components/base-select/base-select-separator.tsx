@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectRecipe } from './base-select.recipe'
@@ -34,11 +33,10 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectSeparator(props: BaseSelectT.SeparatorProps): JSX.Element {
   const state = useSelectContext()
-  const local = pick(props, 'class', 'style')
   const rest = omit(props, 'class', 'style')
   const {
     slots: { separator: separatorSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'separator',
     context: state.recipeContext,
   })

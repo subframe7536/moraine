@@ -1,11 +1,10 @@
 import type { JSX } from '@solidjs/web'
 import type { ClassValue } from 'cn'
 import type { Accessor, Component } from 'solid-js'
-import { Show, createSignal, onSettled } from 'solid-js'
+import { Show, createSignal, onFlush, onSettled, createRenderEffect } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
-import { bindElement } from '../../../../shared/element-binding'
 import { attachEventListenerMap } from '../../../../shared/event-listener'
 import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { renderWithProps } from '../../../../shared/render-with-props'
@@ -148,8 +147,11 @@ export function bindSelectableItemHandlers(
   element: Accessor<HTMLDivElement | undefined>,
   handlers: ReturnType<typeof createSelectableItemHandlers>,
 ): void {
-  bindElement(element, (current) =>
-    attachEventListenerMap(current, {
+  createRenderEffect(element, (current) => {
+    if (!current) {
+      return
+    }
+    return attachEventListenerMap(current, {
       click: handlers.onClick,
       focus: handlers.onFocus,
       keydown: handlers.onKeyDown,
@@ -157,8 +159,8 @@ export function bindSelectableItemHandlers(
       pointerenter: handlers.onPointerEnter,
       pointermove: handlers.onPointerMove,
       pointerleave: handlers.onPointerLeave,
-    } as Record<string, ((event: Event) => void) | undefined>),
-  )
+    } as Record<string, ((event: Event) => void) | undefined>)
+  })
 }
 
 interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
@@ -320,10 +322,10 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         return
       }
 
+      onFlush(() => closeRoot({ restoreFocus: true }))
       if ('onSelect' in itemProps.item) {
         itemProps.item.onSelect?.()
       }
-      closeRoot({ restoreFocus: true })
     }
 
     const handlers = createSelectableItemHandlers(layer, {

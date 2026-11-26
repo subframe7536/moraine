@@ -6,7 +6,7 @@ import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -63,20 +63,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
   props: SidebarT.MenuButtonProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const local = pick(
-    props as SidebarT.MenuButtonProps<T> & { ref?: unknown },
-    'as',
-    'children',
-    'class',
-    'closeOnSelect',
-    'disabled',
-    'href',
-    'active',
-    'leading',
-    'ref',
-    'style',
-    'trailing',
-  )
+  const local = props as SidebarT.MenuButtonProps<T> & { ref?: unknown }
   const rest = omit(
     props as SidebarT.MenuButtonProps<T> & { ref?: unknown },
     'as',

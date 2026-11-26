@@ -1,12 +1,12 @@
 import type { JSX } from '@solidjs/web'
 import { isServer } from '@solidjs/web'
-import { Show, onCleanup, omit } from 'solid-js'
+import { createEffect, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
-import { createId, pick } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { Icon } from '../icon'
 import { resolveDirection } from '../shared/overlay/direction'
 import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
@@ -56,18 +56,16 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   }
   // Server rendering is pure, so the trigger registers its options with the item on the client.
   if (!isServer) {
-    item.setTriggerOptions(props)
-    onCleanup(() => item.setTriggerOptions(undefined))
+    createEffect(
+      () => undefined,
+      () => {
+        item.setTriggerOptions(props)
+        return () => item.setTriggerOptions(undefined)
+      },
+      { transparent: true },
+    )
   }
-  const local = pick(
-    props as NavigationMenuT.TriggerProps<T> & { id?: string },
-    'as',
-    'id',
-    'disabled',
-    'children',
-    'class',
-    'style',
-  )
+  const local = props as NavigationMenuT.TriggerProps<T> & { id?: string }
   const rest = omit(
     props as NavigationMenuT.TriggerProps<T> & { id?: string },
     'as',
@@ -128,7 +126,7 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   return (
     <>
       <PopperTrigger
-        as={local.as}
+        as={local.as as ValidComponent}
         {...attributes}
         context={{
           options: context.options,

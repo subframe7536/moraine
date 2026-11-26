@@ -242,6 +242,7 @@ describe('input', () => {
 
     expect(input.value).toBe('拼音')
     await Promise.resolve()
+    await Promise.resolve()
     expect(onValueChange).toHaveBeenLastCalledWith('拼音')
     expect(input.value).toBe('Locked')
   })

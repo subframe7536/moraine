@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { merge, omit } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
-import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { BASE_DIALOG_ROOT_KEYS } from '../base-dialog/base-dialog-context'
 
@@ -39,7 +38,6 @@ import type { DialogProps } from './dialog.types'
  * ```
  */
 export function Dialog(props: DialogProps): JSX.Element {
-  const modalProps = pick(props, ...BASE_DIALOG_ROOT_KEYS)
   const dialogProps = omit(props, ...BASE_DIALOG_ROOT_KEYS)
   const context: DialogContextValue = merge(dialogProps, {
     get slotOverrides() {
@@ -48,7 +46,24 @@ export function Dialog(props: DialogProps): JSX.Element {
   })
   return (
     <DialogProvider value={context}>
-      <BaseDialog {...modalProps} />
+      <BaseDialog
+        id={props.id}
+        open={props.open}
+        defaultOpen={props.defaultOpen}
+        onOpenChange={props.onOpenChange}
+        onExitComplete={props.onExitComplete}
+        transition={props.transition}
+        closeOnOutsideClick={props.closeOnOutsideClick}
+        closeOnEscape={props.closeOnEscape}
+        onClosePrevented={props.onClosePrevented}
+        preventScroll={props.preventScroll}
+        modal={props.modal}
+        mount={props.mount}
+        initialFocus={props.initialFocus}
+        finalFocus={props.finalFocus}
+      >
+        {props.children}
+      </BaseDialog>
     </DialogProvider>
   )
 }

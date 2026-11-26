@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
-import { callRef, createId, pick } from '../../shared/utils'
+import { callRef, createId } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 
 import { SidebarContent } from './sidebar-content'
@@ -65,32 +65,6 @@ const SIDEBAR_DEFAULT_BREAKPOINT = 768
  * ```
  */
 export function Sidebar(props: SidebarProps): JSX.Element {
-  const local = pick(
-    props,
-    'breakpoint',
-    'children',
-    'classes',
-    'class',
-    'defaultOpen',
-    'defaultMobileOpen',
-    'mobile',
-    'mobileOpen',
-    'onOpenChange',
-    'onMobileOpenChange',
-    'open',
-    'ref',
-    'side',
-    'styles',
-    'style',
-    'variant',
-    'translations',
-    'width',
-    'defaultWidth',
-    'onWidthChange',
-    'onWidthCommit',
-    'minWidth',
-    'maxWidth',
-  )
   const rest = omit(
     props,
     'breakpoint',
@@ -120,7 +94,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(sidebarRecipe, local, {
+  } = useRecipe(sidebarRecipe, props, {
     data: {
       root: sidebarDataAttributes.root(() => ({
         mobile,
@@ -138,50 +112,48 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     },
   })
 
-  const [panelIdProp, setPanelId] = createSignal<string | undefined>(undefined, {
-    ownedWrite: true,
-  })
+  const [panelIdProp, setPanelId] = createSignal<string | undefined>(undefined)
   const panelId = createId(panelIdProp, 'sidebar-panel')
   const [rootElement, setRootElement] = createSignal<HTMLElement>()
   const localeDirection = useLocale().dir
   const mediaMatches = createMediaQuery(
-    () => `(max-width: ${local.breakpoint ?? SIDEBAR_DEFAULT_BREAKPOINT}px)`,
+    () => `(max-width: ${props.breakpoint ?? SIDEBAR_DEFAULT_BREAKPOINT}px)`,
     false,
   )
-  const mobile = createMemo(() => local.mobile ?? mediaMatches())
+  const mobile = createMemo(() => props.mobile ?? mediaMatches())
 
   // Each layout owns its open state, so a controlled desktop `open` never opens the drawer.
   const [desktopOpen, setDesktopOpen] = createControllableValue<boolean>({
-    value: () => local.open,
-    defaultValue: () => local.defaultOpen ?? true,
-    onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
+    value: () => props.open,
+    defaultValue: () => props.defaultOpen ?? true,
+    onChange: (nextOpen) => props.onOpenChange?.(nextOpen),
   })
   const [uncontrolledMobileOpen, setUncontrolledMobileOpen] = createSignal(
-    untrack(() => local.defaultMobileOpen ?? false),
+    untrack(() => props.defaultMobileOpen ?? false),
   )
-  const mobileOpen = () => local.mobileOpen ?? uncontrolledMobileOpen()
+  const mobileOpen = () => props.mobileOpen ?? uncontrolledMobileOpen()
 
   function setMobileOpen(nextOpen: boolean): void {
     if (nextOpen === mobileOpen()) {
       return
     }
-    if (local.mobileOpen === undefined) {
+    if (props.mobileOpen === undefined) {
       setUncontrolledMobileOpen(nextOpen)
     }
-    local.onMobileOpenChange?.(nextOpen)
+    props.onMobileOpenChange?.(nextOpen)
   }
 
   const [width, setWidth] = createControllableValue<number | undefined>({
-    value: () => local.width,
-    defaultValue: () => local.defaultWidth,
+    value: () => props.width,
+    defaultValue: () => props.defaultWidth,
     onChange: (nextWidth) => {
       if (nextWidth !== undefined) {
-        local.onWidthChange?.(nextWidth)
+        props.onWidthChange?.(nextWidth)
       }
     },
   })
-  const minWidth = () => local.minWidth ?? 224
-  const maxWidth = () => Math.max(minWidth(), local.maxWidth ?? 480)
+  const minWidth = () => props.minWidth ?? 224
+  const maxWidth = () => Math.max(minWidth(), props.maxWidth ?? 480)
   const [resizing, setResizing] = createSignal(false)
   const [panelElement, setPanelElement] = createSignal<HTMLElement>()
 
@@ -210,7 +182,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 
   const context = {
     get slotOverrides() {
-      return { classes: local.classes, styles: local.styles }
+      return { classes: props.classes, styles: props.styles }
     },
     mobile,
     panelId,
@@ -225,10 +197,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       return variants.side
     },
     drawerSide,
-    translations: () => local.translations,
+    translations: () => props.translations,
     width,
     setWidth,
-    commitWidth: (nextWidth: number) => local.onWidthCommit?.(nextWidth),
+    commitWidth: (nextWidth: number) => props.onWidthCommit?.(nextWidth),
     minWidth,
     maxWidth,
     resizing,
@@ -245,10 +217,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         {...rest}
         ref={(element) => {
           setRootElement(element)
-          callRef(() => local.ref, element)
+          callRef(() => props.ref, element)
         }}
       >
-        {local.children}
+        {props.children}
       </div>
     </SidebarProvider>
   )

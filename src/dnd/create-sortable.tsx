@@ -426,9 +426,11 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     const [itemElement, setItemElement] = createSignal<HTMLElement>()
     const [itemHandle, setItemHandle] = createSignal<HTMLElement>()
     const [itemTarget, setItemTarget] = createSignal<HTMLElement>()
-    onSettled(() => sortable.register())
-    onCleanup(() => {
-      sortable.destroy()
+    onSettled(() => {
+      sortable.register()
+      return () => {
+        sortable.destroy()
+      }
     })
     createEffect(
       () => [itemElement(), itemHandle(), itemTarget()],

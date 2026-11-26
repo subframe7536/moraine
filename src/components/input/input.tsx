@@ -3,7 +3,7 @@ import { merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
-import { callHandler, callRef, createId, pick } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
@@ -33,35 +33,6 @@ import type { InputProps, InputT } from './input.types'
 export function Input<TModifiers extends InputModifiers | undefined = InputModifiers | undefined>(
   props: InputProps<TModifiers>,
 ): JSX.Element {
-  const local = pick(
-    props,
-    'ref',
-    'id',
-    'name',
-    'value',
-    'defaultValue',
-    'required',
-    'readOnly',
-    'disabled',
-    'size',
-    'type',
-    'autoComplete',
-    'autoFocus',
-    'autoFocusDelay',
-    'modifiers',
-    'onValueChange',
-    'onChange',
-    'onInput',
-    'onBlur',
-    'onFocus',
-    'onCompositionStart',
-    'onCompositionEnd',
-    'variant',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  )
   const rest = omit(
     props,
     'ref',
@@ -95,7 +66,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
   const group = useInputGroupContext()
   const {
     slots: { root: rootSlot },
-  } = useRecipe(inputRecipe, local, {
+  } = useRecipe(inputRecipe, props, {
     data: {
       root: inputDataAttributes.root(() => ({
         invalid: field.invalid,
@@ -120,7 +91,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       autoFocusDelay: 0,
     },
 
-    local,
+    props,
   )
   const modifiers = () => merged.modifiers
   const generatedId = createId(() => merged.id, 'input')
@@ -235,7 +206,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       ref={(element) => {
         inputEl = element
         field.setControlRef(element)
-        callRef(() => local.ref, element)
+        callRef(() => props.ref, element)
       }}
       onInput={onInput}
       onChange={onChange}

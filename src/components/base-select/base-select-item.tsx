@@ -3,7 +3,7 @@ import { children as resolveChildren, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, pick } from '../../shared/utils'
+import { callHandler, callRef } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -34,18 +34,6 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
   props: BaseSelectT.ItemProps<T>,
 ): JSX.Element {
   const state = useSelectContext<T>()
-  const local = pick(
-    props,
-    'item',
-    'children',
-    'class',
-    'style',
-    'ref',
-    'onClick',
-    'onPointerMove',
-    'onPointerDown',
-    'onMouseDown',
-  )
   const rest = omit(
     props,
     'item',
@@ -60,7 +48,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
   )
   const {
     slots: { item: itemSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'item',
     data: {
       item: baseSelectDataAttributes.item(() => ({
@@ -71,7 +59,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
     },
     context: state.recipeContext,
   })
-  const item = () => local.item
+  const item = () => props.item
   const selected = () => state.isSelected(item().value)
   const highlighted = () => state.isHighlighted(item().value)
   const disabled = () => state.itemDisabled(item())
@@ -89,7 +77,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       return disabled()
     },
   }
-  const child = resolveChildren(() => local.children as JSX.Element)
+  const child = resolveChildren(() => props.children as JSX.Element)
   const resolvedChildren = createMemo(() => {
     const value = child()
     if (value === undefined) {
@@ -103,13 +91,13 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       data-slot={state.slotName('item')}
       {...itemSlot}
       {...rest}
-      ref={(element) => callRef(() => local.ref, element)}
+      ref={(element) => callRef(() => props.ref, element)}
       id={state.itemId(item().value)}
       tabindex={-1}
       aria-selected={selected() ? 'true' : 'false'}
       aria-disabled={disabled() ? 'true' : undefined}
       onPointerMove={(event) => {
-        callHandler(event, local.onPointerMove)
+        callHandler(event, props.onPointerMove)
         if (
           event.defaultPrevented ||
           event.pointerType !== 'mouse' ||
@@ -122,7 +110,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
         state.setHighlightedValue(item().value)
       }}
       onPointerDown={(event) => {
-        callHandler(event, local.onPointerDown)
+        callHandler(event, props.onPointerDown)
         if (
           !event.defaultPrevented &&
           event.pointerType !== 'touch' &&
@@ -132,13 +120,13 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
         }
       }}
       onMouseDown={(event) => {
-        callHandler(event, local.onMouseDown)
+        callHandler(event, props.onMouseDown)
         if (!event.defaultPrevented) {
           event.preventDefault()
         }
       }}
       onClick={(event) => {
-        callHandler(event, local.onClick)
+        callHandler(event, props.onClick)
         if (!event.defaultPrevented && !disabled() && !state.locked()) {
           state.setHighlightedValue(item().value)
           state.select(item())

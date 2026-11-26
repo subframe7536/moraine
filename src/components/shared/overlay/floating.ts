@@ -11,10 +11,9 @@ import {
 } from '@floating-ui/dom'
 import type { Coords, Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
 import type { Accessor } from 'solid-js'
-import { createEffect, createRoot, getOwner, onCleanup, runWithOwner } from 'solid-js'
+import { createEffect, createRoot, getOwner, onCleanup, runWithOwner, flush } from 'solid-js'
 
 import { useLocale } from '../../../provider/locale/locale-context'
-import { settle } from '../../../shared/utils'
 
 import { resolveDirection } from './direction'
 import { getTransformOrigin } from './transform-origin'
@@ -137,7 +136,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
             if (committed?.()) {
               // Commit coordinates before enabling position transitions.
               floating.getBoundingClientRect()
-              settle(() => publishPositioned(true))
+              publishPositioned(true)
               if (pendingTransform !== undefined && committed?.()) {
                 // Commit the starting position with transition styles before changing the transform.
                 floating.getBoundingClientRect()
@@ -162,19 +161,19 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
 
           createEffect(
             () => [
-              (() => options.contentElement?.())(),
-              (() => options.detachedPadding?.())(),
-              (() => options.fitViewport?.())(),
-              (() => options.flip?.())(),
+              options.contentElement?.(),
+              options.detachedPadding?.(),
+              options.fitViewport?.(),
+              options.flip?.(),
               options.gutter(),
-              (() => options.hideWhenDetached?.())(),
-              (() => options.inline?.())(),
+              options.hideWhenDetached?.(),
+              options.inline?.(),
               options.overflowPadding(),
-              (() => options.overlap?.())(),
+              options.overlap?.(),
               options.placement(),
-              (() => options.sameWidth?.())(),
-              (() => options.shift?.())(),
-              (() => options.slide?.())(),
+              options.sameWidth?.(),
+              options.shift?.(),
+              options.slide?.(),
             ],
             ([
               contentElement,
@@ -326,7 +325,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                   return
                 }
 
-                settle(() => options.onPlacementChange(position.placement))
+                flush(() => options.onPlacementChange(position.placement))
                 if (!isCurrent()) {
                   return
                 }
@@ -369,7 +368,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                 committed = isCurrent
                 if (!positioned) {
                   if (!options.deferPositioned && pendingTransform === undefined) {
-                    settle(() => publishPositioned(true))
+                    publishPositioned(true)
                   } else if (positionedFrame === undefined && positionedTimeout === undefined) {
                     if (typeof ownerWindow?.requestAnimationFrame === 'function') {
                       positionedFrame = ownerWindow.requestAnimationFrame(markPositioned)

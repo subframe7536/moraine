@@ -1,6 +1,5 @@
 import { getOwner, onCleanup } from 'solid-js'
 
-import { settle } from './utils'
 type EventMapForTarget<TTarget extends EventTarget> = TTarget extends Window
   ? WindowEventMap
   : TTarget extends Document
@@ -47,14 +46,10 @@ export function attachEventListener(
     return () => {}
   }
 
-  const settled = (event: Event) => {
-    settle(() => listener(event))
-  }
-
-  target.addEventListener(type, settled, options)
+  target.addEventListener(type, listener, options)
 
   return () => {
-    target.removeEventListener(type, settled, options)
+    target.removeEventListener(type, listener, options)
   }
 }
 

@@ -18,7 +18,7 @@ import { Icon } from '../components/icon'
 import { pickSlotOverrides, useRecipe } from '../provider'
 import { useMessages } from '../provider/locale/locale-context'
 import { renderWithProps } from '../shared/render-with-props'
-import { callRef, pick } from '../shared/utils'
+import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 import type {
   TableVirtualColumnLayout,
@@ -94,31 +94,6 @@ type VirtualConflict = keyof typeof VIRTUAL_CONFLICT_WARNINGS
 export function DataTable<TData extends RowData = RowData>(
   props: DataTableT.Props<TData>,
 ): JSX.Element {
-  const local = pick(
-    props,
-    'table',
-    'translations',
-    'containerRef',
-    'ref',
-    'rowProps',
-    'headProps',
-    'loading',
-    'loadingRender',
-    'emptyRender',
-    'sticky',
-    'maxHeight',
-    'expandedRowRender',
-    'onRowClick',
-    'onRowDoubleClick',
-    'virtualizer',
-    'size',
-    'highlightOnHover',
-    'border',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  )
   const rest = omit(
     props,
     'table',
@@ -149,13 +124,13 @@ export function DataTable<TData extends RowData = RowData>(
     slots,
     slots: { container: containerSlot, loading: loadingSlot, body: bodySlot, empty: emptySlot },
     slotWith,
-  } = useRecipe(dataTableRecipe, local)
-  const messages = useMessages('dataTable', defaultDataTableMessages, () => local.translations)
+  } = useRecipe(dataTableRecipe, props)
+  const messages = useMessages('dataTable', defaultDataTableMessages, () => props.translations)
   const [scrollContainer, setScrollContainer] = createSignal<HTMLDivElement>()
   const selectionName = `data-table-selection-${createUniqueId()}`
 
-  const table = () => local.table as DataTableT.Instance<TData>
-  const virtual = () => Boolean(local.virtualizer)
+  const table = () => props.table as DataTableT.Instance<TData>
+  const virtual = () => Boolean(props.virtualizer)
   const pagination = () =>
     'paginationSettings' in table() ? table().paginationSettings : undefined
   const paginated = () => !virtual() && pagination()?.paginated === true
@@ -166,11 +141,11 @@ export function DataTable<TData extends RowData = RowData>(
     setMounted(true)
   })
   const columnWindow = (): TableVirtualColumnWindow | undefined =>
-    mounted() ? local.virtualizer?.columnWindow() : undefined
+    mounted() ? props.virtualizer?.columnWindow() : undefined
   const columnVirtual = createMemo(() => columnWindow() !== undefined)
   const layout = createDataTableLayout(
     table,
-    () => local.sticky,
+    () => props.sticky,
     () => columnVirtual(),
   )
   const colSpan = () => Math.max(table().getVisibleLeafColumns().length, 1)
@@ -208,7 +183,7 @@ export function DataTable<TData extends RowData = RowData>(
 
   // A detail row is a second `<tr>` per entry that the virtualizer cannot measure or index,
   // so virtual tables do not render detail rows.
-  const expandedRowRender = () => (virtual() ? undefined : local.expandedRowRender)
+  const expandedRowRender = () => (virtual() ? undefined : props.expandedRowRender)
 
   if (DEV && !isServer) {
     const warned = new Set<VirtualConflict>()
@@ -223,7 +198,7 @@ export function DataTable<TData extends RowData = RowData>(
         if (pagination()?.paginated) {
           conflicts.push('pagination')
         }
-        if (local.expandedRowRender) {
+        if (props.expandedRowRender) {
           conflicts.push('expandedRowRender')
         }
         return conflicts
@@ -241,18 +216,18 @@ export function DataTable<TData extends RowData = RowData>(
   }
 
   const scrollStyle = (): JSX.CSSProperties => {
-    if (!local.maxHeight) {
+    if (!props.maxHeight) {
       return {}
     }
-    const maxHeight = typeof local.maxHeight === 'number' ? `${local.maxHeight}px` : local.maxHeight
+    const maxHeight = typeof props.maxHeight === 'number' ? `${props.maxHeight}px` : props.maxHeight
     return { 'max-height': maxHeight, 'overflow-y': 'auto' }
   }
 
   function RenderEmpty(): JSX.Element {
     return (
-      <Show when={!local.loading}>
-        <Show when={local.emptyRender !== undefined} fallback={messages().empty}>
-          {renderWithProps(local.emptyRender, {
+      <Show when={!props.loading}>
+        <Show when={props.emptyRender !== undefined} fallback={messages().empty}>
+          {renderWithProps(props.emptyRender, {
             get colSpan() {
               return colSpan()
             },
@@ -265,12 +240,12 @@ export function DataTable<TData extends RowData = RowData>(
   function RenderLoading(): JSX.Element {
     return (
       <Show
-        when={local.loadingRender !== undefined}
+        when={props.loadingRender !== undefined}
         fallback={
           <Icon name="icon-loading" class={DATA_TABLE_LOADING_ICON_CLASS} aria-hidden="true" />
         }
       >
-        {renderWithProps(local.loadingRender, {
+        {renderWithProps(props.loadingRender, {
           get colSpan() {
             return colSpan()
           },
@@ -289,7 +264,7 @@ export function DataTable<TData extends RowData = RowData>(
       value={{
         slots,
         slotWith,
-        slotOverrides: pickSlotOverrides(local),
+        slotOverrides: pickSlotOverrides(props),
         messages,
         virtual,
         paginated,
@@ -312,16 +287,16 @@ export function DataTable<TData extends RowData = RowData>(
       }}
     >
       <div
-        ref={(el) => callRef(() => local.containerRef, el)}
+        ref={(el) => callRef(() => props.containerRef, el)}
         data-slot="data-table-container"
         {...containerSlot}
       >
         {/* Screen readers announce changes inside a live region that already exists, so the
             status stays mounted and only its text follows `loading`. */}
         <span data-slot="data-table-status" role="status" class={VISUALLY_HIDDEN_CLASS}>
-          {local.loading ? messages().loading : ''}
+          {props.loading ? messages().loading : ''}
         </span>
-        <Show when={local.loading}>
+        <Show when={props.loading}>
           <div data-slot="data-table-loading" {...loadingSlot}>
             <RenderLoading />
           </div>
@@ -335,12 +310,12 @@ export function DataTable<TData extends RowData = RowData>(
         >
           <table
             data-slot="data-table"
-            aria-busy={local.loading ? 'true' : undefined}
+            aria-busy={props.loading ? 'true' : undefined}
             // Every visible column, including the pinned ones the virtualizer does not count.
             aria-colcount={columnVirtual() ? leafColumns().length : undefined}
             {...rootSlot}
             {...rest}
-            ref={local.ref}
+            ref={props.ref}
           >
             {/* A fixed layout takes widths from the first row, which is a group header when
                 columns are grouped, and virtualized body rows skip cells. Leaf widths come from
@@ -352,7 +327,7 @@ export function DataTable<TData extends RowData = RowData>(
                 </For>
               </colgroup>
             </Show>
-            <DataTableHeader table={table()} headProps={local.headProps} />
+            <DataTableHeader table={table()} headProps={props.headProps} />
 
             <tbody data-slot="data-table-body" {...bodySlot}>
               <Show
@@ -366,16 +341,16 @@ export function DataTable<TData extends RowData = RowData>(
                 }
               >
                 <Show
-                  when={local.virtualizer}
+                  when={props.virtualizer}
                   fallback={
                     <For each={rows()}>
                       {(row, index) => (
                         <DataTableRow
                           row={row}
                           index={index()}
-                          rowProps={local.rowProps}
-                          onRowClick={local.onRowClick}
-                          onRowDoubleClick={local.onRowDoubleClick}
+                          rowProps={props.rowProps}
+                          onRowClick={props.onRowClick}
+                          onRowDoubleClick={props.onRowDoubleClick}
                           expandedRowRender={expandedRowRender()}
                         />
                       )}
@@ -403,9 +378,9 @@ export function DataTable<TData extends RowData = RowData>(
                             row={row}
                             index={index}
                             virtualRowProps={rowProps}
-                            rowProps={local.rowProps}
-                            onRowClick={local.onRowClick}
-                            onRowDoubleClick={local.onRowDoubleClick}
+                            rowProps={props.rowProps}
+                            onRowClick={props.onRowClick}
+                            onRowDoubleClick={props.onRowDoubleClick}
                             expandedRowRender={expandedRowRender()}
                           />
                         )}
@@ -424,7 +399,7 @@ export function DataTable<TData extends RowData = RowData>(
           table={table()}
           when={paginated()}
           pageSizes={pagination()?.pageSizes ?? DEFAULT_DATA_TABLE_PAGE_SIZES}
-          size={local.size}
+          size={props.size}
         />
       </div>
     </DataTableProvider>

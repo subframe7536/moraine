@@ -946,6 +946,7 @@ describe('contextMenu', () => {
       clientY: 24,
     })
     const notCanceled = content.dispatchEvent(event)
+    flush()
 
     expect(notCanceled).toBe(false)
     expect(event.defaultPrevented).toBe(true)
@@ -997,6 +998,7 @@ describe('contextMenu', () => {
       clientY: 22,
     })
     const notCanceled = row.dispatchEvent(event)
+    flush()
 
     expect(notCanceled).toBe(false)
     expect(event.defaultPrevented).toBe(true)

@@ -1,9 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createSignal } from 'solid-js'
+import { createSignal, createRenderEffect } from 'solid-js'
 
-import { bindElement } from './element-binding'
 import { createEventListener } from './event-listener'
-import { settle } from './utils'
 export interface AxisMetrics {
   /** Visible size in px. */
   readonly client: number
@@ -47,7 +45,11 @@ export function createScrollMetrics(
     equals: (a, b) => a.rtl === b.rtl && sameAxis(a.x, b.x) && sameAxis(a.y, b.y),
   })
 
-  bindElement(viewport, (element) => {
+  createRenderEffect(viewport, (current) => {
+    if (!current) {
+      return
+    }
+    const element = current
     let disposed = false
 
     function measure(): void {
@@ -58,9 +60,7 @@ export function createScrollMetrics(
         return
       }
       const rtl = view.getComputedStyle(element).direction === 'rtl'
-      settle(() =>
-        setMetrics({ x: readAxis(element, true, rtl), y: readAxis(element, false, rtl), rtl }),
-      )
+      setMetrics({ x: readAxis(element, true, rtl), y: readAxis(element, false, rtl), rtl })
     }
 
     // Observing the viewport covers window resizes; its only child, the content wrapper,

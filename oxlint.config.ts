@@ -20,10 +20,8 @@ export default subfLint(
         'warn',
         {
           customReactiveFunctions: [
-            'bindElement',
             'publishElement',
             'bindSelectableItemHandlers',
-            'settle',
             'attachEventListener',
             'callRef',
             'queueMicrotask',
@@ -50,6 +48,7 @@ export default subfLint(
       'moraine/no-string-style-prop': 'error',
       'moraine/no-direct-component-call': 'error',
       'moraine/no-re-export': 'error',
+      'moraine/no-redundant-compute-iife': 'error',
       'moraine/no-default-param-render-children': 'warn',
     },
   },

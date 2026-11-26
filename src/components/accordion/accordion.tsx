@@ -11,6 +11,7 @@ import {
   onCleanup,
   untrack,
   omit,
+  createRenderEffect,
 } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
@@ -18,10 +19,9 @@ import type { SlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import { bindElement } from '../../shared/element-binding'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, createId, pick } from '../../shared/utils'
+import { callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
@@ -67,7 +67,12 @@ function AccordionItemPanel(props: {
   )
 
   const [element, setElement] = createSignal<HTMLDivElement>()
-  bindElement(element, (node) => props.disclosure.registerContentElement(node))
+  createRenderEffect(element, (node) => {
+    if (!node) {
+      return
+    }
+    return props.disclosure.registerContentElement(node)
+  })
 
   return (
     <div
@@ -110,27 +115,6 @@ function AccordionItemPanel(props: {
  * ```
  */
 export function Accordion(props: AccordionProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'value',
-    'defaultValue',
-    'multiple',
-    'collapsible',
-    'loop',
-    'onValueChange',
-    'items',
-    'disabled',
-    'transition',
-    'forceMount',
-    'expandIcon',
-    'headingLevel',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'ref',
-  )
   const rest = omit(
     props,
     'id',
@@ -161,7 +145,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       body: bodySlot,
     },
     slotWith,
-  } = useRecipe(accordionRecipe, local, {
+  } = useRecipe(accordionRecipe, props, {
     data: { root: accordionDataAttributes.root(() => ({ disabled: () => merged.disabled })) },
   })
 
@@ -174,7 +158,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       expandIcon: 'icon-chevron-down',
       headingLevel: 3 as const,
     },
-    local,
+    props,
   )
 
   const rootId = createId(() => merged.id, 'accordion')
@@ -322,7 +306,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       {...rootSlot}
       {...rest}
       ref={(element) => {
-        callRef(() => local.ref, element)
+        callRef(() => props.ref, element)
       }}
       id={rootId()}
     >
@@ -375,7 +359,12 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 {(value) => {
                   const [body, setBody] = createSignal<HTMLDivElement>()
                   // Measure natural content, independently of the shell's animated height.
-                  bindElement(body, disclosure.registerMeasureElement)
+                  createRenderEffect(body, (node) => {
+                    if (!node) {
+                      return
+                    }
+                    return disclosure.registerMeasureElement(node)
+                  })
                   return (
                     <div ref={setBody} data-slot="accordion-body" {...bodySlot}>
                       {renderWithProps(value(), {
@@ -436,25 +425,21 @@ export function Accordion(props: AccordionProps): JSX.Element {
           })
 
           const [triggerEl, setTriggerEl] = createSignal<HTMLButtonElement>()
-          bindElement(triggerEl, (element, scope) => {
-            disclosure.setTriggerElement(element)
-            let key = untrack(itemValue)
-            triggerRefs.set(key, element)
-            scope(() =>
-              createEffect(
-                itemValue,
-                (nextKey) => {
+          createRenderEffect(
+            () => [triggerEl(), itemValue()] as const,
+            ([element, key]) => {
+              if (!element) {
+                return
+              }
+              disclosure.setTriggerElement(element)
+              triggerRefs.set(key, element)
+              return () => {
+                if (triggerRefs.get(key) === element) {
                   triggerRefs.delete(key)
-                  key = nextKey
-                  triggerRefs.set(key, element)
-                },
-                { defer: true },
-              ),
-            )
-            return () => {
-              triggerRefs.delete(key)
-            }
-          })
+                }
+              }
+            },
+          )
 
           return (
             <div data-slot="accordion-item" {...itemSlot}>
@@ -504,7 +489,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 disclosure={disclosure}
                 contentId={contentId()}
                 triggerId={triggerId()}
-                slotOverrides={pickSlotOverrides(local)}
+                slotOverrides={pickSlotOverrides(props)}
               >
                 <Show when={disclosure.shouldMount()}>
                   <Content />

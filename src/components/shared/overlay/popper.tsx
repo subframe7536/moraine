@@ -2,14 +2,22 @@ import type { Placement } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import { Portal, dynamic } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, merge, untrack, omit } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  merge,
+  untrack,
+  omit,
+  createRenderEffect,
+} from 'solid-js'
 
 import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { createPolymorphicRoot } from '../../../shared/create-polymorphic-root'
-import { bindElement, publishElement } from '../../../shared/element-binding'
 import { renderWithProps } from '../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import type { ValidComponent } from '../../../shared/types'
@@ -18,9 +26,8 @@ import {
   callHandler,
   callRef,
   createId,
-  pick,
   resolvePropsChildren,
-  settle,
+  publishElement,
 } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
@@ -147,11 +154,9 @@ export function createPopper(
 
   function setOpen(nextOpen: boolean): void {
     // Outside dismissal and focus handlers run unowned; settle the write.
-    settle(() => {
-      if (!props.disabled) {
-        setControlledOpen(nextOpen)
-      }
-    })
+    if (!props.disabled) {
+      setControlledOpen(nextOpen)
+    }
   }
 
   return {
@@ -172,17 +177,16 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   props: PopperTriggerProps<T> & { context: PopperTriggerState },
 ): JSX.Element {
   const refKey = 'ref' as keyof (PopperTriggerProps<T> & { context: PopperTriggerState })
-  const local = pick(props, 'context', 'as', 'disabled', 'ariaRelation', 'toggleOnClick', refKey)
   const rest = omit(props, 'context', 'as', 'disabled', 'ariaRelation', 'toggleOnClick', refKey)
   const context = untrack(() => props.context)
-  const tag = () => local.as ?? 'button'
+  const tag = () => props.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
     bridgeClick: true,
-    ref: () => (local as { ref?: (el: HTMLElement) => void }).ref,
+    ref: () => (props as { ref?: (el: HTMLElement) => void }).ref,
     registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
-  const disabled = () => Boolean(local.disabled || context.options.disabled)
+  const disabled = () => Boolean(props.disabled || context.options.disabled)
   const interaction = useButtonInteraction(
     {
       disabled,
@@ -190,7 +194,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       element: root.element,
       tag,
       onPress: () => {
-        if (local.toggleOnClick ?? true) {
+        if (props.toggleOnClick ?? true) {
           context.setOpen(!context.isOpen())
         }
       },
@@ -210,19 +214,19 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     <Root
       data-slot={context.slotName('trigger')}
       {...triggerData}
-      aria-haspopup={(local.ariaRelation ?? 'popup') === 'popup' ? 'true' : undefined}
+      aria-haspopup={(props.ariaRelation ?? 'popup') === 'popup' ? 'true' : undefined}
       aria-controls={
-        (local.ariaRelation ?? 'popup') === 'popup' && context.contentPresence.present()
+        (props.ariaRelation ?? 'popup') === 'popup' && context.contentPresence.present()
           ? context.contentId()
           : undefined
       }
       aria-describedby={
-        local.ariaRelation === 'description' && context.contentPresence.present()
+        props.ariaRelation === 'description' && context.contentPresence.present()
           ? context.contentId()
           : undefined
       }
       aria-expanded={
-        (local.ariaRelation ?? 'popup') === 'popup'
+        (props.ariaRelation ?? 'popup') === 'popup'
           ? context.isOpen()
             ? 'true'
             : 'false'
@@ -284,7 +288,10 @@ export function PopperContent(
   })
 
   const [content, setContent] = createSignal<HTMLDivElement>()
-  bindElement(content, (element) => {
+  createRenderEffect(content, (element) => {
+    if (!element) {
+      return
+    }
     const unpublish = publishElement(contentElement, setContentElement)(element)
     const release = contentPresence.registerElement(element)
     return () => {

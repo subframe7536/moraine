@@ -725,7 +725,7 @@ export default {
         },
         messages: {
           lifecycleInRef:
-            'Do not call "{{name}}" inside a ref callback. Store the element in a signal and move this work into "bindElement" in the owner that renders it.',
+            'Do not call "{{name}}" inside a ref callback. Store the element in a signal and move this work into "createEffect" or "createRenderEffect" in the owner that renders it.',
         },
       },
       create(context: RuleContext): Pick<RuleListeners, 'CallExpression'> {
@@ -1033,6 +1033,39 @@ export default {
                   source: typeof node.source?.value === 'string' ? node.source.value : '',
                 },
               })
+            }
+          },
+        }
+      },
+    },
+
+    'no-redundant-compute-iife': {
+      meta: {
+        type: 'suggestion',
+        docs: {
+          description:
+            'Disallow zero-argument arrow IIFEs (() => expr)() left over from Solid 1 -> Solid 2 migration.',
+        },
+        messages: {
+          redundantIife:
+            'Avoid zero-argument arrow IIFE "(() => expr)()". Evaluate the expression directly.',
+        },
+      },
+      create(context: RuleContext): Pick<RuleListeners, 'CallExpression'> {
+        if (!isSourceFile(context.filename)) {
+          return {} as Pick<RuleListeners, 'CallExpression'>
+        }
+        return {
+          CallExpression(rawNode: AstNode) {
+            const node = rawNode as CallExpressionNode
+            if (
+              node.arguments.length === 0 &&
+              node.callee.type === 'ArrowFunctionExpression' &&
+              Array.isArray((node.callee as FunctionNode).params) &&
+              ((node.callee as FunctionNode).params?.length ?? 0) === 0 &&
+              (node.callee as FunctionNode).body?.type !== 'BlockStatement'
+            ) {
+              context.report({ node, messageId: 'redundantIife' })
             }
           },
         }

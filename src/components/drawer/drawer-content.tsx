@@ -9,17 +9,17 @@ import {
   merge,
   onCleanup,
   omit,
+  createRenderEffect,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { bindElement } from '../../shared/element-binding'
 import { attachEventListenerMap } from '../../shared/event-listener'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { isAndroidUserAgent, pick } from '../../shared/utils'
+import { isAndroidUserAgent } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -62,17 +62,7 @@ import type { DrawerT } from './drawer.types'
 export function DrawerContent<T extends ValidComponent = 'div'>(
   props: DrawerT.ContentProps<T>,
 ): JSX.Element {
-  const local = pick(
-    props as DrawerT.ContentProps<T> & { ref?: unknown; dir?: unknown },
-    'as',
-    'ref',
-    'title',
-    'description',
-    'children',
-    'class',
-    'style',
-    'dir',
-  )
+  const local = props as DrawerT.ContentProps<T> & { ref?: unknown; dir?: unknown }
   const rest = omit(
     props as DrawerT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
@@ -157,7 +147,15 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
   function RenderDrawerOverlay(): JSX.Element {
     const [overlay, setOverlay] = createSignal<HTMLDivElement>()
     // The backdrop must be a sibling: its swipe opacity would fade the content too.
-    bindElement(() => isOverlay() && overlay(), family.presence.registerElement)
+    createRenderEffect(
+      () => (isOverlay() ? overlay() : undefined),
+      (node) => {
+        if (!node) {
+          return
+        }
+        return family.presence.registerElement(node)
+      },
+    )
     return <div data-slot="drawer-overlay" {...overlaySlot} ref={setOverlay} />
   }
 
@@ -169,8 +167,11 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
     // The gesture binds in this owner and releases with the content.
-    bindElement(family.contentElement, (element, scope) => {
-      scope(() => swipe.attach(element))
+    createRenderEffect(family.contentElement, (element) => {
+      if (!element) {
+        return
+      }
+      return swipe.attach(element)
     })
 
     // While mounted (open or exiting) this drawer reports its state to the
@@ -245,7 +246,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
       },
     )
     const contentShorthand = createShorthandContent(local)
-    const child = resolveChildren(() => local.children)
+    const child = resolveChildren(() => local.children as JSX.Element)
     const explicitChildren = createMemo(() =>
       renderWithProps(child(), {
         close: () => family.updateOpen(false),

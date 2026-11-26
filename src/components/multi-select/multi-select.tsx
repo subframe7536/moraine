@@ -6,7 +6,7 @@ import { collatorEquals, createSearchCollator } from '../../provider/locale/coll
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
@@ -77,11 +77,9 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
 ): JSX.Element {
   type Item = MultiSelectT.NormalizedItem<T>
   type Value = Item['value']
-  const local = pick(props, ...MULTI_SELECT_LOCAL_PROP_KEYS)
-  const baseSelectProps = pick(props, ...BASE_SELECT_FORWARD_PROP_KEYS)
   const rootProps = omit(props, ...MULTI_SELECT_LOCAL_PROP_KEYS, ...BASE_SELECT_FORWARD_PROP_KEYS)
   const field = useFieldContext()
-  const messages = useMessages('multiSelect', defaultMultiSelectMessages, () => local.translations)
+  const messages = useMessages('multiSelect', defaultMultiSelectMessages, () => props.translations)
   const locale = useLocale().locale
   const {
     slots,
@@ -102,7 +100,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
         disabled: undefined,
         expanded: undefined,
         invalid: undefined,
-        loading: () => local.loading,
+        loading: () => props.loading,
       }),
     },
     context: () => ({ variants: { size: field?.size } }),
@@ -110,14 +108,14 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
   const baseSelectStyles = createBaseSelectStyleProps(slots)
   const [created, setCreated] = createSignal<Array<Item>>([])
   const source = createMemo((prev: ReturnType<typeof createSource<Item>> | undefined) =>
-    createSource(normalizeSelectEntries<T>(local.items ?? []), created(), prev),
+    createSource(normalizeSelectEntries<T>(props.items ?? []), created(), prev),
   )
-  const editable = () => local.searchable === true || local.createItem !== undefined
+  const editable = () => props.searchable === true || props.createItem !== undefined
   const search = useComboboxSearch(
-    local,
+    props,
     editable,
     () => source(),
-    () => baseSelectProps.getItemLabel,
+    () => props.getItemLabel,
   )
 
   function resolveInputItem(input: string): Item | undefined {
@@ -127,7 +125,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
     }
     const collator = createSearchCollator(locale())
     return source().items.find((candidate) => {
-      const label = labelString(candidate, baseSelectProps.getItemLabel)
+      const label = labelString(candidate, props.getItemLabel)
       return (
         collatorEquals(collator, label, normalized) ||
         collatorEquals(collator, String(candidate.value), normalized)
@@ -137,7 +135,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
 
   function Control(): JSX.Element {
     const state = useSelectContext<Item>()
-    const atMax = () => local.maxValues !== undefined && state.value().length >= local.maxValues
+    const atMax = () => props.maxValues !== undefined && state.value().length >= props.maxValues
 
     function commitInput(input: string): boolean {
       if (state.locked()) {
@@ -156,10 +154,10 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       }
       let item = resolved
       if (!item) {
-        if (!local.createItem) {
+        if (!props.createItem) {
           return false
         }
-        const candidate = local.createItem(normalized)
+        const candidate = props.createItem(normalized)
         if (
           !candidate ||
           (typeof candidate.value !== 'string' && typeof candidate.value !== 'number')
@@ -198,17 +196,17 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       values: state.value,
       change: state.change,
       getFocusOwner: state.focusOwner,
-      maxVisible: () => local.maxVisible,
+      maxVisible: () => props.maxVisible,
       query: search.value,
       setQuery: search.setValue,
       commitInput,
-      tokenSeparators: () => local.tokenSeparators,
+      tokenSeparators: () => props.tokenSeparators,
       locked: state.locked,
       slot: (slot) => slots[slot],
       slotName: state.slotName,
-      removeIcon: () => local.removeIcon,
+      removeIcon: () => props.removeIcon,
       translations: () =>
-        local.translations?.remove ? { remove: local.translations.remove } : undefined,
+        props.translations?.remove ? { remove: props.translations.remove } : undefined,
       resolve: (value) => {
         const item = source().byValue.get(value)
         const label = item?.label ?? String(value)
@@ -217,7 +215,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           item,
           label,
           title: item
-            ? labelString(item, baseSelectProps.getItemLabel)
+            ? labelString(item, props.getItemLabel)
             : typeof label === 'string'
               ? label
               : String(value),
@@ -233,10 +231,10 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       displayValue: () => (editable() ? search.value() : ''),
       transformInput: tags.tokenize,
       get maxLength() {
-        return local.searchMaxLength
+        return props.searchMaxLength
       },
       get autoComplete() {
-        return local.autoComplete
+        return props.autoComplete
       },
     })
     const overflowTags = () => tags.tags().slice(tags.visible().length)
@@ -258,7 +256,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       return state.value().some((value) => sameValue(value, query))
     }
 
-    const placeholder = () => local.placeholder ?? messages().placeholder
+    const placeholder = () => props.placeholder ?? messages().placeholder
 
     function focusControl(): void {
       state.focusOwner()?.focus()
@@ -275,7 +273,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
         }),
       )
       search.setValue('')
-      local.onClear?.()
+      props.onClear?.()
       focusControl()
     }
 
@@ -375,7 +373,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       focusOwner: state.focusOwner,
       focus: focusControl,
       disabled: state.locked,
-      openOnControlClick: () => local.openOnControlClick ?? !editable(),
+      openOnControlClick: () => props.openOnControlClick ?? !editable(),
       setOpen: state.setOpen,
       get onPointerDown() {
         return rootProps.onPointerDown
@@ -391,16 +389,16 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           {...controlSlot}
           {...rootProps}
           {...controlPress}
-          ref={(element) => callRef(() => local.ref, element)}
+          ref={(element) => callRef(() => props.ref, element)}
         >
-          <Show when={local.leading}>
+          <Show when={props.leading}>
             {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...leadingSlot} />}
           </Show>
           <div data-slot="multi-select-tags-container" {...tagsContainerSlot}>
             <For each={tags.visible()}>
               {(tag, index) => (
                 <Show
-                  when={local.tagRender}
+                  when={props.tagRender}
                   fallback={<tags.DefaultTag tag={tag} index={index()} />}
                   keyed
                 >
@@ -419,7 +417,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
             </For>
             <Show when={tags.overflow() > 0}>
               <Show
-                when={local.tagOverflowRender !== undefined}
+                when={props.tagOverflowRender !== undefined}
                 fallback={
                   <span
                     data-slot="multi-select-tag-overflow"
@@ -430,7 +428,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                   </span>
                 }
               >
-                {renderWithProps(local.tagOverflowRender, {
+                {renderWithProps(props.tagOverflowRender, {
                   get count() {
                     return tags.overflow()
                   },
@@ -463,7 +461,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                 placeholder={tags.tags().length ? '' : placeholder()}
                 ref={(element) => {
                   inputBinding.inputProps.ref(element)
-                  callRef(() => local.inputRef, element)
+                  callRef(() => props.inputRef, element)
                 }}
                 onPaste={(event) => tags.onPaste(event, inputBinding.isComposing())}
                 onKeyDown={onEditableInputKeyDown}
@@ -472,8 +470,8 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           </div>
           <Show
             when={
-              !local.loading &&
-              local.clearable &&
+              !props.loading &&
+              props.clearable &&
               (tags.tags().length > 0 || Boolean(search.value()))
             }
           >
@@ -482,7 +480,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
               ariaLabel={messages().clear}
               slot={clearSlot}
               disabled={state.locked()}
-              clearIcon={local.clearIcon}
+              clearIcon={props.clearIcon}
               onFocusOwner={focusControl}
               onClear={clear}
             />
@@ -491,7 +489,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
             when={editable()}
             fallback={
               <BaseSelect.Trigger<'button', Item>
-                aria-busy={local.loading ? 'true' : undefined}
+                aria-busy={props.loading ? 'true' : undefined}
                 {...triggerSlot}
                 onKeyDown={onNonEditableTriggerKeyDown}
                 onClick={(event) => event.stopPropagation()}
@@ -506,11 +504,11 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                 </span>
                 <Icon
                   name={
-                    local.loading
-                      ? (local.loadingIcon ?? 'icon-loading')
-                      : (local.trailing ?? 'icon-chevron-down')
+                    props.loading
+                      ? (props.loadingIcon ?? 'icon-loading')
+                      : (props.trailing ?? 'icon-chevron-down')
                   }
-                  {...selectLoadingData(local.loading)}
+                  {...selectLoadingData(props.loading)}
                   class={SELECT_LOADING_ICON_CLASS}
                 />
               </BaseSelect.Trigger>
@@ -518,13 +516,13 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           >
             <ToggleTrigger
               dataSlot="multi-select-trigger"
-              ariaLabel={local.loading ? messages().loading : messages().toggle}
+              ariaLabel={props.loading ? messages().loading : messages().toggle}
               ariaControls={state.listboxId()}
               expanded={state.open()}
-              loading={local.loading}
-              loadingIcon={local.loadingIcon}
+              loading={props.loading}
+              loadingIcon={props.loadingIcon}
               slot={triggerSlot}
-              trailing={local.trailing}
+              trailing={props.trailing}
               disabled={state.disabled()}
               onFocusOwner={focusControl}
               onClick={() => state.setOpen(!state.open())}
@@ -532,19 +530,19 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           </Show>
         </BaseSelect.Control>
         <DefaultSelectContent
-          {...local}
+          {...props}
           view={search.view()}
           slot={(slot) => slots[slot]}
           emptyRender={(emptyProps) => (
             <Show
-              when={local.emptyRender !== undefined}
+              when={props.emptyRender !== undefined}
               fallback={
-                <Show when={local.createItem && search.value()} fallback={messages().empty}>
-                  {(value) => messages().create({ value: value() })}
+                <Show when={props.createItem && search.value()} fallback={messages().empty}>
+                  {(value) => <>{messages().create({ value: value() })}</>}
                 </Show>
               }
             >
-              {renderWithProps(local.emptyRender, {
+              {renderWithProps(props.emptyRender, {
                 get searchValue() {
                   return search.value()
                 },
@@ -567,29 +565,49 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
   return (
     <BaseSelectRoot<Item>
       slotOwner="multi-select"
-      {...baseSelectProps}
+      getItemLabel={props.getItemLabel}
+      id={props.id}
+      name={props.name}
+      form={props.form}
+      required={props.required}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      open={props.open}
+      defaultOpen={props.defaultOpen}
+      onOpenChange={props.onOpenChange}
+      preventScroll={props.preventScroll}
+      placement={props.placement}
+      align={props.align}
+      gutter={props.gutter}
+      shift={props.shift}
+      flip={props.flip}
+      slide={props.slide}
+      overflowPadding={props.overflowPadding}
+      closeOnEscape={props.closeOnEscape}
+      closeOnOutsideClick={props.closeOnOutsideClick}
+      onClosePrevented={props.onClosePrevented}
       onExitComplete={() => {
         search.setValue('')
-        baseSelectProps.onExitComplete?.()
+        props.onExitComplete?.()
       }}
       closeOnSelect={false}
       items={search.view().items}
       serializeValue={(value) => serializeSourceValue(source(), value)}
-      value={local.value}
-      defaultValue={local.defaultValue}
+      value={props.value}
+      defaultValue={props.defaultValue}
       onValueChange={(values) => {
         search.setValue('')
-        local.onValueChange?.(values)
+        props.onValueChange?.(values)
       }}
       onReset={() => {
         search.setValue('')
         setCreated([])
-        local.onReset?.()
+        props.onReset?.()
       }}
       isItemDisabled={(item, values) =>
-        baseSelectProps.isItemDisabled?.(item, values) === true ||
-        (local.maxValues !== undefined &&
-          values.length >= local.maxValues &&
+        props.isItemDisabled?.(item, values) === true ||
+        (props.maxValues !== undefined &&
+          values.length >= props.maxValues &&
           !values.some((value) => sameValue(value, item.value)))
       }
       multiple

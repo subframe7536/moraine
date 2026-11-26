@@ -3,7 +3,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 
 import { useSheetContext } from './sheet-context'
@@ -27,7 +26,7 @@ export function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
   const sheet = useSheetContext()
-  const local = pick(props as SheetT.TriggerProps, 'class', 'style')
+  const local = props as SheetT.TriggerProps
   const rest = omit(props as SheetT.TriggerProps, 'class', 'style')
   const {
     slots: { trigger: triggerSlot },

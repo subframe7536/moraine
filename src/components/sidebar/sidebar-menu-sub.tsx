@@ -1,7 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
-import { pick } from '../../shared/utils'
 import { Collapsible } from '../collapsible'
 
 import { useSidebarStyles } from './sidebar-context'
@@ -34,16 +33,15 @@ import type { SidebarT } from './sidebar.types'
  * ```
  */
 export function SidebarMenuSub(props: SidebarT.MenuSubProps): JSX.Element {
-  const local = pick(props, 'class', 'style', 'id')
   const rest = omit(props, 'class', 'style', 'id')
   const {
     slots: { menuSub: menuSubSlot },
-  } = useSidebarStyles('menuSub', local)
+  } = useSidebarStyles('menuSub', props)
 
   return (
     <Collapsible
       data-slot="sidebar-menu-sub"
-      id={local.id as string | undefined}
+      id={props.id as string | undefined}
       {...menuSubSlot}
       {...rest}
     />

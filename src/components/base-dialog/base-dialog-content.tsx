@@ -5,7 +5,6 @@ import { children as resolveChildren, createMemo, omit } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { createBaseDialogContentBinding } from './base-dialog-content-binding'
 import { useBaseDialogContext } from './base-dialog-context'
@@ -35,14 +34,7 @@ import type { BaseDialogT } from './base-dialog.types'
 export function BaseDialogContent<T extends ValidComponent = 'div'>(
   props: BaseDialogT.ContentProps<T>,
 ): JSX.Element {
-  const local = pick(
-    props as BaseDialogT.ContentProps<T> & { ref?: unknown },
-    'as',
-    'ref',
-    'children',
-    'class',
-    'style',
-  )
+  const local = props as BaseDialogT.ContentProps<T> & { ref?: unknown }
   const rest = omit(
     props as BaseDialogT.ContentProps<T> & { ref?: unknown },
     'as',
@@ -71,7 +63,7 @@ export function BaseDialogContent<T extends ValidComponent = 'div'>(
     context: () => context.slotOverrides,
   })
 
-  const child = resolveChildren(() => local.children)
+  const child = resolveChildren(() => local.children as JSX.Element)
   const body = createMemo(() =>
     renderWithProps(child(), {
       close: () => context.updateOpen(false),

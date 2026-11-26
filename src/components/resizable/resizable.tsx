@@ -13,7 +13,7 @@ import {
 
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyBinding } from '../../shared/keyboard'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { pickSlotOverrides, useRecipe } from '../../theme/use-recipe'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -233,23 +233,6 @@ function resolveThresholdedSizes(
  * ```
  */
 export function Resizable(props: ResizableProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'children',
-    'value',
-    'defaultValue',
-    'onValueChange',
-    'onValueCommit',
-    'disabled',
-    'step',
-    'orientation',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'ref',
-  )
   const rest = omit(
     props,
     'id',
@@ -271,22 +254,22 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(resizableRecipe, local, {
+  } = useRecipe(resizableRecipe, props, {
     data: { root: resizableDataAttributes.root({ splitterRoot: true }) },
   })
 
   const orientation = (): ResizableOrientation => variants.orientation ?? 'horizontal'
-  const disabled = () => local.disabled === true
-  const step = () => local.step ?? DEFAULT_STEP
+  const disabled = () => props.disabled === true
+  const step = () => props.step ?? DEFAULT_STEP
 
   const [settled, setSettled] = createSignal(false)
   const [resizing, setResizing] = createSignal(false)
   const [transitioningIds, setTransitioningIds] = createSignal<Array<string>>([])
-  const [clientItems, setClientItems] = createSignal<Array<ResizableItem>>([], { ownedWrite: true })
+  const [clientItems, setClientItems] = createSignal<Array<ResizableItem>>([])
   const serverItems: Array<ResizableItem> = []
   const items = isServer ? () => serverItems : clientItems
   const [uncontrolledLayout, setUncontrolledLayout] = createSignal<ResizableT.Layout | undefined>(
-    untrack(() => (local.defaultValue ? { ...local.defaultValue } : undefined)),
+    untrack(() => (props.defaultValue ? { ...props.defaultValue } : undefined)),
   )
 
   let seq = 0
@@ -325,7 +308,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const orderedItems = createResizableMemo(rawOrderedItems)
   const orderedPanels = createResizableMemo(rawOrderedPanels)
 
-  const sourceLayout = () => local.value ?? uncontrolledLayout()
+  const sourceLayout = () => props.value ?? uncontrolledLayout()
 
   /** Resolved panel sizes as fractions (0..1), aligned with `orderedPanels()`. */
   const rawResolved = (): Array<number> => resolveLayoutFractions(orderedPanels(), sourceLayout())
@@ -362,15 +345,15 @@ export function Resizable(props: ResizableProps): JSX.Element {
     }
 
     const record = toLayoutRecord(next)
-    if (local.value === undefined) {
+    if (props.value === undefined) {
       setUncontrolledLayout(record)
     }
-    local.onValueChange?.(record)
+    props.onValueChange?.(record)
     return true
   }
 
   function commitLayout(next: Array<number>): void {
-    local.onValueCommit?.(toLayoutRecord(next))
+    props.onValueCommit?.(toLayoutRecord(next))
   }
 
   function markTransitioning(id: string): void {
@@ -526,7 +509,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
         horizontal &&
         event.currentTarget instanceof Element &&
         resolveDirection(event.currentTarget) === 'rtl'
-      const delta = step() / 100
       const resize = (deltaPercentage: number) =>
         resizeHandleByPercentage(precedingIndex, deltaPercentage, event.altKey, event)
       const collapse: KeyBinding<HTMLElement, [number]> = {
@@ -542,11 +524,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
         Enter: collapse,
         [horizontal ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp']: {
           preventDefault: false,
-          handle: () => resize(event.shiftKey ? -1 : -delta),
+          handle: () => resize(event.shiftKey ? -1 : -(step() / 100)),
         },
         [horizontal ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown']: {
           preventDefault: false,
-          handle: () => resize(event.shiftKey ? 1 : delta),
+          handle: () => resize(event.shiftKey ? 1 : step() / 100),
         },
         Home: { preventDefault: false, handle: () => resize(-1) },
         End: { preventDefault: false, handle: () => resize(1) },
@@ -680,12 +662,36 @@ export function Resizable(props: ResizableProps): JSX.Element {
         }
       }
     }
-    setClientItems((previous) => [...previous, stored])
+    let registered = false
+    let disposed = false
+    createEffect(
+      () => undefined,
+      () => {
+        if (disposed) {
+          return
+        }
+        registered = true
+        setClientItems((previous) => [...previous, stored])
+        return () => {
+          registered = false
+          setClientItems((previous) => previous.filter((entry) => entry !== stored))
+          if (stored.kind === 'panel') {
+            previousCollapsed.delete(stored.panel.id())
+            lastExpandedSizes.delete(stored.panel.id())
+          }
+        }
+      },
+      { transparent: true },
+    )
     return () => {
-      setClientItems((previous) => previous.filter((entry) => entry !== stored))
-      if (stored.kind === 'panel') {
-        previousCollapsed.delete(stored.panel.id())
-        lastExpandedSizes.delete(stored.panel.id())
+      disposed = true
+      if (registered) {
+        registered = false
+        setClientItems((previous) => previous.filter((entry) => entry !== stored))
+        if (stored.kind === 'panel') {
+          previousCollapsed.delete(stored.panel.id())
+          lastExpandedSizes.delete(stored.panel.id())
+        }
       }
     }
   }
@@ -741,7 +747,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     disabled,
     settled,
     resizing,
-    slotOverrides: pickSlotOverrides(local),
+    slotOverrides: pickSlotOverrides(props),
     registerItem,
     orderedItems,
     orderedPanels,
@@ -766,10 +772,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
         data-slot="resizable"
         {...rootSlot}
         {...rest}
-        ref={(element) => callRef(() => local.ref, element)}
-        id={local.id}
+        ref={(element) => callRef(() => props.ref, element)}
+        id={props.id}
       >
-        {local.children}
+        {props.children}
       </div>
     </ResizableProvider>
   )

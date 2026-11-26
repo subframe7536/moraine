@@ -3,7 +3,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 
 import { useDrawerContext } from './drawer-context'
@@ -27,7 +26,7 @@ export function DrawerTrigger<T extends ValidComponent = 'button'>(
   props: DrawerT.TriggerProps<T>,
 ): JSX.Element {
   const drawer = useDrawerContext()
-  const local = pick(props as DrawerT.TriggerProps, 'class', 'style')
+  const local = props as DrawerT.TriggerProps
   const rest = omit(props as DrawerT.TriggerProps, 'class', 'style')
   const {
     slots: { trigger: triggerSlot },

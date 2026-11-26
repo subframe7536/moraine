@@ -1,10 +1,9 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { onCleanup, omit } from 'solid-js'
+import { omit, onSettled } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
@@ -13,19 +12,17 @@ function createSheetHeader(headerKind: 'explicit' | 'shorthand') {
   return function SheetHeader<T extends ValidComponent = 'div'>(
     props: SheetT.HeaderProps<T>,
   ): JSX.Element {
-    const local = pick(props, 'as', 'class', 'style')
     const rest = omit(props, 'as', 'class', 'style')
     const sheet = useSheetContext()
     const content = useSheetContent()
-    const unregister = content.registerHeader(headerKind)
-    onCleanup(unregister)
+    onSettled(() => content.registerHeader(headerKind))
     const {
       slots: { header: headerSlot },
-    } = useRecipe(sheetRecipe, local, {
+    } = useRecipe(sheetRecipe, props, {
       slot: 'header',
       context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
     })
-    const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+    const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
     return <Root data-slot="sheet-header" {...headerSlot} {...(rest as Record<string, unknown>)} />
   }
 }

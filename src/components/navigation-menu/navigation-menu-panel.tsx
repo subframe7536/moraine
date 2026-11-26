@@ -1,10 +1,9 @@
 import { getOverflowAncestors } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { For, createEffect, createSignal, onCleanup, untrack } from 'solid-js'
+import { For, createEffect, createSignal, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { attachEventListener } from '../../shared/event-listener'
-import { settle } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 import { PopperContent } from '../shared/overlay/popper'
 import type { PopperProps } from '../shared/overlay/popper.types'
@@ -99,7 +98,7 @@ export function NavigationMenuPanel(): JSX.Element {
         return
       }
       measure(content, panel)
-      const onResize = () => settle(() => measure(content, panel))
+      const onResize = () => measure(content, panel)
       const Observer = panel.ownerDocument.defaultView?.ResizeObserver
       let observer: ResizeObserver | undefined
       if (Observer) {
@@ -149,11 +148,17 @@ export function NavigationMenuPanel(): JSX.Element {
       }}
     >
       {(floating) => {
-        context.setFloating(floating)
-        onCleanup(() => {
-          context.setFloating(undefined)
-          setSize({})
-        })
+        createEffect(
+          () => undefined,
+          () => {
+            context.setFloating(floating)
+            return () => {
+              context.setFloating(undefined)
+              setSize({})
+            }
+          },
+          { transparent: true },
+        )
         return (
           <div
             {...floating.contentProps}

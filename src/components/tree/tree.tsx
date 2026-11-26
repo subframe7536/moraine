@@ -1,10 +1,9 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup, untrack, omit } from 'solid-js'
+import { createEffect, createSignal, onCleanup, untrack, omit, createRenderEffect } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { TreeItemProvider, TreeProvider } from './tree-context'
@@ -20,26 +19,6 @@ import type { TreeState } from './tree-state'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Element {
-  const local = pick(
-    props,
-    'state',
-    'itemRender',
-    'actionRender',
-    'virtualizer',
-    'getItemIcon',
-    'expandIcon',
-    'loadingIcon',
-    'transition',
-    'forceMount',
-    'size',
-    'variant',
-    'indentGuide',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'ref',
-  )
   const rest = omit(
     props,
     'state',
@@ -63,12 +42,12 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(treeRecipe, local)
-  const state = untrack(() => local.state)
+  } = useRecipe(treeRecipe, props)
+  const state = untrack(() => props.state)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
   createEffect(
-    () => local.virtualizer,
+    () => props.virtualizer,
     (virtualizer) => {
       // Items outside the virtual window have no element to scroll into view.
       state.navigation.registerScroller(
@@ -83,7 +62,12 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
       )
     },
   )
-  bindElement(scrollElement, (element) => state.navigation.registerRoot(element))
+  createRenderEffect(scrollElement, (element) => {
+    if (!element) {
+      return
+    }
+    return state.navigation.registerRoot(element)
+  })
   onCleanup(() => {
     state.navigation.registerScroller(undefined)
   })
@@ -92,7 +76,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     return (
       <TreeItemProvider value={itemProps}>
         {renderWithProps(
-          local.itemRender ?? TreeDefaultItem,
+          props.itemRender ?? TreeDefaultItem,
           itemProps.item as TreeT.ItemRenderProps<T>,
         )}
       </TreeItemProvider>
@@ -102,7 +86,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
   const context: TreeContext = {
     state: state as unknown as TreeContext['state'],
     options: state.options as unknown as TreeContext['options'],
-    props: local as unknown as TreeContext['props'],
+    props: props as unknown as TreeContext['props'],
     get variants() {
       return {
         size: variants.size,
@@ -111,7 +95,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
         transition: variants.transition,
       }
     },
-    slotOverrides: pickSlotOverrides(local),
+    slotOverrides: pickSlotOverrides(props),
     RenderItem,
   }
 
@@ -124,12 +108,12 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
       {...rest}
       ref={(element: HTMLElement) => {
         setScrollElement(element)
-        callRef(() => local.ref, element)
+        callRef(() => props.ref, element)
       }}
     >
       <TreeProvider value={context}>
         <VirtualContent<TreeT.ItemInstance<T>>
-          virtualizer={local.virtualizer}
+          virtualizer={props.virtualizer}
           entries={state.flattenedItems()}
           scrollElement={scrollElement()}
           render={(item, _index, rowProps) => <RenderItem item={item} row={rowProps} />}

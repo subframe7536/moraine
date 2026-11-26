@@ -1,4 +1,5 @@
 import { renderToString } from '@solidjs/web'
+import { untrack } from 'solid-js'
 
 import { MoraineProvider } from '../provider/moraine-provider'
 
@@ -32,8 +33,13 @@ export function UseRecipeSsrFixture() {
     },
   )
   // Server bindings recompute on every read; repeated reads must agree.
-  const reads = [slots.root.class, slots.root.class, slots.label.class, slots.label.class]
-  const styles = [slots.root.style, slots.root.style, slots.label.style]
+  const reads = untrack(() => [
+    slots.root.class,
+    slots.root.class,
+    slots.label.class,
+    slots.label.class,
+  ])
+  const styles = untrack(() => [slots.root.style, slots.root.style, slots.label.style])
   return (
     <div
       {...slots.root}

@@ -1,9 +1,8 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, omit } from 'solid-js'
+import { createEffect, createSignal, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 
 import { useBaseDialogContext } from './base-dialog-context'
 import { baseDialogDataAttributes, baseDialogRecipe } from './base-dialog.recipe'
@@ -27,17 +26,16 @@ import type { BaseDialogT } from './base-dialog.types'
  * ```
  */
 export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element {
-  const local = pick(props, 'class', 'style', 'ref', 'children', 'scrollable')
   const rest = omit(props, 'class', 'style', 'ref', 'children', 'scrollable')
 
   const context = useBaseDialogContext()
   const {
     slots: { overlay: overlaySlot },
-  } = useRecipe(baseDialogRecipe, local, {
+  } = useRecipe(baseDialogRecipe, props, {
     slot: 'overlay',
     data: {
       overlay: baseDialogDataAttributes.overlay({
-        overlayScroll: () => local.scrollable,
+        overlayScroll: () => props.scrollable,
         expanded: context.open,
         closed: () => !context.open(),
         transition: context.transition,
@@ -47,10 +45,15 @@ export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element 
   })
 
   const [element, setElement] = createSignal<HTMLDivElement>()
-  bindElement(element, context.presence.registerElement)
+  createRenderEffect(element, (node) => {
+    if (!node) {
+      return
+    }
+    return context.presence.registerElement(node)
+  })
 
   createEffect(
-    () => Boolean(local.scrollable),
+    () => Boolean(props.scrollable),
     (scrollable) => {
       context.setOverlayScroll(scrollable)
       return () => context.setOverlayScroll(false)
@@ -64,10 +67,10 @@ export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element 
       {...rest}
       ref={(element) => {
         setElement(element)
-        callRef(() => local.ref, element)
+        callRef(() => props.ref, element)
       }}
     >
-      {local.children}
+      {props.children}
     </div>
   )
 }

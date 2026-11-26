@@ -1,9 +1,16 @@
-import { createRenderEffect, createRoot, createSignal, flush } from 'solid-js'
+import {
+  createRenderEffect,
+  createRoot,
+  createSignal,
+  flush,
+  createProjection,
+  untrack,
+} from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { cn } from '../theme/cn'
 
-import { callRef, createId } from './utils'
+import { callRef, createId, publishElement } from './utils'
 describe('callRef', () => {
   it('ignores element-valued refs', () => {
     const element = document.createElement('div')
@@ -142,5 +149,58 @@ describe('cn', () => {
     expect(cn('custom-unknown-class', 'another-class')).toBe('custom-unknown-class another-class')
     expect(cn('[--var-a:10px]', '[--var-b:20px]')).toBe('[--var-a:10px] [--var-b:20px]')
     expect(cn('[--var-a:10px]', '[--var-a:20px]')).toBe('[--var-a:20px]')
+  })
+})
+
+describe('publishElement', () => {
+  it('clears the target signal only while it still holds the published element', () => {
+    let current: string | undefined
+    const publish = publishElement(
+      () => current,
+      (next) => {
+        current = next
+      },
+    )
+
+    const unpublishA = publish('a')
+    expect(current).toBe('a')
+
+    const unpublishB = publish('b')
+    expect(current).toBe('b')
+
+    unpublishA()
+    expect(current).toBe('b')
+
+    unpublishB()
+    expect(current).toBeUndefined()
+  })
+})
+
+describe('createProjection selection cleanup', () => {
+  it('prunes old keys when dynamic items change so the projection does not grow unboundedly', () => {
+    const { dispose, setActive, activeMap } = createRoot((stop) => {
+      const [active, updateActive] = createSignal<string | undefined>('item-0')
+      let previous: string | undefined
+      const map = createProjection<Record<string, boolean>>((draft) => {
+        const next = active()
+        if (previous !== undefined && previous !== next) {
+          delete draft[previous]
+        }
+        if (next !== undefined) {
+          draft[next] = true
+        }
+        previous = next
+      }, {})
+      return { dispose: stop, setActive: updateActive, activeMap: map }
+    })
+
+    for (let i = 1; i <= 50; i += 1) {
+      flush(() => setActive(`item-${i}`))
+    }
+
+    expect(untrack(() => activeMap['item-50'])).toBe(true)
+    expect(untrack(() => activeMap['item-0'])).toBeUndefined()
+    expect(untrack(() => Object.keys(activeMap))).toEqual(['item-50'])
+    dispose()
   })
 })

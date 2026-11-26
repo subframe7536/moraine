@@ -1,13 +1,12 @@
 import type { Placement, VirtualElement } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createSignal, onCleanup, untrack } from 'solid-js'
+import { createSignal, onCleanup, untrack, createProjection } from 'solid-js'
 
 import type { KeyBindingOptions } from '../../../../shared/keyboard'
 import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../../../shared/selectable-collection-navigation'
 import { createTypeahead } from '../../../../shared/typeahead'
-import { createSelector } from '../../../../shared/utils'
 import { focusWithoutScrolling } from '../focus'
 
 import type { OverlayMenuItem, OverlayMenuRadioGroupItem } from './types'
@@ -148,7 +147,7 @@ export interface OverlayMenuRegisteredItem {
 }
 
 export interface OverlayMenuRegisteredSubmenu {
-  close: () => void
+  close: (syncFlush?: boolean) => void
   id: string
 }
 
@@ -169,6 +168,7 @@ export interface OverlayMenuLayerState {
   closeSubmenus: (
     exceptId?: string,
     registeredSubmenus?: Array<OverlayMenuRegisteredSubmenu>,
+    syncFlush?: boolean,
   ) => void
   submenus: Accessor<Array<OverlayMenuRegisteredSubmenu>>
   /** Whether `node` sits inside this layer's positioner or a descendant submenu positioner. */
@@ -365,20 +365,23 @@ export function focusElement(element: HTMLElement | undefined): void {
 export function useOverlayMenuLayerState(
   subtreeBranches?: Set<HTMLElement>,
 ): OverlayMenuLayerState {
-  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined, {
-    ownedWrite: true,
-  })
+  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom-start')
-  const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined, {
-    ownedWrite: true,
-  })
-  const isHighlighted = createSelector<string | undefined, string>(highlightedItemId)
-  const [items, setItems] = createSignal<Array<OverlayMenuRegisteredItem>>([], {
-    ownedWrite: true,
-  })
-  const [submenus, setSubmenus] = createSignal<Array<OverlayMenuRegisteredSubmenu>>([], {
-    ownedWrite: true,
-  })
+  const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined)
+  let previousHighlightedId: string | undefined
+  const highlightedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = highlightedItemId()
+    if (previousHighlightedId !== undefined && previousHighlightedId !== next) {
+      delete draft[previousHighlightedId]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousHighlightedId = next
+  }, {})
+  const isHighlighted = (id: string): boolean => highlightedMap[id] === true
+  const [items, setItems] = createSignal<Array<OverlayMenuRegisteredItem>>([])
+  const [submenus, setSubmenus] = createSignal<Array<OverlayMenuRegisteredSubmenu>>([])
   let pointerGraceIntent: OverlayMenuPointerGraceIntent | null = null
   let pointerGraceTimeoutId = 0
   let pointerGraceWindow: Window | undefined
@@ -389,13 +392,17 @@ export function useOverlayMenuLayerState(
       }
     | undefined
 
-  const closeSubmenus = (exceptId?: string, registeredSubmenus = submenus()): void => {
+  const closeSubmenus = (
+    exceptId?: string,
+    registeredSubmenus = untrack(submenus),
+    syncFlush = true,
+  ): void => {
     for (const submenu of [...registeredSubmenus].reverse()) {
       if (submenu.id === exceptId) {
         continue
       }
 
-      submenu.close()
+      submenu.close(syncFlush)
     }
   }
 

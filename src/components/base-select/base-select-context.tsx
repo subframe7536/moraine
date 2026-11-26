@@ -6,9 +6,11 @@ import {
   createMemo,
   createSignal,
   onCleanup,
+  flush,
   onSettled,
   untrack,
   For,
+  createProjection,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -18,7 +20,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
 import { createTypeahead } from '../../shared/typeahead'
-import { createId, createSelector, settle } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { dataSlotName } from '../../theme/data-slot'
 import { useFormField } from '../field/field-context'
 import {
@@ -175,11 +177,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
 
   function setOpen(next: boolean) {
     // Open writes arrive from unowned delegated handlers; settle them.
-    settle(() => {
-      if (!next || !field.disabled()) {
-        setOpenValue(next)
-      }
-    })
+    if (!next || !field.disabled()) {
+      setOpenValue(next)
+    }
   }
   function change(next: Value) {
     if (locked()) {
@@ -190,7 +190,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     if (selectionEqual(before, after)) {
       return
     }
-    settle(() => {
+    flush(() => {
       resetNativeInvalid()
       setSelection(after)
       if (props.value === undefined) {
@@ -244,14 +244,40 @@ export function createSelectState<T extends BaseSelectT.Item>(
     const current = highlightedValue()
     return current === undefined ? -1 : (navigation().indexByValue.get(current) ?? -1)
   }
-  const isHighlighted = createSelector<T['value'] | undefined, T['value']>(
-    highlightedValue,
-    sameValue,
-  )
-  const isSelected = createSelector<ReadonlySet<T['value']>, T['value']>(
-    selectedValues,
-    (item, selected) => selected.has(item),
-  )
+  const toValueKey = (value: T['value']): string =>
+    typeof value === 'number' ? `n:${value}` : `s:${value}`
+  let previousHighlightedKey: string | undefined
+  const highlightedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = highlightedValue()
+    const nextKey = next === undefined ? undefined : toValueKey(next)
+    if (previousHighlightedKey !== undefined && previousHighlightedKey !== nextKey) {
+      delete draft[previousHighlightedKey]
+    }
+    if (nextKey !== undefined) {
+      draft[nextKey] = true
+    }
+    previousHighlightedKey = nextKey
+  }, {})
+  const isHighlighted = (value: T['value']): boolean => highlightedMap[toValueKey(value)] === true
+
+  let previousSelectedKeys = new Set<string>()
+  const selectedMap = createProjection<Record<string, boolean>>((draft) => {
+    const nextKeys = new Set<string>()
+    for (const value of selectedValues()) {
+      const key = toValueKey(value)
+      nextKeys.add(key)
+      if (!previousSelectedKeys.has(key)) {
+        draft[key] = true
+      }
+    }
+    for (const key of previousSelectedKeys) {
+      if (!nextKeys.has(key)) {
+        delete draft[key]
+      }
+    }
+    previousSelectedKeys = nextKeys
+  }, {})
+  const isSelected = (value: T['value']): boolean => selectedMap[toValueKey(value)] === true
   createEffect(
     () => [open(), navigation(), selectedValues()] as const,
     ([isOpen, nav, selected]) => {

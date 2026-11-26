@@ -9,6 +9,7 @@ import {
   merge,
   onCleanup,
   omit,
+  createProjection,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -18,14 +19,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import {
-  callHandler,
-  callRef,
-  createId,
-  isAndroidUserAgent,
-  pick,
-  createSelector,
-} from '../../shared/utils'
+import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
 import { Icon } from '../icon'
 import { KbdGroup } from '../kbd-group'
 import { List } from '../list'
@@ -177,41 +171,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
   const { locale, dir: direction } = useLocale()
-  const local = pick(
-    props,
-    'ref',
-    'inputRef',
-    'items',
-    'placeholder',
-    'searchValue',
-    'defaultSearchValue',
-    'onSearchValueChange',
-    'onSelect',
-    'searchMaxLength',
-    'autoFocus',
-    'leading',
-    'loadingIcon',
-    'closeIcon',
-    'closable',
-    'onCloseRequest',
-    'closeOnSelect',
-    'loading',
-    'getItemSearchText',
-    'filterMethod',
-    'descriptionPosition',
-    'emptyRender',
-    'footerRender',
-    'itemRender',
-    'virtualizer',
-    'listboxProps',
-    'itemProps',
-    'inputProps',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'translations',
-  )
   const rest = omit(
     props,
     'ref',
@@ -250,7 +209,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const messages = useMessages(
     'commandPalette',
     defaultCommandPaletteMessages,
-    () => local.translations,
+    () => props.translations,
   )
   const {
     slots: {
@@ -268,7 +227,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     },
     variants,
     slotWith,
-  } = useRecipe(commandPaletteRecipe, local, {
+  } = useRecipe(commandPaletteRecipe, props, {
     data: {
       inputLeading: commandPaletteDataAttributes.inputLeading(() => ({
         loading: () => merged.loading,
@@ -289,7 +248,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       closeIcon: 'icon-close',
     },
 
-    local,
+    props,
   )
 
   const search = useSearchQuery({
@@ -358,7 +317,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   createEffect(
-    () => [inputElement(), (() => merged.autoFocus)()],
+    () => [inputElement(), merged.autoFocus],
     ([input, autoFocus]) => {
       if (!autoFocus || !input) {
         return
@@ -440,7 +399,18 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     const keys = enabledKeys()
     return previous !== undefined && keys.has(previous) ? previous : keys.values().next().value
   })
-  const isActive = createSelector(activeKey)
+  let previousActiveKey: string | undefined
+  const activeMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = activeKey()
+    if (previousActiveKey !== undefined && previousActiveKey !== next) {
+      delete draft[previousActiveKey]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousActiveKey = next
+  }, {})
+  const isActive = (key: string): boolean => activeMap[key] === true
   const activeDescendantId = createMemo(() =>
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
   )
@@ -850,7 +820,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       data-slot="command-palette"
       {...rootSlot}
       {...rest}
-      ref={(el) => callRef(() => local.ref, el)}
+      ref={(el) => callRef(() => props.ref, el)}
     >
       <div data-slot="command-palette-input-wrapper" {...inputWrapperSlot}>
         <Icon
@@ -865,7 +835,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           ref={(el) => {
             setInputElement(el)
             callRef(() => merged.inputProps?.ref, el)
-            callRef(() => local.inputRef, el)
+            callRef(() => props.inputRef, el)
           }}
           data-slot="command-palette-input"
           {...inputSlot}

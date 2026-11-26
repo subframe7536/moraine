@@ -4,7 +4,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { useRegisteredContentId } from '../shared/overlay/content-anatomy'
 
 import { useDrawerContent, useDrawerContext } from './drawer-context'
@@ -32,18 +31,17 @@ import type { DrawerT } from './drawer.types'
 export function DrawerTitle<T extends ValidComponent = 'h2'>(
   props: DrawerT.TitleProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style', 'id')
   const rest = omit(props, 'as', 'class', 'style', 'id')
   const drawer = useDrawerContext()
   const content = useDrawerContent()
-  const id = useRegisteredContentId(() => local.id, content.registerTitle)
+  const id = useRegisteredContentId(() => props.id, content.registerTitle)
   const {
     slots: { title: titleSlot },
-  } = useRecipe(drawerRecipe, local, {
+  } = useRecipe(drawerRecipe, props, {
     slot: 'title',
     context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
   })
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'h2')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'h2')
   return (
     <Root
       data-slot="drawer-title"

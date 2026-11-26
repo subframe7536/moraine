@@ -16,7 +16,7 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { toNumber } from '../../provider/locale/number'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId, pick, settle } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
@@ -67,56 +67,6 @@ type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
  * ```
  */
 export function NumberInput(props: NumberInputProps): JSX.Element {
-  const local = pick(
-    props,
-    'ref',
-    'inputRef',
-    'id',
-    'name',
-    'form',
-    'value',
-    'defaultValue',
-    'min',
-    'max',
-    'step',
-    'largeStep',
-    'locale',
-    'formatOptions',
-    'stepSnapping',
-    'onValueChange',
-    'orientation',
-    'placeholder',
-    'increment',
-    'incrementIcon',
-    'incrementDisabled',
-    'decrement',
-    'decrementIcon',
-    'decrementDisabled',
-    'autoFocus',
-    'wheel',
-    'autoFocusDelay',
-    'onBlur',
-    'onFocus',
-    'onStep',
-    'repeat',
-    'disabled',
-    'required',
-    'readOnly',
-    'aria-label',
-    'aria-labelledby',
-    'aria-describedby',
-    'aria-invalid',
-    'aria-required',
-    'aria-disabled',
-    'aria-readonly',
-    'size',
-    'variant',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'translations',
-  )
   const rest = omit(
     props,
     'ref',
@@ -168,14 +118,14 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'translations',
   )
   const themeField = useFieldContext()
-  const messages = useMessages('numberInput', defaultNumberInputMessages, () => local.translations)
+  const messages = useMessages('numberInput', defaultNumberInputMessages, () => props.translations)
   const providerLocale = useLocale().locale
-  const locale = () => local.locale ?? providerLocale()
+  const locale = () => props.locale ?? providerLocale()
   const {
     slots,
     slots: { root: rootSlot, input: inputSlot, controls: controlsSlot },
     variants,
-  } = useRecipe(numberInputRecipe, local, {
+  } = useRecipe(numberInputRecipe, props, {
     data: {
       root: numberInputDataAttributes.root(() => fieldDataState),
       input: numberInputDataAttributes.input(() => ({
@@ -199,7 +149,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     {
       stepSnapping: true,
     },
-    local,
+    props,
   )
   const formatOptions = () => merged.formatOptions
 
@@ -331,12 +281,10 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     offset: number,
   ): void {
     // Delegated key/wheel handlers run unowned; settle the stepped value write.
-    settle(() => {
-      const details = stepDetails(kind, emitter, event, offset)
-      if (kind === 'increment' ? state.incrementValue(offset) : state.decrementValue(offset)) {
-        merged.onStep?.(details)
-      }
-    })
+    const details = stepDetails(kind, emitter, event, offset)
+    if (kind === 'increment' ? state.incrementValue(offset) : state.decrementValue(offset)) {
+      merged.onStep?.(details)
+    }
   }
 
   function isControlInteractive(kind: ControlKind): boolean {
@@ -369,13 +317,11 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   const press = createNumberInputPress({
     isInteractive: isControlInteractive,
     onStep: (kind) => {
-      settle(() => {
-        if (kind === 'increment') {
-          state.incrementValue()
-        } else {
-          state.decrementValue()
-        }
-      })
+      if (kind === 'increment') {
+        state.incrementValue()
+      } else {
+        state.decrementValue()
+      }
     },
     emitStep: (kind, event) => merged.onStep?.(stepDetails(kind, 'button', event, stepValue())),
     focusInput: () => inputEl?.focus(),
@@ -526,7 +472,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       {...rootSlot}
       {...rest}
       id={`${field.id()}-root`}
-      ref={(element) => callRef(() => local.ref, element)}
+      ref={(element) => callRef(() => props.ref, element)}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
@@ -559,7 +505,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         ref={(e) => {
           inputEl = e
           field.setControlRef(e)
-          callRef(() => local.inputRef, e)
+          callRef(() => props.inputRef, e)
         }}
         id={field.id()}
         form={merged.form}
@@ -589,7 +535,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         onBlur={onBlur}
         onFocus={onFocus}
         onWheel={onWheel}
-        {...mergeFieldAriaAttributes(local, field.ariaAttrs())}
+        {...mergeFieldAriaAttributes(props, field.ariaAttrs())}
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>

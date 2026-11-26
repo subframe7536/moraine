@@ -1,9 +1,8 @@
 import type { JSX } from '@solidjs/web'
 import { isServer } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { For, createSignal, getOwner, onCleanup, runWithOwner } from 'solid-js'
+import { For, createSignal, getOwner, onCleanup, runWithOwner, flush } from 'solid-js'
 
-import { settle } from '../../shared/utils'
 import { inertFeedbackHandle } from '../shared/overlay/feedback/handle'
 import { createHostRegistry } from '../shared/overlay/feedback/host-registry'
 import type { FeedbackHost } from '../shared/overlay/feedback/host-registry'
@@ -74,9 +73,7 @@ function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): Alert
  */
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const owner = getOwner()
-  const [dialogs, setDialogs] = createSignal<Array<AlertDialogRecord>>([], {
-    ownedWrite: true,
-  })
+  const [dialogs, setDialogs] = createSignal<Array<AlertDialogRecord>>([])
   const removeDialog = (record: AlertDialogRecord): void => {
     setDialogs((current) => current.filter((item) => item !== record))
   }
@@ -113,7 +110,7 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
       )
       created.remove = () => removeDialog(created)
       // The caller's owner may already be disposed; write the host-owned list unowned.
-      runWithOwner(null, () => settle(() => setDialogs((current) => [...current, created])))
+      runWithOwner(null, () => flush(() => setDialogs((current) => [...current, created])))
       return created.handle
     },
     update(id, options) {

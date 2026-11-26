@@ -4,7 +4,7 @@ import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { requireTreeItemContext, useTreeContext } from './tree-context'
@@ -36,15 +36,7 @@ import type { TreeT } from './tree.types'
 export function TreeItemTrigger<T extends ValidComponent = 'span'>(
   props: TreeT.ItemTriggerProps<T>,
 ): JSX.Element {
-  const local = pick(
-    props as TreeT.ItemTriggerProps,
-    'as',
-    'icon',
-    'children',
-    'class',
-    'style',
-    'onClick',
-  )
+  const local = props as TreeT.ItemTriggerProps
   const rest = omit(
     props as TreeT.ItemTriggerProps,
     'as',

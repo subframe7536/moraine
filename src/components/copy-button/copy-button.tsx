@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { Show, children as resolveChildren, createMemo, merge, omit } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -9,7 +9,7 @@ import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 
@@ -44,35 +44,11 @@ export function CopyButton<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   const group = useButtonGroupContext()
 
-  const local = pick(
-    props as CopyButtonProps<T> & {
-      ref?: unknown
-      onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
-      'aria-label'?: string
-    },
-    'ref',
-    'as',
-    'value',
-    'resetDelay',
-    'disabled',
-    'icon',
-    'copiedIcon',
-    'iconPosition',
-    'onCopySuccess',
-    'onCopyError',
-    'onStatusChange',
-    'variant',
-    'tone',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'onClick',
-    'children',
-    'aria-label',
-    'translations',
-    'size',
-  )
+  const local = props as CopyButtonProps<T> & {
+    ref?: unknown
+    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    'aria-label'?: string
+  }
   const rest = omit(
     props as CopyButtonProps<T> & {
       ref?: unknown
@@ -117,7 +93,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
 
-  const child = resolveChildren(() => local.children)
+  const child = resolveChildren(() => local.children as JSX.Element)
   const resolvedChildren = createMemo(() => {
     const value = child() as CopyButtonT.Base['children']
     if (typeof value !== 'function') {
@@ -145,15 +121,33 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const hasIcon = () => local.icon !== false && local.icon !== null
   const hasLabel = () => hasContent(resolvedChildren())
   const size = (): CopyButtonStyleVariants['size'] => {
-    const base = String(local.size ?? group?.size ?? 'md').replace(/^icon-/, '')
+    const base = (local.size ?? group?.size ?? 'md').replace(/^icon-/, '')
     return (hasIcon() && !hasLabel() ? `icon-${base}` : base) as CopyButtonStyleVariants['size']
   }
 
-  const recipeProps = merge(local, {
+  const recipeProps = {
+    get variant() {
+      return local.variant
+    },
+    get tone() {
+      return local.tone
+    },
     get size() {
       return size()
     },
-  })
+    get class() {
+      return local.class
+    },
+    get style() {
+      return local.style
+    },
+    get classes() {
+      return local.classes
+    },
+    get styles() {
+      return local.styles
+    },
+  }
   const {
     slots: { root: rootSlot, icon: iconSlot, label: labelSlot },
   } = useRecipe(copyButtonRecipe, recipeProps, {

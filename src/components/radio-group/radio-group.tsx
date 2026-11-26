@@ -16,7 +16,7 @@ import { useRecipe } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler, createKeyUpHandler, normalizeKey } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { callHandler, callRef, createId, pick } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -65,34 +65,6 @@ interface NormalizedRadioGroupItem {
  * ```
  */
 export function RadioGroup(props: RadioGroupProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'name',
-    'form',
-    'value',
-    'defaultValue',
-    'required',
-    'disabled',
-    'readOnly',
-    'orientation',
-    'items',
-    'legend',
-    'loop',
-    'onValueChange',
-    'variant',
-    'indicatorPosition',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'ref',
-    'onFocus',
-    'onBlur',
-    'onFocusIn',
-    'onFocusOut',
-  )
   const rest = omit(
     props,
     'id',
@@ -134,7 +106,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     },
     slotWith,
     variants,
-  } = useRecipe(radioGroupRecipe, local, {
+  } = useRecipe(radioGroupRecipe, props, {
     data: {
       root: radioGroupDataAttributes.root(() => ({
         invalid: field.invalid,
@@ -156,7 +128,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     {
       loop: true,
     },
-    local,
+    props,
     {
       get orientation(): Orientation {
         return variants.orientation ?? 'vertical'
@@ -347,7 +319,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   )
 
   const onGroupFocusIn: JSX.EventHandler<HTMLFieldSetElement, FocusEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, local.onFocusIn)
+    const { defaultPrevented } = callHandler(event, props.onFocusIn)
     if (defaultPrevented) {
       return
     }
@@ -357,12 +329,12 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       return
     }
 
-    callHandler(event, local.onFocus)
+    callHandler(event, props.onFocus)
     field.emit('focus', event)
   }
 
   const onGroupFocusOut: JSX.EventHandler<HTMLFieldSetElement, FocusEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, local.onFocusOut)
+    const { defaultPrevented } = callHandler(event, props.onFocusOut)
     if (defaultPrevented) {
       return
     }
@@ -372,7 +344,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       return
     }
 
-    callHandler(event, local.onBlur)
+    callHandler(event, props.onBlur)
     field.emit('blur', event)
   }
 
@@ -384,7 +356,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       {...rootSlot}
       {...rest}
       id={`${groupId()}-root`}
-      ref={(element) => callRef(() => local.ref, element)}
+      ref={(element) => callRef(() => props.ref, element)}
     >
       <fieldset
         role="radiogroup"

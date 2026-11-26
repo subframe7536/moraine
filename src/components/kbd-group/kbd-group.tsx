@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { createMemo, For, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 import { Kbd } from '../kbd/kbd'
 import type { KbdT } from '../kbd/kbd.types'
 
@@ -36,17 +35,6 @@ function toItemProps(item: KbdGroupT.Item): KbdT.Props {
  * ```
  */
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
-  const local = pick(
-    props,
-    'items',
-    'separator',
-    'size',
-    'variant',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  )
   const rest = omit(
     props,
     'items',
@@ -61,10 +49,10 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
   const {
     slots: { root: rootSlot, item: itemSlot },
     variants,
-  } = useRecipe(kbdGroupRecipe, local)
+  } = useRecipe(kbdGroupRecipe, props)
 
   const normalizedItems = createMemo<Array<NormalizedKbdItem>>((previous = []) => {
-    const rawItems = local.items ?? []
+    const rawItems = props.items ?? []
     const occurrences = new Map<KbdGroupT.Item, number>()
     const prevMap = new Map<string, NormalizedKbdItem>()
     for (const p of previous) {
@@ -99,8 +87,8 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
               />
               <Show when={index() < normalizedItems().length - 1}>
                 <Show
-                  when={typeof local.separator === 'function' && local.separator}
-                  fallback={(local.separator as JSX.Element) ?? '+'}
+                  when={typeof props.separator === 'function' && props.separator}
+                  fallback={(props.separator as JSX.Element) ?? '+'}
                   keyed
                 >
                   {(Separator) => <Separator index={index()} />}

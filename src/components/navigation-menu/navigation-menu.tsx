@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 import { mergePopperElementProps } from '../shared/overlay/popper'
 
 import { NavigationMenuContent } from './navigation-menu-content'
@@ -45,29 +44,6 @@ import type { NavigationMenuProps } from './navigation-menu.types'
  * ```
  */
 export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'value',
-    'defaultValue',
-    'onValueChange',
-    'disabled',
-    'orientation',
-    'openDelay',
-    'closeDelay',
-    'placement',
-    'align',
-    'gutter',
-    'shift',
-    'overflowPadding',
-    'flip',
-    'slide',
-    'children',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  )
   const rest = omit(
     props,
     'id',
@@ -94,15 +70,15 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     data: {
       root: navigationMenuDataAttributes.root(() => ({
-        disabled: () => local.disabled,
+        disabled: () => props.disabled,
         orientation: context.orientation,
       })),
     },
   })
-  const context = createNavigationMenuState(local, () => variants.orientation)
+  const context = createNavigationMenuState(props, () => variants.orientation)
   const attributes = mergePopperElementProps<HTMLElement>(
     {
       ref: context.setRootElement,
@@ -122,7 +98,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
   return (
     <NavigationMenuProvider value={context}>
       <nav data-slot="navigation-menu" {...rootSlot} {...attributes} id={context.id()}>
-        {local.children}
+        {props.children}
         <NavigationMenuPanel />
       </nav>
     </NavigationMenuProvider>

@@ -3,6 +3,7 @@ import {
   children as resolveChildren,
   createMemo,
   For,
+  Repeat,
   merge,
   onSettled,
   Show,
@@ -13,7 +14,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId, pick } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -44,41 +45,6 @@ import type { SliderProps, SliderT } from './slider.types'
 export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   props: SliderProps<TValue>,
 ): JSX.Element {
-  const local = pick(
-    props,
-    'ref',
-    'inputRef',
-    'id',
-    'name',
-    'form',
-    'value',
-    'defaultValue',
-    'required',
-    'disabled',
-    'readOnly',
-    'min',
-    'max',
-    'step',
-    'minStepsBetweenThumbs',
-    'markers',
-    'allowThumbCrossing',
-    'thumbAlignment',
-    'onValueChange',
-    'onValueCommit',
-    'onFocus',
-    'onBlur',
-    'orientation',
-    'reversed',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'aria-label',
-    'translations',
-    'formatOptions',
-    'children',
-  )
   const rest = omit(
     props,
     'ref',
@@ -115,12 +81,12 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'children',
   )
   const themeField = useFieldContext()
-  const messages = useMessages('slider', defaultSliderMessages, () => local.translations)
+  const messages = useMessages('slider', defaultSliderMessages, () => props.translations)
   const {
     slots: { root: rootSlot, track: trackSlot, range: rangeSlot },
     variants,
     slotWith,
-  } = useRecipe(sliderRecipe, local, {
+  } = useRecipe(sliderRecipe, props, {
     data: {
       root: sliderDataAttributes.root(() => ({
         dragging: slider.dragging,
@@ -158,7 +124,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       allowThumbCrossing: true,
       reversed: false,
     },
-    local,
+    props,
     {
       get orientation(): Orientation {
         return variants.orientation ?? 'horizontal'
@@ -192,11 +158,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       field.emit('change')
     },
     onFocus(event) {
-      callHandler(event, local.onFocus)
+      callHandler(event, props.onFocus)
       field.emit('focus', event)
     },
     onBlur(event) {
-      callHandler(event, local.onBlur)
+      callHandler(event, props.onBlur)
       field.emit('blur', event)
     },
   })
@@ -224,8 +190,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
 
   const thumbCount = createMemo(() => slider.currentValues().length)
   const isMultiple = createMemo(() => thumbCount() > 1)
-  const thumbIndexes = createMemo(() => Array.from({ length: thumbCount() }, (_, index) => index))
-  const child = resolveChildren(() => local.children as JSX.Element)
+  const child = resolveChildren(() => props.children as JSX.Element)
   const resolvedChildren = createMemo(() => {
     const value = child() as SliderT.Base<TValue>['children']
     if (typeof value !== 'function') {
@@ -256,9 +221,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-slot="slider"
       {...rootSlot}
       {...rest}
-      ref={(element) => callRef(() => local.ref, element)}
+      ref={(element) => callRef(() => props.ref, element)}
       id={`${field.id()}-root`}
-      aria-label={local['aria-label']}
+      aria-label={props['aria-label']}
       {...field.ariaAttrs()}
     >
       <div
@@ -291,7 +256,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         </Show>
       </div>
 
-      <For each={thumbIndexes()}>
+      <Repeat count={thumbCount()}>
         {(thumbIndex) => {
           const thumbSlot = slotWith('thumb', {
             enforced: () => ({
@@ -363,7 +328,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 ref={(element) => {
                   inputEls[thumbIndex] = element
                   if (thumbIndex === 0) {
-                    callRef(() => local.inputRef, element)
+                    callRef(() => props.inputRef, element)
                   }
                 }}
                 type="range"
@@ -385,7 +350,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             </div>
           )
         }}
-      </For>
+      </Repeat>
 
       {resolvedChildren()}
     </div>

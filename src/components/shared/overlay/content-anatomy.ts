@@ -1,30 +1,20 @@
-import { createEffect, createSignal, createUniqueId, onCleanup } from 'solid-js'
+import { createEffect, createSignal, createUniqueId } from 'solid-js'
 export function useRegisteredContentId(
   source: () => string | undefined,
   register: (id: string) => () => void,
 ) {
   const fallbackId = createUniqueId()
   const id = () => source() ?? fallbackId
-  let unregister = register(id())
-
-  createEffect(
-    id,
-    (next) => {
-      unregister()
-      unregister = register(next)
-    },
-    { defer: true },
-  )
-  onCleanup(() => unregister())
+  createEffect(id, (next) => register(next))
   return id
 }
 
 /** State owned by one mounted styled modal surface. */
 export function createContentAnatomy() {
-  const [headers, setHeaders] = createSignal(0, { ownedWrite: true })
-  const [explicitHeaders, setExplicitHeaders] = createSignal(0, { ownedWrite: true })
-  const [titles, setTitles] = createSignal<Array<string>>([], { ownedWrite: true })
-  const [descriptions, setDescriptions] = createSignal<Array<string>>([], { ownedWrite: true })
+  const [headers, setHeaders] = createSignal(0)
+  const [explicitHeaders, setExplicitHeaders] = createSignal(0)
+  const [titles, setTitles] = createSignal<Array<string>>([])
+  const [descriptions, setDescriptions] = createSignal<Array<string>>([])
 
   const registerHeader = (kind: 'explicit' | 'shorthand') => {
     setHeaders((count) => count + 1)

@@ -1,11 +1,10 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { createSignal, Show, omit } from 'solid-js'
+import { createSignal, Show, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
 import {
@@ -34,7 +33,7 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
-  const local = pick(props as CollapsibleT.ContentProps, 'as', 'class', 'style', 'ref')
+  const local = props as CollapsibleT.ContentProps
   const rest = omit(props as CollapsibleT.ContentProps, 'as', 'class', 'style', 'ref')
   const context = useCollapsibleContext()
   if (!context) {
@@ -56,7 +55,10 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
 
   const shouldRenderContent = () => disclosure.shouldMount()
   const [wrapper, setWrapper] = createSignal<HTMLDivElement>()
-  bindElement(wrapper, (element) => {
+  createRenderEffect(wrapper, (element) => {
+    if (!element) {
+      return
+    }
     const releaseContent = disclosure.registerContentElement(element)
     const releaseMeasure = disclosure.registerMeasureElement(element)
     return () => {

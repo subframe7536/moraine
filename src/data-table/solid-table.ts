@@ -7,15 +7,14 @@ import {
   createMemo,
   createRoot,
   createSignal,
-  flush,
   getOwner,
   isHydrating,
   merge,
   onCleanup,
+  onHydrationEnd,
   untrack,
 } from 'solid-js'
 
-import { settle } from '../shared/utils'
 /**
  * Lightweight Solid-native signal subscription without relying on `observable`.
  * `defer: true` aligns with `@tanstack/store` subscription semantics, notifying
@@ -33,10 +32,8 @@ function subscribeToSignal<T>(
   if (!cb) {
     return { unsubscribe: () => {} }
   }
-  let disposed = false
   let dispose: (() => void) | undefined
   const unsubscribe = () => {
-    disposed = true
     subscriptions.delete(unsubscribe)
     dispose?.()
   }
@@ -50,11 +47,7 @@ function subscribeToSignal<T>(
       createEffect(
         signal,
         (val) => {
-          // Subscriber callbacks are notification-time snapshots: table-core
-          // re-reads sibling atoms inside `cb`, which must not subscribe.
-          if (!disposed) {
-            untrack(() => cb(val))
-          }
+          cb(val)
         },
         { defer: true, transparent: true },
       )
@@ -62,6 +55,30 @@ function subscribeToSignal<T>(
     { transparent: true },
   )
   return { unsubscribe }
+}
+
+/**
+ * Merges default options with reactive overrides while preserving `undefined` fallback semantics.
+ * Solid 2's `merge()` treats explicit `undefined` getters as overrides, so this helper falls back
+ * to `defaults[key]` whenever `overrides[key]` evaluates to `undefined`.
+ */
+function mergeWithDefaults(
+  defaults: Record<string, unknown>,
+  overrides: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+  const keys = new Set([...Object.keys(defaults), ...Object.keys(overrides)])
+  for (const key of keys) {
+    Object.defineProperty(result, key, {
+      enumerable: true,
+      configurable: true,
+      get() {
+        const value = overrides[key]
+        return value !== undefined ? value : defaults[key]
+      },
+    })
+  }
+  return result
 }
 
 /**
@@ -81,7 +98,7 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
     createOptionsStore: true,
     wrapExternalAtoms: false,
     schedule: (fn: () => void) => queueMicrotask(fn),
-    batch: flush,
+    batch: (fn: () => void) => fn(),
     untrack,
     createReadonlyAtom: <T>(fn: () => T, options?: TableAtomOptions<T>) => {
       const memo = createMemo(fn, {
@@ -97,32 +114,29 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
       })
     },
     createWritableAtom: <T>(initialValue: T, options?: TableAtomOptions<T>) => {
-      const [signal, setSignal] = createSignal<Exclude<T, (...args: Array<never>) => unknown>>(
-        () => initialValue as Exclude<T, (...args: Array<never>) => unknown>,
-        {
-          equals: options?.compare,
-          name: options?.debugName,
-          ownedWrite: true,
-        },
+      type Value = Exclude<T, (...args: Array<never>) => unknown>
+      const signalOptions = {
+        equals: options?.compare,
+        name: options?.debugName,
+        ...(options?.debugName === 'table/optionsStore' ||
+        options?.debugName?.startsWith('table/baseAtoms/')
+          ? { ownedWrite: true }
+          : {}),
+      }
+      const [signal, setSignal] = createSignal<Value>(
+        (typeof initialValue === 'function' ? () => initialValue as Value : initialValue) as never,
+        signalOptions,
       )
       // Returned function is a reactive accessor wrapper for TanStack Table atoms.
       // oxlint-disable-next-line subf/solid-reactivity
       return Object.assign(() => signal(), {
         get: () => signal(),
         set: (updater: T | ((prev: T) => T)) => {
-          // Table-core mutators run unowned; settle so the write is visible to
-          // the table's derived memos before the caller reads them back.
-          settle(() => {
-            if (typeof updater === 'function') {
-              setSignal(
-                updater as (
-                  prev: Exclude<T, (...args: Array<never>) => unknown>,
-                ) => Exclude<T, (...args: Array<never>) => unknown>,
-              )
-            } else {
-              setSignal(() => updater as Exclude<T, (...args: Array<never>) => unknown>)
-            }
-          })
+          if (typeof updater === 'function') {
+            setSignal(updater as (prev: Value) => Value)
+          } else {
+            setSignal(() => updater as Value)
+          }
         },
         subscribe: (observerOrFn: Observer<T>) =>
           subscribeToSignal(signal, observerOrFn, subscriptions),
@@ -136,7 +150,7 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
 /**
  * Creates a reactive Solid table instance from table-core.
  * Avoids `createComputed` and `observable` entirely by delegating reactivity
- * directly to Solid's signals and `merge` getters.
+ * directly to Solid's signals and live option getters.
  */
 export function createTable<TFeatures extends TableFeatures, TData extends RowData>(
   tableOptions: TableOptions<TFeatures, TData>,
@@ -153,8 +167,7 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
   })
   const resolvedOptions = merge(
     {
-      mergeOptions: (defaultOptions: Record<string, unknown>, options: Record<string, unknown>) =>
-        merge(defaultOptions, options),
+      mergeOptions: mergeWithDefaults,
     },
     mergedOptions,
   )
@@ -165,9 +178,8 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
   // (a getter that resolves to `undefined` falls back to the feature default, not the stale
   // snapshot) without notifying optionsStore subscribers.
   // The `table.options` setter write is still issued so internal atom memos that computed
-  // against the static snapshot re-run once and subscribe to the live getters — but during
-  // hydration the staged write commits after subscribers have claimed DOM and its
-  // invalidation discards the claimed nodes, so it is deferred past the claim.
+  // against the static snapshot re-run once and subscribe to the live getters — during
+  // hydration it is deferred to `onHydrationEnd` so claimed DOM nodes are not invalidated.
   const hydrating = isHydrating()
   return untrack(() => {
     const table = constructTable(resolvedOptions as unknown as TableOptions<TFeatures, TData>)
@@ -178,12 +190,20 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
       {},
     )
 
-    const liveOptions = merge(defaultOptions, resolvedOptions)
+    const liveOptions = mergeWithDefaults(defaultOptions, resolvedOptions)
     const mutableTable = table as unknown as { options: Record<string, unknown> }
     Object.defineProperties(mutableTable.options, Object.getOwnPropertyDescriptors(liveOptions))
     if (hydrating) {
-      queueMicrotask(() => {
-        mutableTable.options = liveOptions
+      let active = true
+      if (getOwner()) {
+        onCleanup(() => {
+          active = false
+        })
+      }
+      onHydrationEnd(() => {
+        if (active) {
+          mutableTable.options = liveOptions
+        }
       })
     } else if (!isServer) {
       mutableTable.options = liveOptions

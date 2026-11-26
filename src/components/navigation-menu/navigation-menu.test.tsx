@@ -406,6 +406,7 @@ describe('navigationMenu', () => {
     guard.focus()
     expect(document.activeElement).toBe(input)
     page.getByRole('button', { name: 'After navigation' }).focus()
+    flush()
     expect(products.getAttribute('aria-expanded')).toBe('false')
   })
 
@@ -733,12 +734,14 @@ describe('navigationMenu', () => {
     for (const observer of observations) {
       observer.callback([], {} as ResizeObserver)
     }
+    flush()
     expect(panel.style.width).toBe('240px')
     expect(panel.style.height).toBe('180px')
     width.mockReturnValue(320)
     for (const observer of observations) {
       observer.callback([], {} as ResizeObserver)
     }
+    flush()
     expect(panel.style.width).toBe('320px')
     _screen.unmount()
     expect(observations.every((observer) => observer.disconnect.mock.calls.length > 0)).toBe(true)

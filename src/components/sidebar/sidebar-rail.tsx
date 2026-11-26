@@ -6,7 +6,7 @@ import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, callRef, pick } from '../../shared/utils'
+import { callHandler, callRef } from '../../shared/utils'
 import { createSplitterHandle } from '../shared/splitter'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -61,31 +61,16 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
   props: SidebarT.RailProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const local = pick(
-    props as SidebarT.RailProps<T> & {
-      'aria-label'?: string
-      onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
-      onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
-      onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
-      onMouseEnter?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
-      onMouseLeave?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
-      onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
-      onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
-    },
-    'as',
-    'disabled',
-    'aria-label',
-    'class',
-    'style',
-    'ref',
-    'onClick',
-    'onKeyDown',
-    'onPointerDown',
-    'onMouseEnter',
-    'onMouseLeave',
-    'onFocus',
-    'onBlur',
-  )
+  const local = props as SidebarT.RailProps<T> & {
+    'aria-label'?: string
+    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
+    onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
+    onMouseEnter?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    onMouseLeave?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+  }
   const rest = omit(
     props as SidebarT.RailProps<T> & {
       'aria-label'?: string

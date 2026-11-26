@@ -1,7 +1,6 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect } from 'solid-js'
+import { createEffect, merge } from 'solid-js'
 
-import { mergeDefaults } from '../../shared/utils'
 import { createHoverDelay } from '../shared/overlay/hover-delay'
 import { createPopper } from '../shared/overlay/popper'
 
@@ -30,28 +29,27 @@ import type { PopoverProps } from './popover.types'
  * ```
  */
 export function Popover(props: PopoverProps): JSX.Element {
-  const merged = mergeDefaults(
-    {
-      openOnHover: false,
-      openDelay: 100,
-      closeDelay: 100,
-      gutter: 4,
-      overflowPadding: 4,
-    },
-    props,
+  const popper = createPopper(
+    merge(props, {
+      get gutter() {
+        return props.gutter ?? 4
+      },
+      get overflowPadding() {
+        return props.overflowPadding ?? 4
+      },
+    }),
+    'popover',
   )
 
-  const popper = createPopper(merged, 'popover')
-
   const hoverDelay = createHoverDelay({
-    openDelay: () => merged.openDelay,
-    closeDelay: () => merged.closeDelay,
-    enabled: () => merged.openOnHover && !merged.disabled,
+    openDelay: () => props.openDelay ?? 100,
+    closeDelay: () => props.closeDelay ?? 100,
+    enabled: () => Boolean(props.openOnHover) && !props.disabled,
     setOpen: (open) => popper.setOpen(open),
   })
 
   createEffect(
-    () => (merged.openOnHover ? 1 : 0) | (merged.disabled ? 2 : 0),
+    () => (props.openOnHover ? 1 : 0) | (props.disabled ? 2 : 0),
     () => {
       hoverDelay.invalidate()
     },
@@ -59,17 +57,17 @@ export function Popover(props: PopoverProps): JSX.Element {
   )
 
   const behavior: ReturnType<typeof usePopoverContext> = {
-    options: merged,
+    options: props,
     popper,
     scheduleOpen: hoverDelay.scheduleOpen,
     scheduleClose: hoverDelay.scheduleClose,
     clearCloseTimer: hoverDelay.cancelClose,
     invalidateHoverTimers: hoverDelay.invalidate,
     get slotOverrides() {
-      return { classes: merged.classes, styles: merged.styles }
+      return { classes: props.classes, styles: props.styles }
     },
   }
-  return <PopoverProvider value={behavior}>{merged.children}</PopoverProvider>
+  return <PopoverProvider value={behavior}>{props.children}</PopoverProvider>
 }
 
 Popover.Trigger = PopoverTrigger

@@ -5,7 +5,7 @@ import { merge, onSettled, omit } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import {
   getContextMenuTriggerAccessibility,
   validateOverlayTrigger,
@@ -38,13 +38,12 @@ import type { ContextMenuT } from './context-menu.types'
 export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style', 'disabled')
   const rest = omit(props, 'as', 'class', 'style', 'disabled')
   const context = useContextMenuContext()
 
   const {
     slots: { trigger: triggerSlot },
-  } = useRecipe(contextMenuRecipe, local, {
+  } = useRecipe(contextMenuRecipe, props, {
     slot: 'trigger',
     data: {
       trigger: contextMenuDataAttributes.trigger(() => ({
@@ -56,32 +55,40 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     context: () => context.slotOverrides,
     own: { trigger: () => ({ class: CONTEXT_MENU_TRIGGER_CLASS }) },
   })
-  const tag = () => local.as ?? 'div'
+  const tag = () => props.as ?? 'div'
   const root = createPolymorphicRoot({
     tag,
     ref: () => rest.ref,
     registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
-  const disabled = () => Boolean(local.disabled ?? context.disabled())
+  const disabled = () => props.disabled ?? context.disabled()
   const a11y = () => getContextMenuTriggerAccessibility(context.triggerElement(), disabled())
   const userEvents = rest as Record<string, unknown>
-  const events: Record<string, (event: Event) => void> = {}
-  for (const key of [
-    'onClick',
-    'onKeyDown',
-    'onContextMenu',
-    'onPointerDown',
-    'onPointerMove',
-    'onPointerUp',
-    'onPointerCancel',
-  ] as const) {
-    events[key] = function onEvent(event) {
-      callHandler(event, userEvents[key])
-      if (disabled()) {
-        event.preventDefault()
-      }
-      callHandler(event, context.triggerProps[key])
+  const dispatchTriggerEvent = (
+    key:
+      | 'onClick'
+      | 'onKeyDown'
+      | 'onContextMenu'
+      | 'onPointerDown'
+      | 'onPointerMove'
+      | 'onPointerUp'
+      | 'onPointerCancel',
+    event: Event,
+  ) => {
+    callHandler(event, userEvents[key])
+    if (disabled()) {
+      event.preventDefault()
     }
+    callHandler(event, context.triggerProps[key])
+  }
+  const events = {
+    onClick: (event: Event) => dispatchTriggerEvent('onClick', event),
+    onKeyDown: (event: Event) => dispatchTriggerEvent('onKeyDown', event),
+    onContextMenu: (event: Event) => dispatchTriggerEvent('onContextMenu', event),
+    onPointerDown: (event: Event) => dispatchTriggerEvent('onPointerDown', event),
+    onPointerMove: (event: Event) => dispatchTriggerEvent('onPointerMove', event),
+    onPointerUp: (event: Event) => dispatchTriggerEvent('onPointerUp', event),
+    onPointerCancel: (event: Event) => dispatchTriggerEvent('onPointerCancel', event),
   }
   const triggerProps = merge(
     { 'data-slot': 'context-menu-trigger' },

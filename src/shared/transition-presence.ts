@@ -1,8 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
-import { settle } from './utils'
 export interface CreateTransitionPresenceOptions {
   open: Accessor<boolean>
   onExitComplete?: () => void
@@ -109,7 +108,6 @@ export function createTransitionPresence(
   // clears it once the exit animations settle.
   const [present, setPresent] = createSignal<boolean>(
     (previous) => options.open() || (previous ?? false),
-    { ownedWrite: true },
   )
   const dataAttrs = {
     get 'data-closed'() {
@@ -120,7 +118,7 @@ export function createTransitionPresence(
     },
   }
   const registrations = new Map<number, HTMLElement>()
-  const [revision, setRevision] = createSignal(0, { ownedWrite: true })
+  const [revision, setRevision] = createSignal(0)
   const animationNames = new Map<HTMLElement, Array<string>>()
   const trackedElements = new Map<HTMLElement, TrackedElement>()
   const measuredElements = new Set<HTMLElement>()
@@ -154,7 +152,7 @@ export function createTransitionPresence(
       return
     }
 
-    settle(endExit)
+    endExit()
     if (!disposed) {
       options.onExitComplete?.()
     }
@@ -194,7 +192,7 @@ export function createTransitionPresence(
     measuredElements.delete(element)
     animationNames.set(
       element,
-      options.open() && !entries.some((entry) => entry.name === '*')
+      untrack(options.open) && !entries.some((entry) => entry.name === '*')
         ? entries.map((entry) => entry.name)
         : [],
     )
@@ -293,7 +291,7 @@ export function createTransitionPresence(
       }
 
       if (currentElements.length === 0) {
-        settle(endExit)
+        endExit()
         if (!disposed) {
           options.onExitComplete?.()
         }

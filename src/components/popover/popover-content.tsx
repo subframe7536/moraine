@@ -4,7 +4,6 @@ import { Show, children as resolveChildren, merge, onCleanup, omit } from 'solid
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { pick } from '../../shared/utils'
 import { getFocusableElements } from '../shared/overlay/focus'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
@@ -28,7 +27,6 @@ import type { PopoverT } from './popover.types'
  * ```
  */
 export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
-  const local = pick(props, 'children', 'class', 'style')
   const rest = omit(props, 'children', 'class', 'style')
   let hasPreventedPointerAttempt = false
   let resetTimeout: ReturnType<typeof setTimeout> | undefined
@@ -104,7 +102,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   const {
     slots: { body: bodySlot },
     slotWith,
-  } = useRecipe(popoverRecipe, local, {
+  } = useRecipe(popoverRecipe, props, {
     slot: 'content',
     context: () => behavior.slotOverrides,
   })
@@ -152,7 +150,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     >
       {(context) => {
         const contentProps = merge(context.contentProps, contentEvents)
-        const content = resolveChildren(() => local.children)
+        const content = resolveChildren(() => props.children)
         const contentSlot = slotWith('content', {
           data: popoverContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

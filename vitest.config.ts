@@ -13,6 +13,8 @@ const VM_INCOMPATIBLE_TESTS = [
   'src/components/shared/overlay/menu/menu.utils.test.tsx',
 ]
 
+const diagnosticsEnabled = process.env.SOLID_DIAGNOSTICS === '1'
+
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify('test'),
@@ -41,8 +43,9 @@ export default defineConfig({
       },
     ],
     dedupe: ['solid-js'],
+    ...(diagnosticsEnabled ? { conditions: ['development', 'browser'] } : {}),
   },
-  plugins: [variantGroupPlugin(), solid({ dev: false, solid: { hydratable: true } })],
+  plugins: [variantGroupPlugin(), solid({ dev: diagnosticsEnabled, solid: { hydratable: true } })],
   test: {
     globalSetup: ['./src/test-util/ssr-global-setup.ts'],
     exclude: [...configDefaults.exclude, 'test/acceptance/docs-preview.test.ts'],

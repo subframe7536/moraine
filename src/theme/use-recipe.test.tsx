@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal, flush } from 'solid-js'
+import { createSignal, flush, untrack } from 'solid-js'
 import { describe, expect, vi, it } from 'vitest'
 
 import { buttonRecipe } from '../components/button/button.recipe'
@@ -228,11 +228,13 @@ describe('useRecipe', () => {
       })
 
       const mappedOverrides = overrides({ targetRoot: 'root', targetLeading: 'leading' })
-      expect(Object.keys(mappedOverrides.classes!)).toEqual(['targetRoot', 'targetLeading'])
-      expect(mappedOverrides.styles?.targetRoot?.color).toBe(color())
-      expect(mappedOverrides.styles?.targetLeading?.width).toBe('10px')
-      expect(mappedOverrides.classes?.targetRoot).toContain(extraClass())
-      expect(mappedOverrides.classes?.targetLeading).toContain('fixed-leading')
+      untrack(() => {
+        expect(Object.keys(mappedOverrides.classes!)).toEqual(['targetRoot', 'targetLeading'])
+        expect(mappedOverrides.styles?.targetRoot?.color).toBe(color())
+        expect(mappedOverrides.styles?.targetLeading?.width).toBe('10px')
+        expect(mappedOverrides.classes?.targetRoot).toContain(extraClass())
+        expect(mappedOverrides.classes?.targetLeading).toContain('fixed-leading')
+      })
 
       return <button style={mappedOverrides.styles?.targetRoot}>Button</button>
     }

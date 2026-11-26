@@ -1,7 +1,6 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
-import { settle } from '../../../shared/utils'
 import type { UseFormFieldReturn } from '../../field/field-context'
 export interface UseFormValueOptions<T> {
   value?: Accessor<T | undefined>
@@ -22,9 +21,11 @@ export function useFormValue<T>(
   reset: () => void,
 ] {
   const initialDefaultValue = untrack(() => options.defaultValue?.()) as T
-  const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(() => initialDefaultValue, {
-    ownedWrite: true,
-  })
+  const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(
+    (typeof initialDefaultValue === 'function'
+      ? () => initialDefaultValue
+      : initialDefaultValue) as never,
+  )
 
   const controlledValue = createMemo(() => {
     const controlled = options.value?.()
@@ -47,7 +48,7 @@ export function useFormValue<T>(
 
   // Synchronize external controlled updates and restore Field store when controlled
   createEffect(
-    () => [(() => options.value?.())(), (() => options.field?.value())()],
+    () => [options.value?.(), options.field?.value()],
     ([controlled, formValue]) => {
       if (controlled !== undefined && options.field && formValue !== controlled) {
         options.field.setFormValue(controlled)
@@ -58,7 +59,7 @@ export function useFormValue<T>(
   const isEqual = options.isEqual ?? Object.is
 
   function setValue(update: T | ((previous: T) => T)): void {
-    settle(() => setValueInner(update))
+    setValueInner(update)
   }
 
   function setValueInner(update: T | ((previous: T) => T)): void {
@@ -82,7 +83,7 @@ export function useFormValue<T>(
   }
 
   function reset(): void {
-    settle(() => resetInner())
+    resetInner()
   }
 
   function resetInner(): void {

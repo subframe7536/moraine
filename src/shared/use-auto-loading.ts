@@ -1,8 +1,8 @@
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createMemo, createSignal } from 'solid-js'
+import { createMemo, createSignal, flush } from 'solid-js'
 
-import { callHandler, settle } from './utils'
+import { callHandler } from './utils'
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return (
     (typeof value === 'object' || typeof value === 'function') &&
@@ -30,7 +30,7 @@ export function useAutoLoadingClick<T, E extends Event = MouseEvent>(
   )
 
   const decrement = (): void => {
-    settle(() => setPendingActionCount((count) => Math.max(0, count - 1)))
+    setPendingActionCount((count) => Math.max(0, count - 1))
   }
 
   const onClick: JSX.EventHandler<T, E> = (event) => {
@@ -40,7 +40,7 @@ export function useAutoLoadingClick<T, E extends Event = MouseEvent>(
       return
     }
 
-    settle(() => setPendingActionCount((count) => count + 1))
+    flush(() => setPendingActionCount((count) => count + 1))
     void Promise.resolve(handlerResult).then(decrement, decrement)
   }
 

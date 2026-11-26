@@ -1022,11 +1022,13 @@ describe('commandPalette', () => {
         virtualizer={{
           scrollToIndex: (index) => {
             scrollToIndex(index)
-            flush(() => setEntryIndex(index))
+            setEntryIndex(index)
           },
           virtualRender: (context) => (
             <For each={[context.entries[entryIndex()]!]}>
-              {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
+              {(entry) => (
+                <>{context.render(entry, entryIndex(), { 'data-index': entryIndex() })}</>
+              )}
             </For>
           ),
         }}

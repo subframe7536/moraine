@@ -1,9 +1,19 @@
 import type { JSX } from '@solidjs/web'
 import { isServer } from '@solidjs/web'
-import { For, Match, Show, Switch, createEffect, createMemo, createSignal, merge } from 'solid-js'
+import {
+  For,
+  Match,
+  Show,
+  Switch,
+  createEffect,
+  createMemo,
+  createSignal,
+  merge,
+  createRenderEffect,
+  untrack,
+} from 'solid-js'
 
 import { useCn } from '../../../../provider/cn-context'
-import { bindElement } from '../../../../shared/element-binding'
 import { attachEventListener } from '../../../../shared/event-listener'
 import { callHandler, callRef, createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
@@ -57,7 +67,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
     undefined,
   )
-  const [isPositioned, setIsPositioned] = createSignal(false, { ownedWrite: true })
+  const [isPositioned, setIsPositioned] = createSignal(false)
   const groups = createMemo(() => resolveMenuGroups(props.items))
 
   /**
@@ -105,10 +115,13 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     },
   )
 
-  bindElement(positionerElement, (positioner) => {
+  createRenderEffect(positionerElement, (positioner) => {
+    if (!positioner) {
+      return
+    }
     setIsPositioned(false)
     // Stay hidden until the floating position commits; an exiting layer is shown by the effect above.
-    if (props.open) {
+    if (untrack(() => props.open)) {
       positioner.style.visibility = 'hidden'
     }
     return registerLayerBranch(positioner)
@@ -127,7 +140,10 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     },
   )
 
-  bindElement(layer.contentElement, (content) => {
+  createRenderEffect(layer.contentElement, (content) => {
+    if (!content) {
+      return
+    }
     const release = props.registerPresenceElement(content)
     const detach = attachEventListener(
       content,

@@ -17,7 +17,7 @@ import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId, toIdSegment, pick, settle } from '../../shared/utils'
+import { createId, toIdSegment } from '../../shared/utils'
 import { Icon } from '../icon'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -55,26 +55,6 @@ interface NormalizedTabItem extends TabsT.Item {
  * ```
  */
 export function Tabs(props: TabsProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'value',
-    'defaultValue',
-    'orientation',
-    'activationMode',
-    'disabled',
-    'loop',
-    'onValueChange',
-    'items',
-    'variant',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'aria-label',
-    'aria-labelledby',
-  )
   const rest = omit(
     props,
     'id',
@@ -106,7 +86,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     },
     slotWith,
     variants,
-  } = useRecipe(tabsRecipe, local, {
+  } = useRecipe(tabsRecipe, props, {
     data: {
       root: tabsDataAttributes.root(() => ({
         disabled: (): boolean | undefined => merged.disabled,
@@ -122,7 +102,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         return variants.orientation
       },
     },
-    local,
+    props,
   )
 
   const rootId = createId(() => merged.id, 'tabs')
@@ -239,7 +219,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     activationMode: () => merged.activationMode ?? 'automatic',
     getDirection: () => resolveDirection(untrack(listRef), direction()),
     focusValue: (key) => {
-      settle(() => setHighlightedKey(key))
+      setHighlightedKey(key)
       triggerRefs.get(key)?.focus()
     },
     onSelect: (key) => {
@@ -374,12 +354,10 @@ export function Tabs(props: TabsProps): JSX.Element {
 
       const resizeObserver = new ResizeObserver(() => {
         // Observer callbacks run unowned; settle the measured style write.
-        settle(() =>
-          computeIndicatorStyle(
-            untrack(selectedKey),
-            untrack(() => merged.orientation),
-            untrack(listRef),
-          ),
+        computeIndicatorStyle(
+          untrack(selectedKey),
+          untrack(() => merged.orientation),
+          untrack(listRef),
         )
       })
 
@@ -401,8 +379,8 @@ export function Tabs(props: TabsProps): JSX.Element {
       <div
         ref={(e) => setListRef(e)}
         role="tablist"
-        aria-label={local['aria-label']}
-        aria-labelledby={local['aria-labelledby']}
+        aria-label={props['aria-label']}
+        aria-labelledby={props['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
         data-slot="tabs-list"
         {...listSlot}
@@ -454,14 +432,12 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-slot="tabs-trigger"
                 {...triggerSlot}
                 onClick={() => {
-                  settle(() => {
-                    setHighlightedKey(item.instanceKey)
-                    selectValue(item.value)
-                  })
+                  setHighlightedKey(item.instanceKey)
+                  selectValue(item.value)
                 }}
                 onFocus={(event) => {
                   lastFocusedTrigger = event.currentTarget
-                  settle(() => setHighlightedKey(item.instanceKey))
+                  setHighlightedKey(item.instanceKey)
                 }}
                 onBlur={(event) => {
                   if (lastFocusedTrigger === event.currentTarget) {

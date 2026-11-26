@@ -6,58 +6,11 @@ import {
   createMemo,
   createRenderEffect,
   createUniqueId,
-  flush,
   getOwner,
   runWithOwner,
   untrack,
 } from 'solid-js'
 
-/**
- * Runs `fn` and, when the caller has no reactive owner, settles the writes it
- * staged with `flush` — like a Solid 1 `batch`. DOM event listeners, timers,
- * and microtasks run unowned, so writes they make would stage forever.
- */
-export function settle<T>(fn: () => T): T {
-  const result = fn()
-  try {
-    flush()
-  } catch {
-    // Inside an action body or an onSettled callback flush() throws; writes
-    // already staged are committed by that scope's own settle. Inside an
-    // effect callback flush() is a no-op for the same reason — direct writes
-    // join the running pass's transaction, while a nested flush(fn) would
-    // park them in a pass tx that is discarded.
-  }
-  return result
-}
-/**
- * Applies prop defaults the way Solid 1 `mergeProps` did: a prop present but
- * `undefined` falls through to the default. Solid 2's `merge` returns the
- * right-most source that defines the key — `merge({ gutter: 4 }, props)` reads
- * `undefined` when callers write `gutter={undefined}` — so components use this
- * proxy for their `merged` defaults instead. Reads still reach the source's
- * own getters, preserving per-prop laziness.
- */
-export function mergeDefaults<T extends object, U extends object>(defaults: T, source: U): T & U {
-  return new Proxy(source as T & U, {
-    get(target, key, receiver) {
-      const value = Reflect.get(target, key, receiver)
-      return value === undefined && key in defaults ? defaults[key as keyof T] : value
-    },
-    has(target, key) {
-      return key in target || key in defaults
-    },
-    getOwnPropertyDescriptor(target, key) {
-      return (
-        Reflect.getOwnPropertyDescriptor(target, key) ??
-        Reflect.getOwnPropertyDescriptor(defaults, key)
-      )
-    },
-    ownKeys(target) {
-      return [...new Set([...Reflect.ownKeys(defaults), ...Reflect.ownKeys(target)])]
-    },
-  })
-}
 /**
  * Generates a unique identifier for accessibility and form association.
  *
@@ -158,81 +111,21 @@ export function callRef<T>(ref: () => unknown, element: T): void {
 }
 
 /**
- * View of `props` exposing only `keys`, each as a lazy getter — the picked counterpart
- * to `omit` (the `splitProps` picked half from 1.x).
+ * `children(() => props.children)` pinned under the component owner once read.
  *
- * Presence is decided from property descriptors, never by reading values: `merge`
- * resolves shadowing by descriptor, so an accessor key (reactive getter) counts as
- * present without evaluating it — reading `props.children` during key collection
- * would re-render the tree. Only static data keys holding `undefined` are hidden.
- */
-export function pick<T extends object, K extends ReadonlyArray<keyof T>>(
-  props: T,
-  ...keys: K
-): Pick<T, K[number]> {
-  const present = (key: keyof T): boolean => {
-    if (!keys.includes(key)) {
-      return false
-    }
-    const descriptor = Reflect.getOwnPropertyDescriptor(props, key)
-    if (descriptor === undefined) {
-      return key in props
-    }
-    return (
-      Boolean(descriptor.enumerable) &&
-      (descriptor.get !== undefined || descriptor.value !== undefined)
-    )
-  }
-  return new Proxy({} as Pick<T, K[number]>, {
-    get(_, key) {
-      return keys.includes(key as K[number]) ? props[key as keyof T] : undefined
-    },
-    has(_, key) {
-      return present(key as keyof T)
-    },
-    getOwnPropertyDescriptor(_, key) {
-      if (!present(key as keyof T)) {
-        return undefined
-      }
-      return {
-        enumerable: true,
-        configurable: true,
-        get: () => props[key as keyof T],
-      }
-    },
-    ownKeys() {
-      return keys.filter((key) => present(key)) as Array<string | symbol>
-    },
-  })
-}
-
-/**
- * `children(() => props.children)` resolved through the own `children` descriptor
- * rather than a props-view read: `pick`/`omit` proxies and dev-mode props track
- * key access, so a memo that reads `local.children` re-runs — and rebuilds the
- * subtree — on any unrelated prop change. The leaf getter keeps the memo
- * subscribed only to what the children thunk itself reads.
+ * Solid 2 disposes computations whose last subscriber unmounts, and the next read
+ * re-invokes the children getter — recreating the subtree. Once any binding reads
+ * the memo (via direct call or `.toArray()`), pin it under the component owner on
+ * the client with `{ transparent: true }` so it stays observed without shifting
+ * hydration IDs.
  */
 export function resolvePropsChildren(props: {
   children?: JSX.Element
 }): ReturnType<typeof resolveChildren> {
-  const descriptor = Object.getOwnPropertyDescriptor(props, 'children')
-  const resolved = resolveChildren(() =>
-    descriptor === undefined
-      ? undefined
-      : descriptor.get !== undefined
-        ? (descriptor.get.call(props) as JSX.Element)
-        : (descriptor.value as JSX.Element),
-  )
+  const resolved = resolveChildren(() => props.children)
   const owner = getOwner()
   let pinned = false
-  const accessor = (() => {
-    const value = resolved()
-    // Solid 2 disposes computations whose last subscriber unmounts, and the next
-    // read re-invokes the children getter — recreating the subtree. Once any
-    // binding reads the memo, pin it under the component owner so it stays
-    // observed without evaluating it eagerly. The pin exists only on the client,
-    // so it is transparent: it must not take a hydration id from the owner.
+  const pin = (): void => {
     if (!pinned && !isServer && owner) {
       pinned = true
       runWithOwner(owner, () =>
@@ -243,32 +136,35 @@ export function resolvePropsChildren(props: {
         ),
       )
     }
+  }
+  const accessor = (() => {
+    const value = resolved()
+    pin()
     return value
   }) as ReturnType<typeof resolveChildren>
-  accessor.toArray = () => resolved.toArray()
+  accessor.toArray = () => {
+    const value = resolved.toArray()
+    pin()
+    return value
+  }
   return accessor
 }
 
 /**
- * Per-key memoized predicate over a reactive source — the `createSelector` replacement.
- * `isSelected(key)` reads a per-key memo, so unrelated key changes do not re-run observers.
+ * Publishes an element to a longer-lived signal, such as a parent context.
+ *
+ * The cleanup clears the signal only while it still holds this element.
  */
-export function createSelector<S, K>(
-  source: () => S,
-  fn: (key: K, source: S) => boolean = (key, src) => key === (src as unknown as K),
-): (key: K) => boolean {
-  const memos = new Map<K, Accessor<boolean>>()
-  // Memos must outlive the scope that first reads a key: a memo created inside
-  // a binding is disposed when that binding re-runs and would stay stale in the
-  // map, so they attach to the selector's own owner instead.
-  const owner = getOwner()
-  return (key) => {
-    let memo = memos.get(key)
-    if (!memo) {
-      const create = () => createMemo(() => fn(key, source()))
-      memo = owner ? runWithOwner(owner, create) : create()
-      memos.set(key, memo)
+export function publishElement<T>(
+  get: Accessor<T | undefined>,
+  set: (element: T | undefined) => void,
+): (element: T) => VoidFunction {
+  return (element) => {
+    set(element)
+    return () => {
+      if (untrack(get) === element) {
+        set(undefined)
+      }
     }
-    return memo()
   }
 }

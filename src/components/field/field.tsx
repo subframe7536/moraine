@@ -5,7 +5,7 @@ import { createMemo, createSignal, Show, omit } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
-import { createId, pick } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 
 import type { FieldBinding, FieldContextOptions, FieldPath } from './field-context'
 import { FieldProvider } from './field-context'
@@ -29,29 +29,6 @@ import type { FieldProps } from './field.types'
 export function Field<T extends ValidComponent = 'div'>(
   props: FieldProps<T> & { binding?: FieldBinding },
 ): JSX.Element {
-  const local = pick(
-    props,
-    'binding',
-    'as',
-    'id',
-    'name',
-    'label',
-    'hiddenLabel',
-    'description',
-    'help',
-    'error',
-    'hint',
-    'required',
-    'disabled',
-    'readOnly',
-    'children',
-    'orientation',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  )
   const rest = omit(
     props,
     'binding',
@@ -75,13 +52,13 @@ export function Field<T extends ValidComponent = 'div'>(
     'class',
     'style',
   )
-  const isRequired = () => Boolean(local.required)
-  const labelHidden = () => !hasContent(local.label) && Boolean(local.hiddenLabel)
-  const label = createMemo(() => (hasContent(local.label) ? local.label : local.hiddenLabel))
-  const description = createMemo(() => local.description)
-  const hint = createMemo(() => local.hint)
-  const help = createMemo(() => local.help)
-  const error = createMemo(() => local.error)
+  const isRequired = () => Boolean(props.required)
+  const labelHidden = () => !hasContent(props.label) && Boolean(props.hiddenLabel)
+  const label = createMemo(() => (hasContent(props.label) ? props.label : props.hiddenLabel))
+  const description = createMemo(() => props.description)
+  const hint = createMemo(() => props.hint)
+  const help = createMemo(() => props.help)
+  const error = createMemo(() => props.error)
 
   const showLabel = () => hasContent(label())
   const showHint = () => showLabel() && hasContent(hint())
@@ -101,7 +78,7 @@ export function Field<T extends ValidComponent = 'div'>(
       error: errorSlot,
     },
     variants,
-  } = useRecipe(fieldRecipe, local, {
+  } = useRecipe(fieldRecipe, props, {
     data: {
       label: fieldDataAttributes.label({ required: isRequired }),
       container: fieldDataAttributes.container({ hasText }),
@@ -115,13 +92,13 @@ export function Field<T extends ValidComponent = 'div'>(
     }),
   })
 
-  const ariaId = createId(() => local.id, 'field')
+  const ariaId = createId(() => props.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
     Array<{ id: () => string; labelFor: () => boolean; key: symbol }>
-  >([], { ownedWrite: true })
+  >([])
 
   const standalonePath = createMemo<FieldPath | undefined>(() => {
-    const name = local.name
+    const name = props.name
     if (Array.isArray(name)) {
       return name.length > 0 ? name : undefined
     }
@@ -155,7 +132,7 @@ export function Field<T extends ValidComponent = 'div'>(
     if (value !== undefined && value !== null) {
       return value
     }
-    return local.binding?.error
+    return props.binding?.error
   })
 
   const shouldShowError = () => hasContent(resolvedError())
@@ -190,22 +167,22 @@ export function Field<T extends ValidComponent = 'div'>(
       return resolvedError()
     },
     get name() {
-      return local.name
+      return props.name
     },
     get path() {
       return standalonePath()
     },
     get binding() {
-      return local.binding
+      return props.binding
     },
     get size() {
       return variants.size
     },
     get disabled() {
-      return local.disabled
+      return props.disabled
     },
     get readOnly() {
-      return local.readOnly
+      return props.readOnly
     },
     get required() {
       return isRequired()
@@ -214,12 +191,12 @@ export function Field<T extends ValidComponent = 'div'>(
     registerControl,
   }
 
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
 
   function RenderFieldInternal(): JSX.Element {
     // Read the children getter in its own memo so mounted components are created once, then call
     // function values tracked so Solid control-flow accessors, such as `Show`, stay reactive.
-    const fieldChild = createMemo(() => local.children)
+    const fieldChild = createMemo(() => props.children)
     const fieldChildren = createMemo(() => {
       const child = fieldChild()
       if (typeof child !== 'function') {

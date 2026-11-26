@@ -1,11 +1,10 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic, isServer } from '@solidjs/web'
-import { Show, createRenderEffect, createSignal, onCleanup, omit } from 'solid-js'
+import { Show, createEffect, createRenderEffect, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
-import { bindElement, publishElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick, resolvePropsChildren } from '../../shared/utils'
+import { callRef, resolvePropsChildren, publishElement } from '../../shared/utils'
 import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -33,16 +32,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const local = pick(
-    props as SidebarT.PanelProps,
-    'as',
-    'aria-label',
-    'children',
-    'class',
-    'id',
-    'style',
-    'ref',
-  )
+  const local = props as SidebarT.PanelProps
   const rest = omit(
     props as SidebarT.PanelProps,
     'as',
@@ -57,14 +47,14 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   // Server rendering is pure, so the server renders the panel with its own id and registers
   // nothing; the client registers it while hydrating.
   if (!isServer) {
-    createRenderEffect(
+    createEffect(
       () => local.id,
       (id) => {
         context.setPanelId(id)
+        return () => context.setPanelId(undefined)
       },
       { transparent: true },
     )
-    onCleanup(() => context.setPanelId(undefined))
   }
   const content = resolvePropsChildren(props)
   const { slotWith } = useSidebarStyles('panel', local)
@@ -81,7 +71,12 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     const [element, setElement] = createSignal<HTMLElement>()
     // Publish only the inline panel so `Rail` can measure it, even while closed.
     const publishedElement = () => (contentProps.mobile ? undefined : element())
-    bindElement(publishedElement, publishElement(context.panelElement, context.setPanelElement))
+    createRenderEffect(publishedElement, (node) => {
+      if (!node) {
+        return
+      }
+      return publishElement(context.panelElement, context.setPanelElement)(node)
+    })
     const panelSlot = slotWith('panel', {
       data: sidebarDataAttributes.panel({
         closed,

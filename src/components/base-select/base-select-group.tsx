@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { GroupProvider } from './base-select-group-context'
@@ -33,11 +32,10 @@ import type { BaseSelectT } from './base-select.types'
 export function BaseSelectGroup(props: BaseSelectT.GroupProps): JSX.Element {
   const state = useSelectContext()
   const [labelId, setLabelId] = createSignal<string>()
-  const local = pick(props, 'class', 'style')
   const rest = omit(props, 'class', 'style')
   const {
     slots: { group: groupSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'group',
     context: state.recipeContext,
   })

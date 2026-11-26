@@ -1,4 +1,4 @@
-import { createRoot } from 'solid-js'
+import { createRoot, flush } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { createCopy } from './create-copy'
@@ -47,6 +47,7 @@ describe('createCopy', () => {
     expect(clipboard.isError()).toBe(false)
 
     vi.advanceTimersByTime(1000)
+    flush()
     expect(clipboard.status()).toBe('idle')
     expect(clipboard.isCopied()).toBe(false)
     expect(clipboard.isError()).toBe(false)
@@ -147,6 +148,7 @@ describe('createCopy', () => {
     expect(onCopyError).toHaveBeenCalled()
 
     vi.advanceTimersByTime(1000)
+    flush()
     expect(clipboard.status()).toBe('idle')
     expect(clipboard.isCopied()).toBe(false)
     expect(clipboard.isError()).toBe(false)
@@ -160,6 +162,7 @@ describe('createCopy', () => {
     expect(onStatusChange.mock.calls).toEqual([['copied']])
 
     vi.advanceTimersByTime(1000)
+    flush()
     expect(onStatusChange.mock.calls).toEqual([['copied'], ['idle']])
   })
 
@@ -179,10 +182,12 @@ describe('createCopy', () => {
     expect(clipboard.status()).toBe('copied')
 
     clipboard.reset()
+    flush()
     expect(clipboard.status()).toBe('idle')
     onStatusChange.mockClear()
 
     vi.advanceTimersByTime(1000)
+    flush()
     expect(onStatusChange).not.toHaveBeenCalled()
   })
 
@@ -194,6 +199,7 @@ describe('createCopy', () => {
 
     dispose()
     vi.advanceTimersByTime(1000)
+    flush()
     expect(onStatusChange).not.toHaveBeenCalled()
   })
 })

@@ -241,6 +241,7 @@ describe('radioGroup', () => {
 
     const spaceUp = new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: ' ' })
     radioA.dispatchEvent(spaceUp)
+    flush()
 
     expect(spaceUp.defaultPrevented).toBe(true)
     expect(onChange).toHaveBeenCalledOnce()
@@ -352,6 +353,7 @@ describe('radioGroup', () => {
     const pro = screen.getByRole<HTMLInputElement>('radio', { name: 'pro' })
 
     basic.focus()
+    flush()
     expect(form.isTouched).toBe(true)
 
     pro.focus()

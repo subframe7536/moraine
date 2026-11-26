@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { separatorDataAttributes, separatorRecipe } from './separator.recipe'
 import type { SeparatorProps } from './separator.types'
@@ -23,12 +22,11 @@ import type { SeparatorProps } from './separator.types'
  * ```
  */
 export function Separator(props: SeparatorProps): JSX.Element {
-  const local = pick(props, 'orientation', 'class', 'style', 'classes', 'styles')
   const rest = omit(props, 'orientation', 'class', 'style', 'classes', 'styles')
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(separatorRecipe, local, {
+  } = useRecipe(separatorRecipe, props, {
     data: { root: separatorDataAttributes.root(() => ({ orientation })) },
   })
   const orientation = () => variants.orientation

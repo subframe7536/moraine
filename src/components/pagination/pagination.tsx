@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { Button } from '../button'
 import type { ButtonProps } from '../button'
@@ -96,37 +96,6 @@ function getSize(size: string | null | undefined, text?: string): ButtonProps['s
  * ```
  */
 export function Pagination(props: PaginationProps): JSX.Element {
-  const local = pick(
-    props,
-    'ref',
-    'page',
-    'defaultPage',
-    'onPageChange',
-    'pageSize',
-    'total',
-    'siblingCount',
-    'controls',
-    'disabled',
-    'size',
-    'variant',
-    'activeVariant',
-    'controlVariant',
-    'tone',
-    'prevIcon',
-    'prevText',
-    'nextIcon',
-    'nextText',
-    'ellipsisIcon',
-    'getPageHref',
-    'itemRender',
-    'controlRender',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'aria-label',
-    'translations',
-  )
   const rest = omit(
     props,
     'ref',
@@ -170,7 +139,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     slotWith,
     variants,
     overrides,
-  } = useRecipe(paginationRecipe, local, {
+  } = useRecipe(paginationRecipe, props, {
     data: {
       prev: paginationDataAttributes.prev(() => ({
         disabled: undefined,
@@ -184,7 +153,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       })),
     },
   })
-  const messages = useMessages('pagination', defaultPaginationMessages, () => local.translations)
+  const messages = useMessages('pagination', defaultPaginationMessages, () => props.translations)
 
   const merged = merge(
     {
@@ -200,7 +169,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       defaultPage: 1,
     },
 
-    local,
+    props,
   )
 
   const [page, setPage] = createControllableValue<number>({
@@ -299,8 +268,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
       role={merged.role}
       {...rootSlot}
       {...rest}
-      ref={(el) => callRef(() => local.ref, el)}
-      aria-label={local['aria-label'] ?? messages().label}
+      ref={(el) => callRef(() => props.ref, el)}
+      aria-label={props['aria-label'] ?? messages().label}
     >
       <ul data-slot="pagination-list" {...listSlot}>
         <Show when={merged.controls}>

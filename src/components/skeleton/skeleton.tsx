@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { skeletonRecipe } from './skeleton.recipe'
 import type { SkeletonProps } from './skeleton.types'
@@ -26,11 +25,10 @@ import type { SkeletonProps } from './skeleton.types'
  * ```
  */
 export function Skeleton(props: SkeletonProps): JSX.Element {
-  const local = pick(props, 'animation', 'class', 'style', 'classes', 'styles')
   const rest = omit(props, 'animation', 'class', 'style', 'classes', 'styles')
   const {
     slots: { root: rootSlot },
-  } = useRecipe(skeletonRecipe, local)
+  } = useRecipe(skeletonRecipe, props)
 
   return <div data-slot="skeleton" {...rootSlot} {...rest} />
 }

@@ -11,7 +11,6 @@ import type { InternalFieldStore } from '@formisch/solid/v2/internals'
 import type { Accessor } from 'solid-js'
 import { untrack } from 'solid-js'
 
-import { settle } from '../../shared/utils'
 import type { FieldBinding } from '../field/field-context'
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
@@ -71,7 +70,7 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
         // Formisch only types native controls, but its registry focuses any HTMLElement.
         field.props.ref(element as FieldElement)
         registeredElement = element as FieldElement
-        registeredStore = getFieldStore(form[INTERNAL], path())
+        registeredStore = getFieldStore(form[INTERNAL], untrack(path))
       }
     },
     setValue(value) {
@@ -81,21 +80,19 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
     },
     emit(type, event) {
       // DOM focus/blur/change listeners run unowned; settle the field writes.
-      settle(() => {
-        if (type === 'blur') {
-          field.props.onBlur()
-        } else if (type === 'focus') {
-          field.props.onFocus()
-        } else if (type === 'change') {
-          field.props.onChange(event as Event & { currentTarget: FieldElement; target: Element })
-        } else if (type === 'input') {
-          if (event && 'currentTarget' in event) {
-            field.props.onInput(
-              event as InputEvent & { currentTarget: FieldElement; target: Element },
-            )
-          }
+      if (type === 'blur') {
+        field.props.onBlur()
+      } else if (type === 'focus') {
+        field.props.onFocus()
+      } else if (type === 'change') {
+        field.props.onChange(event as Event & { currentTarget: FieldElement; target: Element })
+      } else if (type === 'input') {
+        if (event && 'currentTarget' in event) {
+          field.props.onInput(
+            event as InputEvent & { currentTarget: FieldElement; target: Element },
+          )
         }
-      })
+      }
     },
   }
 }

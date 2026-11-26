@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { children as resolveChildren, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
 
@@ -31,7 +30,6 @@ import type { HoverCardT } from './hover-card.types'
  * ```
  */
 export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
-  const local = pick(props, 'children', 'class', 'style')
   const rest = omit(props, 'children', 'class', 'style')
 
   const behavior = useHoverCardContext()
@@ -50,7 +48,7 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       }
     },
   }
-  const { slotWith } = useRecipe(hoverCardRecipe, local, {
+  const { slotWith } = useRecipe(hoverCardRecipe, props, {
     slot: 'content',
     context: () => behavior.slotOverrides,
   })
@@ -60,11 +58,11 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       align={behavior.options.align}
       placement={behavior.options.placement ?? 'bottom'}
       forceMount={behavior.options.forceMount}
-      gutter={behavior.options.gutter}
+      gutter={behavior.options.gutter ?? 4}
       shift={behavior.options.shift}
       flip={behavior.options.flip}
       slide={behavior.options.slide}
-      overflowPadding={behavior.options.overflowPadding}
+      overflowPadding={behavior.options.overflowPadding ?? 4}
       inline={behavior.inlinePoint()}
       finalFocus={false}
       closeOnOutsideFocus={false}
@@ -74,9 +72,9 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       {(context) => {
         const contentProps = merge(context.contentProps, contentEvents)
         const content = resolveChildren(() =>
-          typeof local.children === 'function'
-            ? local.children({ value: behavior.activeValue })
-            : local.children,
+          typeof props.children === 'function'
+            ? props.children({ value: behavior.activeValue })
+            : props.children,
         )
         const contentSlot = slotWith('content', {
           data: hoverCardContentDataAttributes({
