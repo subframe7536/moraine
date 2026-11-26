@@ -8,7 +8,7 @@ import type { ComponentApi } from './types.ts'
 // this file runs in the Node environment and builds its own document for markup assertions.
 const { document } = new JSDOM('').window
 
-describe('aPI type highlighting', () => {
+describe('api-doc type highlighting', () => {
   it.each([
     ['(value: string | null) => void', '((value: string | null) => void) | undefined'],
     [

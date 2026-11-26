@@ -54,7 +54,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      // beta.2's exports map lacks the `./mdx/jsx-runtime` subpath that
+      // solid-file-router's exports map lacks the `./mdx/jsx-runtime` subpath that
       // Satteri's jsxImportSource emits; `./mdx` is the same module.
       'solid-file-router/mdx/jsx-runtime': 'solid-file-router/mdx',
       '@src': sourceRoot,

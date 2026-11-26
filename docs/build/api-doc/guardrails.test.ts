@@ -13,7 +13,7 @@ function collectFiles(root: string): Array<string> {
   })
 }
 
-describe('aPI documentation architecture guardrails', () => {
+describe('api-doc architecture guardrails', () => {
   it('production generator code contains no implementation or runtime discovery path', () => {
     const root = path.join(projectRoot, 'docs/build/api-doc')
     const sources = collectFiles(root).filter(
