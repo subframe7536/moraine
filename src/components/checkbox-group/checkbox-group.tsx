@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import { DEV, For, Show, createEffect, createMemo, merge, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callHandler, createId, pick } from '../../shared/utils'
+import { callHandler, createId } from '../../shared/utils'
 import { CheckboxCore } from '../checkbox/checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -95,32 +95,6 @@ function normalizeCheckboxGroupItem(
  * ```
  */
 export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'name',
-    'form',
-    'value',
-    'defaultValue',
-    'required',
-    'disabled',
-    'readOnly',
-    'legend',
-    'items',
-    'indicatorPosition',
-    'checkedIcon',
-    'indeterminateIcon',
-    'onValueChange',
-    'variant',
-    'orientation',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'onFocus',
-    'onBlur',
-  )
   const rest = omit(
     props,
     'id',
@@ -152,7 +126,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     slots: { root: rootSlot, fieldset: fieldsetSlot, legend: legendSlot },
     variants,
     overrides,
-  } = useRecipe(checkboxGroupRecipe, local, {
+  } = useRecipe(checkboxGroupRecipe, props, {
     data: {
       root: checkboxGroupDataAttributes.root(() => ({
         disabled: field.disabled,
@@ -170,7 +144,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
       defaultValue: [] as Array<string>,
     },
 
-    local,
+    props,
   )
   const legend = createMemo(() => merged.legend)
   const items = createMemo(() => {
@@ -205,7 +179,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
         return merged.readOnly
       },
       get required() {
-        return local.required
+        return props.required
       },
     },
     {
@@ -294,7 +268,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
       return
     }
 
-    callHandler(event, local.onFocus)
+    callHandler(event, props.onFocus)
     field.emit('focus', event)
   }
 
@@ -307,7 +281,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
       return
     }
 
-    callHandler(event, local.onBlur)
+    callHandler(event, props.onBlur)
     field.emit('blur', event)
   }
 

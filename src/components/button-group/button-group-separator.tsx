@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 import { Separator } from '../separator'
 
 import { useButtonGroupContext } from './button-group-context'
@@ -25,13 +24,12 @@ import type { ButtonGroupT } from './button-group.types'
  * ```
  */
 export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
-  const local = pick(props, 'class', 'style')
   const rest = omit(props, 'class', 'style')
   const group = useButtonGroupContext()
   const {
     slots: { separator: separatorSlot },
     variants,
-  } = useRecipe(buttonGroupRecipe, local, {
+  } = useRecipe(buttonGroupRecipe, props, {
     slot: 'separator',
     varsSlot: 'separator',
     context: () => ({

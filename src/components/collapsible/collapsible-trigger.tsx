@@ -7,7 +7,6 @@ import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { pick } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
 import { collapsibleDataAttributes, collapsibleRecipe } from './collapsible.recipe'
@@ -31,7 +30,7 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   props: CollapsibleT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props as CollapsibleT.TriggerProps, 'as', 'disabled', 'class', 'style', 'ref')
+  const local = props as CollapsibleT.TriggerProps
   const rest = omit(props as CollapsibleT.TriggerProps, 'as', 'disabled', 'class', 'style', 'ref')
   const context = useCollapsibleContext()
   if (!context) {
