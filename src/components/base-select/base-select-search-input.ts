@@ -118,7 +118,10 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
         setCompositionDraft(target.value)
         return
       }
-      commit(target.value)
+      const committed = commit(target.value)
+      if (target.value !== committed) {
+        target.value = committed
+      }
     },
     onCompositionStart(event: CompositionEvent) {
       if (isAndroidUserAgent()) {

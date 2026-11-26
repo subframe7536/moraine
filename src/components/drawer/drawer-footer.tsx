@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { onCleanup, omit } from 'solid-js'
+import { omit, onSettled } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -33,8 +33,7 @@ export function DrawerFooter<T extends ValidComponent = 'div'>(
   const rest = omit(props, 'as', 'class', 'style')
   const drawer = useDrawerContext()
   const content = useDrawerContent()
-  const unregister = content.registerFooter()
-  onCleanup(unregister)
+  onSettled(() => content.registerFooter())
   const {
     slots: { footer: footerSlot },
   } = useRecipe(drawerRecipe, props, {

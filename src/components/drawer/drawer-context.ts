@@ -49,12 +49,12 @@ export interface DrawerNestedChannel {
 }
 
 export function createDrawerNestedChannel(parent?: DrawerNestedChannel): DrawerNestedChannel {
-  const [popupHeight, setPopupHeight] = createSignal(0, { ownedWrite: true })
-  const [openCount, setOpenCount] = createSignal(0, { ownedWrite: true })
-  const [activeCount, setActiveCount] = createSignal(0, { ownedWrite: true })
-  const [descendantHeight, setDescendantHeight] = createSignal(0, { ownedWrite: true })
-  const [swiping, setSwiping] = createSignal(false, { ownedWrite: true })
-  const [progress, setProgress] = createSignal(0, { ownedWrite: true })
+  const [popupHeight, setPopupHeight] = createSignal(0)
+  const [openCount, setOpenCount] = createSignal(0)
+  const [activeCount, setActiveCount] = createSignal(0)
+  const [descendantHeight, setDescendantHeight] = createSignal(0)
+  const [swiping, setSwiping] = createSignal(false)
+  const [progress, setProgress] = createSignal(0)
   const reports = new Map<DrawerNestedChannel, DrawerNestedReport>()
 
   function aggregate(): void {
@@ -137,8 +137,8 @@ export function useOptionalDrawerContext(): DrawerContextValue | null {
 
 export function createDrawerContentRegistration() {
   const registration = createContentAnatomy()
-  const [bodyCount, setBodyCount] = createSignal(0, { ownedWrite: true })
-  const [footerCount, setFooterCount] = createSignal(0, { ownedWrite: true })
+  const [bodyCount, setBodyCount] = createSignal(0)
+  const [footerCount, setFooterCount] = createSignal(0)
   return {
     ...registration,
     registerBody: () => {
