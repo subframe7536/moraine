@@ -302,6 +302,7 @@ describe('avatar', () => {
     ).toBe('loading')
 
     image.dispatchEvent(new Event('load'))
+    flush()
     expect(
       screen.container.querySelector('[data-slot="avatar"]')?.getAttribute('data-status'),
     ).toBe('loaded')

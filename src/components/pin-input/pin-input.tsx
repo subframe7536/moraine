@@ -16,14 +16,7 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
-import {
-  callHandler,
-  callRef,
-  createId,
-  isAndroidUserAgent,
-  pick,
-  settle,
-} from '../../shared/utils'
+import { callHandler, callRef, createId, isAndroidUserAgent, pick } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
@@ -653,7 +646,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     focusInput(targetIdx)
                     return
                   }
-                  settle(() => setFocusedIndex(idx))
+                  setFocusedIndex(idx)
                   event.currentTarget.select()
                 }}
                 onBlur={(event) => {
@@ -661,7 +654,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     return
                   }
                   if (focusedIndex() === idx) {
-                    settle(() => setFocusedIndex(null))
+                    setFocusedIndex(null)
                   }
                 }}
                 onMouseDown={(event) => {
