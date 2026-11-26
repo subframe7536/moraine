@@ -186,7 +186,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     () => props.toast.closed,
     (closed) => {
       if (closed && !untrack(removed)) {
-        deleteToast()
+        untrack(deleteToast)
       }
     },
   )

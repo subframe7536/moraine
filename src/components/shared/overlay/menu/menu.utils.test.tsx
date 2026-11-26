@@ -126,29 +126,27 @@ describe('createPointerGraceIntent', () => {
       const pendingTarget = {} as HTMLElement
       const pendingPointerEnter = vi.fn<(...args: Array<any>) => void>()
 
-      createRoot((dispose) => {
-        const layer = useOverlayMenuLayerState()
-        flush(() =>
-          layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement),
-        )
+      const [layer, dispose] = createRoot((d) => [useOverlayMenuLayerState(), d] as const)
+      flush(() =>
+        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement),
+      )
 
-        layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
-        layer.setPointerGraceIntent(
-          createPointerGraceIntent('right-start', [50, 80], firstTrigger, firstContent),
-        )
+      layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
+      layer.setPointerGraceIntent(
+        createPointerGraceIntent('right-start', [50, 80], firstTrigger, firstContent),
+      )
 
-        vi.advanceTimersByTime(150)
+      vi.advanceTimersByTime(150)
 
-        layer.setPointerGraceIntent(null, [80, 80])
+      layer.setPointerGraceIntent(null, [80, 80])
 
-        vi.advanceTimersByTime(149)
-        expect(pendingPointerEnter).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(149)
+      expect(pendingPointerEnter).not.toHaveBeenCalled()
 
-        vi.advanceTimersByTime(1)
-        expect(pendingPointerEnter).toHaveBeenCalledTimes(1)
+      vi.advanceTimersByTime(1)
+      expect(pendingPointerEnter).toHaveBeenCalledTimes(1)
 
-        dispose()
-      })
+      dispose()
     } finally {
       restoreWindow()
       vi.useRealTimers()
@@ -187,32 +185,30 @@ describe('createPointerGraceIntent', () => {
       const pendingTarget = {} as HTMLElement
       const pendingPointerEnter = vi.fn<(...args: Array<any>) => void>()
 
-      createRoot((dispose) => {
-        const layer = useOverlayMenuLayerState()
-        flush(() =>
-          layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement),
-        )
+      const [layer, dispose] = createRoot((d) => [useOverlayMenuLayerState(), d] as const)
+      flush(() =>
+        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement),
+      )
 
-        layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
-        layer.setPointerGraceIntent(
-          createPointerGraceIntent('right-start', [50, 80], firstTrigger, firstContent),
-        )
+      layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
+      layer.setPointerGraceIntent(
+        createPointerGraceIntent('right-start', [50, 80], firstTrigger, firstContent),
+      )
 
-        vi.advanceTimersByTime(150)
+      vi.advanceTimersByTime(150)
 
-        layer.setPointerGraceIntent(
-          createPointerGraceIntent('right-start', [50, 130], secondTrigger, secondContent),
-          [80, 80],
-        )
+      layer.setPointerGraceIntent(
+        createPointerGraceIntent('right-start', [50, 130], secondTrigger, secondContent),
+        [80, 80],
+      )
 
-        vi.advanceTimersByTime(149)
-        expect(pendingPointerEnter).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(149)
+      expect(pendingPointerEnter).not.toHaveBeenCalled()
 
-        vi.advanceTimersByTime(1)
-        expect(pendingPointerEnter).toHaveBeenCalledTimes(1)
+      vi.advanceTimersByTime(1)
+      expect(pendingPointerEnter).toHaveBeenCalledTimes(1)
 
-        dispose()
-      })
+      dispose()
     } finally {
       restoreWindow()
       vi.useRealTimers()
@@ -232,45 +228,43 @@ describe('useOverlayMenuLayerState', () => {
     })
 
     try {
-      createRoot((dispose) => {
-        const layer = useOverlayMenuLayerState()
-        const releases = elements.map((element, index) =>
-          flush(() =>
-            layer.registerItem({
-              disabled: () => index === 1,
-              element: () => element,
-              hasSubmenu: false,
-              id: `item-${index}`,
-              textValue: () => element.textContent ?? undefined,
-            }),
-          ),
-        )
-        const press = (key: string): KeyboardEvent => {
-          const event = new KeyboardEvent('keydown', { cancelable: true, key })
-          flush(() => layer.handleTypeaheadKeyDown(event))
-          return event
-        }
+      const [layer, dispose] = createRoot((d) => [useOverlayMenuLayerState(), d] as const)
+      const releases = elements.map((element, index) =>
+        flush(() =>
+          layer.registerItem({
+            disabled: () => index === 1,
+            element: () => element,
+            hasSubmenu: false,
+            id: `item-${index}`,
+            textValue: () => element.textContent ?? undefined,
+          }),
+        ),
+      )
+      const press = (key: string): KeyboardEvent => {
+        const event = new KeyboardEvent('keydown', { cancelable: true, key })
+        flush(() => layer.handleTypeaheadKeyDown(event))
+        return event
+      }
 
-        expect(press('B').defaultPrevented).toBe(true)
-        expect(document.activeElement).toBe(elements[0])
+      expect(press('B').defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(elements[0])
 
-        press('B')
-        expect(document.activeElement).toBe(elements[2])
+      press('B')
+      expect(document.activeElement).toBe(elements[2])
 
-        vi.advanceTimersByTime(500)
-        press('O')
-        expect(document.activeElement).toBe(elements[3])
-        expect(press(' ').defaultPrevented).toBe(true)
-        expect(document.activeElement).toBe(elements[3])
+      vi.advanceTimersByTime(500)
+      press('O')
+      expect(document.activeElement).toBe(elements[3])
+      expect(press(' ').defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(elements[3])
 
-        vi.advanceTimersByTime(500)
-        expect(press(' ').defaultPrevented).toBe(false)
+      vi.advanceTimersByTime(500)
+      expect(press(' ').defaultPrevented).toBe(false)
 
-        for (const release of releases) {
-          release()
-        }
-        dispose()
-      })
+      for (const release of releases) {
+        release()
+      }
+      dispose()
     } finally {
       for (const element of elements) {
         element.remove()
@@ -289,51 +283,49 @@ describe('useOverlayMenuLayerState', () => {
     document.body.append(first, second, disabled)
 
     try {
-      createRoot((dispose) => {
-        const layer = useOverlayMenuLayerState()
-        const releaseFirst = flush(() =>
-          layer.registerItem({
-            disabled: () => false,
-            element: () => first,
-            hasSubmenu: false,
-            id: 'first',
-            textValue: () => 'First',
-          }),
-        )
-        const releaseSecond = flush(() =>
-          layer.registerItem({
-            disabled: () => false,
-            element: () => second,
-            hasSubmenu: false,
-            id: 'second',
-            textValue: () => 'Second',
-          }),
-        )
+      const [layer, dispose] = createRoot((d) => [useOverlayMenuLayerState(), d] as const)
+      const releaseFirst = flush(() =>
+        layer.registerItem({
+          disabled: () => false,
+          element: () => first,
+          hasSubmenu: false,
+          id: 'first',
+          textValue: () => 'First',
+        }),
+      )
+      const releaseSecond = flush(() =>
+        layer.registerItem({
+          disabled: () => false,
+          element: () => second,
+          hasSubmenu: false,
+          id: 'second',
+          textValue: () => 'Second',
+        }),
+      )
 
-        flush(() => layer.focusFirstItem())
-        expect(document.activeElement).toBe(first)
-        flush(() => releaseFirst())
-        expect(layer.highlightedItemId()).toBeUndefined()
+      flush(() => layer.focusFirstItem())
+      expect(document.activeElement).toBe(first)
+      flush(() => releaseFirst())
+      expect(layer.highlightedItemId()).toBeUndefined()
 
-        flush(() => layer.focusItemByOffset(1))
-        expect(document.activeElement).toBe(second)
-        flush(() => releaseSecond())
+      flush(() => layer.focusItemByOffset(1))
+      expect(document.activeElement).toBe(second)
+      flush(() => releaseSecond())
 
-        const releaseDisabled = flush(() =>
-          layer.registerItem({
-            disabled: () => true,
-            element: () => disabled,
-            hasSubmenu: false,
-            id: 'disabled',
-            textValue: () => 'Disabled',
-          }),
-        )
-        flush(() => layer.focusFirstItem())
-        expect(layer.highlightedItemId()).toBeUndefined()
+      const releaseDisabled = flush(() =>
+        layer.registerItem({
+          disabled: () => true,
+          element: () => disabled,
+          hasSubmenu: false,
+          id: 'disabled',
+          textValue: () => 'Disabled',
+        }),
+      )
+      flush(() => layer.focusFirstItem())
+      expect(layer.highlightedItemId()).toBeUndefined()
 
-        flush(() => releaseDisabled())
-        dispose()
-      })
+      flush(() => releaseDisabled())
+      dispose()
     } finally {
       first.remove()
       second.remove()
