@@ -724,6 +724,7 @@ describe('tabs', () => {
           observer.notify()
         }
       }
+      flush()
 
       expect(indicator.style.width).toBe('120px')
       expect(indicator.style.transform).toBe('translateX(124px)')
