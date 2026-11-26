@@ -2,14 +2,22 @@ import type { Placement } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import { Portal, dynamic } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, merge, untrack, omit } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  merge,
+  untrack,
+  omit,
+  createRenderEffect,
+} from 'solid-js'
 
 import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { createPolymorphicRoot } from '../../../shared/create-polymorphic-root'
-import { bindElement, publishElement } from '../../../shared/element-binding'
 import { renderWithProps } from '../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import type { ValidComponent } from '../../../shared/types'
@@ -21,6 +29,7 @@ import {
   pick,
   resolvePropsChildren,
   settle,
+  publishElement,
 } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
@@ -284,7 +293,10 @@ export function PopperContent(
   })
 
   const [content, setContent] = createSignal<HTMLDivElement>()
-  bindElement(content, (element) => {
+  createRenderEffect(content, (element) => {
+    if (!element) {
+      return
+    }
     const unpublish = publishElement(contentElement, setContentElement)(element)
     const release = contentPresence.registerElement(element)
     return () => {

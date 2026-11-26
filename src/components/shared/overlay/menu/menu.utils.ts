@@ -1,13 +1,12 @@
 import type { Placement, VirtualElement } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createSignal, onCleanup, untrack } from 'solid-js'
+import { createSignal, onCleanup, untrack, createProjection } from 'solid-js'
 
 import type { KeyBindingOptions } from '../../../../shared/keyboard'
 import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../../../shared/selectable-collection-navigation'
 import { createTypeahead } from '../../../../shared/typeahead'
-import { createSelector } from '../../../../shared/utils'
 import { focusWithoutScrolling } from '../focus'
 
 import type { OverlayMenuItem, OverlayMenuRadioGroupItem } from './types'
@@ -372,7 +371,18 @@ export function useOverlayMenuLayerState(
   const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined, {
     ownedWrite: true,
   })
-  const isHighlighted = createSelector<string | undefined, string>(highlightedItemId)
+  let previousHighlightedId: string | undefined
+  const highlightedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = highlightedItemId()
+    if (previousHighlightedId !== undefined && previousHighlightedId !== next) {
+      delete draft[previousHighlightedId]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousHighlightedId = next
+  }, {})
+  const isHighlighted = (id: string): boolean => highlightedMap[id] === true
   const [items, setItems] = createSignal<Array<OverlayMenuRegisteredItem>>([], {
     ownedWrite: true,
   })
