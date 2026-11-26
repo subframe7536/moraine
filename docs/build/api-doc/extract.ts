@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential extraction keeps shared extractor caches and output ordering deterministic.
 import type { DocsPageSource } from '../routes.ts'
 
 import { TypeExtractor } from './extract-types.ts'

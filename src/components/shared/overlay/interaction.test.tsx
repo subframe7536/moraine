@@ -26,7 +26,7 @@ function RebindableInteraction(props: {
 
 describe('useOverlayInteraction', () => {
   it('rebinds document interactions when the mounted content changes documents', async () => {
-    const onEscape = vi.fn()
+    const onEscape = vi.fn<(...args: Array<any>) => void>()
     const foreignDocument = document.implementation.createHTMLDocument('foreign')
     let setContent: (content: HTMLElement) => void = () => undefined
     const screen = render(() => (
@@ -52,7 +52,7 @@ describe('useOverlayInteraction', () => {
   })
 
   it('does not trigger onPointerOutside when pointerdown starts inside and releases outside', () => {
-    const onPointerOutside = vi.fn()
+    const onPointerOutside = vi.fn<(...args: Array<any>) => void>()
     const content = document.createElement('div')
     const outside = document.createElement('div')
     document.body.append(content)

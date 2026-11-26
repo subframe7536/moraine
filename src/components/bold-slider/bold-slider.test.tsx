@@ -144,8 +144,8 @@ describe('boldSlider', () => {
   })
 
   it('updates the displayed value from keyboard input and reports changes', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BoldSlider
         label="Volume"
@@ -242,8 +242,8 @@ describe('boldSlider', () => {
   })
 
   it('calls user onFocus and onBlur when the thumb gains and loses focus', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BoldSlider label="Opacity" defaultValue={50} onFocus={onFocus} onBlur={onBlur} />
     ))

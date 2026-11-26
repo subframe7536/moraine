@@ -65,7 +65,7 @@ describe('hasOverlayMenuChildren', () => {
 
 describe('createLayerKeyDownHandler', () => {
   it('does not close the menu for Escape emitted during IME composition', () => {
-    const onClose = vi.fn()
+    const onClose = vi.fn<(...args: Array<any>) => void>()
 
     createRoot((dispose) => {
       const layer = useOverlayMenuLayerState()
@@ -124,7 +124,7 @@ describe('createPointerGraceIntent', () => {
         top: 40,
       })
       const pendingTarget = {} as HTMLElement
-      const pendingPointerEnter = vi.fn()
+      const pendingPointerEnter = vi.fn<(...args: Array<any>) => void>()
 
       createRoot((dispose) => {
         const layer = useOverlayMenuLayerState()
@@ -185,7 +185,7 @@ describe('createPointerGraceIntent', () => {
         top: 120,
       })
       const pendingTarget = {} as HTMLElement
-      const pendingPointerEnter = vi.fn()
+      const pendingPointerEnter = vi.fn<(...args: Array<any>) => void>()
 
       createRoot((dispose) => {
         const layer = useOverlayMenuLayerState()

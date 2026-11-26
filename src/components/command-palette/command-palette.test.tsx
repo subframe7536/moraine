@@ -114,7 +114,7 @@ describe('commandPalette', () => {
     const initial = { value: 'run', label: 'Run', disabled: false }
     const replacement = { value: 'run', label: 'Run again', disabled: true }
     const [item, setItem] = createSignal(initial)
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <CommandPalette
         autoFocus={false}
@@ -152,7 +152,7 @@ describe('commandPalette', () => {
   })
 
   it('protects listbox and option semantics from forwarded props', async () => {
-    const select = vi.fn()
+    const select = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <CommandPalette
         autoFocus={false}
@@ -228,7 +228,7 @@ describe('commandPalette', () => {
   })
 
   it('filters as the user types, reports the term, and shows the empty state without matches', () => {
-    const onSearchValueChange = vi.fn()
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <CommandPalette items={GROUPS} autoFocus={false} onSearchValueChange={onSearchValueChange} />
     ))
@@ -264,7 +264,7 @@ describe('commandPalette', () => {
   })
 
   it('moves the highlight through enabled commands with wrapping and ignores disabled ones', () => {
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
     render(() => <CommandPalette items={GROUPS} autoFocus={false} onSelect={onSelect} />)
     const input = body().getByRole('combobox')
     const active = () => document.getElementById(input.getAttribute('aria-activedescendant')!)
@@ -285,9 +285,9 @@ describe('commandPalette', () => {
   })
 
   it('fires item and palette selection callbacks and closes by default', async () => {
-    const onItemSelect = vi.fn()
-    const onSelect = vi.fn()
-    const onCloseRequest = vi.fn()
+    const onItemSelect = vi.fn<(...args: Array<any>) => void>()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
+    const onCloseRequest = vi.fn<(...args: Array<any>) => void>()
     const selectedItem = { value: 'action', label: 'Action', onSelect: onItemSelect }
 
     render(() => (
@@ -309,7 +309,7 @@ describe('commandPalette', () => {
   })
 
   it('prevents mouse pointerdown but preserves touch and pen tap synthesis', async () => {
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <CommandPalette
         items={[{ type: 'group', children: [{ value: 'action', label: 'Action' }] }]}
@@ -369,8 +369,8 @@ describe('commandPalette', () => {
   })
 
   it('keeps the palette open when closeOnSelect is false', async () => {
-    const onSelect = vi.fn()
-    const onCloseRequest = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
+    const onCloseRequest = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <CommandPalette
@@ -392,7 +392,7 @@ describe('commandPalette', () => {
   })
 
   it('activates the highlighted item on Enter', async () => {
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <CommandPalette
@@ -418,10 +418,10 @@ describe('commandPalette', () => {
 
   it('does not activate a command from composition Enter events', () => {
     vi.useFakeTimers()
-    const onSelect = vi.fn()
-    const onCloseRequest = vi.fn()
-    const onCompositionStart = vi.fn()
-    const onCompositionEnd = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
+    const onCloseRequest = vi.fn<(...args: Array<any>) => void>()
+    const onCompositionStart = vi.fn<(...args: Array<any>) => void>()
+    const onCompositionEnd = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CommandPalette
         items={[{ type: 'group', children: [{ value: 'action', label: 'Action' }] }]}
@@ -473,7 +473,7 @@ describe('commandPalette', () => {
 
   it('ignores Enter that follows a second composition session shortly after it ends', () => {
     vi.useFakeTimers()
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CommandPalette
         items={[{ type: 'group', children: [{ value: 'action', label: 'Action' }] }]}
@@ -500,7 +500,7 @@ describe('commandPalette', () => {
   })
 
   it('does not filter on partial IME composition', () => {
-    const onSearchValueChange = vi.fn()
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CommandPalette items={GROUPS} onSearchValueChange={onSearchValueChange} />
     ))
@@ -515,7 +515,7 @@ describe('commandPalette', () => {
   })
 
   it('truncates committed search text to searchMaxLength', () => {
-    const onSearchValueChange = vi.fn()
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CommandPalette
         items={GROUPS}
@@ -578,7 +578,7 @@ describe('commandPalette', () => {
   })
 
   it('shows a close button only when closable and reports clicks through onCloseRequest', () => {
-    const onCloseRequest = vi.fn()
+    const onCloseRequest = vi.fn<(...args: Array<any>) => void>()
     const closable = render(() => (
       <CommandPalette items={GROUPS} autoFocus={false} closable onCloseRequest={onCloseRequest} />
     ))
@@ -1015,7 +1015,7 @@ describe('commandPalette', () => {
 
   it('renders a virtual window while the input keeps active-descendant focus', async () => {
     const [entryIndex, setEntryIndex] = createSignal(1)
-    const scrollToIndex = vi.fn()
+    const scrollToIndex = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <CommandPalette
         items={GROUPS}
@@ -1202,8 +1202,8 @@ describe('commandPalette', () => {
     })
   })
   it('forwards input, listbox, and item props', async () => {
-    const listboxRef = vi.fn()
-    const itemRef = vi.fn()
+    const listboxRef = vi.fn<(...args: Array<any>) => void>()
+    const itemRef = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <CommandPalette
         items={GROUPS}

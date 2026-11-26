@@ -98,7 +98,7 @@ describe('alert', () => {
   })
 
   it('renders a close button that reports dismissal through onOpenChange', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Alert title="Dismissible alert" closable onOpenChange={onOpenChange} />
     ))

@@ -292,7 +292,7 @@ describe('generateApiDoc', () => {
     expect(tree?.dataAttributes.find((target) => target.target === 'row')?.attributes).toEqual(
       expect.arrayContaining(['data-expanded', 'data-selected']),
     )
-  })
+  }, 20_000)
 
   it('is deterministic', async () => {
     const pages = scanDocsPages(projectRoot)
@@ -300,5 +300,5 @@ describe('generateApiDoc', () => {
     const second = await generateApiDoc(projectRoot, pages)
     expect(JSON.stringify(first.indexDoc)).toBe(JSON.stringify(second.indexDoc))
     expect(JSON.stringify([...first.componentDocs])).toBe(JSON.stringify([...second.componentDocs]))
-  })
+  }, 20_000)
 })

@@ -46,7 +46,7 @@ describe('hoverCard', () => {
 
   it('opens after the open delay and closes after the close delay', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={600} closeDelay={300} onOpenChange={onOpenChange}>
         <HoverCard.Trigger href="/u/solid">@solidjs</HoverCard.Trigger>
@@ -153,7 +153,7 @@ describe('hoverCard', () => {
   it('a disabled trigger does not open on hover or keyboard focus', async () => {
     vi.useFakeTimers()
     stubFocusVisible(true)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger href="/u/solid" disabled>
@@ -220,7 +220,7 @@ describe('hoverCard', () => {
 
   it('keeps the card open while the pointer moves from trigger to content', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -247,7 +247,7 @@ describe('hoverCard', () => {
 
   it('does not close an externally opened card when leaving its content', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard defaultOpen closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -270,7 +270,7 @@ describe('hoverCard', () => {
 
   it('does not fire onOpenChange again when re-hovering while open', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -292,7 +292,7 @@ describe('hoverCard', () => {
 
   it('emits one controlled open request after rapid re-entry', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard open={false} openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -312,7 +312,7 @@ describe('hoverCard', () => {
 
   it('closes with instant motion on Escape and reopens on hover', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -341,7 +341,7 @@ describe('hoverCard', () => {
 
   it('closes on outside press and reopens on hover', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <div>
         <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
@@ -373,7 +373,7 @@ describe('hoverCard', () => {
 
   it('does not close or prevent default when the trigger is clicked', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -397,8 +397,8 @@ describe('hoverCard', () => {
 
   it('keeps the parent card open while a nested card is hovered and closes both together', async () => {
     vi.useFakeTimers()
-    const parentChange = vi.fn()
-    const childChange = vi.fn()
+    const parentChange = vi.fn<(...args: Array<any>) => void>()
+    const childChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={parentChange}>
         <HoverCard.Trigger>Parent trigger</HoverCard.Trigger>
@@ -449,7 +449,7 @@ describe('hoverCard', () => {
 
   it('moves one shared card across triggers and exposes each trigger value', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger value="ananya">@ananya</HoverCard.Trigger>
@@ -486,7 +486,7 @@ describe('hoverCard', () => {
   it('does not open while disabled', async () => {
     vi.useFakeTimers()
     stubFocusVisible(true)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard disabled openDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>

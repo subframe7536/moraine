@@ -143,7 +143,7 @@ describe('combobox', () => {
   })
 
   it('clear and trigger coexist and clear does not open', () => {
-    const onClear = vi.fn()
+    const onClear = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox items={ITEMS} defaultValue="apple" clearable onClear={onClear} />
     ))
@@ -161,8 +161,8 @@ describe('combobox', () => {
   })
 
   it('keeps query and committed value independent with exit-safe cleanup', async () => {
-    const onSearchValueChange = vi.fn()
-    const onChange = vi.fn()
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox
         items={ITEMS}
@@ -201,7 +201,7 @@ describe('combobox', () => {
 
   it('keeps a controlled query until the parent applies onSearchValueChange', () => {
     const [query, setQuery] = createSignal('ap')
-    const onSearchValueChange = vi.fn()
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox
         items={ITEMS}
@@ -231,7 +231,7 @@ describe('combobox', () => {
   })
 
   it('does not publish partial IME composition', () => {
-    const onSearchValueChange = vi.fn()
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox items={ITEMS} onSearchValueChange={onSearchValueChange} />
     ))
@@ -323,7 +323,7 @@ describe('combobox', () => {
   })
 
   it('treats value undefined as uncontrolled and applies defaultValue', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox items={ITEMS} value={undefined} defaultValue="banana" onValueChange={onChange} />
     ))
@@ -338,7 +338,7 @@ describe('combobox', () => {
 
   it('keeps a defined value authoritative over defaultValue and user selection', () => {
     const [value, setValue] = createSignal<string | undefined>('apple')
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox items={ITEMS} value={value()} defaultValue="banana" onValueChange={onChange} />
     ))
@@ -355,7 +355,7 @@ describe('combobox', () => {
 
   it('treats value null as a controlled empty selection', () => {
     const [value, setValue] = createSignal<string | null | undefined>('banana')
-    const onChange = vi.fn((next: string | null | undefined) => setValue(next))
+    const onChange = vi.fn<(next: string | null | undefined) => any>((next) => setValue(next))
     const screen = render(() => (
       <Combobox items={ITEMS} value={value()} defaultValue="apple" onValueChange={onChange} />
     ))
@@ -500,7 +500,7 @@ describe('combobox', () => {
 })
 
 it('selects, submits, clears, and resets string shorthand values', async () => {
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <form>
       <Combobox
@@ -558,10 +558,10 @@ it('updates mixed string groups and passes normalized objects to row callbacks',
 })
 
 it('filters normalized string items and commits a keyboard selection', () => {
-  const filterMethod = vi.fn((query: string, item: { value: string; label: string }) =>
-    item.label.toLowerCase().includes(query.toLowerCase()),
+  const filterMethod = vi.fn<(query: string, item: { value: string; label: string }) => any>(
+    (query, item) => item.label.toLowerCase().includes(query.toLowerCase()),
   )
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <Combobox
       items={['Apple', 'Banana']}
@@ -624,7 +624,7 @@ it('commits Android composition input immediately', () => {
   const userAgent = vi
     .spyOn(navigator, 'userAgent', 'get')
     .mockReturnValue('Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36')
-  const onSearchValueChange = vi.fn()
+  const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
   try {
     const screen = render(() => (
       <Combobox items={ITEMS} onSearchValueChange={onSearchValueChange} />
@@ -641,7 +641,7 @@ it('commits Android composition input immediately', () => {
 it('ignores Enter immediately after compositionend', () => {
   vi.useFakeTimers()
   try {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Combobox items={ITEMS} defaultOpen onValueChange={onChange} />)
     const input = screen.getByRole('combobox')
     fireEvent.compositionStart(input)
@@ -656,7 +656,7 @@ it('ignores Enter immediately after compositionend', () => {
 })
 
 it('combobox clearable provides non-tabbable button without focus ring and keyboard clear', () => {
-  const onClear = vi.fn()
+  const onClear = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <Combobox items={['Apple', 'Banana']} defaultValue="Apple" clearable onClear={onClear} />
   ))
@@ -688,7 +688,7 @@ it('scrolls a distant initial selection into view once the virtualizer mounts', 
     clientHeight.mockRestore()
   })
   // jsdom has no `Element.scrollTo`, so the scroll the virtualizer requests is recorded here.
-  const scrollTo = vi.fn()
+  const scrollTo = vi.fn<(...args: Array<any>) => void>()
   Object.defineProperty(Element.prototype, 'scrollTo', { configurable: true, value: scrollTo })
   onTestFinished(() => {
     Reflect.deleteProperty(Element.prototype, 'scrollTo')

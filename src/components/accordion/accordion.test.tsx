@@ -40,7 +40,7 @@ describe('accordion', () => {
   })
 
   it('single mode toggles same item and emits [] when collapsible=true', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Accordion
@@ -114,7 +114,7 @@ describe('accordion', () => {
   })
 
   it('multiple mode toggles with Space on the focused trigger', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Accordion items={BASE_ITEMS} multiple defaultValue={['one']} onValueChange={onValueChange} />
     ))
@@ -457,7 +457,7 @@ describe('accordion', () => {
   })
 
   it('single controlled mode emits onValueChange and keeps controlled UI state', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Accordion items={BASE_ITEMS} value={['one']} onValueChange={onValueChange} />
@@ -476,7 +476,7 @@ describe('accordion', () => {
   })
 
   it('multiple controlled mode emits onValueChange and keeps controlled UI state', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Accordion items={BASE_ITEMS} multiple value={['one']} onValueChange={onValueChange} />
@@ -495,7 +495,7 @@ describe('accordion', () => {
   })
 
   it('root disabled prevents toggling', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Accordion items={BASE_ITEMS} disabled onValueChange={onValueChange} />
@@ -558,7 +558,7 @@ describe('accordion', () => {
   })
 
   it('disabled item cannot be toggled while other items still work', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Accordion
@@ -750,9 +750,9 @@ describe('accordion', () => {
     vi.stubGlobal(
       'ResizeObserver',
       class {
-        disconnect = vi.fn()
-        observe = vi.fn()
-        unobserve = vi.fn()
+        disconnect = vi.fn<(...args: Array<any>) => void>()
+        observe = vi.fn<(...args: Array<any>) => void>()
+        unobserve = vi.fn<(...args: Array<any>) => void>()
 
         constructor(callback: ResizeObserverCallback) {
           observers.push({ notify: () => callback([], this), disconnect: this.disconnect })

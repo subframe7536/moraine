@@ -164,7 +164,7 @@ describe('breadcrumb', () => {
   })
 
   it('keeps current-page semantics when the source item is explicitly disabled', () => {
-    const renderItem = vi.fn((context: BreadcrumbT.ItemRenderProps) => (
+    const renderItem = vi.fn<(context: BreadcrumbT.ItemRenderProps) => any>((context) => (
       <span>
         {String(context.active)}:{String(context.disabled)}
       </span>
@@ -274,7 +274,7 @@ describe('breadcrumb', () => {
   })
 
   it('does not activate a disabled non-current item', async () => {
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Breadcrumb
         items={[
@@ -305,7 +305,7 @@ describe('breadcrumb', () => {
   })
 
   it('supports itemRender with a custom link', () => {
-    const itemRender = vi.fn((props: BreadcrumbT.ItemRenderProps) => (
+    const itemRender = vi.fn<(props: BreadcrumbT.ItemRenderProps) => any>((props) => (
       <a data-slot="breadcrumb-link" href={props.item.href ?? '#'}>
         {props.item.label}
       </a>
@@ -348,7 +348,7 @@ describe('breadcrumb', () => {
   })
 
   it('mounts one custom renderer per item', () => {
-    const itemRender = vi.fn((context: BreadcrumbT.ItemRenderProps) => (
+    const itemRender = vi.fn<(context: BreadcrumbT.ItemRenderProps) => any>((context) => (
       <span data-slot="custom-item">{context.item.label}</span>
     ))
 

@@ -232,7 +232,9 @@ describe('transformPreviewSourceModule', () => {
 
 export const BasicExample = () => <Button>basic</Button>
 `
-    const toHtml = vi.fn(async (value: string, lang: 'tsx') => `<pre ${lang}>${value}</pre>`)
+    const toHtml = vi.fn<(value: string, lang: 'tsx') => any>(
+      async (value, lang) => `<pre ${lang}>${value}</pre>`,
+    )
 
     const transformed = await transformPreviewSourceModule(source, parsePreviewCode, toHtml)
 
@@ -248,7 +250,7 @@ export const BasicExample = () => <Button>basic</Button>`,
   })
 
   it('returns empty html module when source is empty', async () => {
-    const toHtml = vi.fn(async () => '<pre>code</pre>')
+    const toHtml = vi.fn<() => any>(async () => '<pre>code</pre>')
 
     const transformed = await transformPreviewSourceModule('   \n\t  ', parsePreviewCode, toHtml)
 

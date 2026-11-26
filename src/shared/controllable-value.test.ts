@@ -84,7 +84,7 @@ describe('createControllableValue', () => {
       const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined, {
         ownedWrite: true,
       })
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const [value, setValue] = createControllableValue({
         value: controlledValue,
         defaultValue: () => 'initial',

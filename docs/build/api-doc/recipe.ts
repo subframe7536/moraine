@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential recursive resolution keeps override ordering deterministic.
 import { existsSync, readFileSync } from 'node:fs'
 
 import path from 'pathe'

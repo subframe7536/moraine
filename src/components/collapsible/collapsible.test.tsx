@@ -93,7 +93,7 @@ describe('collapsible', () => {
   })
 
   it('controlled open does not self-mutate and calls onOpenChange', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = renderCollapsible({ open: true, onOpenChange })
     const trigger = screen.getByTestId('trigger-control')
     const root = screen.container.querySelector('[data-slot="collapsible"]')
@@ -106,7 +106,7 @@ describe('collapsible', () => {
   })
 
   it('publishes each uncontrolled state change exactly once in order', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = renderCollapsible({ defaultOpen: false, onOpenChange })
     const trigger = screen.getByTestId('trigger-control')
 
@@ -117,7 +117,7 @@ describe('collapsible', () => {
   })
 
   it('disabled prevents toggling', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = renderCollapsible({
       defaultOpen: false,
       disabled: true,
@@ -135,7 +135,7 @@ describe('collapsible', () => {
 
   it('reactive disabled state suppresses trigger', async () => {
     const [disabled, setDisabled] = createSignal(false)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Collapsible disabled={disabled()} onOpenChange={onOpenChange}>
         <Collapsible.Trigger>Toggle</Collapsible.Trigger>
@@ -153,7 +153,7 @@ describe('collapsible', () => {
   })
 
   it('honors a canceled trigger event before toggling', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Collapsible onOpenChange={onOpenChange}>
         <Collapsible.Trigger>Prevented</Collapsible.Trigger>

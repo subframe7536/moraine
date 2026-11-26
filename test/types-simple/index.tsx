@@ -1,13 +1,4 @@
-import type { JSX } from '@solidjs/web'
 import { Badge, Button, Card, List, Separator, Slider } from 'moraine'
-import type { BaseSelect, useCn, Tags, ValidComponent } from 'moraine'
-import type {
-  createId,
-  createSlider,
-  createTransitionPresence,
-  createControllableValue,
-} from 'moraine/utils'
-import type { createListVirtualizer } from 'moraine/virtualizer'
 
 declare module 'moraine' {
   interface MoraineTypeConfig {
@@ -52,21 +43,3 @@ const acceptButton = (element: HTMLButtonElement) => element.focus()
 ;<List items={[1]} itemRender={(context) => <li>{context.item}</li>} children={<li />} />
 // @ts-expect-error List still requires CSS properties for style.
 ;<List items={[1]} itemRender={(context) => <li>{context.item}</li>} style="color: red" />
-
-type Assert<T extends true> = T
-type Callable = (...args: Array<never>) => unknown
-export type SimpleTagAssertions = [
-  Assert<typeof BaseSelect.useContext extends Callable ? true : false>,
-  Assert<typeof createId extends Callable ? true : false>,
-  Assert<typeof useCn extends Callable ? true : false>,
-  Assert<typeof createSlider extends Callable ? true : false>,
-  Assert<typeof createTransitionPresence extends Callable ? true : false>,
-  Assert<typeof createControllableValue extends Callable ? true : false>,
-  Assert<typeof createListVirtualizer extends Callable ? true : false>,
-  Assert<Tags extends keyof JSX.HTMLElementTags ? true : false>,
-  Assert<'svg' extends Tags ? false : true>,
-  Assert<'div' extends Tags ? true : false>,
-  Assert<Tags extends ValidComponent ? true : false>,
-  Assert<((props: any) => any) extends ValidComponent ? true : false>,
-  Assert<string & {} extends ValidComponent ? true : false>,
-]

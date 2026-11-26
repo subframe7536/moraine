@@ -27,9 +27,9 @@ describe('toggleButton', () => {
     expect(screen.queryByText('Visible content')).toBeNull()
   })
   it('toggles native button state after the caller click without submitting its form', () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const events: Array<string> = []
-    const ref = vi.fn()
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form onSubmit={onSubmit}>
         <ToggleButton
@@ -58,7 +58,7 @@ describe('toggleButton', () => {
 
   it('uses initial uncontrolled state and waits for controlled updates', () => {
     const [pressed, setPressed] = createSignal(false)
-    const onPressedChange = vi.fn()
+    const onPressedChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <ToggleButton defaultPressed>Initial</ToggleButton>
@@ -82,8 +82,8 @@ describe('toggleButton', () => {
   })
 
   it('honors cancelled clicks and inherited disabled/loading activation guards', () => {
-    const onPressedChange = vi.fn()
-    const onClick = vi.fn()
+    const onPressedChange = vi.fn<(...args: Array<any>) => void>()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <ToggleButton
@@ -125,8 +125,8 @@ describe('toggleButton', () => {
         resolve = res
         reject = rej
       })
-      const onClick = vi.fn(() => promise)
-      const onPressedChange = vi.fn()
+      const onClick = vi.fn<() => any>(() => promise)
+      const onPressedChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ToggleButton
           autoLoading
@@ -251,7 +251,7 @@ describe('toggleButton', () => {
 
   it('supports non-native element roots with role=button and keyboard activation', async () => {
     let divRef: HTMLDivElement | undefined
-    const onDivToggle = vi.fn()
+    const onDivToggle = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ToggleButton
@@ -283,7 +283,7 @@ describe('toggleButton', () => {
 
   it('supports anchor roots and forwards href without type attribute', () => {
     let anchorRef: HTMLAnchorElement | undefined
-    const onAnchorToggle = vi.fn()
+    const onAnchorToggle = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <ToggleButton

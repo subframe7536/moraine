@@ -257,7 +257,7 @@ describe('dataTable', () => {
   })
 
   it('resets to page 0 with the resolved state when the page size changes, and ignores data-only updates', async () => {
-    const onPaginationChange = vi.fn()
+    const onPaginationChange = vi.fn<(...args: Array<any>) => void>()
     const [data, setData] = createSignal(TEST_DATA)
     const [pagination, setPagination] = createSignal({ pageIndex: 2, pageSize: 5 })
 
@@ -345,7 +345,7 @@ describe('dataTable', () => {
   })
 
   it('keeps sorting itself when only onSortingChange is provided', () => {
-    const onSortingChange = vi.fn()
+    const onSortingChange = vi.fn<(...args: Array<any>) => void>()
     render(() => {
       const table = createPersonTable({ onSortingChange })
       return <table.DataTable />
@@ -386,10 +386,10 @@ describe('dataTable', () => {
     const [headProps, setHeadProps] = createSignal<DataTableT.Base<Person>['headProps']>(undefined)
     const [sorting, setSorting] = createSignal<Array<{ id: string; desc: boolean }>>([])
     const [columnOrder, setColumnOrder] = createSignal<Array<string>>(['name', 'age', 'role'])
-    const rowSetup = vi.fn()
-    const rowCleanup = vi.fn()
-    const headSetup = vi.fn()
-    const headCleanup = vi.fn()
+    const rowSetup = vi.fn<(...args: Array<any>) => void>()
+    const rowCleanup = vi.fn<(...args: Array<any>) => void>()
+    const headSetup = vi.fn<(...args: Array<any>) => void>()
+    const headCleanup = vi.fn<(...args: Array<any>) => void>()
 
     const { container } = render(() => {
       const table = createPersonTable({
@@ -794,7 +794,7 @@ describe('dataTable', () => {
   })
 
   it('keeps a single-selection radio unchecked when controlled state rejects the change', () => {
-    const onRowSelectionChange = vi.fn()
+    const onRowSelectionChange = vi.fn<(...args: Array<any>) => void>()
     render(() => {
       const table = createPersonTable({
         selectionMode: 'single',
@@ -1123,7 +1123,7 @@ describe('dataTable', () => {
   })
 
   it('does not emit onRowClick when a selection checkbox is clicked', () => {
-    const onRowClick = vi.fn()
+    const onRowClick = vi.fn<(...args: Array<any>) => void>()
 
     render(() => {
       const table = createPersonTable({ selectionMode: 'multiple' })
@@ -1139,8 +1139,8 @@ describe('dataTable', () => {
   })
 
   it('emits onRowClick and onRowDoubleClick events', () => {
-    const onRowClick = vi.fn()
-    const onRowDoubleClick = vi.fn()
+    const onRowClick = vi.fn<(...args: Array<any>) => void>()
+    const onRowDoubleClick = vi.fn<(...args: Array<any>) => void>()
 
     render(() => {
       const table = createPersonTable()
@@ -1272,8 +1272,8 @@ describe('dataTable', () => {
   })
 
   it('lets top-level options win over the same settings in tableOptions', () => {
-    const onSortingChange = vi.fn()
-    const escapeHatchSortingChange = vi.fn()
+    const onSortingChange = vi.fn<(...args: Array<any>) => void>()
+    const escapeHatchSortingChange = vi.fn<(...args: Array<any>) => void>()
     render(() => {
       const table = createPersonTable({
         paginated: { pageSize: 25 },
@@ -1456,7 +1456,7 @@ describe('dataTable', () => {
   })
 
   it('resizes columns from the keyboard through an accessible separator', () => {
-    const onColumnSizingChange = vi.fn()
+    const onColumnSizingChange = vi.fn<(...args: Array<any>) => void>()
     const { container } = render(() => {
       const table = createPersonTable({
         resizable: true,

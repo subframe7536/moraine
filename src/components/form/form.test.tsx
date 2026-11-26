@@ -26,7 +26,7 @@ const Schema = v.object({
 
 describe('form', () => {
   it('submits Formisch output through the high-level adapters', async () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -154,7 +154,7 @@ describe('form', () => {
   })
 
   it('blocks invalid submission and renders the first field error', async () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -351,7 +351,7 @@ describe('form', () => {
   })
 
   it('binds and submits a root array field', async () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () => createForm({ schema: v.array(v.string()), initialInput: ['Initial'] }),
       (form) => (
@@ -379,8 +379,8 @@ describe('form', () => {
       first: v.pipe(v.string(), v.nonEmpty('First is required.')),
       second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
     })
-    const firstFocus = vi.fn()
-    const secondFocus = vi.fn()
+    const firstFocus = vi.fn<(...args: Array<any>) => void>()
+    const secondFocus = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () => createForm({ schema, initialInput: { first: '', second: '' } }),
       (form) => (
@@ -607,8 +607,8 @@ describe('form', () => {
 
   it('preserves the native submitter and exposes exact async submitting state', async () => {
     let resolveSubmit: (() => void) | undefined
-    const onSubmit = vi.fn(
-      (_output: v.InferOutput<typeof Schema>, _event: SubmitEvent) =>
+    const onSubmit = vi.fn<(_output: v.InferOutput<typeof Schema>, _event: SubmitEvent) => any>(
+      (_output, _event) =>
         new Promise<void>((resolve) => {
           resolveSubmit = resolve
         }),
@@ -666,7 +666,7 @@ describe('form', () => {
     'resets native controls and Formisch state with enabled initially %s',
     async (enabled) => {
       const resetSnapshots: Array<unknown> = []
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const { screen, value: form } = renderWithOwner(
         () =>
           createForm({
@@ -795,8 +795,8 @@ describe('form', () => {
 
   it('keeps sibling form providers and submissions isolated', async () => {
     const schema = v.object({ value: v.string() })
-    const firstSubmit = vi.fn()
-    const secondSubmit = vi.fn()
+    const firstSubmit = vi.fn<(...args: Array<any>) => void>()
+    const secondSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: forms } = renderWithOwner(
       (): [
         ReturnType<typeof createForm<typeof schema>>,

@@ -32,7 +32,7 @@ describe('multiSelect', () => {
   })
 
   it('accepts string shorthand items', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={['Apple', 'Pear']}
@@ -153,7 +153,7 @@ describe('multiSelect', () => {
   })
 
   it('clear and trigger coexist without accidental opening', () => {
-    const onClear = vi.fn()
+    const onClear = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple']} clearable onClear={onClear} />
     ))
@@ -164,7 +164,7 @@ describe('multiSelect', () => {
   })
 
   it('tag removal changes once and does not open', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple', 'banana']} onValueChange={onChange} />
     ))
@@ -174,8 +174,8 @@ describe('multiSelect', () => {
   })
 
   it('normal selection stays open and clears query', () => {
-    const onSearchValueChange = vi.fn()
-    const onChange = vi.fn()
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         searchable
@@ -194,11 +194,11 @@ describe('multiSelect', () => {
   })
 
   it('createItem adds a canonical item and selects its value', () => {
-    const createItem = vi.fn((input: string) => ({
+    const createItem = vi.fn<(input: string) => any>((input) => ({
       label: input.toUpperCase(),
       value: input,
     }))
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
@@ -213,8 +213,11 @@ describe('multiSelect', () => {
   })
 
   it('active existing option wins Enter over createItem', () => {
-    const createItem = vi.fn((input: string) => ({ label: input, value: input }))
-    const onChange = vi.fn()
+    const createItem = vi.fn<(input: string) => any>((input) => ({
+      label: input,
+      value: input,
+    }))
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
@@ -226,8 +229,8 @@ describe('multiSelect', () => {
   })
 
   it('reuses a canonical value returned by createItem', () => {
-    const createItem = vi.fn(() => ({ label: 'Duplicate', value: 'apple' }))
-    const onChange = vi.fn()
+    const createItem = vi.fn<() => any>(() => ({ label: 'Duplicate', value: 'apple' }))
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
@@ -241,7 +244,7 @@ describe('multiSelect', () => {
   })
 
   it('rejects an invalid item returned by an untyped createItem implementation', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={ITEMS}
@@ -257,7 +260,7 @@ describe('multiSelect', () => {
   })
 
   it('maxValues blocks additions but allows removal', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         searchable
@@ -389,7 +392,7 @@ describe('multiSelect', () => {
   })
 
   it('creates free-form items with Enter and the default comma separator', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -406,7 +409,7 @@ describe('multiSelect', () => {
   })
 
   it('tokenizes duplicate, multiple, and overlapping multi-character separators', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -420,7 +423,7 @@ describe('multiSelect', () => {
   })
 
   it('deduplicates token commits and applies maxValues to created items', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         defaultValue={['alpha']}
@@ -438,7 +441,7 @@ describe('multiSelect', () => {
   })
 
   it('pastes multiple tokens and leaves ordinary paste to the input', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -455,7 +458,7 @@ describe('multiSelect', () => {
   })
 
   it('defers tokenization until IME composition ends', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -473,8 +476,11 @@ describe('multiSelect', () => {
   })
 
   it('resolves exact existing items before creation and rejects disabled items', () => {
-    const createItem = vi.fn((input: string) => ({ value: input, label: input }))
-    const onChange = vi.fn()
+    const createItem = vi.fn<(input: string) => any>((input) => ({
+      value: input,
+      label: input,
+    }))
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} />
     ))
@@ -621,7 +627,7 @@ describe('multiSelect', () => {
   })
 
   it('treats value undefined as uncontrolled and applies defaultValue', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={ITEMS}
@@ -644,7 +650,7 @@ describe('multiSelect', () => {
 
   it('keeps a defined value authoritative over defaultValue and user selection', () => {
     const [value, setValue] = createSignal<Array<string> | undefined>(['apple'])
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={ITEMS}
@@ -788,7 +794,7 @@ describe('multiSelect', () => {
   })
 
   it('pressing Enter on a duplicate tag does not delete previously created tag', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -810,7 +816,7 @@ describe('multiSelect', () => {
   })
 
   it('pressing Enter on a duplicate item from items collection does not delete the tag', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect searchable items={ITEMS} defaultValue={['apple']} onValueChange={onChange} />
     ))
@@ -823,7 +829,7 @@ describe('multiSelect', () => {
   })
 
   it('entering duplicate tag via delimiter does not duplicate or delete existing tag', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -838,7 +844,7 @@ describe('multiSelect', () => {
   })
 
   it('pressing Enter on a highlighted already-selected option does not deselect it', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         searchable
@@ -857,7 +863,7 @@ describe('multiSelect', () => {
   })
 
   it('clear-all preserves selected items that are currently disabled', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={[

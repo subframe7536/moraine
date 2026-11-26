@@ -32,7 +32,7 @@ describe('breadcrumb SSR Hydration', () => {
   })
 
   it('hydrates a custom renderer without replacing the trail and preserves activation', () => {
-    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+    const onClick = vi.fn<(event: MouseEvent) => any>((event) => event.preventDefault())
 
     const { container } = hydrateFixture(
       '/src/components/breadcrumb/breadcrumb.ssr.fixture.tsx',

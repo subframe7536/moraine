@@ -8,7 +8,7 @@ import { Input } from './input'
 describe('input SSR Hydration', () => {
   it('reuses its only native element and preserves controlled value behavior', async () => {
     const [value, setValue] = createSignal('Server value')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { container } = hydrateFixture(
       '/src/components/input/input.ssr.fixture.tsx',
       'renderInputFixture',

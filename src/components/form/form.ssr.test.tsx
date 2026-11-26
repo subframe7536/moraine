@@ -10,7 +10,7 @@ import { Switch } from '../switch'
 import { createForm } from './'
 describe('form SSR Hydration', () => {
   it('hydrates and resets the same controls before submitting the client-owned store', async () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
 
     function ClientForm() {
       const form = createForm({

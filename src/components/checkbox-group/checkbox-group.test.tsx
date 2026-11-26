@@ -104,7 +104,7 @@ describe('checkboxGroup', () => {
   })
 
   it('supports uncontrolled value changes', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup items={['A', 'B']} defaultValue={['A']} onValueChange={onChange} />
     ))
@@ -123,7 +123,7 @@ describe('checkboxGroup', () => {
   })
 
   it('toggles item with Space key', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <CheckboxGroup items={['A', 'B']} onValueChange={onChange} />)
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
@@ -147,10 +147,10 @@ describe('checkboxGroup', () => {
   })
 
   it('emits Field focus and blur only at visual group boundaries', () => {
-    const emit = vi.fn()
+    const emit = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
@@ -179,8 +179,8 @@ describe('checkboxGroup', () => {
   })
 
   it('calls user onFocus once when focus enters the group and onBlur when it leaves', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup items={['A', 'B']} onFocus={onFocus} onBlur={onBlur} />
     ))
@@ -239,7 +239,7 @@ describe('checkboxGroup', () => {
   })
 
   it('does not toggle disabled group or item', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup
         disabled
@@ -269,7 +269,7 @@ describe('checkboxGroup', () => {
   })
 
   it('does not toggle readonly items', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <CheckboxGroup items={['A']} readOnly onValueChange={onChange} />)
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
@@ -284,7 +284,7 @@ describe('checkboxGroup', () => {
   })
 
   it('keeps controlled selection until parent updates', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup items={['A', 'B']} value={['A']} onValueChange={onChange} />
     ))
@@ -561,7 +561,7 @@ describe('checkboxGroup', () => {
   it('uses the initial default snapshot and preserves a controlled value on reset', async () => {
     const [defaultValue, setDefaultValue] = createSignal(['A'])
     const [controlledValue, setControlledValue] = createSignal<Array<string> | undefined>()
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <CheckboxGroup
@@ -595,7 +595,7 @@ describe('checkboxGroup', () => {
 
   it('synchronizes external controlled values into Field submission', async () => {
     const [value, setValue] = createSignal<Array<string>>([])
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -647,7 +647,7 @@ describe('checkboxGroup', () => {
   })
 
   it('clicking an indeterminate item selects its value', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup
         items={[{ value: 'a', label: 'Alpha', indeterminate: true }]}

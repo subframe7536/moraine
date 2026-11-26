@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createSignal, flush, merge } from 'solid-js'
+import { For, createSignal, flush, merge, untrack } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -51,10 +51,10 @@ function Harness(props: HarnessProps) {
       getItemLabel: (node: Node) => node.name,
       isItemDisabled: (node: Node) => Boolean(node.disabled),
     },
-    props.options,
+    untrack(() => props.options),
   )
   const tree = createTree<Node>(options)
-  props.onTree?.(tree)
+  untrack(() => props.onTree?.(tree))
   return <tree.Tree aria-label="Files" {...props.treeProps} />
 }
 
@@ -341,7 +341,7 @@ describe('createTree', () => {
 
     it('supports controlled expanded keys and retains focus when a subtree collapses', () => {
       const [keys, setKeys] = createSignal<Array<string>>([])
-      const onExpandedKeysChange = vi.fn((next: Array<string>) => setKeys(next))
+      const onExpandedKeysChange = vi.fn<(next: Array<string>) => any>((next) => setKeys(next))
       const { container } = render(() => (
         <Harness
           options={{
@@ -740,7 +740,7 @@ describe('createTree', () => {
     })
 
     it('selects with Enter and also calls onAction when provided', () => {
-      const onAction = vi.fn()
+      const onAction = vi.fn<(...args: Array<any>) => void>()
       const { container, unmount } = setup()
       const readme = item(container, 'README.md')
       flush(() => readme.focus())
@@ -805,7 +805,7 @@ describe('createTree', () => {
 
     it('does not collapse, check, or activate disabled items from keyboard or focus', () => {
       let tree!: TreeT.Instance<Node>
-      const onAction = vi.fn()
+      const onAction = vi.fn<(...args: Array<any>) => void>()
       const nodes: Array<Node> = [
         {
           id: 'branch',
@@ -860,7 +860,7 @@ describe('createTree', () => {
 
   describe('selection', () => {
     it('single selection replaces the selected item and reports changes', () => {
-      const onSelectedKeysChange = vi.fn()
+      const onSelectedKeysChange = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => <Harness options={{ onSelectedKeysChange }} />)
 
       fireEvent.click(item(container, 'README.md'))
@@ -942,7 +942,7 @@ describe('createTree', () => {
 
       expect(item(container, 'docs').getAttribute('aria-selected')).toBe('true')
       fireEvent.click(item(container, 'README.md'))
-      expect(keys()).toEqual(['readme'])
+      expect(untrack(keys)).toEqual(['readme'])
     })
 
     it('selectionMode none ignores clicks', () => {
@@ -1103,7 +1103,7 @@ describe('createTree', () => {
 
     it('itemCheckbox composes its onClick handler and can cancel the toggle', () => {
       let tree!: TreeT.Instance<Node>
-      const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+      const onClick = vi.fn<(event: MouseEvent) => any>((event) => event.preventDefault())
       const { container } = render(() => (
         <Harness
           onTree={(value) => (tree = value)}
@@ -1129,7 +1129,7 @@ describe('createTree', () => {
 
     it('checkedKeys matches onCheckedKeysChange for keys of unloaded items', () => {
       let tree!: TreeT.Instance<Node>
-      const onCheckedKeysChange = vi.fn()
+      const onCheckedKeysChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Harness
           onTree={(value) => (tree = value)}
@@ -1177,7 +1177,7 @@ describe('createTree', () => {
     })
 
     it('reports checked keys changes and ignores disabled items in check and cascade', () => {
-      const onCheckedKeysChange = vi.fn()
+      const onCheckedKeysChange = vi.fn<(...args: Array<any>) => void>()
       let tree!: TreeT.Instance<Node>
       const nodes: Array<Node> = [
         {
@@ -1236,24 +1236,24 @@ describe('createTree', () => {
           getChildren: (node: LazyNode) => node.children,
           getItemLabel: (node: LazyNode) => node.name,
           isLeaf: (node: LazyNode) => !node.lazy && !node.children,
-          loadChildren: props.loadChildren,
+          loadChildren: untrack(() => props.loadChildren),
         },
-        props.options,
+        untrack(() => props.options),
       )
       const tree = createTree<LazyNode>(options)
-      props.onTree?.(tree)
+      untrack(() => props.onTree?.(tree))
       return <tree.Tree aria-label="Remote" />
     }
 
     it('treats unloaded items as branches and loads them on expand', async () => {
       let resolve!: (children: Array<LazyNode>) => void
-      const loadChildren = vi.fn(
+      const loadChildren = vi.fn<() => any>(
         () =>
           new Promise<Array<LazyNode>>((done) => {
             resolve = done
           }),
       )
-      const onLoadChildrenSuccess = vi.fn()
+      const onLoadChildrenSuccess = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => (
         <LazyHarness loadChildren={loadChildren} options={{ onLoadChildrenSuccess }} />
       ))
@@ -1280,7 +1280,7 @@ describe('createTree', () => {
 
     it('reports load failures and stays collapsed', async () => {
       const error = new Error('offline')
-      const onLoadChildrenError = vi.fn()
+      const onLoadChildrenError = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => (
         <LazyHarness loadChildren={() => Promise.reject(error)} options={{ onLoadChildrenError }} />
       ))
@@ -1293,7 +1293,7 @@ describe('createTree', () => {
     })
 
     it('loads children of branches expanded by default', async () => {
-      const loadChildren = vi.fn(async () => [{ id: 'child', name: 'child.txt' }])
+      const loadChildren = vi.fn<() => any>(async () => [{ id: 'child', name: 'child.txt' }])
       const { container } = render(() => (
         <LazyHarness loadChildren={loadChildren} options={{ defaultExpandedKeys: ['remote'] }} />
       ))
@@ -1320,7 +1320,7 @@ describe('createTree', () => {
 
     it('collapses lazy branches expanded in bulk when loading fails', async () => {
       let tree!: TreeT.Instance<LazyNode>
-      const onLoadChildrenError = vi.fn()
+      const onLoadChildrenError = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => (
         <LazyHarness
           onTree={(value) => (tree = value)}
@@ -1341,7 +1341,7 @@ describe('createTree', () => {
       const [items, setItems] = createSignal<ReadonlyArray<LazyNode>>([
         { id: 'remote', name: 'remote', lazy: true },
       ])
-      const loadChildren = vi.fn((node: LazyNode) =>
+      const loadChildren = vi.fn<(node: LazyNode) => any>((node) =>
         Promise.resolve([{ id: `${node.name}-child`, name: `${node.name}.txt` }]),
       )
       const { container } = render(() => (
@@ -1381,7 +1381,7 @@ describe('createTree', () => {
 
   describe('rendering', () => {
     it('renders actionRender inside a trailing action slot that never selects the item', () => {
-      const onAction = vi.fn()
+      const onAction = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => (
         <Harness
           options={{ selectionMode: 'single' }}

@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential traversal preserves AST replacement and removal order.
 import { defineHastPlugin, defineMdastPlugin } from 'satteri'
 import type { HastNode, MdastNode, MdastVisitorContext, MdxJsxAttributeUnion } from 'satteri'
 

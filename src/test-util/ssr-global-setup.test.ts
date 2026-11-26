@@ -7,8 +7,8 @@ import type { TestProject } from 'vitest/node'
 import { renderFixtures } from './ssr-global-setup'
 describe('sSR global setup', () => {
   it('closes the Vite server when a fixture import fails', async () => {
-    const close = vi.fn(async () => undefined)
-    const createViteServer = vi.fn(async () => ({
+    const close = vi.fn<() => any>(async () => undefined)
+    const createViteServer = vi.fn<() => any>(async () => ({
       close,
       environments: {
         ssr: {
@@ -22,7 +22,7 @@ describe('sSR global setup', () => {
     })) as unknown as typeof createServer
     const project = {
       config: { root: process.cwd() },
-      provide: vi.fn(),
+      provide: vi.fn<(...args: Array<any>) => void>(),
     } as unknown as TestProject
 
     await expect(renderFixtures(project, createViteServer)).rejects.toThrow('fixture import failed')

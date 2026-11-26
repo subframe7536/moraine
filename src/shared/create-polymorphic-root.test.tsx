@@ -86,8 +86,8 @@ describe('polymorphic root', () => {
     [NativeLink, 'A', '/docs'],
     [Button, 'BUTTON', undefined],
   ] as const)('resolves %s semantics from its DOM root and clicks once', (as, name, href) => {
-    const press = vi.fn()
-    const click = vi.fn()
+    const press = vi.fn<(...args: Array<any>) => void>()
+    const click = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Root as={as} href={href} onClick={click} onPress={press}>
         Action
@@ -104,7 +104,7 @@ describe('polymorphic root', () => {
 
   it('forwards refs on reactive root replacement and does not set undefined on unmount', () => {
     const [as, setAs] = createSignal<ValidComponent>(() => NativeButton)
-    const ref = vi.fn()
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Root as={as()} ref={ref}>
         Action
@@ -135,7 +135,7 @@ describe('polymorphic root', () => {
   })
 
   it('keeps focusable disabled roots inert and preserves explicit attributes', () => {
-    const press = vi.fn()
+    const press = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Root
         as={NativeButton}
@@ -160,7 +160,7 @@ describe('polymorphic root', () => {
   })
 
   it('runs consumers before activation and honors custom cancellation', () => {
-    const press = vi.fn()
+    const press = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <Root as={CancelingButton} onPress={press}>
@@ -185,7 +185,7 @@ describe('polymorphic root', () => {
   })
 
   it('activates non-native roots with Enter and Space independently', () => {
-    const press = vi.fn()
+    const press = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Root as="span" onPress={press}>
         Action
@@ -208,7 +208,7 @@ describe('polymorphic root', () => {
       const ownerDocument = iframe.contentDocument!
       const host = ownerDocument.createElement('div')
       ownerDocument.body.append(host)
-      const press = vi.fn()
+      const press = vi.fn<(...args: Array<any>) => void>()
       const screen = render(
         () => (
           <Root as={as} onPress={press}>
@@ -229,7 +229,7 @@ describe('polymorphic root', () => {
 
   it('ignores clicks on a detached nested root and activates again once it returns', () => {
     const [visible, setVisible] = createSignal(true)
-    const press = vi.fn()
+    const press = vi.fn<(...args: Array<any>) => void>()
     const ConditionalButton = (props: ButtonProps) => (
       <Show when={visible()}>
         <Button {...props} />
@@ -257,8 +257,8 @@ describe('polymorphic root', () => {
       const iframe = document.createElement('iframe')
       document.body.append(iframe)
       const ownerDocument = iframe.contentDocument!
-      const press = vi.fn()
-      const keyDown = vi.fn()
+      const press = vi.fn<(...args: Array<any>) => void>()
+      const keyDown = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Root as={as} onPress={press} onKeyDown={keyDown} bridgeClick>
           Action

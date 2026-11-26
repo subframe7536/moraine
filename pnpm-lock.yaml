@@ -237,8 +237,8 @@ importers:
         specifier: 'catalog:'
         version: 3.0.1(@babel/core@7.29.13)(@solidjs/web@2.0.3(solid-js@2.0.3))(solid-js@2.0.3)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@subf/config':
-        specifier: ^0.6.3
-        version: 0.6.3
+        specifier: ^0.7.0
+        version: 0.7.0
       '@subf/unocss':
         specifier: 'catalog:'
         version: 0.4.0(@jridgewell/remapping@2.3.5)(magic-string@1.4.5)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -1188,8 +1188,8 @@ packages:
     peerDependencies:
       solid-js: ^2.0.3
 
-  '@subf/config@0.6.3':
-    resolution: {integrity: sha512-dEGq7CdQr4uLAMQDAUnSTbw6PSV+nW6zbb9eZ34LCtqQZosSOwglGooojNs4Y1tlTzRSSPOkGgOhhv6bYmsmQg==}
+  '@subf/config@0.7.0':
+    resolution: {integrity: sha512-scHgoT7+F9db8JmXBA5xpTlj0vOtrtsJyYdnN3cOp83gPed4A7C/oH6B1+a9T9hjHLGZ5R+xPeY1O2AzihNr1w==}
     hasBin: true
 
   '@subf/oxlint-plugin@0.4.1':
@@ -2924,7 +2924,7 @@ snapshots:
       seroval-plugins: 1.8.0(seroval@1.8.2)
       solid-js: 2.0.3
 
-  '@subf/config@0.6.3':
+  '@subf/config@0.7.0':
     dependencies:
       '@subf/oxlint-plugin': 0.4.1
 

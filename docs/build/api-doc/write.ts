@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential staging and renaming keeps rollback behavior deterministic.
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { rename, unlink, writeFile } from 'node:fs/promises'
 

@@ -131,7 +131,7 @@ describe('radioGroup', () => {
   })
 
   it('supports uncontrolled selection changes', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B']} defaultValue="A" onValueChange={onChange} />
     ))
@@ -150,7 +150,7 @@ describe('radioGroup', () => {
   })
 
   it('changes selection with arrow keys', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
     ))
@@ -174,7 +174,7 @@ describe('radioGroup', () => {
   })
 
   it('moves focus without selecting on Shift+Arrow and Home/End', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
     ))
@@ -205,7 +205,7 @@ describe('radioGroup', () => {
   })
 
   it('does not wrap selection when loop is false', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B']} defaultValue="A" loop={false} onValueChange={onChange} />
     ))
@@ -227,7 +227,7 @@ describe('radioGroup', () => {
   })
 
   it('selects with Space on keyup and ignores Enter', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <RadioGroup items={['A', 'B']} onValueChange={onChange} />)
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
 
@@ -256,10 +256,10 @@ describe('radioGroup', () => {
   })
 
   it('forwards Field focus boundaries only when focus enters or leaves the group', () => {
-    const emit = vi.fn()
+    const emit = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <>
@@ -283,8 +283,8 @@ describe('radioGroup', () => {
   })
 
   it('calls user onFocus once when focus enters the group and onBlur when it leaves', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <RadioGroup items={['A', 'B']} onFocus={onFocus} onBlur={onBlur} />
@@ -306,8 +306,8 @@ describe('radioGroup', () => {
   })
 
   it('still calls user onFocusIn and onFocusOut for every item focus change', () => {
-    const onFocusIn = vi.fn()
-    const onFocusOut = vi.fn()
+    const onFocusIn = vi.fn<(...args: Array<any>) => void>()
+    const onFocusOut = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <RadioGroup items={['A', 'B']} onFocusIn={onFocusIn} onFocusOut={onFocusOut} />
@@ -364,7 +364,7 @@ describe('radioGroup', () => {
   })
 
   it('allows Shift+Arrow navigation and ignores Alt/Ctrl/Meta navigation', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
     ))
@@ -429,7 +429,7 @@ describe('radioGroup', () => {
   })
 
   it('keeps controlled value until parent updates', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B']} value="A" onValueChange={onChange} />
     ))
@@ -450,7 +450,7 @@ describe('radioGroup', () => {
 
   it('synchronizes explicit controlled values with Field and restores rejected DOM state', async () => {
     const [value, setValue] = createSignal('A')
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -484,7 +484,7 @@ describe('radioGroup', () => {
   })
 
   it('reacts to external Formisch input without publishing callbacks', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -507,7 +507,7 @@ describe('radioGroup', () => {
   })
 
   it('uses unique item identity and canonicalizes duplicate values to the first item', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <RadioGroup
@@ -671,7 +671,7 @@ describe('radioGroup', () => {
   )
 
   it('respects canceled group clicks and nested interactive label descendants', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const canceled = render(() => (
       <RadioGroup
         variant="card"
@@ -698,7 +698,7 @@ describe('radioGroup', () => {
 
   it('preserves native FormData, required validity, readonly submission, and reset snapshots', async () => {
     const [defaultValue, setDefaultValue] = createSignal('A')
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <RadioGroup
@@ -771,7 +771,7 @@ describe('radioGroup', () => {
   )
 
   it('sets aria-readonly and prevents changes when readOnly', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['Dogs', 'Cats', 'Dragons']} readOnly onValueChange={onChange} />
     ))

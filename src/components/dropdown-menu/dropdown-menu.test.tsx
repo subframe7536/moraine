@@ -15,7 +15,7 @@ describe('dropdownMenu', () => {
     ['Enter', 'First'],
     [' ', 'First'],
   ])('opens a nested Button with %s and focuses %s', async (key, label) => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <DropdownMenu onOpenChange={onOpenChange}>
         <DropdownMenu.Trigger as={Button}>Actions</DropdownMenu.Trigger>
@@ -34,7 +34,7 @@ describe('dropdownMenu', () => {
   })
 
   it('lets nested Button consumers cancel click and keyboard activation', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const cancel = (event: Event) => event.preventDefault()
     const screen = render(() => (
       <DropdownMenu onOpenChange={onOpenChange}>
@@ -54,7 +54,7 @@ describe('dropdownMenu', () => {
   })
 
   it('opens once from a custom trigger', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const CustomButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button {...props} />
     )
@@ -70,7 +70,7 @@ describe('dropdownMenu', () => {
   })
 
   it('honors a custom trigger that cancels click before forwarding it', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button
         {...props}
@@ -277,7 +277,7 @@ describe('dropdownMenu', () => {
   })
 
   it('opens by keyboard and supports keyboard selection', async () => {
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <DropdownMenu>
@@ -335,7 +335,7 @@ describe('dropdownMenu', () => {
   })
 
   it('focuses content on click open, supports typeahead, and restores trigger focus on escape', async () => {
-    const triggerRef = vi.fn()
+    const triggerRef = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <DropdownMenu>
         <DropdownMenu.Trigger
@@ -385,7 +385,7 @@ describe('dropdownMenu', () => {
   })
 
   it('scrolls the highlighted item into view when opened by keyboard', async () => {
-    const scrollIntoView = vi.fn()
+    const scrollIntoView = vi.fn<(...args: Array<any>) => void>()
     const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
 
     HTMLElement.prototype.scrollIntoView = scrollIntoView
@@ -475,7 +475,7 @@ describe('dropdownMenu', () => {
   })
 
   it('reports uncontrolled submenu open changes through onOpenChange', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -519,7 +519,7 @@ describe('dropdownMenu', () => {
   })
 
   it('keeps a controlled submenu closed until its open prop changes', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -563,7 +563,7 @@ describe('dropdownMenu', () => {
 
   it('follows a controlled submenu open prop and reports close requests', async () => {
     const [open, setOpen] = createSignal(false)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -771,7 +771,7 @@ describe('dropdownMenu', () => {
   })
 
   it('supports controlled open state and reports close attempts', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <DropdownMenu open onOpenChange={onOpenChange}>
@@ -861,12 +861,12 @@ describe('dropdownMenu', () => {
   })
 
   it('renders item matrix, nested submenu, and content slots', async () => {
-    const contentTop = vi.fn((props: { sub: boolean }) => (
+    const contentTop = vi.fn<(props: { sub: boolean }) => any>((props) => (
       <div data-testid={props.sub ? 'content-top-sub' : 'content-top-root'}>
         {props.sub ? 'Top Sub' : 'Top Root'}
       </div>
     ))
-    const contentBottom = vi.fn((props: { sub: boolean }) => (
+    const contentBottom = vi.fn<(props: { sub: boolean }) => any>((props) => (
       <div data-testid={props.sub ? 'content-bottom-sub' : 'content-bottom-root'}>
         {props.sub ? 'Bottom Sub' : 'Bottom Root'}
       </div>
@@ -950,7 +950,7 @@ describe('dropdownMenu', () => {
   })
 
   it('passes itemRender context for root and nested items', async () => {
-    const itemRender = vi.fn((props: any) => (
+    const itemRender = vi.fn<(props: any) => any>((props) => (
       <span data-testid={`custom-${String(props.item.label)}-${props.depth}`}>
         {String(props.item.label)}:{props.depth}:{String(props.hasChildren)}:
         {String(props.item.type === 'checkbox')}
@@ -1143,7 +1143,7 @@ describe('dropdownMenu', () => {
 
   it('closes an uncontrolled open menu when it becomes disabled', async () => {
     const [disabled, setDisabled] = createSignal(false)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen disabled={disabled()} onOpenChange={onOpenChange}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1169,7 +1169,7 @@ describe('dropdownMenu', () => {
 
   it('reports one controlled close attempt when an open menu becomes disabled', async () => {
     const [disabled, setDisabled] = createSignal(false)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu open disabled={disabled()} onOpenChange={onOpenChange}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1267,8 +1267,8 @@ describe('dropdownMenu', () => {
   })
 
   it('supports checkbox toggle and keeps disabled item from selecting', async () => {
-    const onCheckedChange = vi.fn()
-    const onDisabledSelect = vi.fn()
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
+    const onDisabledSelect = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <DropdownMenu defaultOpen>
@@ -1313,7 +1313,7 @@ describe('dropdownMenu', () => {
   })
 
   it('keeps dropdown menu open when clicking or pressing on a disabled item', async () => {
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <DropdownMenu defaultOpen>
@@ -1358,9 +1358,9 @@ describe('dropdownMenu', () => {
   })
 
   it('supports uncontrolled radio groups with pointer and keyboard selection and disabled prevention', async () => {
-    const onCompactSelect = vi.fn()
-    const onDensityChange = vi.fn()
-    const onDisabledSelect = vi.fn()
+    const onCompactSelect = vi.fn<(...args: Array<any>) => void>()
+    const onDensityChange = vi.fn<(...args: Array<any>) => void>()
+    const onDisabledSelect = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <DropdownMenu defaultOpen>
@@ -1429,7 +1429,7 @@ describe('dropdownMenu', () => {
   })
 
   it('lifts radio groups nested in group items into sibling groups without nested group roles', () => {
-    const onDensityChange = vi.fn()
+    const onDensityChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <DropdownMenu defaultOpen>
@@ -2036,7 +2036,7 @@ describe('dropdownMenu', () => {
   })
 
   it('forwards content props and applies item class and style directly', async () => {
-    const contentRef = vi.fn()
+    const contentRef = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2093,7 +2093,7 @@ describe('dropdownMenu', () => {
   })
 
   it('blocks Escape and outside presses when dismissal is disabled', async () => {
-    const onClosePrevented = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu
         defaultOpen
@@ -2118,7 +2118,7 @@ describe('dropdownMenu', () => {
   })
 
   it('cycles typeahead matches, skips disabled items, and keeps Space in an active search', async () => {
-    const onOpenSelect = vi.fn()
+    const onOpenSelect = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2167,7 +2167,7 @@ describe('dropdownMenu', () => {
   })
 
   it('does not activate checkbox or submenu items when Space continues typeahead', async () => {
-    const onCheckedChange = vi.fn()
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2243,7 +2243,7 @@ describe('dropdownMenu', () => {
   )
 
   it('honors outside pointer cancellation before dismissing', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <button
@@ -2273,7 +2273,7 @@ describe('dropdownMenu', () => {
   })
 
   it('uses completed primary presses for outside dismissal', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
@@ -2300,8 +2300,8 @@ describe('dropdownMenu', () => {
   })
 
   it('keeps a closing menu above lower overlays until exit completes', async () => {
-    const firstChange = vi.fn()
-    const secondChange = vi.fn()
+    const firstChange = vi.fn<(...args: Array<any>) => void>()
+    const secondChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
@@ -2422,7 +2422,7 @@ describe('dropdownMenu', () => {
 
   it('follows a controlled radio group value and reports selections without updating it', async () => {
     const [value, setValue] = createSignal('compact')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2462,8 +2462,8 @@ describe('dropdownMenu', () => {
   })
 
   it('keeps independent radio groups in one menu and stays open after selecting a radio item', async () => {
-    const onLayoutChange = vi.fn()
-    const onSortChange = vi.fn()
+    const onLayoutChange = vi.fn<(...args: Array<any>) => void>()
+    const onSortChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2519,7 +2519,7 @@ describe('dropdownMenu', () => {
   })
 
   it('selects a radio group nested inside an array section', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2557,7 +2557,7 @@ describe('dropdownMenu', () => {
   })
 
   it('selects a radio group nested inside a group item', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2647,7 +2647,7 @@ describe('dropdownMenu', () => {
   })
 
   it('selects radio items inside a submenu', async () => {
-    const onThemeChange = vi.fn()
+    const onThemeChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
@@ -2830,7 +2830,7 @@ describe('dropdownMenu', () => {
   })
 
   it('toggles open and closed on repeated trigger clicks', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <DropdownMenu onOpenChange={onOpenChange}>
         <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>

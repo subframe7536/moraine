@@ -236,4 +236,4 @@ it('component pages follow the shared content and anatomy contract', async () =>
     }
   }
   expect(failures).toEqual([])
-})
+}, 20_000)

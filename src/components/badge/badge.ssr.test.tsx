@@ -25,7 +25,7 @@ describe('badge SSR Hydration', () => {
   })
 
   it('hydrates a button root and preserves its activation', () => {
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
     const { container } = hydrateFixture(
       '/src/components/badge/badge.ssr.fixture.tsx',
       'renderButtonBadgeFixture',

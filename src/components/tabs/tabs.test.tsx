@@ -90,7 +90,7 @@ describe('tabs', () => {
   })
 
   it('supports controlled value and emits onValueChange', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Tabs
@@ -130,7 +130,7 @@ describe('tabs', () => {
   })
 
   it('gives duplicate values unique ARIA identity and selects the first enabled occurrence', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Tabs
         id="duplicate-tabs"
@@ -308,7 +308,7 @@ describe('tabs', () => {
   })
 
   it('supports manual activation mode via Enter and Space', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Tabs
         activationMode="manual"
@@ -644,7 +644,7 @@ describe('tabs', () => {
     const instances: Array<{ disconnect: ReturnType<typeof vi.fn>; observed: Array<Element> }> = []
 
     class MockResizeObserver {
-      disconnect = vi.fn()
+      disconnect = vi.fn<(...args: Array<any>) => void>()
       observed: Array<Element> = []
 
       constructor() {
@@ -736,7 +736,7 @@ describe('tabs', () => {
 
   it('derives a fallback when the selected tab is disabled and restores the request later', async () => {
     const [disabled, setDisabled] = createSignal(false)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Tabs
         defaultValue="two"
@@ -770,7 +770,7 @@ describe('tabs', () => {
       { label: 'Three', value: 'three', content: 'Panel three' },
     ]
     const [items, setItems] = createSignal(initialItems)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Tabs
         activationMode="manual"
@@ -800,7 +800,7 @@ describe('tabs', () => {
 
   it('applies controlled updates without moving focus or emitting changes', () => {
     const [value, setValue] = createSignal('one')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <button type="button">Outside</button>

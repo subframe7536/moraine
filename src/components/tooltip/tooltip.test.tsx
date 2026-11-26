@@ -382,7 +382,7 @@ describe('tooltip', () => {
 
   it('a disabled non-button trigger does not open on hover or focus', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Tooltip openDelay={0} onOpenChange={onOpenChange}>
         <Tooltip.Trigger as="span" disabled>
@@ -475,7 +475,7 @@ describe('tooltip', () => {
   it('invalidates pending open and closes resolved state when disabled changes', async () => {
     vi.useFakeTimers()
     const [disabled, setDisabled] = createSignal(false)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Tooltip disabled={disabled()} openDelay={50} onOpenChange={onOpenChange}>
         <Tooltip.Trigger as="button" type="button">
@@ -508,7 +508,7 @@ describe('tooltip', () => {
 
   it('emits each controlled close attempt exactly once', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Tooltip open closeDelay={50} onOpenChange={onOpenChange}>
         <Tooltip.Trigger as="button" type="button">
@@ -527,7 +527,7 @@ describe('tooltip', () => {
 
   it('does not coordinate globally from a rejected controlled open', async () => {
     vi.useFakeTimers()
-    const onFirstOpenChange = vi.fn()
+    const onFirstOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <div>
         <Tooltip open={false} openDelay={50} onOpenChange={onFirstOpenChange}>

@@ -32,7 +32,7 @@ describe('checkControl', () => {
   })
 
   it('reports the next value and checks an indeterminate control', () => {
-    const onCheckedChange = vi.fn()
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
     const { getByRole } = render(() => (
       <CheckControl slotName="test-check" checked={checked()} onCheckedChange={onCheckedChange} />
@@ -47,7 +47,7 @@ describe('checkControl', () => {
   })
 
   it('does not report a change while disabled', () => {
-    const onCheckedChange = vi.fn()
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const { getByRole } = render(() => (
       <CheckControl
         slotName="test-check"
@@ -65,7 +65,7 @@ describe('checkControl', () => {
   })
 
   it('does not report a change when the onClick handler prevents default', () => {
-    const onCheckedChange = vi.fn()
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const { getByRole } = render(() => (
       <CheckControl
         slotName="test-check"
@@ -80,7 +80,7 @@ describe('checkControl', () => {
   })
 
   it('does not let Enter activate the control', () => {
-    const onCheckedChange = vi.fn()
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const { getByRole } = render(() => (
       <CheckControl slotName="test-check" checked={false} onCheckedChange={onCheckedChange} />
     ))

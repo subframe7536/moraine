@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential registration keeps validation error ordering deterministic.
 import { existsSync, readFileSync } from 'node:fs'
 
 import path from 'pathe'

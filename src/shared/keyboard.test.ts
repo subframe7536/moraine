@@ -5,7 +5,7 @@ function createMockKeyboardEvent(key: string, init: Partial<KeyboardEvent> = {})
   return {
     key,
     repeat: false,
-    preventDefault: vi.fn(function (this: KeyboardEvent) {
+    preventDefault: vi.fn<(this: KeyboardEvent) => any>(function (this) {
       Object.defineProperty(this, 'defaultPrevented', { value: true, configurable: true })
     }),
     ...init,
@@ -34,7 +34,7 @@ describe('isComposingKeyboardEvent', () => {
 describe('createKeyDownHandler', () => {
   it('dispatches a literal key binding with automatic preventDefault', () => {
     const { eventInit } = createHost()
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ keys: { Enter: handle } })
 
     const event = createMockKeyboardEvent('Enter', eventInit)
@@ -46,8 +46,8 @@ describe('createKeyDownHandler', () => {
 
   it('forwards the user handler first and stops when it prevents', () => {
     const { eventInit } = createHost()
-    const handle = vi.fn()
-    const user = vi.fn((event: KeyboardEvent) => event.preventDefault())
+    const handle = vi.fn<(...args: Array<any>) => void>()
+    const user = vi.fn<(event: KeyboardEvent) => any>((event) => event.preventDefault())
     const onKeyDown = createKeyDownHandler({
       onKeyDown: () => user,
       keys: { Enter: handle },
@@ -61,10 +61,10 @@ describe('createKeyDownHandler', () => {
 
   it('supports array-form user handlers', () => {
     const { eventInit } = createHost()
-    const user = vi.fn()
+    const user = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       onKeyDown: () => [user, 'data'],
-      keys: { Enter: vi.fn() },
+      keys: { Enter: vi.fn<(...args: Array<any>) => void>() },
     })
 
     onKeyDown(createMockKeyboardEvent('Enter', eventInit))
@@ -73,7 +73,7 @@ describe('createKeyDownHandler', () => {
   })
 
   it('stops on an already-prevented event', () => {
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ keys: { Enter: handle } })
     const event = createMockKeyboardEvent('Enter')
     Object.defineProperty(event, 'defaultPrevented', { value: true })
@@ -84,7 +84,7 @@ describe('createKeyDownHandler', () => {
   })
 
   it('disabled skips the dispatch', () => {
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ disabled: () => true, keys: { Enter: handle } })
 
     onKeyDown(createMockKeyboardEvent('Enter'))
@@ -95,7 +95,7 @@ describe('createKeyDownHandler', () => {
   it.each([[{ isComposing: true }], [{ keyCode: 229 }], [{ which: 229 }]])(
     'skips events during composition %j',
     (init) => {
-      const handle = vi.fn()
+      const handle = vi.fn<(...args: Array<any>) => void>()
       const onKeyDown = createKeyDownHandler({ keys: { Enter: handle } })
 
       onKeyDown(createMockKeyboardEvent('Enter', init))
@@ -105,7 +105,7 @@ describe('createKeyDownHandler', () => {
   )
 
   it('composing accessor adds external composition state', () => {
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ composing: () => true, keys: { Enter: handle } })
 
     onKeyDown(createMockKeyboardEvent('Enter'))
@@ -114,7 +114,7 @@ describe('createKeyDownHandler', () => {
   })
 
   it('skipRepeat ignores auto-repeated events', () => {
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ skipRepeat: true, keys: { Enter: handle } })
 
     onKeyDown(createMockKeyboardEvent('Enter', { repeat: true }))
@@ -124,7 +124,7 @@ describe('createKeyDownHandler', () => {
 
   it('currentTargetOnly requires the event to hit the host itself', () => {
     const { element } = createHost()
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ currentTargetOnly: true, keys: { Enter: handle } })
 
     onKeyDown(
@@ -138,7 +138,7 @@ describe('createKeyDownHandler', () => {
   })
 
   it('ignoreModifiers skips events with a listed modifier', () => {
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       ignoreModifiers: ['alt', 'ctrl'],
       keys: { a: handle, Enter: handle },
@@ -153,7 +153,7 @@ describe('createKeyDownHandler', () => {
   })
 
   it("normalizes 'Spacebar' to ' '", () => {
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ keys: { ' ': handle } })
 
     const event = createMockKeyboardEvent('Spacebar')
@@ -164,7 +164,7 @@ describe('createKeyDownHandler', () => {
   })
 
   it('preventDefault: false keeps native default', () => {
-    const handle = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       keys: { Enter: { handle, preventDefault: false } },
     })
@@ -177,8 +177,8 @@ describe('createKeyDownHandler', () => {
   })
 
   it('when falling back to onUnhandled when the guard fails', () => {
-    const handle = vi.fn()
-    const onUnhandled = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
+    const onUnhandled = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       keys: { a: { handle, when: (event) => event.ctrlKey } },
       onUnhandled,
@@ -194,7 +194,7 @@ describe('createKeyDownHandler', () => {
   })
 
   it('ignore swallows keys without preventDefault or onUnhandled', () => {
-    const onUnhandled = vi.fn()
+    const onUnhandled = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ ignore: [' ', 'Home'], onUnhandled })
 
     const space = createMockKeyboardEvent(' ')
@@ -206,16 +206,19 @@ describe('createKeyDownHandler', () => {
   })
 
   it('onUnhandled receives unmatched keys after guards', () => {
-    const onUnhandled = vi.fn()
-    const onKeyDown = createKeyDownHandler({ keys: { Enter: vi.fn() }, onUnhandled })
+    const onUnhandled = vi.fn<(...args: Array<any>) => void>()
+    const onKeyDown = createKeyDownHandler({
+      keys: { Enter: vi.fn<(...args: Array<any>) => void>() },
+      onUnhandled,
+    })
 
     onKeyDown(createMockKeyboardEvent('x'))
     expect(onUnhandled).toHaveBeenCalledOnce()
   })
 
   it('keys may be computed per event', () => {
-    const handle = vi.fn()
-    const dynamic = vi.fn(() => ({ x: handle }))
+    const handle = vi.fn<(...args: Array<any>) => void>()
+    const dynamic = vi.fn<() => any>(() => ({ x: handle }))
     const onKeyDown = createKeyDownHandler({ keys: dynamic })
 
     const event = createMockKeyboardEvent('x')
@@ -226,8 +229,8 @@ describe('createKeyDownHandler', () => {
   })
 
   it('forwarded args reach bindings and onUnhandled', () => {
-    const handle = vi.fn()
-    const onUnhandled = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
+    const onUnhandled = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler<HTMLElement, [string, number]>({
       keys: { Enter: handle },
       onUnhandled,
@@ -245,8 +248,8 @@ describe('createKeyDownHandler', () => {
 
 describe('createKeyDownHandler logical aliases', () => {
   function dispatch(key: string, options: Parameters<typeof createKeyDownHandler>[0]) {
-    const handle = vi.fn()
-    const onUnhandled = vi.fn()
+    const handle = vi.fn<(...args: Array<any>) => void>()
+    const onUnhandled = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       ...options,
       keys: (event, ...args) => ({
@@ -269,8 +272,8 @@ describe('createKeyDownHandler logical aliases', () => {
   })
 
   it('next/previous resolve ArrowRight/ArrowLeft on horizontal ltr', () => {
-    const next = vi.fn()
-    const previous = vi.fn()
+    const next = vi.fn<(...args: Array<any>) => void>()
+    const previous = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ keys: { next, previous } })
 
     onKeyDown(createMockKeyboardEvent('ArrowRight'))
@@ -281,8 +284,8 @@ describe('createKeyDownHandler logical aliases', () => {
   })
 
   it('horizontal rtl flips next/previous', () => {
-    const next = vi.fn()
-    const previous = vi.fn()
+    const next = vi.fn<(...args: Array<any>) => void>()
+    const previous = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       direction: () => 'rtl',
       keys: { next, previous },
@@ -296,8 +299,8 @@ describe('createKeyDownHandler logical aliases', () => {
   })
 
   it('next/previous resolve ArrowDown/ArrowUp on vertical', () => {
-    const next = vi.fn()
-    const previous = vi.fn()
+    const next = vi.fn<(...args: Array<any>) => void>()
+    const previous = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       orientation: () => 'vertical',
       keys: { next, previous },
@@ -311,8 +314,8 @@ describe('createKeyDownHandler logical aliases', () => {
   })
 
   it('forward/backward resolve inline arrows regardless of orientation', () => {
-    const forward = vi.fn()
-    const backward = vi.fn()
+    const forward = vi.fn<(...args: Array<any>) => void>()
+    const backward = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       orientation: () => 'vertical',
       keys: { forward, backward },
@@ -326,8 +329,8 @@ describe('createKeyDownHandler logical aliases', () => {
   })
 
   it('rtl flips forward/backward', () => {
-    const forward = vi.fn()
-    const backward = vi.fn()
+    const forward = vi.fn<(...args: Array<any>) => void>()
+    const backward = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       direction: () => 'rtl',
       keys: { forward, backward },
@@ -341,8 +344,8 @@ describe('createKeyDownHandler logical aliases', () => {
   })
 
   it('open/close resolve ArrowDown/ArrowUp on horizontal', () => {
-    const open = vi.fn()
-    const close = vi.fn()
+    const open = vi.fn<(...args: Array<any>) => void>()
+    const close = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ keys: { open, close } })
 
     onKeyDown(createMockKeyboardEvent('ArrowDown'))
@@ -353,8 +356,8 @@ describe('createKeyDownHandler logical aliases', () => {
   })
 
   it('open/close resolve forward/backward arrows on vertical', () => {
-    const open = vi.fn()
-    const close = vi.fn()
+    const open = vi.fn<(...args: Array<any>) => void>()
+    const close = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({
       orientation: () => 'vertical',
       keys: { open, close },
@@ -368,8 +371,8 @@ describe('createKeyDownHandler logical aliases', () => {
   })
 
   it('a literal binding wins over an alias', () => {
-    const literal = vi.fn()
-    const alias = vi.fn()
+    const literal = vi.fn<(...args: Array<any>) => void>()
+    const alias = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ keys: { ArrowRight: literal, next: alias } })
 
     onKeyDown(createMockKeyboardEvent('ArrowRight'))
@@ -382,7 +385,7 @@ describe('createKeyDownHandler logical aliases', () => {
     const element = document.createElement('div')
     element.dir = 'rtl'
     document.body.append(element)
-    const next = vi.fn()
+    const next = vi.fn<(...args: Array<any>) => void>()
     const onKeyDown = createKeyDownHandler({ keys: { next } })
 
     onKeyDown(createMockKeyboardEvent('ArrowLeft', { currentTarget: element, target: element }))
@@ -394,8 +397,8 @@ describe('createKeyDownHandler logical aliases', () => {
 
 describe('createKeyUpHandler', () => {
   it('dispatches keyup bindings and forwards the user handler', () => {
-    const release = vi.fn()
-    const user = vi.fn()
+    const release = vi.fn<(...args: Array<any>) => void>()
+    const user = vi.fn<(...args: Array<any>) => void>()
     const onKeyUp = createKeyUpHandler({
       onKeyUp: () => user,
       keys: { ' ': release },

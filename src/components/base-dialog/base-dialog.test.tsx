@@ -15,9 +15,9 @@ import { Sheet } from '../sheet/sheet'
 import { BaseDialog } from './base-dialog'
 describe('baseDialog primitives', () => {
   it('passes each mounted content element to the ref once and dismisses reopened content', async () => {
-    const ref = vi.fn()
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
-    const onOpenChange = vi.fn(setOpen)
+    const onOpenChange = vi.fn<typeof setOpen>(setOpen)
     render(() => (
       <BaseDialog open={open()} onOpenChange={onOpenChange}>
         <BaseDialog.Portal>
@@ -54,8 +54,8 @@ describe('baseDialog primitives', () => {
     expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
   })
   it('honors a custom trigger that cancels click before forwarding it', async () => {
-    const onOpenChange = vi.fn()
-    const onCustomClick = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const onCustomClick = vi.fn<(...args: Array<any>) => void>()
     const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button
         {...props}
@@ -370,7 +370,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('closes from a content render prop', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
         <BaseDialog.Portal>
@@ -471,7 +471,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('close honors cancellation and keyboard activation', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const [canceled, setCanceled] = createSignal(true)
     render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
@@ -494,8 +494,8 @@ describe('baseDialog primitives', () => {
   })
 
   it('forwards trigger props and honors canceled clicks', async () => {
-    const onOpenChange = vi.fn()
-    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const onClick = vi.fn<(event: MouseEvent) => any>((event) => event.preventDefault())
     let triggerElement: HTMLElement | undefined
     const screen = render(() => (
       <BaseDialog onOpenChange={onOpenChange}>
@@ -531,7 +531,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('renders a native button trigger with BaseDialog accessibility state', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog onOpenChange={onOpenChange}>
         <BaseDialog.Trigger data-testid="trigger">Open modal</BaseDialog.Trigger>
@@ -646,7 +646,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('respects disabled and canceled trigger activation', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <BaseDialog onOpenChange={onOpenChange}>
@@ -940,7 +940,7 @@ describe('baseDialog primitives', () => {
 
   it('does not acquire modal resources when an open root has no surfaces', async () => {
     document.body.style.overflow = 'auto'
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <BaseDialog defaultOpen onOpenChange={onOpenChange} />)
     await Promise.resolve()
 
@@ -954,7 +954,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('lets overlay activate the modal runtime', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
         <BaseDialog.Portal>
@@ -993,7 +993,7 @@ describe('baseDialog primitives', () => {
 
   it('shares data attributes and waits for both surfaces before exiting', async () => {
     const [open, setOpen] = createSignal(true)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
         <BaseDialog.Portal>
@@ -1030,7 +1030,7 @@ describe('baseDialog primitives', () => {
 
   it('does not call onExitComplete when Content is removed while open', async () => {
     const [showContent, setShowContent] = createSignal(true)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog open onExitComplete={onExitComplete}>
         <BaseDialog.Portal>
@@ -1137,8 +1137,8 @@ describe('baseDialog primitives', () => {
   })
 
   it('renders overlay and content and forwards refs', () => {
-    const overlayRef = vi.fn()
-    const contentRef = vi.fn()
+    const overlayRef = vi.fn<(...args: Array<any>) => void>()
+    const contentRef = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <BaseDialog defaultOpen>
@@ -1227,7 +1227,7 @@ describe('baseDialog primitives', () => {
 
   it('leaves inline parts mounted without Portal', async () => {
     const [open, setOpen] = createSignal(true)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog open={open()} modal={false} onExitComplete={onExitComplete}>
         <div data-testid="inline-host">
@@ -1462,7 +1462,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('prevents the handled Escape event when dismissing the top modal', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
         <BaseDialog.Portal>
@@ -1488,7 +1488,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('ignores Escape while an IME composition is active', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
         <BaseDialog.Portal>
@@ -1519,7 +1519,7 @@ describe('baseDialog primitives', () => {
   it('dismisses a completed touch tap but not touch pointerdown, movement, or multitouch', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange}>
         <BaseDialog.Portal>
@@ -1563,8 +1563,8 @@ describe('baseDialog primitives', () => {
   it('does not dismiss or report prevention for an outside right-click', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
-    const onOpenChange = vi.fn()
-    const onClosePrevented = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog defaultOpen onOpenChange={onOpenChange} onClosePrevented={onClosePrevented}>
         <BaseDialog.Portal>
@@ -1586,7 +1586,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('preserves cancellation from outside pointer and content Escape handlers', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <button
@@ -2010,8 +2010,8 @@ describe('baseDialog primitives', () => {
   ])(
     'keeps outside and Escape handling when modal is false and dismissal is $closeOnOutsideClick/$closeOnEscape',
     async ({ closeOnOutsideClick, closeOnEscape, closes, prevents }) => {
-      const onOpenChange = vi.fn()
-      const onClosePrevented = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+      const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <>
           <button type="button" data-testid="outside">
@@ -2188,7 +2188,7 @@ describe('baseDialog primitives', () => {
 
   it('cancels stale exit completion and focus restoration on rapid reopen', async () => {
     const [open, setOpen] = createSignal(false)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
         <BaseDialog.Trigger data-testid="rapid-trigger">Open</BaseDialog.Trigger>
@@ -2282,7 +2282,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('toggles open state on trigger activation when modal is false', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseDialog modal={false} onOpenChange={onOpenChange}>
         <BaseDialog.Trigger>Toggle non-modal</BaseDialog.Trigger>
@@ -2318,7 +2318,7 @@ describe('baseDialog primitives', () => {
   })
 
   it('runs the consumer onKeyDown handler and honors its preventDefault', () => {
-    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+    const onKeyDown = vi.fn<(event: KeyboardEvent) => any>((event) => {
       event.preventDefault()
     })
     render(() => (

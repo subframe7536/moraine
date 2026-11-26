@@ -75,7 +75,7 @@ describe('fileUpload', () => {
     expect(ref?.type).toBe('file')
   })
   it('supports tuple click handlers on the upload control', async () => {
-    const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
+    const onClick = vi.fn<(_data: string, _event: MouseEvent) => any>((_data, _event) => undefined)
     const screen = render(() => <FileUpload onClick={[onClick, 'payload']} />)
     const control = screen.container.querySelector(
       '[data-slot="file-upload-control"]',
@@ -87,8 +87,8 @@ describe('fileUpload', () => {
   })
 
   it('calls user onFocus and onBlur when the control gains and loses focus', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload onFocus={onFocus} onBlur={onBlur} />)
     const control = screen.container.querySelector(
       '[data-slot="file-upload-control"]',
@@ -108,7 +108,7 @@ describe('fileUpload', () => {
   })
 
   it('opens the picker from click, Enter, and Space while respecting cancellation', async () => {
-    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+    const onKeyDown = vi.fn<(event: KeyboardEvent) => any>((event) => {
       if (event.key === 'Escape') {
         event.preventDefault()
       }
@@ -201,7 +201,7 @@ describe('fileUpload', () => {
   )
 
   it('single mode emits File | null', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
 
@@ -214,7 +214,7 @@ describe('fileUpload', () => {
   })
 
   it('multiple mode appends files and emits File[]', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload multiple onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
 
@@ -230,7 +230,7 @@ describe('fileUpload', () => {
   })
 
   it('dropzone flow accepts files when enabled', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload multiple dropzone onValueChange={onValueChange} />)
     const base = screen.container.querySelector('[data-slot="file-upload-control"]') as HTMLElement
     const file = createFile('drop.txt')
@@ -242,7 +242,7 @@ describe('fileUpload', () => {
   })
 
   it('variant="button" still accepts dropped files', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload multiple variant="button" onValueChange={onValueChange} />
     ))
@@ -256,7 +256,7 @@ describe('fileUpload', () => {
   })
 
   it('dropzone=false does not process drop files or mark dragging', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload multiple dropzone={false} onValueChange={onValueChange} />
     ))
@@ -289,7 +289,7 @@ describe('fileUpload', () => {
   })
 
   it('remove file updates list and emitted value for multiple mode', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload multiple onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
 
@@ -310,7 +310,7 @@ describe('fileUpload', () => {
   })
 
   it('remove file emits null in single mode', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
     const file = createFile('single.txt')
@@ -358,7 +358,7 @@ describe('fileUpload', () => {
   })
 
   it('fileList=false hides the file list but keeps the selected value', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload fileList={false} onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
     const file = createFile('file.txt')
@@ -479,7 +479,7 @@ describe('fileUpload', () => {
   })
 
   it('respects canceled drag handlers and does not process non-file drops', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload onValueChange={onValueChange} onDragOver={(event) => event.preventDefault()} />
     ))
@@ -502,7 +502,7 @@ describe('fileUpload', () => {
   })
 
   it('clears hidden input and supports selecting same file again after remove', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
     const file = createFile('repeat.txt')
@@ -564,7 +564,7 @@ describe('fileUpload', () => {
   })
 
   it('calls onValueInvalid when files are rejected', async () => {
-    const onValueInvalid = vi.fn()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload multiple maxFiles={1} onValueInvalid={onValueInvalid} />
     ))
@@ -576,8 +576,8 @@ describe('fileUpload', () => {
   })
 
   it('rejects files smaller than minSize', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload
         multiple
@@ -600,8 +600,8 @@ describe('fileUpload', () => {
   })
 
   it('rejects files larger than maxSize', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload
         multiple
@@ -624,8 +624,8 @@ describe('fileUpload', () => {
   })
 
   it('rejects duplicate files from the same batch and existing list', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload multiple onValueChange={onValueChange} onValueInvalid={onValueInvalid} />
     ))
@@ -648,8 +648,8 @@ describe('fileUpload', () => {
   })
 
   it('keeps accepted type and maxFiles rejection behavior', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload
         multiple
@@ -678,8 +678,8 @@ describe('fileUpload', () => {
   })
 
   it('reports type and size reasons together and keeps one file in single mode', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload
         accept="image/*"
@@ -708,7 +708,7 @@ describe('fileUpload', () => {
       .spyOn(URL, 'createObjectURL')
       .mockImplementation(() => 'blob:reset-image')
     const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     try {
       const screen = render(() => (
@@ -739,7 +739,7 @@ describe('fileUpload', () => {
   })
 
   it('synchronizes accepted files and reset state with Field submission', async () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -827,7 +827,7 @@ describe('fileUpload', () => {
     'resolves reactive Field readonly and explicit overrides ($dropzone, $override)',
     async ({ dropzone, override, locked }) => {
       const [readOnly, setReadOnly] = createSignal(true)
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const initial = createFile('initial.txt')
       const screen = render(() => (
         <Field readOnly={readOnly()}>
@@ -891,7 +891,7 @@ describe('fileUpload', () => {
   )
 
   it('readOnly keeps selected files and disables removal', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const [readOnly, setReadOnly] = createSignal(false)
     const screen = render(() => (
       <FileUpload multiple readOnly={readOnly()} onValueChange={onValueChange} />

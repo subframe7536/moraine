@@ -64,7 +64,9 @@ describe('createCopy', () => {
 
   it('falls back to command when navigator.clipboard is unavailable', async () => {
     vi.stubGlobal('navigator', {})
-    const execCommand = vi.fn().mockReturnValue(true)
+    const execCommand = vi
+      .fn<(commandId: string, showUI?: boolean, value?: string) => boolean>()
+      .mockReturnValue(true)
     document.execCommand = execCommand
 
     const clipboard = setup()
@@ -76,7 +78,9 @@ describe('createCopy', () => {
 
   it('falls back to command when navigator.clipboard.writeText rejects', async () => {
     writeText.mockRejectedValueOnce(new Error('Permission denied'))
-    const execCommand = vi.fn().mockReturnValue(true)
+    const execCommand = vi
+      .fn<(commandId: string, showUI?: boolean, value?: string) => boolean>()
+      .mockReturnValue(true)
     document.execCommand = execCommand
 
     const clipboard = setup()
@@ -88,14 +92,18 @@ describe('createCopy', () => {
 
   it('extracts text/plain from ClipboardItem on legacy fallback', async () => {
     vi.stubGlobal('navigator', {})
-    const execCommand = vi.fn().mockReturnValue(true)
+    const execCommand = vi
+      .fn<(commandId: string, showUI?: boolean, value?: string) => boolean>()
+      .mockReturnValue(true)
     document.execCommand = execCommand
 
     const mockItem = {
       types: ['text/plain'],
-      getType: vi.fn().mockResolvedValue({
-        text: () => Promise.resolve('extracted text'),
-      }),
+      getType: vi
+        .fn<(type: string) => Promise<{ text: () => Promise<string> }>>()
+        .mockResolvedValue({
+          text: () => Promise.resolve('extracted text'),
+        }),
     } as unknown as ClipboardItem
 
     const clipboard = setup()
@@ -108,10 +116,12 @@ describe('createCopy', () => {
   it('copies the JSON form of a ClipboardItem without a text type on legacy fallback', async () => {
     vi.stubGlobal('navigator', {})
     let copiedContent: string | undefined
-    document.execCommand = vi.fn(() => {
-      copiedContent = document.querySelector('textarea')?.value
-      return true
-    })
+    document.execCommand = vi.fn<(commandId: string, showUI?: boolean, value?: string) => boolean>(
+      () => {
+        copiedContent = document.querySelector('textarea')?.value
+        return true
+      },
+    )
 
     const nonTextData = { foo: 'bar' } as unknown as ClipboardItem
     const clipboard = setup()
@@ -123,9 +133,11 @@ describe('createCopy', () => {
 
   it('reports failure when modern API and execCommand both fail', async () => {
     writeText.mockRejectedValue(new Error('Modern writeText failed'))
-    document.execCommand = vi.fn().mockReturnValue(false)
+    document.execCommand = vi
+      .fn<(commandId: string, showUI?: boolean, value?: string) => boolean>()
+      .mockReturnValue(false)
 
-    const onCopyError = vi.fn()
+    const onCopyError = vi.fn<(...args: Array<any>) => void>()
     const clipboard = setup({ onCopyError })
     const success = await clipboard.copy('will fail')
     expect(success).toBe(false)
@@ -141,7 +153,7 @@ describe('createCopy', () => {
   })
 
   it('fires onStatusChange for transitions', async () => {
-    const onStatusChange = vi.fn()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const clipboard = setup({ onStatusChange })
 
     await clipboard.copy('status check')
@@ -152,7 +164,7 @@ describe('createCopy', () => {
   })
 
   it('reports idle when a new copy starts only if the previous result is still shown', async () => {
-    const onStatusChange = vi.fn()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const clipboard = setup({ onStatusChange })
 
     await clipboard.copy('first')
@@ -161,7 +173,7 @@ describe('createCopy', () => {
   })
 
   it('reset returns to idle and prevents the pending reset from reporting again', async () => {
-    const onStatusChange = vi.fn()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const clipboard = setup({ onStatusChange })
     await clipboard.copy('test')
     expect(clipboard.status()).toBe('copied')
@@ -175,7 +187,7 @@ describe('createCopy', () => {
   })
 
   it('reports no status changes after the owner is disposed', async () => {
-    const onStatusChange = vi.fn()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const clipboard = setup({ onStatusChange })
     await clipboard.copy('unmount-test')
     onStatusChange.mockClear()

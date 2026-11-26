@@ -9,7 +9,7 @@ import { Textarea } from '../../textarea/textarea'
 describe.each([Input, Textarea])('native text control: %s', (Control) => {
   it('owns native attributes, handlers and refs on the editable element', () => {
     let input: HTMLInputElement | HTMLTextAreaElement | undefined
-    const native = vi.fn()
+    const native = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Control
         ref={(element: HTMLInputElement | HTMLTextAreaElement) => {

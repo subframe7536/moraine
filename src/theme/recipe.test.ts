@@ -1,9 +1,10 @@
-import { createMemo, createRoot, createSignal, flush } from 'solid-js'
+import { createMemo, createRoot, createSignal, flush, untrack } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { cn } from './cn'
 import type { RecipeConfig, RecipeVariantSelection } from './recipe'
 import { compileRecipe, defineRecipe, matchEntries } from './recipe'
+
 function testRecipe<S extends object, V = never>(key: string, config: RecipeConfig<S, V>) {
   const definition = defineRecipe<S, V>(key, config)
   const resolve = (variants: RecipeVariantSelection<V> | undefined, merge: typeof cn) => {
@@ -186,11 +187,11 @@ describe('recipe', () => {
             }).classes.root,
         )
 
-        expect(slotClass()).toContain('bg-muted')
+        expect(untrack(slotClass)).toContain('bg-muted')
 
         flush(() => setSlotVariant('ghost'))
 
-        expect(slotClass()).toContain('border-transparent')
+        expect(untrack(slotClass)).toContain('border-transparent')
         dispose()
       })
     })

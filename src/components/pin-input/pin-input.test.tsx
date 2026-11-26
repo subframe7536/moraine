@@ -33,7 +33,7 @@ describe('pinInput', () => {
   })
 
   it('does not call inputsRef on unmount', () => {
-    const inputsRef = vi.fn()
+    const inputsRef = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <PinInput length={2} inputsRef={inputsRef} />)
     expect(inputsRef).toHaveBeenCalledOnce()
 
@@ -178,8 +178,8 @@ describe('pinInput', () => {
   })
 
   it('triggers onComplete when all slots are filled', () => {
-    const onComplete = vi.fn()
-    const onValueChange = vi.fn()
+    const onComplete = vi.fn<(...args: Array<any>) => void>()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput length={3} onComplete={onComplete} onValueChange={onValueChange} />
     ))
@@ -391,7 +391,7 @@ describe('pinInput', () => {
   })
 
   it('paste distributes characters across inputs and strips dashes', () => {
-    const onComplete = vi.fn()
+    const onComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <PinInput length={6} onComplete={onComplete} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
@@ -440,8 +440,8 @@ describe('pinInput', () => {
   })
 
   it('emits focus and blur only when entering or leaving the group', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <PinInput length={3} onFocus={onFocus} onBlur={onBlur} />)
     const root = screen.container.querySelector<HTMLElement>('[data-slot="pin-input"]')!
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
@@ -465,8 +465,8 @@ describe('pinInput', () => {
   })
 
   it('calls onFocusIn and onFocusOut for every move between slots', () => {
-    const onFocusIn = vi.fn()
-    const onFocusOut = vi.fn()
+    const onFocusIn = vi.fn<(...args: Array<any>) => void>()
+    const onFocusOut = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput length={3} onFocusIn={onFocusIn} onFocusOut={onFocusOut} />
     ))
@@ -640,7 +640,7 @@ describe('pinInput', () => {
   })
 
   it('form reset restores the default value without firing value callbacks', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <PinInput name="code" defaultValue="12" length={4} onValueChange={onValueChange} />
@@ -664,7 +664,7 @@ describe('pinInput', () => {
   })
 
   it('form reset keeps the controlled value without firing value callbacks', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <PinInput name="code" value="1234" length={4} onValueChange={onValueChange} />
@@ -741,7 +741,7 @@ describe('pinInput', () => {
   })
 
   it('buffers IME composition and commits once on compositionend', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput length={4} validationType="alphanumeric" onValueChange={onValueChange} />
     ))
@@ -768,7 +768,7 @@ describe('pinInput', () => {
   })
 
   it('ignores keyboard commands while a composition is buffered', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput
         defaultValue="12"
@@ -801,7 +801,7 @@ describe('pinInput', () => {
       .mockReturnValue('Mozilla/5.0 (Linux; Android 10)')
 
     try {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <PinInput length={3} validationType="alphanumeric" onValueChange={onValueChange} />
       ))
@@ -825,9 +825,9 @@ describe('pinInput', () => {
   })
 
   it('distributes autofilled text entered through the hidden input', () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
-    const onComplete = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
+    const onComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput
         name="code"
@@ -921,7 +921,7 @@ describe('pinInput', () => {
     ['disabled', { disabled: true }],
     ['readOnly', { readOnly: true }],
   ])('ignores hidden input autofill when %s', (_name, props) => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput
         name="code"
@@ -943,7 +943,7 @@ describe('pinInput', () => {
   })
 
   it('autoSubmit submits the owning form when the value completes', () => {
-    const handleSubmit = vi.fn((event: SubmitEvent) => {
+    const handleSubmit = vi.fn<(event: SubmitEvent) => any>((event) => {
       event.preventDefault()
     })
     const screen = render(() => (
@@ -960,7 +960,7 @@ describe('pinInput', () => {
   })
 
   it('autoSubmit does not submit while the value is incomplete', () => {
-    const handleSubmit = vi.fn((event: SubmitEvent) => {
+    const handleSubmit = vi.fn<(event: SubmitEvent) => any>((event) => {
       event.preventDefault()
     })
     const screen = render(() => (
@@ -977,7 +977,7 @@ describe('pinInput', () => {
   })
 
   it('does not fire onComplete while a controlled completion is not applied', () => {
-    const onComplete = vi.fn()
+    const onComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput value="12" length={4} validationType="number" onComplete={onComplete} />
     ))
@@ -994,7 +994,7 @@ describe('pinInput', () => {
 
   it('fires onComplete once a controlled completion is applied', () => {
     const [value, setValue] = createSignal<string>('12')
-    const onComplete = vi.fn()
+    const onComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput
         value={value()}
@@ -1016,7 +1016,7 @@ describe('pinInput', () => {
 
   it('does not fire onComplete for externally applied controlled values', () => {
     const [value, setValue] = createSignal<string>('12')
-    const onComplete = vi.fn()
+    const onComplete = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <PinInput value={value()} length={4} validationType="number" onComplete={onComplete} />
     ))
@@ -1039,7 +1039,7 @@ describe('pinInput', () => {
   })
 
   it('fires onComplete again when a complete paste reconfirms the value', () => {
-    const onComplete = vi.fn()
+    const onComplete = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <PinInput defaultValue="1234" length={4} onComplete={onComplete} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
@@ -1052,7 +1052,7 @@ describe('pinInput', () => {
   })
 
   it('reports refused characters via onValueInvalid', () => {
-    const onValueInvalid = vi.fn()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput length={4} validationType="number" onValueInvalid={onValueInvalid} />
     ))
@@ -1072,7 +1072,7 @@ describe('pinInput', () => {
   })
 
   it('reports pasted text longer than the pin as tooLong', () => {
-    const onValueInvalid = vi.fn()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PinInput length={4} validationType="number" onValueInvalid={onValueInvalid} />
     ))

@@ -515,7 +515,7 @@ describe('sheet', () => {
   })
 
   it('keeps automatic Content close and explicit Close styling separate', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sheet open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
         <Sheet.Content>
@@ -576,7 +576,7 @@ describe('sheet', () => {
   })
 
   it('opens by trigger click and closes through close button', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Sheet onOpenChange={onOpenChange}>
@@ -678,7 +678,7 @@ describe('sheet', () => {
   })
 
   it('prevents close when closeOnEscape is false and emits onClosePrevented', async () => {
-    const onClosePrevented = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Sheet defaultOpen closeOnEscape={false} onClosePrevented={onClosePrevented}>
@@ -702,7 +702,7 @@ describe('sheet', () => {
   })
 
   it('emits onClosePrevented once for blocked outside pointer interaction', async () => {
-    const onClosePrevented = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -732,8 +732,8 @@ describe('sheet', () => {
   })
 
   it('closes on Escape by default', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Sheet defaultOpen onClosePrevented={onClosePrevented} onOpenChange={onOpenChange}>
@@ -820,7 +820,7 @@ describe('sheet', () => {
 
       const content = document.body.querySelector('[data-slot="sheet-content"]') as HTMLElement
       const input = document.body.querySelector('input') as HTMLInputElement
-      const scrollIntoView = vi.fn()
+      const scrollIntoView = vi.fn<(...args: Array<any>) => void>()
       input.scrollIntoView = scrollIntoView
       input.focus()
       listeners.get('resize')?.(new Event('resize'))
@@ -875,7 +875,7 @@ describe('sheet', () => {
   })
 
   it('supports render function children receiving close action', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Sheet defaultOpen onOpenChange={onOpenChange}>
         <Sheet.Content>
@@ -933,7 +933,7 @@ describe('sheet', () => {
   })
 
   it('runs the consumer onKeyDown handler and honors its preventDefault', () => {
-    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+    const onKeyDown = vi.fn<(event: KeyboardEvent) => any>((event) => {
       event.preventDefault()
     })
     render(() => (

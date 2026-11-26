@@ -20,7 +20,7 @@ describe('unified overlay contract', () => {
   it('popover supports custom mount and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Popover
@@ -54,7 +54,7 @@ describe('unified overlay contract', () => {
   it('contextMenu supports preventScroll={false}, custom mount, and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <ContextMenu
@@ -90,7 +90,7 @@ describe('unified overlay contract', () => {
   it('dropdownMenu supports custom mount and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <DropdownMenu
@@ -122,7 +122,7 @@ describe('unified overlay contract', () => {
   })
 
   it('baseSelect and Combobox support preventScroll={false} and onExitComplete', async () => {
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
     const items = [{ label: 'Apple', value: 'apple' }]
     const baseScreen = render(() => (

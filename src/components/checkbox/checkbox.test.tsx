@@ -27,7 +27,7 @@ describe('checkbox', () => {
     expect(ref?.type).toBe('checkbox')
   })
   it('fires a root onPointerDown handler when the control is pressed', () => {
-    const onPointerDown = vi.fn()
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Checkbox onPointerDown={onPointerDown} label="Press me" />)
     const control = screen.getByRole('checkbox')
 
@@ -89,7 +89,7 @@ describe('checkbox', () => {
   })
 
   it('toggles once from the native Space sequence and never from Enter', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Checkbox label="Keyboard" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Keyboard' })
 
@@ -119,10 +119,10 @@ describe('checkbox', () => {
   })
 
   it('forwards visual focus boundaries to the bound Field', () => {
-    const emit = vi.fn()
+    const emit = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
@@ -145,8 +145,8 @@ describe('checkbox', () => {
   })
 
   it('calls user onFocus and onBlur when the control gains and loses focus', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Checkbox label="Focusable" onFocus={onFocus} onBlur={onBlur} />)
     const control = screen.getByRole('checkbox', { name: 'Focusable' })
     const root = screen.container.querySelector('[data-slot="checkbox"]')!
@@ -192,7 +192,7 @@ describe('checkbox', () => {
   })
 
   it('lets a canceled root click prevent control activation', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Checkbox
         label="Canceled"
@@ -208,7 +208,7 @@ describe('checkbox', () => {
   })
 
   it('does not toggle when disabled', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Checkbox disabled label="Disabled" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Disabled' })
     const control = screen.container.querySelector('[data-slot="checkbox-control"]') as HTMLElement
@@ -281,7 +281,7 @@ describe('checkbox', () => {
   ])(
     'emits the checked value when a %s indeterminate checkbox is clicked',
     (_mode, state, aria) => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Checkbox
           {...state}
@@ -318,7 +318,7 @@ describe('checkbox', () => {
   })
 
   it('keeps controlled state while emitting onCheckedChange', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => <Checkbox checked label="Controlled" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Controlled' })
@@ -337,7 +337,7 @@ describe('checkbox', () => {
     ['controlled', { checked: true }, true],
     ['uncontrolled', { defaultChecked: false }, false],
   ])('does not toggle a %s readonly checkbox', async (_mode, state, expected) => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Checkbox {...state} readOnly label="Readonly" onCheckedChange={onChange} />
     ))
@@ -353,7 +353,7 @@ describe('checkbox', () => {
   })
 
   it('maps custom true and false values for controlled checkbox', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Checkbox
@@ -379,7 +379,7 @@ describe('checkbox', () => {
   })
 
   it('submits hidden checkbox value only when checked and resets to default state', async () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form onSubmit={onSubmit}>
         <Checkbox name="agree" value="yes" defaultChecked label="Agree" />
@@ -472,7 +472,7 @@ describe('checkbox', () => {
   })
 
   it('form.Field checkbox submits its trueValue as the native value', async () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -501,7 +501,7 @@ describe('checkbox', () => {
   })
 
   it('form.Field checkbox submits a boolean and keeps its native input checked with its value', async () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({ schema: v.object({ terms: v.boolean() }), initialInput: { terms: false } }),
@@ -534,7 +534,7 @@ describe('checkbox', () => {
   })
 
   it('implicitly submits the form on Enter through the default submitter', () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form
         onSubmit={(event) => {
@@ -549,7 +549,7 @@ describe('checkbox', () => {
 
     const checkbox = screen.getByRole('checkbox', { name: 'Agree' })
     const submitter = screen.getByRole('button', { name: 'Send' })
-    const onSubmitterClick = vi.fn()
+    const onSubmitterClick = vi.fn<(...args: Array<any>) => void>()
     submitter.addEventListener('click', onSubmitterClick)
 
     expectCheckboxChecked(checkbox, false)
@@ -561,7 +561,7 @@ describe('checkbox', () => {
   })
 
   it('implicitly submits the form on Enter without a submit button', () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form
         onSubmit={(event) => {
@@ -627,7 +627,7 @@ describe('checkbox', () => {
   })
 
   it('keeps controlled state and callback count unchanged on form reset', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <Checkbox
@@ -755,7 +755,7 @@ describe('checkbox', () => {
     ['input', <input aria-label="Nested input" />],
     ['disabled button', <button disabled>Disabled action</button>],
   ])('does not toggle a card from a nested %s', async (_name, content) => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Checkbox variant="card" label={content} onCheckedChange={onChange} />
     ))
@@ -770,7 +770,7 @@ describe('checkbox', () => {
   })
 
   it('ignores non-primary synthetic card clicks', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Checkbox variant="card" label="Secondary" onCheckedChange={onChange} />
     ))

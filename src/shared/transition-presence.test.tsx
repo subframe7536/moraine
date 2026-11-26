@@ -436,7 +436,7 @@ describe('createTransitionPresence', () => {
       animationDuration: '100ms',
       animationName: closed ? 'mo-exit' : 'none',
     }))
-    const exit = vi.fn()
+    const exit = vi.fn<(...args: Array<any>) => void>()
     let element!: HTMLElement
     let setOpen!: (open: boolean) => void
     const screen = render(() => {
@@ -474,7 +474,7 @@ describe('createTransitionPresence', () => {
       animationDuration: '100ms',
       animationName: closed ? 'mo-exit' : 'none',
     }))
-    const exit = vi.fn()
+    const exit = vi.fn<(...args: Array<any>) => void>()
     let setOpen!: (open: boolean) => void
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
@@ -501,7 +501,7 @@ describe('createTransitionPresence', () => {
       animationDuration: '100ms',
       animationName: closed ? 'mo-exit' : 'none',
     }))
-    const exit = vi.fn()
+    const exit = vi.fn<(...args: Array<any>) => void>()
     let setOpen!: (open: boolean) => void
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
@@ -529,7 +529,7 @@ describe('createTransitionPresence', () => {
       animationDuration: '100ms',
       animationName: closed ? 'mo-exit' : 'none',
     }))
-    const exit = vi.fn()
+    const exit = vi.fn<(...args: Array<any>) => void>()
     let setOpen!: (open: boolean) => void
     let setMounted!: (mounted: boolean) => void
     const screen = render(() => {
@@ -583,7 +583,7 @@ describe('createTransitionPresence', () => {
 
 it('notifies completed exits without animations and never initial absence or disposal', async () => {
   installComputedStyle()
-  const exit = vi.fn()
+  const exit = vi.fn<(...args: Array<any>) => void>()
   const [open, setOpen] = createSignal(false)
   const screen = render(() => {
     const presence = createTransitionPresence({ open, onExitComplete: exit })

@@ -13,7 +13,7 @@ const items = [
 
 describe('select family state ownership', () => {
   it('clicking the Control does not open the popup, while the trigger and listbox still select', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     function Parts() {
       const state = useSelectContext()
       return (
@@ -66,7 +66,7 @@ describe('select family state ownership', () => {
   })
 
   it('numeric and string values remain distinct', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const values = [
       { value: 0, label: 'Number' },
       { value: '0', label: 'String' },

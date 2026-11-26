@@ -5,7 +5,7 @@ import { useSearchQuery } from './search-query'
 it('keeps uncontrolled query text and applies the current length limit', () => {
   createRoot((dispose) => {
     const [maxLength, setMaxLength] = createSignal(3, { ownedWrite: true })
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const search = useSearchQuery({
       defaultValue: 'a',
       get maxLength() {
@@ -32,7 +32,7 @@ it('follows a controlled value and reports changes without storing them locally'
     const [controlled, setControlled] = createSignal<string | undefined>('first', {
       ownedWrite: true,
     })
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const search = useSearchQuery({
       get value() {
         return controlled()

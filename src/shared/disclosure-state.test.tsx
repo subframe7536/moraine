@@ -12,9 +12,9 @@ function installResizeObserverMock(): Array<() => void> {
   vi.stubGlobal(
     'ResizeObserver',
     class {
-      observe = vi.fn()
-      unobserve = vi.fn()
-      disconnect = vi.fn()
+      observe = vi.fn<(...args: Array<any>) => void>()
+      unobserve = vi.fn<(...args: Array<any>) => void>()
+      disconnect = vi.fn<(...args: Array<any>) => void>()
 
       constructor(callback: ResizeObserverCallback) {
         notifiers.push(() => callback([], this))

@@ -6,7 +6,7 @@ import {
   tableFeatures,
 } from '@tanstack/table-core'
 import type { ColumnDef, SortingState } from '@tanstack/table-core'
-import { createMemo, createRoot, createSignal, flush } from 'solid-js'
+import { createMemo, createRoot, createSignal, flush, untrack } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { FlexRender } from './flex-render'
@@ -58,9 +58,9 @@ describe('createTable', () => {
       const table = createTable({ features, columns, data })
       const rowCount = createMemo(() => table.getRowModel().rows.length)
 
-      expect(rowCount()).toBe(2)
+      expect(untrack(rowCount)).toBe(2)
       table.setOptions((prev) => ({ ...prev, data: [...data, { a: '3', b: 'z' }] }))
-      expect(rowCount()).toBe(3)
+      expect(untrack(rowCount)).toBe(3)
 
       dispose()
     })
@@ -80,9 +80,9 @@ describe('createTable', () => {
       })
       const firstA = createMemo(() => table.getRowModel().rows[0]?.getValue('a'))
 
-      expect(firstA()).toBe('2')
+      expect(untrack(firstA)).toBe('2')
       flush(() => setSorting([{ id: 'a', desc: false }]))
-      expect(firstA()).toBe('1')
+      expect(untrack(firstA)).toBe('1')
 
       dispose()
     })

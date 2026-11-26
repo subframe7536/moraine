@@ -6,8 +6,8 @@ import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { AccordionHydrationFixture } from './accordion.ssr.fixture'
 it('hydrates expanded JSX and mounts and releases an initially closed panel', async () => {
-  const mounted = vi.fn()
-  const cleaned = vi.fn()
+  const mounted = vi.fn<(...args: Array<any>) => void>()
+  const cleaned = vi.fn<(...args: Array<any>) => void>()
   const { container } = hydrateFixture(
     '/src/components/accordion/accordion.ssr.fixture.tsx',
     'renderAccordionFixture',

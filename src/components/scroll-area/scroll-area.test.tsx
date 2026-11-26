@@ -42,8 +42,8 @@ function edges(root: HTMLElement, axis: ScrollAreaT.Axis): [boolean, boolean] {
 /** Replaces ResizeObserver; the returned function notifies every observer. */
 function stubResizeObserver() {
   const callbacks = new Set<ResizeObserverCallback>()
-  const observe = vi.fn()
-  const disconnect = vi.fn()
+  const observe = vi.fn<(...args: Array<any>) => void>()
+  const disconnect = vi.fn<(...args: Array<any>) => void>()
   vi.stubGlobal(
     'ResizeObserver',
     class {
@@ -77,9 +77,9 @@ afterEach(() => {
 
 describe('scrollArea', () => {
   it('renders a focusable viewport inside the root and forwards refs and scroll events', () => {
-    const onScroll = vi.fn()
-    const ref = vi.fn()
-    const viewportRef = vi.fn()
+    const onScroll = vi.fn<(...args: Array<any>) => void>()
+    const ref = vi.fn<(...args: Array<any>) => void>()
+    const viewportRef = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ScrollArea
         ref={ref}
@@ -136,9 +136,9 @@ describe('scrollArea', () => {
   })
 
   it('reports overflowing edges, distances, and reached edges without shadows', async () => {
-    const onOverflowChange = vi.fn()
-    const onTopReached = vi.fn()
-    const onBottomReached = vi.fn()
+    const onOverflowChange = vi.fn<(...args: Array<any>) => void>()
+    const onTopReached = vi.fn<(...args: Array<any>) => void>()
+    const onBottomReached = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ScrollArea
         scrollThreshold={10}
@@ -187,8 +187,8 @@ describe('scrollArea', () => {
   it.each(['ltr', 'rtl'] as const)(
     'tracks logical horizontal edges in %s content',
     async (direction) => {
-      const onLeftReached = vi.fn()
-      const onRightReached = vi.fn()
+      const onLeftReached = vi.fn<(...args: Array<any>) => void>()
+      const onRightReached = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ScrollArea
           orientation="horizontal"
@@ -397,7 +397,7 @@ describe('scrollArea', () => {
 
   it('releases observers and listeners on unmount', () => {
     const { observe, disconnect, resize } = stubResizeObserver()
-    const onOverflowChange = vi.fn()
+    const onOverflowChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ScrollArea onOverflowChange={onOverflowChange}>
         <p>Content</p>

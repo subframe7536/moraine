@@ -203,7 +203,7 @@ describe('slider', () => {
   })
 
   it('vertical arrow keys follow the visual direction', async () => {
-    const verticalChange = vi.fn()
+    const verticalChange = vi.fn<(...args: Array<any>) => void>()
     const verticalScreen = render(() => (
       <Slider orientation="vertical" defaultValue={45} onValueChange={verticalChange} />
     ))
@@ -214,7 +214,7 @@ describe('slider', () => {
 
     expect(verticalChange).toHaveBeenLastCalledWith(44)
 
-    const reversedChange = vi.fn()
+    const reversedChange = vi.fn<(...args: Array<any>) => void>()
     const reversedScreen = render(() => (
       <Slider orientation="vertical" reversed defaultValue={45} onValueChange={reversedChange} />
     ))
@@ -261,7 +261,7 @@ describe('slider', () => {
   })
 
   it('thumbAlignment="contain" keeps value updates on the step', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={30} thumbAlignment="contain" onValueChange={onValueChange} />
     ))
@@ -275,7 +275,7 @@ describe('slider', () => {
   })
 
   it('vertical pointer values increase from bottom to top by default', async () => {
-    const verticalChange = vi.fn()
+    const verticalChange = vi.fn<(...args: Array<any>) => void>()
     const verticalScreen = render(() => (
       <Slider orientation="vertical" defaultValue={45} onValueChange={verticalChange} />
     ))
@@ -293,7 +293,7 @@ describe('slider', () => {
 
     expect(verticalChange).toHaveBeenLastCalledWith(100)
 
-    const reversedChange = vi.fn()
+    const reversedChange = vi.fn<(...args: Array<any>) => void>()
     const reversedScreen = render(() => (
       <Slider orientation="vertical" reversed defaultValue={45} onValueChange={reversedChange} />
     ))
@@ -317,7 +317,7 @@ describe('slider', () => {
     document.documentElement.dir = 'rtl'
 
     try {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={45} onValueChange={onValueChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -335,7 +335,7 @@ describe('slider', () => {
   })
 
   it('uses inherited RTL direction for visual placement, pointer, and keyboard movement', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <div dir="rtl">
         <Slider defaultValue={45} onValueChange={onValueChange} />
@@ -360,7 +360,7 @@ describe('slider', () => {
   })
 
   it('lets a root LTR direction override an inherited RTL direction', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <div dir="rtl">
         <Slider dir="ltr" defaultValue={45} onValueChange={onValueChange} />
@@ -375,7 +375,7 @@ describe('slider', () => {
   })
 
   it('uses an RTL direction set on the Slider root', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider dir="rtl" defaultValue={45} onValueChange={onValueChange} />
     ))
@@ -388,7 +388,7 @@ describe('slider', () => {
   })
 
   it('pageUp and PageDown move by one tenth of the range snapped to step', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider min={0} max={100} step={5} defaultValue={50} onValueChange={onValueChange} />
     ))
@@ -405,7 +405,7 @@ describe('slider', () => {
   })
 
   it('readOnly prevents keyboard and pointer value changes', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider readOnly defaultValue={50} onValueChange={onValueChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -436,8 +436,8 @@ describe('slider', () => {
   })
 
   it('single uncontrolled emits number for input and commit phases', async () => {
-    const onValueChange = vi.fn()
-    const onChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={10} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
@@ -457,7 +457,7 @@ describe('slider', () => {
   })
 
   it('snaps pointer values to the default step of 1', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider defaultValue={0} onValueChange={onValueChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const input = getInputs(screen.container)[0]
@@ -483,8 +483,8 @@ describe('slider', () => {
   })
 
   it('uses continuous pointer values when step is 0', async () => {
-    const onValueChange = vi.fn()
-    const onChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={0} step={0} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
@@ -523,7 +523,7 @@ describe('slider', () => {
   })
 
   it('keeps the grab offset when dragging from the thumb edge', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider defaultValue={50} onValueChange={onValueChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -554,8 +554,8 @@ describe('slider', () => {
   })
 
   it('range uncontrolled emits number[] for input and commit phases', async () => {
-    const onValueChange = vi.fn()
-    const onChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={[20, 80]} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
@@ -605,11 +605,11 @@ describe('slider', () => {
   })
 
   it('emits Field boundaries and commits range values only when focus leaves the slider', () => {
-    const emit = vi.fn()
-    const onChange = vi.fn()
+    const emit = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
@@ -639,8 +639,8 @@ describe('slider', () => {
   })
 
   it('calls user onFocus once when focus enters the slider and onBlur when it leaves', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={[20, 80]} onFocus={onFocus} onBlur={onBlur} />
     ))
@@ -666,7 +666,7 @@ describe('slider', () => {
         v.check((values) => (values[1] ?? 0) - (values[0] ?? 0) >= 70, 'Range is too narrow.'),
       ),
     })
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () => createForm({ schema, initialInput: { range: [20, 80] }, validate: 'blur' }),
       (form) => (
@@ -697,7 +697,7 @@ describe('slider', () => {
   })
 
   it('moves overlapping thumbs in both directions', async () => {
-    const rightChange = vi.fn()
+    const rightChange = vi.fn<(...args: Array<any>) => void>()
     const rightScreen = render(() => <Slider defaultValue={[20, 20]} onValueChange={rightChange} />)
     const rightThumbs = getThumbs(rightScreen.container)
 
@@ -706,7 +706,7 @@ describe('slider', () => {
 
     expect(rightChange).toHaveBeenLastCalledWith([20, 21])
 
-    const leftChange = vi.fn()
+    const leftChange = vi.fn<(...args: Array<any>) => void>()
     const leftScreen = render(() => <Slider defaultValue={[20, 20]} onValueChange={leftChange} />)
     const leftThumbs = getThumbs(leftScreen.container)
 
@@ -753,7 +753,7 @@ describe('slider', () => {
   })
 
   it('dragging the left thumb across the right thumb keeps updating when reversing direction', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider defaultValue={[20, 50]} onValueChange={onValueChange} />)
     const thumbs = getThumbs(screen.container)
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -799,7 +799,7 @@ describe('slider', () => {
   })
 
   it('can disable thumb crossing while dragging', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onValueChange={onValueChange} />
     ))
@@ -878,7 +878,7 @@ describe('slider', () => {
   })
 
   it('controlled single keeps rendered value while emitting updates', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider value={10} onValueChange={onValueChange} />)
     const thumbs = getThumbs(screen.container)
 
@@ -892,7 +892,7 @@ describe('slider', () => {
   })
 
   it('controlled range keeps rendered value while emitting updates', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider value={[20, 80]} onValueChange={onValueChange} />)
     const thumbs = getThumbs(screen.container)
 
@@ -1105,8 +1105,8 @@ describe('slider', () => {
 
   describe('commit semantics', () => {
     it('keyboard changes commit on keyup without requiring blur', async () => {
-      const onValueChange = vi.fn()
-      const onChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={50} onValueChange={onValueChange} onValueCommit={onChange} />
       ))
@@ -1125,7 +1125,7 @@ describe('slider', () => {
     })
 
     it('home key commits on keyup', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1138,7 +1138,7 @@ describe('slider', () => {
     })
 
     it('end key commits on keyup', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1151,7 +1151,7 @@ describe('slider', () => {
     })
 
     it('pageUp key commits on keyup', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1164,7 +1164,7 @@ describe('slider', () => {
     })
 
     it('multiple keydown events only commit once on final keyup', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1180,7 +1180,7 @@ describe('slider', () => {
     })
 
     it('blur still commits if keyup was missed', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1195,7 +1195,7 @@ describe('slider', () => {
 
   describe('multi-thumb keyboard edge cases', () => {
     it('home moves current thumb to its minimum boundary, not global min', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider
           defaultValue={[20, 80]}
@@ -1216,7 +1216,7 @@ describe('slider', () => {
     })
 
     it('end moves current thumb to its maximum boundary, not global max', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider
           defaultValue={[20, 80]}
@@ -1237,7 +1237,7 @@ describe('slider', () => {
     })
 
     it('arrow key at boundary switches focus to adjacent thumb when blocked', async () => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider
           defaultValue={[20, 50]}
@@ -1263,7 +1263,7 @@ describe('slider', () => {
     })
 
     it('arrow key switches to previous thumb when blocked going left', async () => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onValueChange={onValueChange} />
       ))
@@ -1284,7 +1284,7 @@ describe('slider', () => {
     })
 
     it('arrow key does not switch thumb when allowThumbCrossing is true', async () => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[20, 50]} allowThumbCrossing={true} onValueChange={onValueChange} />
       ))
@@ -1301,7 +1301,7 @@ describe('slider', () => {
     })
 
     it('arrow key does not switch thumb at global boundaries', async () => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[0, 50]} allowThumbCrossing={false} onValueChange={onValueChange} />
       ))
@@ -1316,7 +1316,7 @@ describe('slider', () => {
     })
 
     it('pageUp and PageDown do not switch thumbs, only move current thumb', async () => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[40, 60]} allowThumbCrossing={false} onValueChange={onValueChange} />
       ))
@@ -1363,7 +1363,7 @@ describe('slider', () => {
     })
 
     it('blur during programmatic focus shift does not double-commit', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onValueCommit={onChange} />
       ))
@@ -1401,8 +1401,8 @@ describe('slider', () => {
 
   describe('pointer commit semantics', () => {
     it('pointer drag emits live updates but commits only on release', async () => {
-      const onValueChange = vi.fn()
-      const onChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={20} onValueChange={onValueChange} onValueCommit={onChange} />
       ))
@@ -1462,7 +1462,7 @@ describe('slider', () => {
     })
 
     it('pointer cancel commits pending drag values', async () => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={20} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
       const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -1520,8 +1520,8 @@ describe('slider', () => {
   })
 
   it('drops stale keyboard pending values after a controlled update', async () => {
-    const onChange = vi.fn()
-    const onValueChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const [value, setValue] = createSignal(20)
     const screen = render(() => (
       <Slider value={value()} onValueCommit={onChange} onValueChange={onValueChange} />
@@ -1539,7 +1539,7 @@ describe('slider', () => {
   })
 
   it('drops stale pointer pending values after a controlled update', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const [value, setValue] = createSignal(20)
     const screen = render(() => <Slider value={value()} onValueCommit={onChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
@@ -1557,8 +1557,8 @@ describe('slider', () => {
   })
 
   it('does not emit input or commit callbacks for boundary no-ops', async () => {
-    const onChange = vi.fn()
-    const onValueChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={100} onValueCommit={onChange} onValueChange={onValueChange} />
     ))
@@ -1788,7 +1788,7 @@ it('draws markers at a numeric interval without changing snapping', () => {
 })
 
 it('maps pointer positions onto the track padding box', () => {
-  const onValueChange = vi.fn()
+  const onValueChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <Slider
       defaultValue={0}

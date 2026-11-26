@@ -40,9 +40,9 @@ describe('createSharedElementOffsetObserver', () => {
   it('reports the vertical, horizontal, and RTL offsets of one scroll element', () => {
     const { element, position } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
-    const vertical = vi.fn()
-    const horizontal = vi.fn()
-    const rtl = vi.fn()
+    const vertical = vi.fn<(...args: Array<any>) => void>()
+    const horizontal = vi.fn<(...args: Array<any>) => void>()
+    const rtl = vi.fn<(...args: Array<any>) => void>()
 
     const stopVertical = observe(fakeInstance(element), vertical)
     const stopHorizontal = observe(fakeInstance(element, { horizontal: true }), horizontal)
@@ -93,7 +93,7 @@ describe('createSharedElementOffsetObserver', () => {
     vi.useFakeTimers()
     const { element, position } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
-    const callback = vi.fn()
+    const callback = vi.fn<(...args: Array<any>) => void>()
     observe(fakeInstance(element), callback)
 
     position.top = 5
@@ -114,7 +114,7 @@ describe('createSharedElementOffsetObserver', () => {
     vi.useFakeTimers()
     const { element } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
-    const callback = vi.fn()
+    const callback = vi.fn<(...args: Array<any>) => void>()
     const stop = observe(fakeInstance(element), callback)
 
     element.dispatchEvent(new Event('scroll'))
@@ -130,6 +130,6 @@ describe('createSharedElementOffsetObserver', () => {
       targetWindow: null,
       options: {},
     } as unknown as Virtualizer<HTMLElement, HTMLElement>
-    expect(observe(instance, vi.fn())).toBeUndefined()
+    expect(observe(instance, vi.fn<(...args: Array<any>) => void>())).toBeUndefined()
   })
 })

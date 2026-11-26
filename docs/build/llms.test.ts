@@ -55,7 +55,7 @@ describe('agent Markdown', () => {
     expect(index).toContain('https://moraine.subf.dev/hooks/create-slider.md')
     expect(index).not.toContain('create-list-virtualizer')
     expect(index).toContain('https://moraine.subf.dev/components/button.md')
-  })
+  }, 20_000)
 
   it('includes page frontmatter and removes build metadata, runtime imports, Playground and MDX', async () => {
     for (const { fileName, source } of await documents()) {

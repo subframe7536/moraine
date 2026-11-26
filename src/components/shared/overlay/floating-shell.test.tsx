@@ -29,8 +29,8 @@ describe.each([
   })
 
   it('forwards cancellable content events and forwards consumer refs', async () => {
-    const ref = vi.fn()
-    const changes = vi.fn()
+    const ref = vi.fn<(...args: Array<any>) => void>()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     const view = render(() => (
       <Root defaultOpen onOpenChange={changes}>
         <Root.Trigger>Trigger</Root.Trigger>

@@ -10,7 +10,7 @@ describe('createTypeahead', () => {
       { disabled: true, text: 'Ａlternate' },
       { disabled: false, text: 'Another' },
     ]
-    const onMatch = vi.fn()
+    const onMatch = vi.fn<(...args: Array<any>) => void>()
     const dispose = createRoot((dispose) => {
       const typeahead = createTypeahead({
         getItems: () => items,

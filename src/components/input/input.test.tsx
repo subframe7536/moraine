@@ -61,7 +61,7 @@ describe('input', () => {
   })
 
   it('applies trim modifier', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input onValueChange={onValueChange} modifiers={{ trim: true }} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -74,9 +74,9 @@ describe('input', () => {
   })
 
   it('supports lazy and empty value strategy modifiers', async () => {
-    const lazyChange = vi.fn()
-    const preserveChange = vi.fn()
-    const nullableChange = vi.fn()
+    const lazyChange = vi.fn<(...args: Array<any>) => void>()
+    const preserveChange = vi.fn<(...args: Array<any>) => void>()
+    const nullableChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -124,7 +124,7 @@ describe('input', () => {
 
   it('emits null and stays controlled through a number modifier round trip', () => {
     const [value, setValue] = createSignal<number | null>(5)
-    const onValueChange = vi.fn((next: number | null) => setValue(next))
+    const onValueChange = vi.fn<(next: number | null) => any>((next) => setValue(next))
     const screen = render(() => (
       <Input value={value()} onValueChange={onValueChange} modifiers={{ number: true }} />
     ))
@@ -185,8 +185,8 @@ describe('input', () => {
   })
 
   it('forwards onChange and onBlur handlers', async () => {
-    const onChange = vi.fn()
-    const onBlur = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input onChange={onChange} onBlur={onBlur} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -222,7 +222,7 @@ describe('input', () => {
   })
 
   it('defers rejected controlled rollback until composition commits', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input value="Locked" onValueChange={onValueChange} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -273,7 +273,7 @@ describe('input', () => {
   })
 
   it('does not publish programmatic value property changes without a native event', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input onValueChange={onValueChange} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -284,7 +284,7 @@ describe('input', () => {
   })
 
   it('rolls explicit controlled values back after input and caller cancellation', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input value="Locked" onValueChange={onValueChange} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -297,7 +297,7 @@ describe('input', () => {
     expect(input.value).toBe('Locked')
     screen.unmount()
 
-    const cancelledChange = vi.fn()
+    const cancelledChange = vi.fn<(...args: Array<any>) => void>()
     const cancelled = render(() => (
       <Input
         value="Locked"
@@ -317,7 +317,7 @@ describe('input', () => {
   })
 
   it('allows lazy controlled edits until change then restores the authoritative value', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Input value="Locked" modifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
@@ -340,7 +340,7 @@ describe('input', () => {
 
   it('keeps a lazy controlled composition draft until change commits it once', async () => {
     const [value, setValue] = createSignal('')
-    const onValueChange = vi.fn((nextValue: string) => setValue(nextValue))
+    const onValueChange = vi.fn<(nextValue: string) => any>((nextValue) => setValue(nextValue))
     const screen = render(() => (
       <Input value={value()} modifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
@@ -362,7 +362,7 @@ describe('input', () => {
   })
 
   it('keeps a lazy Formisch composition draft until change commits it once', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -508,7 +508,7 @@ describe('input', () => {
 
   it('uses native required validity and resets uncontrolled values without callbacks', async () => {
     const [defaultValue, setDefaultValue] = createSignal('Initial')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <Input name="value" defaultValue={defaultValue()} required onValueChange={onValueChange} />
@@ -536,7 +536,7 @@ describe('input', () => {
 
   it('restores explicit controlled values after native reset without callbacks', async () => {
     const [value, setValue] = createSignal('Controlled')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <Input value={value()} defaultValue="Default" onValueChange={onValueChange} />
@@ -587,7 +587,7 @@ describe('input', () => {
   })
 
   it('reacts to external Formisch input without publishing user callbacks', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -612,7 +612,7 @@ describe('input', () => {
 
   it('uses the latest reactive modifier configuration', async () => {
     const [number, setNumber] = createSignal(false)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Input modifiers={{ number: number() }} onValueChange={onValueChange} />
     ))

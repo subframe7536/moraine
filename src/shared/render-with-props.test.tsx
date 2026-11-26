@@ -60,7 +60,7 @@ describe('renderWithProps', () => {
   })
 
   it('owns renderer cleanup across conditional mounts', () => {
-    const cleanup = vi.fn()
+    const cleanup = vi.fn<(...args: Array<any>) => void>()
     const Owned = () => {
       onCleanup(cleanup)
       return <span>Owned content</span>

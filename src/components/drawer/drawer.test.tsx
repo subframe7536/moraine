@@ -206,7 +206,7 @@ describe('drawer', () => {
   })
 
   it('touch swipe dismisses from the default close button', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -317,7 +317,7 @@ describe('drawer', () => {
   })
 
   it('mouse drag beyond half height closes with swipe state during the drag', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -372,7 +372,7 @@ describe('drawer', () => {
   })
 
   it('short slow drag animates back and stays open', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -394,7 +394,7 @@ describe('drawer', () => {
   })
 
   it('fast short flick closes where the same slow distance does not', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -412,7 +412,7 @@ describe('drawer', () => {
   })
 
   it('holding motionless before release does not dismiss even after a fast pull', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -457,7 +457,7 @@ describe('drawer', () => {
   })
 
   it('opposite-direction drag rubber-bands the popup', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -516,7 +516,7 @@ describe('drawer', () => {
   })
 
   it('dragging the handle down translates the popup and restores on release', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -552,7 +552,7 @@ describe('drawer', () => {
   })
 
   it('dragging the handle down past halfway dismisses the drawer', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -571,7 +571,7 @@ describe('drawer', () => {
   })
 
   it('does not swipe from a button, a swipe-ignore element, or the body for mouse drags', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -600,7 +600,7 @@ describe('drawer', () => {
   })
 
   it('side="right" closes on a rightward drag and ignores vertical drags', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen side="right" onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -624,7 +624,7 @@ describe('drawer', () => {
 
   describe('snap points', () => {
     it('applies the default snap point offset and settles drags on the nearest point', async () => {
-      const onSnapPointChange = vi.fn()
+      const onSnapPointChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer defaultOpen snapPoints={['148px', 1]} onSnapPointChange={onSnapPointChange}>
           <Drawer.Content>
@@ -669,7 +669,7 @@ describe('drawer', () => {
     })
 
     it('drags down from the lowest snap point close the drawer', async () => {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer defaultOpen snapPoints={['148px', 1]} onOpenChange={onOpenChange}>
           <Drawer.Content>
@@ -687,7 +687,7 @@ describe('drawer', () => {
     })
 
     it('handle drags at a recessed snap point translate like content drags', async () => {
-      const onSnapPointChange = vi.fn()
+      const onSnapPointChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer defaultOpen snapPoints={['148px', 1]} onSnapPointChange={onSnapPointChange}>
           <Drawer.Content>
@@ -709,7 +709,7 @@ describe('drawer', () => {
     })
 
     it('snapToSequentialPoints advances at most one point per flick', async () => {
-      const onSnapPointChange = vi.fn()
+      const onSnapPointChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer
           defaultOpen
@@ -735,8 +735,8 @@ describe('drawer', () => {
     })
 
     it('a fast flick down away from the lowest snap point settles lower instead of closing', async () => {
-      const onSnapPointChange = vi.fn()
-      const onOpenChange = vi.fn()
+      const onSnapPointChange = vi.fn<(...args: Array<any>) => void>()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer
           defaultOpen
@@ -797,7 +797,7 @@ describe('drawer', () => {
     })
 
     it('resets the snap point to the default after the drawer finishes closing', async () => {
-      const onSnapPointChange = vi.fn()
+      const onSnapPointChange = vi.fn<(...args: Array<any>) => void>()
       const [open, setOpen] = createSignal(true)
       render(() => (
         <Drawer
@@ -825,7 +825,7 @@ describe('drawer', () => {
     })
 
     it('defaultSnapPoint null opens fully and is restored after closing', async () => {
-      const onSnapPointChange = vi.fn()
+      const onSnapPointChange = vi.fn<(...args: Array<any>) => void>()
       const [open, setOpen] = createSignal(true)
       render(() => (
         <Drawer
@@ -889,7 +889,7 @@ describe('drawer', () => {
   })
 
   it('controlled open that ignores the close request resets the drag', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer open onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -909,7 +909,7 @@ describe('drawer', () => {
   })
 
   it('touch swipe dismisses, but a scrollable body scrolled down wins the gesture', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -940,7 +940,7 @@ describe('drawer', () => {
   })
 
   it('touch drag starting in a scrolled body region does not swipe', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -977,7 +977,7 @@ describe('drawer', () => {
   })
 
   it('a second pointer press cannot take over or reset the active drag', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1055,7 +1055,7 @@ describe('drawer', () => {
   })
 
   it('rTL scroller claims drags toward content start and yields at the edge', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen side="left" onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1108,7 +1108,7 @@ describe('drawer', () => {
   })
 
   it('a scrolled body hands the gesture back once it reaches its edge', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1158,7 +1158,7 @@ describe('drawer', () => {
   })
 
   it('the first move absorbs the press offset so the content does not jump', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1194,7 +1194,7 @@ describe('drawer', () => {
   })
 
   it('reversing the drag cancels the dismiss even past the threshold', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1270,7 +1270,7 @@ describe('drawer', () => {
   })
 
   it('a pointermove with released buttons commits the drag like a release', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1332,7 +1332,7 @@ describe('drawer', () => {
   })
 
   it('a non-primary button cancels an active pointer drag', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1392,7 +1392,7 @@ describe('drawer', () => {
   })
 
   it('a second finger pauses the swipe instead of driving it', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1432,7 +1432,7 @@ describe('drawer', () => {
   })
 
   it('does not swipe from a label or a role="button" element', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1459,7 +1459,7 @@ describe('drawer', () => {
   })
 
   it('a touch drag starting on a button inside the content swipes the drawer', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1489,7 +1489,7 @@ describe('drawer', () => {
   })
 
   it('a claimed touch drag keeps tracking through a non-cancelable touchmove', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1525,7 +1525,7 @@ describe('drawer', () => {
   })
 
   it('cross-axis jitter without a cross-axis consumer does not kill the gesture', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1554,7 +1554,7 @@ describe('drawer', () => {
   })
 
   it('a cross-axis marked element permanently owns cross-dominant gestures', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1587,7 +1587,7 @@ describe('drawer', () => {
   })
 
   it('an outer all-direction data-swipe-ignore wins over a nested axis value', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1618,7 +1618,7 @@ describe('drawer', () => {
   })
 
   it('a scrollable body at its edge keeps opposite-direction drags', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1653,7 +1653,7 @@ describe('drawer', () => {
   })
 
   it('a touch drag does not start while text is selected inside the drawer', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1695,7 +1695,7 @@ describe('drawer', () => {
   })
 
   it('a touch drag does not start while an input inside the drawer has a selection', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1734,7 +1734,7 @@ describe('drawer', () => {
   })
 
   it('default-prevented presses and pending moves do not start a swipe', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1824,7 +1824,7 @@ describe('drawer', () => {
   })
 
   it('a mouse drag inside a scrollable child does not swipe the drawer', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1935,7 +1935,7 @@ describe('drawer', () => {
       writable: true,
     })
 
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen snapPoints={[0.5]} snapPoint={0.5} onOpenChange={onOpenChange}>
         <Drawer.Content>
@@ -1967,7 +1967,7 @@ describe('drawer', () => {
   })
 
   it('closing the last nested drawer re-measures the parent size', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     function Nested(): JSX.Element {
       const [open, setOpen] = createSignal(true)
       return (
@@ -2014,7 +2014,7 @@ describe('drawer', () => {
   })
 
   it('an open nested drawer disables the parent swipe', async () => {
-    const onParentChange = vi.fn()
+    const onParentChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onParentChange}>
         <Drawer.Content>
@@ -2202,7 +2202,7 @@ describe('drawer', () => {
     })
 
     it('closing the nested drawer restores the ancestor', async () => {
-      const onChildChange = vi.fn()
+      const onChildChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer defaultOpen>
           <Drawer.Content>
@@ -2255,7 +2255,7 @@ describe('drawer', () => {
       vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(ANDROID_UA)
       watchers = []
       const FakeCloseWatcher = class extends EventTarget {
-        destroy = vi.fn()
+        destroy = vi.fn<(...args: Array<any>) => void>()
         requestClose() {
           const cancelEvent = new Event('cancel', { cancelable: true })
           if (this.dispatchEvent(cancelEvent)) {
@@ -2272,7 +2272,7 @@ describe('drawer', () => {
 
     it('close event closes the drawer', async () => {
       stubAndroidAndWatcher()
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer defaultOpen onOpenChange={onOpenChange}>
           <Drawer.Content>
@@ -2312,8 +2312,8 @@ describe('drawer', () => {
     it('no watcher is created on a non-Android user agent', async () => {
       watchers = []
       const FakeCloseWatcher = class extends EventTarget {
-        destroy = vi.fn()
-        requestClose = vi.fn()
+        destroy = vi.fn<(...args: Array<any>) => void>()
+        requestClose = vi.fn<(...args: Array<any>) => void>()
         constructor() {
           super()
           watchers.push(this)
@@ -2335,8 +2335,8 @@ describe('drawer', () => {
 
     it('closeOnEscape={false} prevents a cancelable cancel and reports it', async () => {
       stubAndroidAndWatcher()
-      const onClosePrevented = vi.fn()
-      const onOpenChange = vi.fn()
+      const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer
           defaultOpen
@@ -2361,8 +2361,8 @@ describe('drawer', () => {
 
     it('nested drawers close only the child on the latest watcher', async () => {
       stubAndroidAndWatcher()
-      const onParentChange = vi.fn()
-      const onChildChange = vi.fn()
+      const onParentChange = vi.fn<(...args: Array<any>) => void>()
+      const onChildChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Drawer defaultOpen onOpenChange={onParentChange}>
           <Drawer.Content>
@@ -2388,8 +2388,8 @@ describe('drawer', () => {
   })
 
   it('a swipe dismiss on a nested child closes only the child', async () => {
-    const onParentChange = vi.fn()
-    const onChildChange = vi.fn()
+    const onParentChange = vi.fn<(...args: Array<any>) => void>()
+    const onChildChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onParentChange}>
         <Drawer.Content>
@@ -2418,7 +2418,7 @@ describe('drawer', () => {
   })
 
   it('releasing a selection started inside Drawer.Body onto the overlay does not close', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
         <Drawer.Content>

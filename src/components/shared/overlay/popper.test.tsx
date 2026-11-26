@@ -43,10 +43,10 @@ describe('popper primitives', () => {
   })
 
   it('forwards original pointer events to trigger and content callbacks', async () => {
-    const onTriggerPointerEnter = vi.fn()
-    const onTriggerPointerLeave = vi.fn()
-    const onContentPointerEnter = vi.fn()
-    const onContentPointerLeave = vi.fn()
+    const onTriggerPointerEnter = vi.fn<(...args: Array<any>) => void>()
+    const onTriggerPointerLeave = vi.fn<(...args: Array<any>) => void>()
+    const onContentPointerEnter = vi.fn<(...args: Array<any>) => void>()
+    const onContentPointerLeave = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <PopperFixture
@@ -148,7 +148,7 @@ describe('popper primitives', () => {
   })
 
   it('force-mounts closed content without activating open-state resources', async () => {
-    const onEscapeKeyDown = vi.fn()
+    const onEscapeKeyDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PopperFixture
         contentRender={(popper) => (
@@ -257,7 +257,7 @@ describe('popper primitives', () => {
   })
 
   it('preserves target cancellation for outside pointer interactions', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <button
@@ -295,7 +295,7 @@ describe('popper primitives', () => {
   })
 
   it('dismisses press-less outside clicks while retaining inside and cancelled click behavior', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside" onClick={(event) => event.preventDefault()}>
@@ -342,7 +342,7 @@ describe('popper primitives', () => {
   it('does not replay an outside pointer dismissal as a click against a newly opened layer', async () => {
     const [firstOpen, setFirstOpen] = createSignal(true)
     const [secondOpen, setSecondOpen] = createSignal(false)
-    const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
+    const onSecondOpenChange = vi.fn<(open: boolean) => any>((open) => setSecondOpen(open))
     const outside = document.createElement('button')
     document.body.append(outside)
     const screen = render(() => (
@@ -391,7 +391,7 @@ describe('popper primitives', () => {
   it('suppresses the click that dismissed a layer even after a delayed release', async () => {
     const [firstOpen, setFirstOpen] = createSignal(true)
     const [secondOpen, setSecondOpen] = createSignal(false)
-    const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
+    const onSecondOpenChange = vi.fn<(open: boolean) => any>((open) => setSecondOpen(open))
     const outside = document.createElement('button')
     document.body.append(outside)
     const screen = render(() => (
@@ -449,7 +449,7 @@ describe('popper primitives', () => {
   it('clears stale pointer-click suppression when a different target clicks first', async () => {
     const [firstOpen, setFirstOpen] = createSignal(true)
     const [secondOpen, setSecondOpen] = createSignal(false)
-    const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
+    const onSecondOpenChange = vi.fn<(open: boolean) => any>((open) => setSecondOpen(open))
     const firstOutside = document.createElement('button')
     const secondOutside = document.createElement('button')
     document.body.append(firstOutside, secondOutside)
@@ -504,7 +504,7 @@ describe('popper primitives', () => {
   it('ignores secondary pointer dismissal and prevents handled Escape', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PopperFixture
         defaultOpen
@@ -545,7 +545,7 @@ describe('popper primitives', () => {
   it('delays touch outside dismissal until a completed tap', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PopperFixture
         defaultOpen
@@ -570,7 +570,7 @@ describe('popper primitives', () => {
   })
 
   it('ignores Escape while an IME composition is active', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <PopperFixture
         defaultOpen
@@ -602,7 +602,7 @@ describe('popper primitives', () => {
   })
 
   it('does not acquire global resources without a mounted content surface', async () => {
-    const onEscapeKeyDown = vi.fn()
+    const onEscapeKeyDown = vi.fn<(...args: Array<any>) => void>()
     const [show, setShow] = createSignal(false)
     const screen = render(() => (
       <PopperFixture
@@ -792,7 +792,7 @@ describe('popper primitives', () => {
 
   it('releases scroll lock and interaction resources when conditional content unmounts', async () => {
     const [showContent, setShowContent] = createSignal(true)
-    const onEscapeKeyDown = vi.fn()
+    const onEscapeKeyDown = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <PopperFixture
         defaultOpen
@@ -940,7 +940,7 @@ describe('popper primitives', () => {
 describe('popper native event composition', () => {
   it('lets a reactive click handler cancel hover-mode activation', () => {
     const [cancel, setCancel] = createSignal(true)
-    const changes = vi.fn()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     const events: Array<MouseEvent> = []
     const screen = render(() => (
       <Popover openOnHover onOpenChange={changes}>
@@ -971,7 +971,7 @@ describe('popper native event composition', () => {
   })
 
   it('lets content pointer handlers cancel tooltip dismissal', async () => {
-    const changes = vi.fn()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Tooltip defaultOpen closeDelay={0} onOpenChange={changes}>
         <Tooltip.Trigger>Open</Tooltip.Trigger>
@@ -999,8 +999,8 @@ describe('popper native event composition', () => {
   it('preserves custom trigger keyboard activation and disabled state', () => {
     const CustomTrigger = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
     const [disabled, setDisabled] = createSignal(false)
-    const changes = vi.fn()
-    const ref = vi.fn()
+    const changes = vi.fn<(...args: Array<any>) => void>()
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover onOpenChange={changes} disabled={disabled()}>
         <Popover.Trigger as={CustomTrigger} ref={ref}>
@@ -1027,8 +1027,8 @@ describe('floating component context isolation', () => {
     'isolates a nested %s from its parent popover',
     async (kind) => {
       const Inner = kind === 'popover' ? Popover : Tooltip
-      const outerChanges = vi.fn()
-      const innerChanges = vi.fn()
+      const outerChanges = vi.fn<(...args: Array<any>) => void>()
+      const innerChanges = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Popover defaultOpen onOpenChange={outerChanges}>
           <Popover.Trigger>Outer trigger</Popover.Trigger>
@@ -1070,7 +1070,7 @@ describe('floating component context isolation', () => {
     async (kind) => {
       vi.useFakeTimers()
       try {
-        const changes = vi.fn()
+        const changes = vi.fn<(...args: Array<any>) => void>()
         const screen = render(() =>
           kind === 'popover' ? (
             <Popover id="pending-popover" openOnHover openDelay={50} onOpenChange={changes}>

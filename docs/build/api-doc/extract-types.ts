@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential type resolution keeps shared recursion state and caches correct.
 import { existsSync, readFileSync, statSync } from 'node:fs'
 
 import path from 'pathe'

@@ -42,15 +42,15 @@ it.each(['Header', 'Content', 'Footer', 'Inset', 'Group', 'Menu'] as const)(
 )
 
 function createMatchMediaMock(matches = false) {
-  return vi.fn().mockImplementation(() => ({
+  return vi.fn<(query: string) => MediaQueryList>().mockImplementation(() => ({
     matches,
     media: '',
     onchange: null,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
+    addEventListener: vi.fn<(...args: Array<any>) => void>(),
+    removeEventListener: vi.fn<(...args: Array<any>) => void>(),
+    dispatchEvent: vi.fn<(event: Event) => boolean>().mockReturnValue(true),
+    addListener: vi.fn<(...args: Array<any>) => void>(),
+    removeListener: vi.fn<(...args: Array<any>) => void>(),
   }))
 }
 
@@ -80,7 +80,7 @@ afterEach(() => {
 describe('sidebar', () => {
   it('keeps one sidebar identity and preserves child state across mobile changes', async () => {
     const [mobile, setMobile] = createSignal(false)
-    const ref = vi.fn()
+    const ref = vi.fn<(...args: Array<any>) => void>()
     let mounts = 0
     let cleanups = 0
     const Child = () => {
@@ -317,7 +317,7 @@ describe('sidebar', () => {
   })
 
   it('forwards region attributes, classes, styles, refs, and events', () => {
-    const onScroll = vi.fn()
+    const onScroll = vi.fn<(...args: Array<any>) => void>()
     let mainRef: HTMLElement | undefined
     const screen = render(() => (
       <Sidebar mobile={false}>
@@ -434,7 +434,7 @@ describe('sidebar.Trigger', () => {
   ] as const)(
     'runs the consumer onClick, then toggles unless it %s',
     (_case, preventDefault, expanded) => {
-      const onClick = vi.fn((event: MouseEvent) => {
+      const onClick = vi.fn<(event: MouseEvent) => any>((event) => {
         if (preventDefault) {
           event.preventDefault()
         }
@@ -682,7 +682,7 @@ describe('sidebar.MenuButton', () => {
   })
 
   it('renders a button that fires onClick and ignores clicks when disabled', () => {
-    const handleClick = vi.fn()
+    const handleClick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuButton onClick={handleClick}>Action</Sidebar.MenuButton>
@@ -707,7 +707,7 @@ describe('sidebar.MenuButton', () => {
   })
 
   it('keeps a disabled link as an inert anchor without href', () => {
-    const handleClick = vi.fn()
+    const handleClick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar>
         <Sidebar.MenuButton href="/docs" disabled onClick={handleClick}>
@@ -774,8 +774,8 @@ describe('sidebar.MenuButton', () => {
   })
 
   it('keeps the menu action beside the item button, so each click reaches only its own target', () => {
-    const handleItemClick = vi.fn()
-    const handleActionClick = vi.fn()
+    const handleItemClick = vi.fn<(...args: Array<any>) => void>()
+    const handleActionClick = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Sidebar>
@@ -864,7 +864,7 @@ describe('sidebar.MenuSub', () => {
   })
 
   it('nests submenu items in a list under a trigger that toggles them', async () => {
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar>
         <Sidebar.Menu>
@@ -987,7 +987,7 @@ describe('sidebar open state', () => {
 
   it('reports desktop toggles through controlled open and onOpenChange', () => {
     const [open, setOpen] = createSignal(true)
-    const onOpenChange = vi.fn((next: boolean) => setOpen(next))
+    const onOpenChange = vi.fn<(next: boolean) => any>((next) => setOpen(next))
     const screen = render(() => (
       <Sidebar mobile={false} open={open()} onOpenChange={onOpenChange}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
@@ -1005,7 +1005,7 @@ describe('sidebar open state', () => {
   })
 
   it('uncontrolled desktop starts from defaultOpen and reports each toggle', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar mobile={false} defaultOpen={false} onOpenChange={onOpenChange}>
         <FrameContent />
@@ -1020,8 +1020,8 @@ describe('sidebar open state', () => {
   })
 
   it('uncontrolled mobile drawer starts closed and reports trigger and Escape dismissal', async () => {
-    const onOpenChange = vi.fn()
-    const onMobileOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const onMobileOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar mobile onOpenChange={onOpenChange} onMobileOpenChange={onMobileOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
@@ -1092,7 +1092,7 @@ describe('sidebar open state', () => {
 
   it('controlled mobileOpen drives the drawer and onMobileOpenChange only requests changes', async () => {
     const [open, setOpen] = createSignal(false)
-    const onMobileOpenChange = vi.fn((next: boolean) => setOpen(next))
+    const onMobileOpenChange = vi.fn<(next: boolean) => any>((next) => setOpen(next))
     const screen = render(() => (
       <Sidebar mobile mobileOpen={open()} onMobileOpenChange={onMobileOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
@@ -1116,7 +1116,7 @@ describe('sidebar open state', () => {
   })
 
   it('controlled mobileOpen that the consumer ignores keeps the drawer closed', async () => {
-    const onMobileOpenChange = vi.fn()
+    const onMobileOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar mobile mobileOpen={false} onMobileOpenChange={onMobileOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
@@ -1136,8 +1136,8 @@ describe('sidebar open state', () => {
 
   it('a controlled desktop open does not open the drawer when switching to mobile', async () => {
     const [mobile, setMobile] = createSignal(false)
-    const onOpenChange = vi.fn()
-    const onMobileOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const onMobileOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar
         mobile={mobile()}
@@ -1180,7 +1180,7 @@ describe('sidebar open state', () => {
 
   it('a controlled mobileOpen stays as written after leaving mobile', async () => {
     const [mobile, setMobile] = createSignal(true)
-    const onMobileOpenChange = vi.fn()
+    const onMobileOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar mobile={mobile()} mobileOpen onMobileOpenChange={onMobileOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
@@ -1204,8 +1204,8 @@ describe('sidebar open state', () => {
 
   it('uncontrolled layouts keep their own state and leaving mobile closes the drawer silently', async () => {
     const [mobile, setMobile] = createSignal(false)
-    const onOpenChange = vi.fn()
-    const onMobileOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const onMobileOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Sidebar
         mobile={mobile()}
@@ -1575,8 +1575,8 @@ describe('sidebar.Rail', () => {
   })
 
   it('drag grows the width, emits live changes, and commits once on release', () => {
-    const onWidthChange = vi.fn()
-    const onWidthCommit = vi.fn()
+    const onWidthChange = vi.fn<(...args: Array<any>) => void>()
+    const onWidthCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RailFrame defaultWidth={240} onWidthChange={onWidthChange} onWidthCommit={onWidthCommit} />
     ))
@@ -1628,7 +1628,7 @@ describe('sidebar.Rail', () => {
   })
 
   it('dragging below half the minimum closes; dragging back reopens clamped', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <RailFrame defaultWidth={240} onOpenChange={onOpenChange} />)
     mockRailRects(screen.container)
     const rail = railOf(screen.container)
@@ -1658,7 +1658,7 @@ describe('sidebar.Rail', () => {
   })
 
   it('a click without movement toggles; a click after a drag does nothing', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <RailFrame defaultWidth={240} onOpenChange={onOpenChange} />)
     mockRailRects(screen.container)
     const rail = railOf(screen.container)
@@ -1675,9 +1675,9 @@ describe('sidebar.Rail', () => {
   })
 
   it('keyboard resizes, snaps, and toggles; closed rail only answers Enter', () => {
-    const onWidthChange = vi.fn()
-    const onWidthCommit = vi.fn()
-    const onOpenChange = vi.fn()
+    const onWidthChange = vi.fn<(...args: Array<any>) => void>()
+    const onWidthCommit = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RailFrame
         defaultWidth={240}
@@ -1727,7 +1727,7 @@ describe('sidebar.Rail', () => {
   })
 
   it('controlled width emits but follows the prop', () => {
-    const onWidthChange = vi.fn()
+    const onWidthChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <RailFrame width={240} onWidthChange={onWidthChange} />)
     mockRailRects(screen.container)
     const rail = railOf(screen.container)
@@ -1802,8 +1802,8 @@ describe('sidebar.Rail', () => {
   })
 
   it('disabled rail ignores pointer and keys', () => {
-    const onWidthChange = vi.fn()
-    const onOpenChange = vi.fn()
+    const onWidthChange = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RailFrame
         defaultWidth={240}

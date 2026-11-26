@@ -59,7 +59,7 @@ describe('popover', () => {
   })
 
   it('honors a custom trigger that cancels click before forwarding it', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button
         {...props}
@@ -111,7 +111,7 @@ describe('popover', () => {
 
   it.each([0, 100])('keeps hover content open when clicked after %i ms', async (delay) => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover openDelay={100} closeDelay={100} onOpenChange={onOpenChange}>
         <Popover.Trigger>Hover target</Popover.Trigger>
@@ -137,7 +137,7 @@ describe('popover', () => {
 
   it('a disabled hover trigger does not open on hover, focus, or click', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover openDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="span" disabled>
@@ -310,7 +310,7 @@ describe('popover', () => {
 
   it('does not refocus trigger or reopen when dismissed by pointer leave in hover mode', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -341,7 +341,7 @@ describe('popover', () => {
 
   it('does not refocus trigger or reopen when pointer leaves content in hover mode', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -399,7 +399,7 @@ describe('popover', () => {
   })
 
   it('skips the close-time focus restore when finalFocus is false', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover finalFocus={false} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -424,7 +424,7 @@ describe('popover', () => {
 
   it('keeps hover mode reachable by keyboard focus and press', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover open={false} openDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -448,7 +448,7 @@ describe('popover', () => {
 
   it('bridges keyboard-open hover content and cancels its close timer', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <Popover openOnHover openDelay={0} closeDelay={50} onOpenChange={onOpenChange}>
@@ -511,7 +511,7 @@ describe('popover', () => {
 
   it('does not bridge a controlled hover popover that rejected opening', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <Popover openOnHover open={false} openDelay={0} onOpenChange={onOpenChange}>
@@ -540,7 +540,7 @@ describe('popover', () => {
     vi.useFakeTimers()
     const [openOnHover, setOpenOnHover] = createSignal(true)
     const [disabled, setDisabled] = createSignal(false)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover
         openOnHover={openOnHover()}
@@ -571,7 +571,7 @@ describe('popover', () => {
 
   it('emits one controlled hover request after rapid re-entry', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover open={false} openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -593,7 +593,7 @@ describe('popover', () => {
 
   it('emits one controlled close request after rapid pointer leave', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover open closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -760,7 +760,7 @@ describe('popover', () => {
   })
 
   it('keeps popover open and emits onClosePrevented when closeOnEscape=false', async () => {
-    const onClosePrevented = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Popover defaultOpen closeOnEscape={false} onClosePrevented={onClosePrevented}>
@@ -782,8 +782,8 @@ describe('popover', () => {
   })
 
   it('blocks only outside dismissal when closeOnOutsideClick=false', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -826,8 +826,8 @@ describe('popover', () => {
   })
 
   it('blocks only Escape when closeOnEscape=false and still closes on outside click', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -870,7 +870,7 @@ describe('popover', () => {
   })
 
   it('emits onClosePrevented once for blocked outside pointer interaction', async () => {
-    const onClosePrevented = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -909,7 +909,7 @@ describe('popover', () => {
   })
 
   it('does not double count pointer attempt followed by outside focus', async () => {
-    const onClosePrevented = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -945,8 +945,8 @@ describe('popover', () => {
   })
 
   it('closes popover on escape when closeOnEscape=true', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Popover
@@ -981,7 +981,7 @@ describe('popover', () => {
   })
 
   it('closes popover on outside pointer interaction in click mode', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -1016,7 +1016,7 @@ describe('popover', () => {
   })
 
   it('keeps preventScroll through exit presence and restores trigger focus when closed from its content', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover defaultOpen preventScroll onOpenChange={onOpenChange}>
         <Popover.Trigger>Trigger</Popover.Trigger>
@@ -1045,7 +1045,7 @@ describe('popover', () => {
   })
 
   it('resolves a custom Popover.Close DOM root before applying native button defaults', () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const CustomButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button {...props} />
     )
@@ -1098,8 +1098,8 @@ describe('popover', () => {
   })
 
   it('keeps a parent popover open when a nested Popover.Close is used', async () => {
-    const outerChanges = vi.fn()
-    const innerChanges = vi.fn()
+    const outerChanges = vi.fn<(...args: Array<any>) => void>()
+    const innerChanges = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Popover defaultOpen onOpenChange={outerChanges}>
         <Popover.Trigger>Outer trigger</Popover.Trigger>
@@ -1159,8 +1159,8 @@ describe('popover', () => {
   })
 
   it('keeps lower popovers open when the top popover finishes closing', async () => {
-    const onFirstOpenChange = vi.fn()
-    const onSecondOpenChange = vi.fn()
+    const onFirstOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const onSecondOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <>
@@ -1200,7 +1200,7 @@ describe('popover', () => {
 
   it('does not restore focus when a non-top popover finishes closing', async () => {
     const [firstOpen, setFirstOpen] = createSignal(true)
-    const onSecondOpenChange = vi.fn()
+    const onSecondOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <>

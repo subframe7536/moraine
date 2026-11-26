@@ -20,7 +20,7 @@ describe('attachEventListener', () => {
 
   it('listens until the returned cleanup runs', () => {
     const target = document.createElement('button')
-    const listener = vi.fn()
+    const listener = vi.fn<(...args: Array<any>) => void>()
 
     const cleanup = attachEventListener(target, 'click', listener)
     click(target)
@@ -33,7 +33,7 @@ describe('attachEventListener', () => {
 
   it('honors the once option', () => {
     const target = document.createElement('button')
-    const listener = vi.fn()
+    const listener = vi.fn<(...args: Array<any>) => void>()
 
     attachEventListener(target, 'click', listener, { once: true })
     click(target)
@@ -46,8 +46,8 @@ describe('attachEventListener', () => {
 describe('attachEventListenerMap', () => {
   it('registers every listener and disposes them together', () => {
     const target = document.createElement('button')
-    const onClick = vi.fn()
-    const onKeyDown = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
+    const onKeyDown = vi.fn<(...args: Array<any>) => void>()
 
     const cleanup = attachEventListenerMap(target, { click: onClick, keydown: onKeyDown })
     click(target)
@@ -64,7 +64,7 @@ describe('attachEventListenerMap', () => {
 
   it('skips undefined entries', () => {
     const target = document.createElement('button')
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
 
     attachEventListenerMap(target, { click: onClick, keydown: undefined })
     click(target)
@@ -77,7 +77,7 @@ describe('attachEventListenerMap', () => {
 describe('createEventListener', () => {
   it('stops calling the listener once its owner is disposed', () => {
     const target = document.createElement('button')
-    const listener = vi.fn()
+    const listener = vi.fn<(...args: Array<any>) => void>()
 
     createRoot((dispose) => {
       createEventListener(target, 'click', listener)
@@ -109,7 +109,7 @@ describe('createEventListener', () => {
   it('detaches the previous target when the target changes', async () => {
     const first = document.createElement('button')
     const second = document.createElement('button')
-    const listener = vi.fn()
+    const listener = vi.fn<(...args: Array<any>) => void>()
 
     const lifecycle = createRoot((dispose) => {
       const [target, setTarget] = createSignal<HTMLElement | undefined>(first)
@@ -163,8 +163,8 @@ describe('createEventListener', () => {
 describe('createEventListenerMap', () => {
   it('registers multiple listeners and removes them on cleanup', () => {
     const target = document.createElement('button')
-    const onClick = vi.fn()
-    const onFocusIn = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
+    const onFocusIn = vi.fn<(...args: Array<any>) => void>()
 
     createRoot((dispose) => {
       createEventListenerMap(target, { click: onClick, focusin: onFocusIn })

@@ -13,7 +13,7 @@ describe('useHiddenInputValidation', () => {
 
   it('prevents default, marks nativeInvalid true, and focuses target on onInvalid', () => {
     createRoot((dispose) => {
-      const focus = vi.fn()
+      const focus = vi.fn<(...args: Array<any>) => void>()
       const dummyTarget = { focus } as unknown as HTMLElement
 
       const { nativeInvalid, onInvalid } = useHiddenInputValidation({

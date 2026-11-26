@@ -60,7 +60,7 @@ describe('separator', () => {
   })
 
   it('remains passive and non-tabbable while forwarding caller pointer events', () => {
-    const onPointerDown = vi.fn()
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Separator onPointerDown={onPointerDown} />)
     const root = screen.getByRole('separator')
     const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })

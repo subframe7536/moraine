@@ -243,7 +243,7 @@ describe('progress', () => {
   })
 
   it('remains passive and non-tabbable while forwarding caller pointer events', () => {
-    const onPointerDown = vi.fn()
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Progress value={25} onPointerDown={onPointerDown} />)
     const progress = screen.getByRole('progressbar')
     const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })

@@ -38,7 +38,7 @@ describe('switch', () => {
   })
 
   it('fires a root onPointerDown handler when the track is pressed', () => {
-    const onPointerDown = vi.fn()
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Switch onPointerDown={onPointerDown} label="Press me" />)
     const track = screen.getByRole('switch')
 
@@ -75,7 +75,7 @@ describe('switch', () => {
   it.each([' ', 'Enter'])(
     'does not toggle from a %s keydown and keyup alone, only from the click',
     async (key) => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Switch label="Keyboard" onCheckedChange={onChange} />)
       const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
 
@@ -93,11 +93,11 @@ describe('switch', () => {
   )
 
   it('forwards visual focus boundaries to a bound Field without changing value', () => {
-    const emit = vi.fn()
-    const onChange = vi.fn()
+    const emit = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
@@ -123,8 +123,8 @@ describe('switch', () => {
   })
 
   it('calls user onFocus and onBlur when the control gains and loses focus', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Switch label="Focusable" onFocus={onFocus} onBlur={onBlur} />)
     const track = screen.getByRole('switch', { name: 'Focusable' })
     const root = screen.container.querySelector('[data-slot="switch"]')!
@@ -170,7 +170,7 @@ describe('switch', () => {
   })
 
   it('does not toggle when disabled', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Switch disabled label="Disabled" onCheckedChange={onChange} />)
     const switchInput = screen.getByRole('switch', { name: 'Disabled' })
     expect(switchInput.getAttribute('aria-disabled')).toBe('true')
@@ -197,7 +197,7 @@ describe('switch', () => {
   })
 
   it('keeps controlled state while emitting onCheckedChange', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Switch checked label="Controlled" onCheckedChange={onChange} />)
     const switchInput = screen.getByRole('switch', { name: 'Controlled' })
 
@@ -212,7 +212,7 @@ describe('switch', () => {
   })
 
   it('does not toggle a controlled readOnly switch', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Switch checked readOnly label="Readonly" onCheckedChange={onChange} />
     ))
@@ -227,7 +227,7 @@ describe('switch', () => {
   })
 
   it('does not toggle an uncontrolled readOnly switch', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Switch readOnly label="Readonly uncontrolled" onCheckedChange={onChange} />
     ))
@@ -242,7 +242,7 @@ describe('switch', () => {
   })
 
   it('maps custom numeric values for controlled switch', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Switch
         checked={1}
@@ -358,7 +358,7 @@ describe('switch', () => {
   })
 
   it('resets uncontrolled state to the initial default without emitting changes', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <Switch name="enabled" defaultChecked={false} label="Enabled" onCheckedChange={onChange} />
@@ -378,7 +378,7 @@ describe('switch', () => {
   })
 
   it('resets controlled switches to their latest value without callbacks or form value drift', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <Switch
@@ -407,7 +407,7 @@ describe('switch', () => {
   })
 
   it('implicitly submits the form on Enter through the default submitter', () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form
         onSubmit={(event) => {
@@ -422,7 +422,7 @@ describe('switch', () => {
 
     const switchInput = screen.getByRole('switch', { name: 'Enabled' })
     const submitter = screen.getByRole('button', { name: 'Send' })
-    const onSubmitterClick = vi.fn()
+    const onSubmitterClick = vi.fn<(...args: Array<any>) => void>()
     submitter.addEventListener('click', onSubmitterClick)
 
     expectSwitchChecked(switchInput, false)
@@ -434,7 +434,7 @@ describe('switch', () => {
   })
 
   it('implicitly submits the form on Enter without a submit button', () => {
-    const onSubmit = vi.fn()
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form
         onSubmit={(event) => {
@@ -485,8 +485,8 @@ describe('switch', () => {
   })
 
   it('runs the caller click handler before toggling and respects cancellation', async () => {
-    const onChange = vi.fn()
-    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+    const onChange = vi.fn<(...args: Array<any>) => void>()
+    const onClick = vi.fn<(event: MouseEvent) => any>((event) => event.preventDefault())
     const screen = render(() => (
       <Switch label="Canceled" onCheckedChange={onChange} onClick={onClick} />
     ))

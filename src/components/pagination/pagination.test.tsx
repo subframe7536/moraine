@@ -85,7 +85,7 @@ describe('pagination', () => {
 
   it('retains the requested page while the reactive page domain temporarily shrinks', () => {
     const [total, setTotal] = createSignal(100)
-    const onPageChange = vi.fn()
+    const onPageChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Pagination defaultPage={8} total={total()} pageSize={10} onPageChange={onPageChange} />
     ))
@@ -105,7 +105,7 @@ describe('pagination', () => {
 
   it('clamps a controlled request without publishing during page-domain changes', () => {
     const [total, setTotal] = createSignal(20)
-    const onPageChange = vi.fn()
+    const onPageChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Pagination page={8} total={total()} pageSize={10} onPageChange={onPageChange} />
     ))
@@ -122,7 +122,7 @@ describe('pagination', () => {
   })
 
   it('supports controlled page changes', async () => {
-    const onPageChange = vi.fn()
+    const onPageChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Pagination page={2} onPageChange={onPageChange} total={50} pageSize={10} controls={false} />
@@ -139,7 +139,7 @@ describe('pagination', () => {
   })
 
   it('does not change pages when a caller cancels the click during capture', async () => {
-    const onPageChange = vi.fn()
+    const onPageChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Pagination
         defaultPage={2}
@@ -327,8 +327,8 @@ describe('pagination', () => {
   })
 
   it('keeps current-page activation a no-op when destinations are provided', async () => {
-    const href = vi.fn((page: number) => `/page/${page}`)
-    const onPageChange = vi.fn()
+    const href = vi.fn<(page: number) => any>((page) => `/page/${page}`)
+    const onPageChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Pagination
         page={2}

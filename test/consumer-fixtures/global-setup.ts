@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential fixture scanning keeps collection order deterministic.
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'

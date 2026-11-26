@@ -226,7 +226,7 @@ describe('stepper', () => {
   })
 
   it('supports controlled value and emits onValueChange with item value', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Stepper items={ITEMS} value="address" onValueChange={onValueChange} navigation="linear" />
@@ -239,7 +239,7 @@ describe('stepper', () => {
   })
 
   it('does not change step on click by default', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper items={ITEMS} defaultValue="address" onValueChange={onValueChange} />
     ))
@@ -251,7 +251,7 @@ describe('stepper', () => {
   })
 
   it('blocks skipping ahead in linear navigation', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -270,7 +270,7 @@ describe('stepper', () => {
   })
 
   it('allows returning to completed steps in linear navigation', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -287,7 +287,7 @@ describe('stepper', () => {
   })
 
   it('allows jumping ahead in free navigation', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -304,7 +304,7 @@ describe('stepper', () => {
 
   it('disables later duplicate items so they cannot be selected', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         navigation="free"
@@ -335,7 +335,7 @@ describe('stepper', () => {
   })
 
   it('does not wrap from the last step to the first on ArrowRight', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -356,7 +356,7 @@ describe('stepper', () => {
   })
 
   it('wraps from the last step to the first on ArrowRight when loop=true', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -379,7 +379,7 @@ describe('stepper', () => {
   it('flips horizontal arrows from the provider without a dir attribute', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.removeAttribute('dir')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     try {
       const screen = render(() => (
         <MoraineProvider dir="rtl">
@@ -407,7 +407,7 @@ describe('stepper', () => {
   })
 
   it('supports Home and End keyboard navigation in free navigation', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -432,7 +432,7 @@ describe('stepper', () => {
   })
 
   it('supports manual activation mode via Enter', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}

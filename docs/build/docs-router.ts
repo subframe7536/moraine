@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Route insertion order is part of the router bookkeeping.
 import { globSync } from 'node:fs'
 
 import { BaseFileSystemRouter } from 'solid-file-router/plugin'

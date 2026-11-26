@@ -21,7 +21,7 @@ afterEach(() => {
 describe('createOutsidePressHandlers', () => {
   it('disposes pending taps without allowing a later pointerup to dismiss', () => {
     vi.useFakeTimers()
-    const onPress = vi.fn()
+    const onPress = vi.fn<(...args: Array<any>) => void>()
     const handlers = createOutsidePressHandlers({
       isEnabled: () => true,
       isInside: () => false,
@@ -38,7 +38,7 @@ describe('createOutsidePressHandlers', () => {
 
   it('ignores cancelled touch presses without poisoning the next tap', () => {
     vi.useFakeTimers()
-    const onPress = vi.fn()
+    const onPress = vi.fn<(...args: Array<any>) => void>()
     const handlers = createOutsidePressHandlers({
       isEnabled: () => true,
       isInside: () => false,
@@ -55,7 +55,7 @@ describe('createOutsidePressHandlers', () => {
 
   it('does not let a replaced pointer timeout clear the newer press', () => {
     vi.useFakeTimers()
-    const onPress = vi.fn()
+    const onPress = vi.fn<(...args: Array<any>) => void>()
     const handlers = createOutsidePressHandlers({
       isEnabled: () => true,
       isInside: () => false,

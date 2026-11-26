@@ -17,7 +17,16 @@ import { FieldProvider, useFormField } from './field-context'
 import type { FieldT } from './field.types'
 function HookProbe(props: { binding?: FieldBinding }) {
   return (
-    <FieldProvider value={{ binding: props.binding, error: props.binding?.error }}>
+    <FieldProvider
+      value={{
+        get binding() {
+          return props.binding
+        },
+        get error() {
+          return props.binding?.error
+        },
+      }}
+    >
       <Probe />
     </FieldProvider>
   )
@@ -206,7 +215,7 @@ describe('field', () => {
   })
 
   it('applies readOnly to embedded choice controls and blocks interaction', () => {
-    const onCheckedChange = vi.fn()
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <Field readOnly label="Accept">
@@ -334,8 +343,8 @@ describe('field', () => {
 
   it('uses a generic binding without Formisch', () => {
     const [value, setValue] = createSignal<unknown>(undefined)
-    const setFormValue = vi.fn((next: unknown) => setValue(next))
-    const emit = vi.fn()
+    const setFormValue = vi.fn<(next: unknown) => any>((next) => setValue(next))
+    const emit = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       name: 'message',
       path: ['message'],
@@ -363,11 +372,11 @@ describe('field', () => {
   })
 
   it('delivers the mounted control element to a binding', () => {
-    const controlRef = vi.fn()
+    const controlRef = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       controlRef,
-      setValue: vi.fn(),
-      emit: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
+      emit: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => <HookProbe binding={binding} />)
 
@@ -375,11 +384,11 @@ describe('field', () => {
   })
 
   it('updates a binding when its mounted control is replaced', () => {
-    const controlRef = vi.fn()
+    const controlRef = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       controlRef,
-      setValue: vi.fn(),
-      emit: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
+      emit: vi.fn<(...args: Array<any>) => void>(),
     }
     let replace!: () => void
     const screen = render(() => {
@@ -398,11 +407,11 @@ describe('field', () => {
   })
 
   it('delivers a control in a shadow root instead of a same-ID light-DOM element', () => {
-    const controlRef = vi.fn()
+    const controlRef = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       controlRef,
-      setValue: vi.fn(),
-      emit: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
+      emit: vi.fn<(...args: Array<any>) => void>(),
     }
     const lightControl = document.createElement('button')
     lightControl.id = 'probe-control'
@@ -423,11 +432,11 @@ describe('field', () => {
   })
 
   it('delivers a control in another document instead of a same-ID light-DOM element', () => {
-    const controlRef = vi.fn()
+    const controlRef = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       controlRef,
-      setValue: vi.fn(),
-      emit: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
+      emit: vi.fn<(...args: Array<any>) => void>(),
     }
     const lightControl = document.createElement('button')
     lightControl.id = 'probe-control'

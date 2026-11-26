@@ -151,7 +151,9 @@ export async function fallbackToCommand(
       const textType = types.find((t: string) => t === 'text/plain' || t.startsWith('text/'))
       if (textType && typeof item.getType === 'function') {
         try {
+          // oxlint-disable-next-line eslint/no-await-in-loop -- Clipboard items are fallback candidates and must be tried in order.
           const blob = await item.getType(textType)
+          // oxlint-disable-next-line eslint/no-await-in-loop -- The selected blob must finish before deciding whether to try the next item.
           const text = await blob.text()
           if (typeof text === 'string') {
             return copyWithCommand(text, ownerDocument)

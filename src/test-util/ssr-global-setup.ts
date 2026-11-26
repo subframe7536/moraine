@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- SSR fixture rendering is ordered because fixtures share the server runner environment.
 import path from 'node:path'
 
 import solid from '@solidjs/vite-plugin'

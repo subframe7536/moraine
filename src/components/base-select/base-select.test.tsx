@@ -201,7 +201,7 @@ it('custom search input commits only completed composition and discards stale dr
   let searchValue = () => ''
   let setSearchValue = (_value: string) => ''
   let isComposing = () => false
-  const onValueChange = vi.fn()
+  const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
   function SearchControl() {
     const state = BaseSelect.useContext()
@@ -298,7 +298,7 @@ function Parts() {
 }
 describe('baseSelect selection and form', () => {
   it.each([false, true])('owns uncontrolled selection, multiple=%s', (multiple) => {
-    const change = vi.fn()
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() =>
       multiple ? (
         <form>
@@ -320,7 +320,7 @@ describe('baseSelect selection and form', () => {
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe(String(multiple))
   })
   it('toggles off an active option when multiple is true', () => {
-    const change = vi.fn()
+    const change = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <BaseSelect items={items} multiple defaultOpen onValueChange={change}>
         <Parts />
@@ -332,7 +332,7 @@ describe('baseSelect selection and form', () => {
     expect(change).toHaveBeenLastCalledWith([])
   })
   it.each([false, true])('controlled values remain authoritative, multiple=%s', (multiple) => {
-    const change = vi.fn()
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() =>
       multiple ? (
         <BaseSelect items={items} multiple value={[1]} defaultOpen onValueChange={change}>
@@ -349,7 +349,7 @@ describe('baseSelect selection and form', () => {
     expect(screen.getByRole('combobox').textContent).toBe('Alpha')
   })
   it.each(['disabled', 'readOnly'] as const)('blocks root %s mutations', (key) => {
-    const change = vi.fn()
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseSelect items={items} {...{ [key]: true }} defaultOpen onValueChange={change}>
         <Parts />
@@ -375,7 +375,7 @@ describe('baseSelect selection and form', () => {
     expect(listbox.getAttribute('aria-multiselectable')).toBe(multiple ? 'true' : null)
   })
   it('disabled items cannot be selected and closeOnSelect can be overridden', () => {
-    const change = vi.fn()
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseSelect items={items} defaultOpen closeOnSelect={false} onValueChange={change}>
         <Parts />
@@ -468,7 +468,7 @@ describe('baseSelect composition', () => {
     expect(trigger.parentElement).toBe(screen.container)
   })
   it('composes consumer refs and events with a Moraine Button', () => {
-    const ref = vi.fn()
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseSelect items={items}>
         <BaseSelect.Trigger as={Button} ref={ref} onClick={(event) => event.preventDefault()}>
@@ -571,7 +571,7 @@ describe('baseSelect composition', () => {
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
   })
   it('typeahead uses the raw label resolver', () => {
-    const change = vi.fn()
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseSelect items={items} getItemLabel={(item) => item.extra} onValueChange={change}>
         <Parts />
@@ -656,9 +656,9 @@ describe('canonical collection and search view', () => {
 
 it('virtual rows remain a small view of canonical selection and compose both refs', () => {
   const leaves = Array.from({ length: 4000 }, (_, value) => ({ value, label: `Item ${value}` }))
-  const userRef = vi.fn()
-  const virtualRef = vi.fn()
-  const scroll = vi.fn()
+  const userRef = vi.fn<(...args: Array<any>) => void>()
+  const virtualRef = vi.fn<(...args: Array<any>) => void>()
+  const scroll = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <form>
       <MultiSelect
@@ -702,7 +702,7 @@ it('virtual rows remain a small view of canonical selection and compose both ref
 })
 
 it('owns Form context synchronization and treats an unmatched empty field as no selection', () => {
-  const change = vi.fn()
+  const change = vi.fn<(...args: Array<any>) => void>()
   const { screen, value: form } = renderWithOwner(
     () =>
       createForm({
@@ -753,7 +753,7 @@ it('normalizes controlled multiple values before synchronizing Form.Field', () =
     equals: false,
   })
   const [fieldValue, setFieldValue] = createSignal<unknown>(['a', 'a'])
-  const onInput = vi.fn((value: unknown) => setFieldValue(value))
+  const onInput = vi.fn<(value: unknown) => any>((value) => setFieldValue(value))
   const binding: FieldBinding = {
     name: 'choices',
     path: ['choices'],
@@ -829,7 +829,7 @@ it('enforces explicit item boundary, prevents DOM leakage, and keeps item prop r
     disabled: false,
   }
   const [item, setItem] = createSignal(initialItem)
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   let renderStateItem: typeof initialItem | undefined
   render(() => (
     <BaseSelect items={[item()]} defaultOpen closeOnSelect={false} onValueChange={onChange}>
@@ -896,7 +896,7 @@ it('enforces explicit item boundary, prevents DOM leakage, and keeps item prop r
 })
 
 it('uses the canonical item disabled state for equivalent rendered items', () => {
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   render(() => (
     <BaseSelect
       items={[{ value: 'locked', label: 'Canonical', disabled: true }]}
@@ -1065,8 +1065,10 @@ it('supports getItemByValue to recognize canonical selection when navigation ite
 })
 
 it('resolves canonical item disabled state and passes canonical item to isItemDisabled', () => {
-  const onChange = vi.fn()
-  const isItemDisabled = vi.fn((item: any, _values) => item.customFlag === true)
+  const onChange = vi.fn<(...args: Array<any>) => void>()
+  const isItemDisabled = vi.fn<(item: any, _values: any) => any>(
+    (item, _values) => item.customFlag === true,
+  )
   const canonicalItem1 = {
     value: 'target-1',
     label: 'Canonical Target 1',
@@ -1153,7 +1155,7 @@ function dispatchKey(
 }
 
 it('ignores IME keyCode 229 navigation and selection', () => {
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   render(() => (
     <BaseSelect items={items} defaultOpen onValueChange={onChange}>
       <Parts />
@@ -1172,7 +1174,7 @@ it('ignores IME keyCode 229 navigation and selection', () => {
 })
 
 it('matches a hidden form input change to the corresponding item', () => {
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <form>
       <BaseSelect items={items} name="choice" onValueChange={onChange}>

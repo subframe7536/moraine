@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Document generation order is part of the emitted llms output.
 import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'

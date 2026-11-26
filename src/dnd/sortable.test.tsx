@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from '@solidjs/web'
-import { For, createSignal, flush } from 'solid-js'
+import { For, createSignal, flush, untrack } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { createTree } from '../components/tree/tree'
@@ -144,7 +144,9 @@ describe('createListSortable', () => {
 
   it('reorders items on a pointer drop and reports the move', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
-    const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
+    const onReorder = vi.fn<(event: ListReorderEvent<string>) => any>((event) =>
+      setItems(event.items),
+    )
     const { rows, handles, labels } = renderList({ items, onReorder })
 
     fireEvent.pointerDown(handles[0]!, { ...POINTER_DOWN, clientX: 10, clientY: 50 })
@@ -170,7 +172,9 @@ describe('createListSortable', () => {
 
   it('reorders items on a keyboard drop', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
-    const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
+    const onReorder = vi.fn<(event: ListReorderEvent<string>) => any>((event) =>
+      setItems(event.items),
+    )
     const { rows, handles, labels } = renderList({ items, onReorder })
 
     fireEvent.keyDown(handles[0]!, { key: ' ' })
@@ -190,7 +194,7 @@ describe('createListSortable', () => {
 
   it('shows no indicator and does not drop where canDrop rejects', async () => {
     const items = () => ['a', 'b', 'c']
-    const onReorder = vi.fn()
+    const onReorder = vi.fn<(...args: Array<any>) => void>()
     const { rows, handles } = renderList({ items, onReorder, canDrop: () => false })
 
     fireEvent.pointerDown(handles[0]!, { ...POINTER_DOWN, clientX: 10, clientY: 50 })
@@ -209,7 +213,7 @@ describe('createListSortable', () => {
   it('rejects a drop onto a row that the items no longer contain', async () => {
     const rendered = () => ['a', 'b', 'c']
     const [items, setItems] = createSignal(['a', 'b', 'c'])
-    const onReorder = vi.fn()
+    const onReorder = vi.fn<(...args: Array<any>) => void>()
     const { rows, handles } = renderList({
       items,
       renderedItems: rendered,
@@ -233,7 +237,7 @@ describe('createListSortable', () => {
   it('rejects a drop of a row that the items no longer contain', async () => {
     const rendered = () => ['a', 'b', 'c']
     const [items, setItems] = createSignal(['a', 'b', 'c'])
-    const onReorder = vi.fn()
+    const onReorder = vi.fn<(...args: Array<any>) => void>()
     const { rows, handles } = renderList({
       items,
       renderedItems: rendered,
@@ -256,7 +260,9 @@ describe('createListSortable', () => {
 
   it('does not drag a disabled row', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
-    const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
+    const onReorder = vi.fn<(event: ListReorderEvent<string>) => any>((event) =>
+      setItems(event.items),
+    )
     const { rows, handles } = renderList({
       items,
       onReorder,
@@ -275,7 +281,9 @@ describe('createListSortable', () => {
 
   it('keeps the remaining rows draggable after an item is removed', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
-    const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
+    const onReorder = vi.fn<(event: ListReorderEvent<string>) => any>((event) =>
+      setItems(event.items),
+    )
     const { rows, handles, labels } = renderList({ items, onReorder })
 
     flush(() => setItems(['a', 'c']))
@@ -314,7 +322,7 @@ describe('createTreeSortable', () => {
       { id: 'folder', children: [{ id: 'f1' }] },
       { id: 'z' },
     ])
-    const onMove = vi.fn((event: TreeMoveEvent<FileNode>) =>
+    const onMove = vi.fn<(event: TreeMoveEvent<FileNode>) => any>((event) =>
       setFiles((current) => moveTreeNode(current, event, FILE_ACCESS)),
     )
 
@@ -327,7 +335,7 @@ describe('createTreeSortable', () => {
       const sortable = createTreeSortable(tree, { onMove, expandDelay: false })
 
       function TreeRow(props: { item: (typeof tree.flattenedItems)[number] }): JSX.Element {
-        const node = sortable.useNode(props.item)
+        const node = sortable.useNode(untrack(() => props.item))
         return (
           <li {...node.props}>
             <div data-slot="tree-row">{props.item.key}</div>

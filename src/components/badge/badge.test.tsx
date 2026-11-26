@@ -26,7 +26,7 @@ describe('badge', () => {
   })
 
   it('renders a native button with forwarded attributes and events', () => {
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Badge as="button" type="button" disabled aria-pressed="true" onClick={onClick}>
         Select
@@ -89,8 +89,8 @@ describe('badge', () => {
   })
 
   it('forwards pointer handlers including tuple handlers and composes ancestors', () => {
-    const onPointerDown = vi.fn()
-    const onAncestorPointerDown = vi.fn()
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
+    const onAncestorPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <div onPointerDown={onAncestorPointerDown}>
         <Badge onPointerDown={[onPointerDown, 'payload']}>Native</Badge>

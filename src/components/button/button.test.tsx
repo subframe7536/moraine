@@ -32,7 +32,7 @@ describe('button', () => {
   })
 
   it('calls pointer handlers without replacing internal interaction behavior', async () => {
-    const onPointerDown = vi.fn()
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Button data-slot="save" data-testid="save" onPointerDown={onPointerDown}>
         Save
@@ -48,10 +48,10 @@ describe('button', () => {
 
   it('forwards pointer completion, cancellation, leave, and context-menu handlers', async () => {
     const handlers = {
-      onContextMenu: vi.fn(),
-      onPointerCancel: vi.fn(),
-      onPointerLeave: vi.fn(),
-      onPointerUp: vi.fn(),
+      onContextMenu: vi.fn<(...args: Array<any>) => void>(),
+      onPointerCancel: vi.fn<(...args: Array<any>) => void>(),
+      onPointerLeave: vi.fn<(...args: Array<any>) => void>(),
+      onPointerUp: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => <Button {...handlers}>Events</Button>)
     const button = screen.getByRole('button', { name: 'Events' })
@@ -80,7 +80,7 @@ describe('button', () => {
   })
 
   it('supports tuple click handlers on polymorphic roots', async () => {
-    const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
+    const onClick = vi.fn<(_data: string, _event: MouseEvent) => any>((_data, _event) => undefined)
     const screen = render(() => (
       <Button as="a" href="https://example.com" onClick={[onClick, 'payload']}>
         Docs
@@ -483,7 +483,7 @@ describe('button', () => {
 
   it('auto loading follows async onclick lifecycle', async () => {
     const deferred = createDeferred()
-    const onclick = vi.fn(() => deferred.promise)
+    const onclick = vi.fn<() => any>(() => deferred.promise)
     const screen = render(() => (
       <Button autoLoading onClick={onclick}>
         Submit
@@ -509,7 +509,7 @@ describe('button', () => {
 
   it('suppresses repeated activation while automatic loading keeps focus', async () => {
     const deferred = createDeferred()
-    const onClick = vi.fn(() => deferred.promise)
+    const onClick = vi.fn<() => any>(() => deferred.promise)
     const screen = render(() => (
       <Button autoLoading onClick={onClick}>
         Submit once
@@ -535,8 +535,8 @@ describe('button', () => {
 
   it('updates component children during auto loading lifecycle', async () => {
     const deferred = createDeferred()
-    const onclick = vi.fn(() => deferred.promise)
-    const children = vi.fn((props: { loading: boolean }) => (
+    const onclick = vi.fn<() => any>(() => deferred.promise)
+    const children = vi.fn<(props: { loading: boolean }) => any>((props) => (
       <Show when={props.loading} fallback="Submit">
         Submitting
       </Show>
@@ -567,7 +567,7 @@ describe('button', () => {
   })
 
   it('does not auto load for synchronous onclick handler', async () => {
-    const onClick = vi.fn(() => 'ok')
+    const onClick = vi.fn<() => any>(() => 'ok')
     const screen = render(() => (
       <Button autoLoading onClick={onClick}>
         Sync
@@ -583,7 +583,7 @@ describe('button', () => {
   })
 
   it('does not invoke click handler when disabled and loading', async () => {
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Button disabled loading onClick={onClick}>
         Busy
@@ -599,7 +599,7 @@ describe('button', () => {
 
   describe('non-native button keyboard activation', () => {
     it('activates on Enter key for div with role=button', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" onClick={onclick}>
           Click me
@@ -617,7 +617,7 @@ describe('button', () => {
     })
 
     it('activates on Space keyup for div with role=button without scrolling', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" onClick={onclick}>
           Click me
@@ -637,7 +637,7 @@ describe('button', () => {
     })
 
     it('does not activate Space keyup without an eligible keydown', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" onClick={onclick}>
           Click me
@@ -651,7 +651,7 @@ describe('button', () => {
     })
 
     it('preserves keyboard modifiers on the dispatched click', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" onClick={onclick}>
           Click me
@@ -666,7 +666,7 @@ describe('button', () => {
     })
 
     it('ignores keyboard events bubbling from nested interactive content', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" onClick={onclick}>
           <span data-testid="nested">Nested</span>
@@ -681,7 +681,7 @@ describe('button', () => {
     })
 
     it('does not activate on other keys for non-native button', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" onClick={onclick}>
           Click me
@@ -698,8 +698,8 @@ describe('button', () => {
     })
 
     it('blocks keyboard and pointer interactions and removes disabled non-native buttons from tab order', async () => {
-      const onclick = vi.fn()
-      const onpointerdown = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
+      const onpointerdown = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" disabled onClick={onclick} onPointerDown={onpointerdown}>
           Disabled
@@ -722,7 +722,7 @@ describe('button', () => {
     })
 
     it('blocks loading interactions while keeping a non-native button focusable', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" loading onClick={onclick}>
           Loading
@@ -743,8 +743,8 @@ describe('button', () => {
     })
 
     it('suppresses native-root handlers after becoming disabled', () => {
-      const onkeydown = vi.fn()
-      const onpointerdown = vi.fn()
+      const onkeydown = vi.fn<(...args: Array<any>) => void>()
+      const onpointerdown = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button disabled onKeyDown={onkeydown} onPointerDown={onpointerdown}>
           Disabled
@@ -760,8 +760,8 @@ describe('button', () => {
     })
 
     it('calls custom onKeyDown handler before activation', async () => {
-      const onkeydown = vi.fn()
-      const onclick = vi.fn()
+      const onkeydown = vi.fn<(...args: Array<any>) => void>()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" onKeyDown={onkeydown} onClick={onclick}>
           Click me
@@ -777,8 +777,8 @@ describe('button', () => {
     })
 
     it('prevents activation when custom onKeyDown calls preventDefault', async () => {
-      const onkeydown = vi.fn((e: KeyboardEvent) => e.preventDefault())
-      const onclick = vi.fn()
+      const onkeydown = vi.fn<(e: KeyboardEvent) => any>((e) => e.preventDefault())
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="div" onKeyDown={onkeydown} onClick={onclick}>
           Click me
@@ -794,7 +794,7 @@ describe('button', () => {
     })
 
     it('prevents Space activation when keydown or keyup is canceled', async () => {
-      const onClickFromKeyDown = vi.fn()
+      const onClickFromKeyDown = vi.fn<(...args: Array<any>) => void>()
       const keyDownScreen = render(() => (
         <Button
           as="div"
@@ -810,7 +810,7 @@ describe('button', () => {
       fireEvent.keyUp(keyDownButton, { key: ' ' })
       expect(onClickFromKeyDown).not.toHaveBeenCalled()
 
-      const onClickFromKeyUp = vi.fn()
+      const onClickFromKeyUp = vi.fn<(...args: Array<any>) => void>()
       const keyUpScreen = render(() => (
         <Button
           as="div"
@@ -845,7 +845,7 @@ describe('button', () => {
 
   it('applies non-native button semantics to a custom component without href', async () => {
     const CustomRoot = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
-    const onclick = vi.fn()
+    const onclick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Button as={CustomRoot} onClick={onclick}>
         Custom
@@ -895,7 +895,7 @@ describe('button', () => {
   })
 
   it('keeps anchor href="" link semantics without Space activation', () => {
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Button as="a" href="" onClick={onClick}>
         Link semantics
@@ -939,7 +939,7 @@ describe('button', () => {
     })
 
     it('anchor without href gets button role and keyboard activation', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="a" onClick={onclick}>
           Button-like anchor
@@ -957,7 +957,7 @@ describe('button', () => {
     })
 
     it('blocks anchor click when disabled', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="a" href="https://example.com" disabled onClick={onclick}>
           Disabled Link
@@ -972,7 +972,7 @@ describe('button', () => {
     })
 
     it('blocks anchor click when loading', async () => {
-      const onclick = vi.fn()
+      const onclick = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Button as="a" href="https://example.com" loading onClick={onclick}>
           Loading Link

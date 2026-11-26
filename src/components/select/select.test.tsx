@@ -29,7 +29,7 @@ describe('select', () => {
   })
 
   it('clear renders an accessible button outside the trigger and supports keyboard clear', () => {
-    const onClear = vi.fn()
+    const onClear = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Select items={ITEMS} defaultValue="apple" clearable onClear={onClear} />
     ))
@@ -47,7 +47,7 @@ describe('select', () => {
     expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('')
 
     // Test keyboard clearing via Backspace on trigger
-    const onClearKey = vi.fn()
+    const onClearKey = vi.fn<(...args: Array<any>) => void>()
     const screenKey = render(() => (
       <Select items={ITEMS} defaultValue="banana" clearable onClear={onClearKey} />
     ))
@@ -58,7 +58,7 @@ describe('select', () => {
   })
 
   it('selects values, closes, and restores trigger focus', async () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Select items={ITEMS} defaultOpen onValueChange={onChange} />)
     fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[1]!)
     expect(onChange).toHaveBeenLastCalledWith('banana')
@@ -72,7 +72,7 @@ describe('select', () => {
     const page = document.documentElement
     const pageScroll = page.scrollTop
     page.scrollTop = 320
-    HTMLElement.prototype.scrollIntoView = vi.fn(() => {
+    HTMLElement.prototype.scrollIntoView = vi.fn<() => any>(() => {
       page.scrollTop = 0
     })
 
@@ -108,7 +108,7 @@ describe('select', () => {
   })
 
   it('keeps typeahead without exposing search state', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Select items={ITEMS} onValueChange={onChange} />)
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' })
     expect(onChange).toHaveBeenLastCalledWith('banana')
@@ -268,7 +268,7 @@ describe('select', () => {
   })
 
   it('forwards shared content behavior through the reactive local props proxy', async () => {
-    const onBottomReached = vi.fn()
+    const onBottomReached = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -410,7 +410,7 @@ describe('select', () => {
   })
 
   it('treats value undefined as uncontrolled and applies defaultValue', () => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -431,7 +431,7 @@ describe('select', () => {
 
   it('keeps a defined value authoritative over defaultValue and user selection', () => {
     const [value, setValue] = createSignal<string | undefined>('apple')
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -454,7 +454,7 @@ describe('select', () => {
 
   it('treats value null as a controlled empty selection', () => {
     const [value, setValue] = createSignal<string | null | undefined>('banana')
-    const onChange = vi.fn((next: string | null | undefined) => setValue(next))
+    const onChange = vi.fn<(next: string | null | undefined) => any>((next) => setValue(next))
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -576,7 +576,7 @@ describe('select', () => {
 })
 
 it('selects, submits, clears, and resets string shorthand values', async () => {
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <form>
       <Select
@@ -634,7 +634,7 @@ it('updates mixed string groups and passes normalized objects to row callbacks',
 })
 
 it('supports typeahead with string shorthand', () => {
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => <Select items={['Apple', 'Banana']} onValueChange={onChange} />)
   fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' })
   expect(onChange).toHaveBeenLastCalledWith('Banana')

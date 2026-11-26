@@ -150,7 +150,7 @@ describe('avatar', () => {
     ['cached-error', 'error'],
   ] as const)('resolves %s images through the native element', async (outcome, status) => {
     outcomesBySrc.set('/cached.png', outcome)
-    const onStatusChange = vi.fn()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Avatar src="/cached.png" alt="Cached avatar" onStatusChange={onStatusChange} />
     ))
@@ -240,7 +240,7 @@ describe('avatar', () => {
 
   it('does not restart loading when src changes only by surrounding whitespace', async () => {
     outcomesBySrc.set('/same.png', 'success')
-    const onStatusChange = vi.fn()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const [source, setSource] = createSignal('/same.png')
     const screen = render(() => (
       <Avatar src={source()} alt="Same" onStatusChange={onStatusChange} />
@@ -262,8 +262,8 @@ describe('avatar', () => {
 
   it('does not restart a pending load when the status callback changes', () => {
     outcomesBySrc.set('/pending.png', 'pending')
-    const firstCallback = vi.fn()
-    const secondCallback = vi.fn()
+    const firstCallback = vi.fn<(...args: Array<any>) => void>()
+    const secondCallback = vi.fn<(...args: Array<any>) => void>()
     const [callback, setCallback] = createSignal<(status: string) => void>(() => firstCallback)
 
     const screen = render(() => <Avatar src="/pending.png" onStatusChange={callback()} />)
@@ -279,7 +279,7 @@ describe('avatar', () => {
   })
 
   it('treats blank sources as errors without requesting an image or emitting idle', () => {
-    const onStatusChange = vi.fn()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Avatar src={' \t '} onStatusChange={onStatusChange} />)
 
     expect(
@@ -291,7 +291,7 @@ describe('avatar', () => {
 
   it('ignores stale load events after source replacement and disposal', async () => {
     const [source, setSource] = createSignal('/first.png')
-    const onStatusChange = vi.fn()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Avatar src={source()} onStatusChange={onStatusChange} />)
     const image = screen.container.querySelector('img')!
 
@@ -369,8 +369,8 @@ describe('avatar', () => {
   it('fires onStatusChange for success and error paths', async () => {
     outcomesBySrc.set('/ok.png', 'success')
     outcomesBySrc.set('/bad.png', 'error')
-    const successStatus = vi.fn()
-    const errorStatus = vi.fn()
+    const successStatus = vi.fn<(...args: Array<any>) => void>()
+    const errorStatus = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>

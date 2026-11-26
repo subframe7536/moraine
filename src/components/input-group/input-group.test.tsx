@@ -182,7 +182,7 @@ describe('inputGroup', () => {
   })
 
   it.each([Input, Textarea])('focuses only from non-interactive space for %s', (Control) => {
-    const onPointerDown = vi.fn()
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <InputGroup onPointerDown={onPointerDown}>
         <InputGroup.Leading>
@@ -258,7 +258,7 @@ describe('inputGroup', () => {
   it('respects root pointer cancellation and disabled controls without disabling parts', () => {
     const [cancel, setCancel] = createSignal(true)
     const [disabled, setDisabled] = createSignal(false)
-    const action = vi.fn()
+    const action = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <InputGroup
         onPointerDown={(event) => {
@@ -370,7 +370,7 @@ describe('inputGroup', () => {
   it('keeps native value, selection and focus when part content changes', () => {
     const [show, setShow] = createSignal(true)
     const [text, setText] = createSignal('First')
-    const cleanup = vi.fn()
+    const cleanup = vi.fn<(...args: Array<any>) => void>()
     function Content() {
       onCleanup(cleanup)
       return <span>{text()}</span>

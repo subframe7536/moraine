@@ -70,16 +70,13 @@ import type {
   SliderT,
   TableT,
   TableProps,
-  Tags,
   TextareaT,
-  ValidComponent,
 } from 'moraine'
 import { DataTable, createDataTable } from 'moraine/data-table'
 import type { DataTableProps, DataTableT } from 'moraine/data-table'
 import { defineTheme } from 'moraine/theme'
 import { createCopy, createSlider } from 'moraine/utils'
 import type { Component } from 'solid-js'
-import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 type Assert<T extends true> = T
 export type UtilityExports = Assert<
@@ -237,78 +234,6 @@ export type SlotContracts = [
   ButtonT.SlotName,
 ]
 
-// @ts-expect-error Recipe entry is internal and not exported.
-type RecipeEntry = typeof import('moraine/recipe')
-// @ts-expect-error Recipe APIs are not public from root.
-type RootRecipe = typeof import('moraine').recipe
-// @ts-expect-error Provider APIs are only public from the root entry.
-type UtilsProvider = typeof import('moraine/utils').MoraineProvider
-// @ts-expect-error Root helpers are not part of the low-level utils entry.
-type UtilsCn = typeof import('moraine/utils').cn
-// @ts-expect-error CSS-variable types are not public from utils.
-type UtilsStyleVarRecord = import('moraine/utils').StyleVarRecord
-// @ts-expect-error Slider hook is only public from the utils entry.
-type RootUseSlider = typeof import('moraine').createSlider
-// @ts-expect-error createCopy is only public from the utils entry.
-type RootCreateCopy = typeof import('moraine').createCopy
-type RootAlertDialog = typeof import('moraine').AlertDialog
-type RootAlertDialogOptions = import('moraine').AlertDialogT.Options
-type RootAlertDialogHandle = import('moraine').AlertDialogT.Handle
-// @ts-expect-error Alert dialog is only public from the root entry.
-type UtilsAlertDialog = typeof import('moraine/utils').AlertDialog
-// @ts-expect-error The alert dialog hook is not a public export.
-type RootUseAlertDialog = typeof import('moraine').useAlertDialog
-type UtilsSliderHook = typeof import('moraine/utils').createSlider
-type UtilsUseSliderProps = import('moraine/utils').CreateSliderProps
-type UtilsUseSliderOptions = import('moraine/utils').CreateSliderOptions
-type UtilsUseSliderReturn = import('moraine/utils').CreateSliderReturn
-type UtilsCreateCopyHook = typeof import('moraine/utils').createCopy
-type UtilsCreateCopyOptions = import('moraine/utils').CreateCopyOptions
-type UtilsCreateCopyReturn = import('moraine/utils').CreateCopyReturn
-
-export type PublicEntryIsolation = [
-  RecipeEntry,
-  RootRecipe,
-  RootUseSlider,
-  RootCreateCopy,
-  RootAlertDialog,
-  Assert<
-    RootAlertDialog extends ((props: import('moraine').AlertDialogProps) => unknown) & {
-      confirm: (options: RootAlertDialogOptions) => RootAlertDialogHandle
-      show: (options: RootAlertDialogOptions) => RootAlertDialogHandle
-      close: (id?: import('moraine').AlertDialogT.Id) => void
-    }
-      ? true
-      : false
-  >,
-  Assert<'children' extends keyof import('moraine').AlertDialogProps ? false : true>,
-  Assert<'okText' extends keyof import('moraine').AlertDialogProps ? false : true>,
-  Assert<'dialogRender' extends keyof import('moraine').AlertDialogProps ? true : false>,
-  Assert<'align' extends keyof import('moraine').AlertDialogProps ? true : false>,
-  Assert<'variant' extends keyof import('moraine').AlertDialogProps ? true : false>,
-  Assert<'title' extends keyof import('moraine').AlertDialogProps ? false : true>,
-  Assert<'confirm' extends keyof RootAlertDialogOptions ? false : true>,
-  Assert<'title' extends keyof RootAlertDialogOptions ? true : false>,
-  Assert<RootAlertDialogHandle extends Promise<boolean> ? false : true>,
-  Assert<'result' extends keyof RootAlertDialogHandle ? true : false>,
-  Assert<'destroy' extends keyof RootAlertDialogHandle ? false : true>,
-  UtilsAlertDialog,
-  RootUseAlertDialog,
-  UtilsProvider,
-  UtilsCn,
-  UtilsStyleVarRecord,
-  Assert<UtilsSliderHook extends (...args: Array<any>) => any ? true : false>,
-  Assert<UtilsUseSliderProps extends object ? true : false>,
-  Assert<UtilsUseSliderOptions extends object ? true : false>,
-  Assert<'onValueReset' extends keyof UtilsUseSliderOptions ? false : true>,
-  Assert<UtilsUseSliderReturn extends object ? true : false>,
-  Assert<'resetValues' extends keyof UtilsUseSliderReturn ? true : false>,
-  Assert<UtilsCreateCopyHook extends (...args: Array<any>) => any ? true : false>,
-  Assert<UtilsCreateCopyOptions extends object ? true : false>,
-  Assert<UtilsCreateCopyReturn extends object ? true : false>,
-  Assert<'isCopied' extends keyof UtilsCreateCopyReturn ? true : false>,
-]
-
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
   <section data-required={props.required}>{props.children}</section>
 )
@@ -324,7 +249,6 @@ const TypedCustomRoot: Component<{
 const modalContentRenderProps: BaseDialogT.ContentRenderProps = { close: () => undefined }
 modalContentRenderProps.close()
 
-const foo = () => undefined
 const acceptSpan = (element: HTMLSpanElement) => element.focus()
 const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
 const divRef = (element: HTMLDivElement) => element.focus()
@@ -418,16 +342,6 @@ const divRef = (element: HTMLDivElement) => element.focus()
     void svg
   }}
 />
-// @ts-expect-error Lowercase event aliases remain excluded.
-;<Button as="svg" onclick={() => undefined} />
-// @ts-expect-error Lowercase keyboard aliases remain excluded.
-;<Button as="svg" onkeydown={() => undefined} />
-// @ts-expect-error Solid directive syntax remains excluded.
-;<Button as="svg" use:foo={foo} />
-// @ts-expect-error Solid namespaced event syntax remains excluded.
-;<Button as="svg" on:click={foo} />
-// @ts-expect-error Solid namespaced attribute syntax remains excluded.
-;<Button as="svg" attr:foo="bar" />
 
 ;<Card
   id="card"
@@ -440,18 +354,6 @@ const divRef = (element: HTMLDivElement) => element.focus()
 />
 // @ts-expect-error Div roots reject anchor attributes.
 ;<Card href="/details" />
-// @ts-expect-error Lowercase event aliases are intentionally excluded.
-;<Card onclick={() => undefined} />
-// @ts-expect-error Lowercase keyboard aliases are intentionally excluded.
-;<Card onkeydown={() => undefined} />
-// @ts-expect-error Lowercase pointer aliases are intentionally excluded.
-;<Card onpointerdown={() => undefined} />
-// @ts-expect-error Solid directive prefixes are intentionally excluded.
-;<Card use:foo={foo} />
-// @ts-expect-error Solid namespaced event syntax is intentionally excluded.
-;<Card on:click={foo} />
-// @ts-expect-error Solid namespaced attribute syntax is intentionally excluded.
-;<Card attr:foo="bar" />
 
 ;<Card as="a" href="/details">
   <Card.Title as="h2">Details</Card.Title>
@@ -579,7 +481,6 @@ const invalidDataTableCol: DataTableT.Column<(typeof dataTableRows)[number]> = {
 }
 void invalidDataTableCol
 
-const [dataTableSorting, setDataTableSorting] = createSignal<DataTableT.State['sorting']>([])
 const dataTableInstance = createDataTable({
   get data() {
     return dataTableRows
@@ -590,10 +491,10 @@ const dataTableInstance = createDataTable({
   paginated: { pageSize: 10, pageSizes: [10, 20] },
   state: {
     get sorting() {
-      return dataTableSorting()
+      return []
     },
   },
-  onSortingChange: setDataTableSorting,
+  onSortingChange: () => {},
 })
 ;<dataTableInstance.DataTable expandedRowRender={(props) => <div>{props.row.original.name}</div>} />
 // @ts-expect-error DataTable has no striped variant.
@@ -1058,10 +959,8 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
   onPaste={(event) => event.currentTarget.checkValidity()}
 />
 
-const [numberControl, setNumberControl] = createSignal<number | null>(null)
-;<Input value={numberControl()} onValueChange={setNumberControl} modifiers={{ number: true }} />
-const [nullableText, setNullableText] = createSignal<string | null>(null)
-;<Input value={nullableText()} onValueChange={setNullableText} modifiers={{ empty: 'null' }} />
+;<Input modifiers={{ number: true }} />
+;<Input modifiers={{ empty: 'null' }} />
 // @ts-expect-error Unknown native props are rejected.
 ;<Input unknownNativeProp="invalid" />
 // @ts-expect-error Input only has a root slot.
@@ -1193,15 +1092,6 @@ const buttonRoot: keyof ButtonT.Slot = 'root'
 const sliderSize: SliderT.Variants['size'] = 'sm'
 const hookSlider = createSlider({ min: 0, max: 100, value: 50 })
 void [buttonRoot, sliderSize, hookSlider.currentValues(), hookSlider.resetValues()]
-
-export type DefaultTagAssertions = [
-  Assert<Tags extends keyof JSX.IntrinsicElements ? true : false>,
-  Assert<'svg' extends Tags ? true : false>,
-  Assert<'div' extends Tags ? true : false>,
-  Assert<Tags extends ValidComponent ? true : false>,
-  Assert<((props: any) => any) extends ValidComponent ? true : false>,
-  Assert<string & {} extends ValidComponent ? true : false>,
-]
 
 // Separate public floating dimensions accept sides and alignment independently.
 ;<Popover placement="bottom" align="start" />

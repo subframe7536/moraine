@@ -10,11 +10,11 @@ function createMediaQueryList(matches: boolean): MediaQueryList {
     matches,
     media: '(min-width: 1px)',
     onchange: null,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
+    addEventListener: vi.fn<(...args: Array<any>) => void>(),
+    removeEventListener: vi.fn<(...args: Array<any>) => void>(),
+    dispatchEvent: vi.fn<(event: Event) => boolean>().mockReturnValue(true),
+    addListener: vi.fn<(...args: Array<any>) => void>(),
+    removeListener: vi.fn<(...args: Array<any>) => void>(),
   }
 }
 
@@ -25,7 +25,7 @@ afterEach(() => {
 describe('createMediaQuery', () => {
   it('keeps the server fallback through mount before applying the client match', async () => {
     const media = createMediaQueryList(true)
-    window.matchMedia = vi.fn(() => media)
+    window.matchMedia = vi.fn<() => any>(() => media)
 
     const screen = render(() => {
       const matches = createMediaQuery('(min-width: 1px)')
@@ -57,19 +57,19 @@ describe('createMediaQuery', () => {
   })
 
   it('uses legacy MediaQueryList listeners when modern listeners are unavailable', async () => {
-    const addListener = vi.fn()
-    const removeListener = vi.fn()
+    const addListener = vi.fn<(...args: Array<any>) => void>()
+    const removeListener = vi.fn<(...args: Array<any>) => void>()
     const media = {
       matches: false,
       media: '(min-width: 1px)',
       onchange: null,
       addEventListener: undefined,
       removeEventListener: undefined,
-      dispatchEvent: vi.fn(),
+      dispatchEvent: vi.fn<(event: Event) => boolean>().mockReturnValue(true),
       addListener,
       removeListener,
     } as unknown as MediaQueryList
-    window.matchMedia = vi.fn(() => media)
+    window.matchMedia = vi.fn<() => any>(() => media)
 
     const screen = render(() => {
       const matches = createMediaQuery('(min-width: 1px)')
@@ -90,7 +90,7 @@ describe('createMediaQuery', () => {
   it('replaces the listener when a reactive query changes', async () => {
     const firstMedia = createMediaQueryList(false)
     const secondMedia = createMediaQueryList(true)
-    const matchMedia = vi.fn((query: string) =>
+    const matchMedia = vi.fn<(query: string) => any>((query) =>
       query === '(min-width: 1px)' ? firstMedia : secondMedia,
     )
     window.matchMedia = matchMedia
@@ -109,7 +109,7 @@ describe('createMediaQuery', () => {
 
   it('reacts to modern change events and removes the registered listener', async () => {
     const media = createMediaQueryList(false)
-    window.matchMedia = vi.fn(() => media)
+    window.matchMedia = vi.fn<() => any>(() => media)
     const screen = render(() => {
       const matches = createMediaQuery('(min-width: 1px)')
       return <div data-testid="matches">{String(matches())}</div>
@@ -130,7 +130,7 @@ describe('createMediaQuery', () => {
 
   it('cancels a pending initial update when its owner is disposed', async () => {
     const media = createMediaQueryList(true)
-    window.matchMedia = vi.fn(() => media)
+    window.matchMedia = vi.fn<() => any>(() => media)
     let currentMatch: (() => boolean) | undefined
     const screen = render(() => {
       currentMatch = createMediaQuery('(min-width: 1px)')
@@ -145,7 +145,7 @@ describe('createMediaQuery', () => {
 
   it('normalizes an @media prefix before creating the query list', async () => {
     const media = createMediaQueryList(false)
-    const matchMedia = vi.fn(() => media)
+    const matchMedia = vi.fn<() => any>(() => media)
     window.matchMedia = matchMedia
 
     render(() => {

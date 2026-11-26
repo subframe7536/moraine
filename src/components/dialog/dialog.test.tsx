@@ -513,7 +513,7 @@ describe('dialog', () => {
   })
 
   it('opens by trigger click and closes through close button', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Dialog onOpenChange={onOpenChange}>
@@ -552,7 +552,7 @@ describe('dialog', () => {
   it('keeps a CommandPalette input value until the Dialog exits', async () => {
     const [open, setOpen] = createSignal(false)
     const [searchValue, setSearchValue] = createSignal('')
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Dialog
@@ -835,7 +835,7 @@ describe('dialog', () => {
   })
 
   it('keeps automatic Content close and explicit Close styling separate', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Dialog open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
         <Dialog.Content>
@@ -878,7 +878,7 @@ describe('dialog', () => {
   })
 
   it('prevents close when closeOnEscape is false and emits onClosePrevented', async () => {
-    const onClosePrevented = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Dialog defaultOpen closeOnEscape={false} onClosePrevented={onClosePrevented}>
@@ -902,7 +902,7 @@ describe('dialog', () => {
   })
 
   it('emits onClosePrevented once for blocked outside pointer interaction', async () => {
-    const onClosePrevented = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -932,7 +932,7 @@ describe('dialog', () => {
   })
 
   it('clears text selection when dismissed by outside pointer interaction', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -970,8 +970,8 @@ describe('dialog', () => {
   })
 
   it('blocks outside pointer dismissal without blocking Escape', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -1017,8 +1017,8 @@ describe('dialog', () => {
   })
 
   it('blocks Escape without blocking outside pointer dismissal', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -1063,8 +1063,8 @@ describe('dialog', () => {
   })
 
   it('closes on Escape by default', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Dialog defaultOpen onClosePrevented={onClosePrevented} onOpenChange={onOpenChange}>
@@ -1179,8 +1179,8 @@ describe('dialog', () => {
   })
 
   it('escape only closes the topmost overlay when dialogs are nested', async () => {
-    const onOuterChange = vi.fn()
-    const onInnerChange = vi.fn()
+    const onOuterChange = vi.fn<(...args: Array<any>) => void>()
+    const onInnerChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <>
@@ -1224,8 +1224,8 @@ describe('dialog', () => {
   })
 
   it('outer dialog ignores pointerdown that lands inside a nested dialog', async () => {
-    const onOuterChange = vi.fn()
-    const onInnerChange = vi.fn()
+    const onOuterChange = vi.fn<(...args: Array<any>) => void>()
+    const onInnerChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <>
@@ -1305,7 +1305,7 @@ describe('dialog', () => {
   })
 
   it('supports render function children receiving close action', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Dialog defaultOpen onOpenChange={onOpenChange}>
         <Dialog.Content>
@@ -1363,7 +1363,7 @@ describe('dialog', () => {
   })
 
   it('runs the consumer onKeyDown handler and honors its preventDefault', () => {
-    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+    const onKeyDown = vi.fn<(event: KeyboardEvent) => any>((event) => {
       event.preventDefault()
     })
     render(() => (

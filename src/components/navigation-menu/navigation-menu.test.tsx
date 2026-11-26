@@ -179,7 +179,7 @@ describe('navigationMenu', () => {
 
   it('delays the first hover, cancels abandoned opens, and switches an open surface immediately', async () => {
     vi.useFakeTimers()
-    const changes = vi.fn()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     render(() => <TestMenu openDelay={80} onValueChange={changes} />)
     const products = page.getByRole('button', { name: 'Products' })
     const guides = page.getByRole('button', { name: 'Guides' })
@@ -226,7 +226,7 @@ describe('navigationMenu', () => {
 
   it('ignores touch hover and cancels pending timers on unmount', async () => {
     vi.useFakeTimers()
-    const changes = vi.fn()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     const _screen = render(() => <TestMenu onValueChange={changes} />)
     const trigger = page.getByRole('button', { name: 'Products' })
     pointer(trigger, 'pointerenter', { pointerType: 'touch' })
@@ -256,7 +256,7 @@ describe('navigationMenu', () => {
 
   it('requests controlled changes without changing the supplied value', async () => {
     const [value, setValue] = createSignal<string | null>(null)
-    const changes = vi.fn()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     render(() => <TestMenu value={value()} onValueChange={changes} />)
     fireEvent.click(page.getByRole('button', { name: 'Products' }))
     expect(changes).toHaveBeenCalledWith('products')
@@ -280,7 +280,7 @@ describe('navigationMenu', () => {
 
   it('stays controlled after a controlled close writes back null', async () => {
     const [value, setValue] = createSignal<string | null>('products')
-    const changes = vi.fn()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <TestMenu
         value={value()}
@@ -566,7 +566,7 @@ describe('navigationMenu', () => {
   it('releases removed outgoing content without closing the active panel', async () => {
     switchDuration = 500
     const [visible, setVisible] = createSignal(true)
-    const cleanup = vi.fn()
+    const cleanup = vi.fn<(...args: Array<any>) => void>()
     function OutgoingLink() {
       onCleanup(cleanup)
       return <NavigationMenu.Link href="#outgoing">Outgoing link</NavigationMenu.Link>
@@ -605,7 +605,7 @@ describe('navigationMenu', () => {
     const [disabled, setDisabled] = createSignal(false)
     const [visible, setVisible] = createSignal(true)
     const [hasContent, setHasContent] = createSignal(true)
-    const changes = vi.fn()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <NavigationMenu onValueChange={changes}>
         <NavigationMenu.List>
@@ -713,9 +713,9 @@ describe('navigationMenu', () => {
     vi.stubGlobal(
       'ResizeObserver',
       class {
-        disconnect = vi.fn()
-        observe = vi.fn()
-        unobserve = vi.fn()
+        disconnect = vi.fn<(...args: Array<any>) => void>()
+        observe = vi.fn<(...args: Array<any>) => void>()
+        unobserve = vi.fn<(...args: Array<any>) => void>()
         constructor(callback: ResizeObserverCallback) {
           observations.push({ callback, disconnect: this.disconnect })
         }

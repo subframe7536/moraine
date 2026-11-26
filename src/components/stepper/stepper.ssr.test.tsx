@@ -25,7 +25,7 @@ it('hydrates encoded duplicate step IDs without changing their relationships', (
 it.each([false, true])(
   'hydrates step relationships and lazily selects another panel (vertical=%s)',
   (vertical) => {
-    const read = vi.fn()
+    const read = vi.fn<(...args: Array<any>) => void>()
     const { container } = hydrateFixture(
       '/src/components/stepper/stepper.ssr.fixture.tsx',
       vertical ? 'renderVerticalStepperFixture' : 'renderStepperFixture',

@@ -94,7 +94,7 @@ describe('list', () => {
   })
 
   it('supports polymorphic roots and forwards native attributes, style, class, and ref', () => {
-    const ref = vi.fn()
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <List
         as="div"
@@ -131,7 +131,7 @@ describe('list', () => {
 
   it('creates virtual content before mount and reactively exposes the scroll element', () => {
     let virtualScrollElement: HTMLElement | undefined
-    const VirtualRender = vi.fn((props: VirtualRenderProps<string>) => {
+    const VirtualRender = vi.fn<(props: VirtualRenderProps<string>) => any>((props) => {
       createEffect(
         () => props.scrollElement,
         (scrollElement) => {
@@ -312,8 +312,8 @@ describe('list', () => {
   })
 
   it('fires edge callbacks on transitions of an overflowing list only', async () => {
-    const onTopReached = vi.fn()
-    const onBottomReached = vi.fn()
+    const onTopReached = vi.fn<(...args: Array<any>) => void>()
+    const onBottomReached = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <List
         items={['A', 'B', 'C']}
@@ -357,7 +357,7 @@ describe('list', () => {
   })
 
   it('fires onBottomReached again after scrolling away and back', async () => {
-    const onBottomReached = vi.fn()
+    const onBottomReached = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <List
         items={['A', 'B', 'C']}

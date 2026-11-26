@@ -67,10 +67,10 @@ describe('textarea', () => {
   })
 
   it('applies trim, lazy and empty value strategy modifiers', async () => {
-    const onTrim = vi.fn()
-    const onLazy = vi.fn()
-    const onPreserve = vi.fn()
-    const onNullable = vi.fn()
+    const onTrim = vi.fn<(...args: Array<any>) => void>()
+    const onLazy = vi.fn<(...args: Array<any>) => void>()
+    const onPreserve = vi.fn<(...args: Array<any>) => void>()
+    const onNullable = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -235,7 +235,7 @@ describe('textarea', () => {
 
   it('keeps the DOM and Field aligned when a controlled edit is rejected', async () => {
     const [value, setValue] = createSignal('Locked')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -288,7 +288,7 @@ describe('textarea', () => {
 
   it('keeps a lazy controlled composition draft until change commits it once', async () => {
     const [value, setValue] = createSignal('')
-    const onValueChange = vi.fn((nextValue: string) => setValue(nextValue))
+    const onValueChange = vi.fn<(nextValue: string) => any>((nextValue) => setValue(nextValue))
     const screen = render(() => (
       <Textarea value={value()} modifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
@@ -316,7 +316,7 @@ describe('textarea', () => {
   })
 
   it('keeps a lazy Formisch composition draft until change commits it once', async () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({

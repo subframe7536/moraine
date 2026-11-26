@@ -32,7 +32,10 @@ describe('useAutoLoadingClick', () => {
   it('stays loading until every overlapping action settles', async () => {
     const first = deferred()
     const second = deferred()
-    const onClick = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
+    const onClick = vi
+      .fn<(...args: Array<any>) => Promise<void>>()
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise)
     const lifecycle = createRoot((dispose) => ({
       dispose,
       state: useAutoLoadingClick<HTMLButtonElement>({
@@ -107,7 +110,7 @@ describe('useAutoLoadingClick', () => {
   it('does not enter loading for synchronous returns or thrown errors', () => {
     const error = new Error('sync failure')
     const onClick = vi
-      .fn()
+      .fn<(...args: Array<any>) => string>()
       .mockReturnValueOnce('done')
       .mockImplementationOnce(() => {
         throw error

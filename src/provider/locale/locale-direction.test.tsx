@@ -11,7 +11,7 @@ describe('moraine direction', () => {
   it('flips slider arrow keys from html dir without a provider', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.setAttribute('dir', 'rtl')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     try {
       const screen = render(() => <Slider defaultValue={45} onValueChange={onValueChange} />)
       const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement
@@ -31,7 +31,7 @@ describe('moraine direction', () => {
   it('flips slider arrow keys from the provider without a dir attribute', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.removeAttribute('dir')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     try {
       const screen = render(() => (
         <MoraineProvider dir="rtl">
@@ -54,7 +54,7 @@ describe('moraine direction', () => {
   })
 
   it('lets a dir attribute on the slider win over the provider', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MoraineProvider dir="rtl">
         <Slider dir="ltr" defaultValue={45} onValueChange={onValueChange} />

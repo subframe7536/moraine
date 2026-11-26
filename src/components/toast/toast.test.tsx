@@ -60,7 +60,7 @@ describe('toast', () => {
   })
 
   it('renders action button and triggers callback on click', async () => {
-    const handleAction = vi.fn()
+    const handleAction = vi.fn<(...args: Array<any>) => void>()
     render(() => <Toast />)
 
     Toast.show({
@@ -84,7 +84,7 @@ describe('toast', () => {
   })
 
   it('renders cancel button and triggers callback on click', async () => {
-    const handleCancel = vi.fn()
+    const handleCancel = vi.fn<(...args: Array<any>) => void>()
     render(() => <Toast />)
 
     Toast.show({
@@ -457,8 +457,8 @@ describe('toast', () => {
 
   it('invokes onClose with timeout on timer expiration and api on programmatic close', async () => {
     vi.useFakeTimers()
-    const onAutoClose = vi.fn()
-    const onManualClose = vi.fn()
+    const onAutoClose = vi.fn<(...args: Array<any>) => void>()
+    const onManualClose = vi.fn<(...args: Array<any>) => void>()
 
     try {
       render(() => <Toast duration={1000} />)
@@ -1106,8 +1106,8 @@ describe('toast', () => {
       title: 'Slot Test Title',
       description: 'Slot Test Description',
       type: 'success',
-      action: { label: 'Action Btn', onClick: vi.fn() },
-      cancel: { label: 'Cancel Btn', onClick: vi.fn() },
+      action: { label: 'Action Btn', onClick: vi.fn<(...args: Array<any>) => void>() },
+      cancel: { label: 'Cancel Btn', onClick: vi.fn<(...args: Array<any>) => void>() },
     })
 
     const titleEl = await screen.findByText('Slot Test Title')
@@ -1272,7 +1272,7 @@ describe('toast', () => {
   })
 
   it('supports custom itemRender on <Toast>', async () => {
-    const customRender = vi.fn((props: ToastT.ItemRenderProps) => (
+    const customRender = vi.fn<(props: ToastT.ItemRenderProps) => any>((props) => (
       <div data-testid={`custom-item-${props.id}`}>
         <span>Custom: {props.options.title}</span>
         <button type="button" onClick={() => props.close()}>
@@ -1342,7 +1342,7 @@ describe('toast', () => {
 
   it('cleans up session onClose callback on removal', async () => {
     render(() => <Toast />)
-    const onClose = vi.fn()
+    const onClose = vi.fn<(...args: Array<any>) => void>()
     const handle = Toast.show({ title: 'Cleaned Toast', onClose })
 
     await screen.findByText('Cleaned Toast')

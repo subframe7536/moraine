@@ -227,8 +227,8 @@ describe('resizable', () => {
   })
 
   it('does not fire collapse callbacks when a same-id panel remounts', async () => {
-    const onCollapse = vi.fn()
-    const onExpand = vi.fn()
+    const onCollapse = vi.fn<(...args: Array<any>) => void>()
+    const onExpand = vi.fn<(...args: Array<any>) => void>()
     const [showB, setShowB] = createSignal(true)
     const [layout, setLayout] = createSignal({ a: 100, b: 0 })
     render(() => (
@@ -260,8 +260,8 @@ describe('resizable', () => {
   })
 
   it('drag updates layout live, emits change per move and one commit on release', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -286,8 +286,8 @@ describe('resizable', () => {
   })
 
   it('does not emit commit when a drag ends without changing the layout', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -306,7 +306,7 @@ describe('resizable', () => {
   })
 
   it('controlled value emits but layout follows the prop', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels value={{ a: 50, b: 50 }} onValueChange={onValueChange} />
     ))
@@ -323,8 +323,8 @@ describe('resizable', () => {
   })
 
   it('collapses a panel live once the drag passes the midpoint and expands past it again', () => {
-    const onCollapse = vi.fn()
-    const onExpand = vi.fn()
+    const onCollapse = vi.fn<(...args: Array<any>) => void>()
+    const onExpand = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -361,8 +361,8 @@ describe('resizable', () => {
   })
 
   it('resizable.usePanel collapses, expands, and resizes with change + commit emissions', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     let api: ResizableT.PanelContext | undefined
 
     function PanelContent(): JSX.Element {
@@ -443,7 +443,7 @@ describe('resizable', () => {
   })
 
   it('arrow keys step the split, Shift+arrow jumps further, Home and End reach the limits', () => {
-    const onValueCommit = vi.fn()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels defaultValue={{ a: 50, b: 50 }} onValueCommit={onValueCommit} />
     ))
@@ -473,8 +473,8 @@ describe('resizable', () => {
   })
 
   it('enter toggles the nearest collapsible neighbor and Space does not', () => {
-    const onCollapse = vi.fn()
-    const onExpand = vi.fn()
+    const onCollapse = vi.fn<(...args: Array<any>) => void>()
+    const onExpand = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -593,7 +593,7 @@ describe('resizable', () => {
   })
 
   it('toggling Alt mid-drag still commits the final layout once', () => {
-    const onValueCommit = vi.fn()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Resizable defaultValue={{ a: 50, b: 50 }} onValueCommit={onValueCommit}>
         <Resizable.Panel id="a">A</Resizable.Panel>
@@ -660,7 +660,7 @@ describe('resizable', () => {
   })
 
   it('root disabled locks all handles', () => {
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels disabled defaultValue={{ a: 50, b: 50 }} onValueChange={onValueChange} />
     ))
@@ -690,8 +690,8 @@ describe('resizable', () => {
   })
 
   it('pointercancel stops a drag and keeps the last emitted layout', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}

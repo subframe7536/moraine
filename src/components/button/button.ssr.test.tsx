@@ -8,7 +8,7 @@ import { Button } from './button'
 describe('button SSR Hydration', () => {
   it('hydrates render children and preserves activation across loading updates', () => {
     const [loading, setLoading] = createSignal(false)
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
 
     const { container } = hydrateFixture(
       '/src/components/button/button.ssr.fixture.tsx',

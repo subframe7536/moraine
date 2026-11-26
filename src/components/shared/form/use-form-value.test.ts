@@ -15,9 +15,9 @@ function createMockField(): UseFormFieldReturn {
     readOnly: () => false,
     invalid: () => false,
     ariaAttrs: () => ({}),
-    setControlRef: vi.fn(),
-    setFormValue: vi.fn((val: unknown) => setValue(val)),
-    emit: vi.fn(),
+    setControlRef: vi.fn<(...args: Array<any>) => void>(),
+    setFormValue: vi.fn<(val: unknown) => any>((val) => setValue(val)),
+    emit: vi.fn<(...args: Array<any>) => void>(),
     path: () => ['test-field'],
     bound: () => true,
     value,
@@ -34,7 +34,7 @@ function createMockField(): UseFormFieldReturn {
 describe('useFormValue', () => {
   it('updates the value, notifies the caller, and syncs the form field', () => {
     createRoot((dispose) => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const field = createMockField()
 
       const [value, setValue] = useFormValue({
@@ -57,7 +57,7 @@ describe('useFormValue', () => {
   it('keeps the controlled value authoritative until the parent updates it', () => {
     let disposeFn: (() => void) | undefined
     const [controlled, setControlled] = createSignal('first')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const field = createMockField()
     let valueAccessor: () => string = () => ''
     let setValueFn: (v: string) => void = () => {}
@@ -89,7 +89,7 @@ describe('useFormValue', () => {
 
   it('does not notify when the next value is equal to the current one', () => {
     createRoot((dispose) => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const field = createMockField()
 
       const [, setValue] = useFormValue({
@@ -107,7 +107,7 @@ describe('useFormValue', () => {
 
   it('resets an uncontrolled value to its default without notifying the caller', () => {
     createRoot((dispose) => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const field = createMockField()
 
       const [value, setValue, reset] = useFormValue({
@@ -131,7 +131,7 @@ describe('useFormValue', () => {
 
   it('uses a custom isEqual to compare complex values', () => {
     createRoot((dispose) => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const field = createMockField()
 
       const [value, setValue] = useFormValue<Array<string>>({

@@ -1,14 +1,14 @@
 import type { ComputePositionConfig, Platform } from '@floating-ui/dom'
 import { cleanup, render, waitFor } from '@solidjs/testing-library'
-import { createSignal, flush } from 'solid-js'
+import { createSignal, flush, untrack } from 'solid-js'
 import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { isElement } from './dom'
 import { useFloatingPosition } from './floating'
 import type { FloatingPositionOptions } from './floating'
 const floatingMocks = vi.hoisted(() => ({
-  computePosition: vi.fn(),
-  cleanup: vi.fn(),
+  computePosition: vi.fn<(...args: Array<any>) => any>(),
+  cleanup: vi.fn<() => void>(),
   updates: [] as Array<() => void>,
 }))
 
@@ -52,7 +52,7 @@ function FloatingFixture(props: {
     open: () => props.open(),
     overflowPadding: () => 0,
     placement: () => 'bottom',
-    ...props.options,
+    ...untrack(() => props.options),
   })
 
   return (
@@ -85,7 +85,7 @@ describe('useFloatingPosition', () => {
         }),
     )
     const open = () => true
-    const onPositionedChange = vi.fn()
+    const onPositionedChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <FloatingFixture open={open} onPositionedChange={onPositionedChange} />
@@ -126,7 +126,7 @@ describe('useFloatingPosition', () => {
     })
     const [point, setPoint] = createSignal<{ x: number; y: number } | undefined>()
     const open = () => true
-    const onPositionedChange = vi.fn()
+    const onPositionedChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <FloatingFixture
@@ -158,7 +158,7 @@ describe('useFloatingPosition', () => {
     const [gutter, setGutter] = createSignal(4)
     const [padding, setPadding] = createSignal(0)
     const [open, setOpen] = createSignal(true)
-    const ready = vi.fn()
+    const ready = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <FloatingFixture
         open={open}
@@ -185,7 +185,7 @@ describe('useFloatingPosition', () => {
       y: 2,
     })
     const [open, setOpen] = createSignal(true)
-    const ready = vi.fn()
+    const ready = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FloatingFixture
         open={open}
@@ -202,7 +202,7 @@ describe('useFloatingPosition', () => {
   it('reports readiness after the fallback timer and stops reporting after disposal', async () => {
     vi.useFakeTimers()
     vi.stubGlobal('requestAnimationFrame', () => 1)
-    vi.stubGlobal('cancelAnimationFrame', vi.fn())
+    vi.stubGlobal('cancelAnimationFrame', vi.fn<(...args: Array<any>) => void>())
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -210,7 +210,7 @@ describe('useFloatingPosition', () => {
       y: 2,
     })
     const [open, setOpen] = createSignal(true)
-    const ready = vi.fn()
+    const ready = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FloatingFixture open={open} onPositionedChange={ready} options={{ deferPositioned: true }} />
     ))
@@ -228,7 +228,7 @@ describe('useFloatingPosition', () => {
   it('starts at a viewport position and transitions to the latest target after readiness', async () => {
     vi.useFakeTimers()
     vi.stubGlobal('requestAnimationFrame', () => 1)
-    vi.stubGlobal('cancelAnimationFrame', vi.fn())
+    vi.stubGlobal('cancelAnimationFrame', vi.fn<(...args: Array<any>) => void>())
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -280,9 +280,9 @@ describe('useFloatingPosition', () => {
     vi.useFakeTimers()
     vi.stubGlobal(
       'requestAnimationFrame',
-      vi.fn(() => 1),
+      vi.fn<() => any>(() => 1),
     )
-    vi.stubGlobal('cancelAnimationFrame', vi.fn())
+    vi.stubGlobal('cancelAnimationFrame', vi.fn<(...args: Array<any>) => void>())
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -313,7 +313,7 @@ describe('useFloatingPosition', () => {
   it('starts after late mounting and does not position a replaced element', async () => {
     const [floating, setFloating] = createSignal<HTMLElement>()
     const [reference, setReference] = createSignal<HTMLElement>()
-    const ready = vi.fn()
+    const ready = vi.fn<(...args: Array<any>) => void>()
     const pending: Array<(position: DeferredPosition) => void> = []
     floatingMocks.computePosition.mockImplementation(
       () =>
@@ -365,11 +365,11 @@ describe('useFloatingPosition', () => {
     )
     const context = document.createElement('button')
     document.body.append(context)
-    const reference = vi.fn(() => ({
+    const reference = vi.fn<() => any>(() => ({
       contextElement: context,
       getBoundingClientRect: () => context.getBoundingClientRect(),
     }))
-    const ready = vi.fn()
+    const ready = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <FloatingFixture
         open={() => true}
@@ -507,7 +507,7 @@ describe('floating geometry and style ownership', () => {
         }),
     )
     const [constraints, setConstraints] = createSignal(true)
-    const ready = vi.fn()
+    const ready = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FloatingFixture
         open={() => true}

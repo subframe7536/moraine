@@ -10,7 +10,9 @@ describe('createListVirtualizer', () => {
   it('defers scroll-element attachment and client rows until after the hydration microtask', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
-    const renderRow = vi.fn((item: string, _index: number, props) => <div {...props}>{item}</div>)
+    const renderRow = vi.fn<(item: string, _index: number, props: any) => any>(
+      (item, _index, props) => <div {...props}>{item}</div>,
+    )
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
@@ -271,7 +273,7 @@ describe('createListVirtualizer', () => {
 
   it('forwards scrolling to the current instance and becomes inert after unmount', async () => {
     const scrollElement = document.createElement('div')
-    const scrollTo = vi.fn()
+    const scrollTo = vi.fn<(...args: Array<any>) => void>()
     Object.defineProperties(scrollElement, {
       clientHeight: { configurable: true, value: 40 },
       scrollHeight: { configurable: true, value: 200 },
@@ -309,7 +311,7 @@ describe('createListVirtualizer', () => {
 
   it('replays a scroll requested before the instance mounts', async () => {
     const scrollElement = document.createElement('div')
-    const scrollTo = vi.fn()
+    const scrollTo = vi.fn<(...args: Array<any>) => void>()
     Object.defineProperties(scrollElement, {
       clientHeight: { configurable: true, value: 40 },
       scrollHeight: { configurable: true, value: 200 },
@@ -417,7 +419,7 @@ describe('createListVirtualizer', () => {
   it('scrolls horizontal RTL indexes with negative physical offsets', async () => {
     const scrollElement = document.createElement('div')
     scrollElement.style.direction = 'rtl'
-    const scrollTo = vi.fn()
+    const scrollTo = vi.fn<(...args: Array<any>) => void>()
     Object.defineProperties(scrollElement, {
       clientWidth: { configurable: true, value: 50 },
       scrollTo: { configurable: true, value: scrollTo },
@@ -456,7 +458,7 @@ describe('createListVirtualizer', () => {
     document.body.append(scrollElement)
     const resizeObserverDescriptor = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
     Object.defineProperty(window, 'ResizeObserver', { configurable: true, value: undefined })
-    const renderRow = vi.fn()
+    const renderRow = vi.fn<(entry: string, index: number, props: RowProps) => Element>()
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
@@ -551,13 +553,13 @@ describe('createListVirtualizer', () => {
     const item1 = { id: '1', text: 'First' }
     const item2 = { id: '2', text: 'Second' }
     const [entries, setEntries] = createSignal([item1, item2])
-    const renderRow = vi.fn(
-      (item: { id: string; text: string }, _index: number, props?: RowProps) => (
-        <div {...props} data-item-id={item.id}>
-          {item.text}
-        </div>
-      ),
-    )
+    const renderRow = vi.fn<
+      (item: { id: string; text: string }, _index: number, props?: RowProps) => any
+    >((item, _index, props) => (
+      <div {...props} data-item-id={item.id}>
+        {item.text}
+      </div>
+    ))
 
     const screen = render(() => {
       const virtualizer = createListVirtualizer<{ id: string; text: string }>({
@@ -595,9 +597,9 @@ describe('createListVirtualizer', () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const [entries, setEntries] = createSignal(['one', 'two', 'three', 'four', 'five'])
-    const renderRow = vi.fn((item: string, _index: number, props?: RowProps) => (
-      <div {...props}>{item}</div>
-    ))
+    const renderRow = vi.fn<(item: string, _index: number, props?: RowProps) => any>(
+      (item, _index, props) => <div {...props}>{item}</div>,
+    )
 
     const screen = render(() => {
       const virtualizer = createListVirtualizer<string>({

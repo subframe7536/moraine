@@ -100,7 +100,7 @@ describe('copyButton', () => {
 
   it('sets aria-invalid on copy failure and clears it after the copied duration', async () => {
     writeText.mockRejectedValueOnce(new Error('Clipboard write error'))
-    const onCopyError = vi.fn()
+    const onCopyError = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <CopyButton value="failed-copy" onCopyError={onCopyError} />)
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
 
@@ -149,8 +149,8 @@ describe('copyButton', () => {
   })
 
   it('calls onCopySuccess and onStatusChange callbacks', async () => {
-    const onCopySuccess = vi.fn()
-    const onStatusChange = vi.fn()
+    const onCopySuccess = vi.fn<(...args: Array<any>) => void>()
+    const onStatusChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CopyButton
         value="callback-test"
@@ -198,7 +198,7 @@ describe('copyButton', () => {
 
   it('reports a synchronous value error through onCopyError', async () => {
     const error = new Error('no value')
-    const onCopyError = vi.fn()
+    const onCopyError = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CopyButton
         value={() => {

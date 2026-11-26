@@ -24,7 +24,7 @@ import type { ButtonProps } from '../index'
 import { callHandler } from './utils'
 describe('render and polymorphic contracts', () => {
   it('custom target owns whether onClick is forwarded', () => {
-    const click = vi.fn()
+    const click = vi.fn<(...args: Array<any>) => void>()
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button ref={props.ref}>Action</button>
     )
@@ -71,8 +71,8 @@ describe('render and polymorphic contracts', () => {
       ),
     ],
   ] as const)('%s replaces empty renderers and restores the default content', (_name, Control) => {
-    const cleanedA = vi.fn()
-    const cleanedB = vi.fn()
+    const cleanedA = vi.fn<(...args: Array<any>) => void>()
+    const cleanedB = vi.fn<(...args: Array<any>) => void>()
     const A = () => {
       onCleanup(cleanedA)
       return <span>Empty A</span>
@@ -175,8 +175,8 @@ describe('render and polymorphic contracts', () => {
       ),
     ],
   ] as const)('%s replaces and cleans up each renderer instance', async (_name, fixture) => {
-    const cleanupA = vi.fn()
-    const cleanupB = vi.fn()
+    const cleanupA = vi.fn<(...args: Array<any>) => void>()
+    const cleanupB = vi.fn<(...args: Array<any>) => void>()
     const A = () => {
       onCleanup(cleanupA)
       return <span>A</span>
@@ -203,7 +203,7 @@ describe('render and polymorphic contracts', () => {
   })
 
   it('custom Button inside a trigger cancels before the outer activation', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const Native = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
     const Custom = (props: ButtonProps) => (
       <Button {...props} as={Native} onClick={(event) => event.preventDefault()} />
@@ -219,7 +219,7 @@ describe('render and polymorphic contracts', () => {
   })
 
   it('nested custom overlay triggers cancel before outer activation', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const Native = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
     const Custom = (
       props: Omit<JSX.ButtonHTMLAttributes<HTMLButtonElement>, 'style'> & {
@@ -249,7 +249,7 @@ describe('render and polymorphic contracts', () => {
     document.body.append(iframe)
     const host = iframe.contentDocument!.createElement('div')
     iframe.contentDocument!.body.append(host)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const Custom = (props: JSX.HTMLAttributes<HTMLDivElement>) => (
       <div {...props} onKeyDown={(event) => event.preventDefault()} />
     )
@@ -279,8 +279,8 @@ describe('render and polymorphic contracts', () => {
       const ownerDocument = realm === 'iframe' ? iframe.contentDocument! : document
       const host = ownerDocument.createElement('div')
       ownerDocument.body.append(host)
-      const onOpenChange = vi.fn()
-      const customKeyDown = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+      const customKeyDown = vi.fn<(...args: Array<any>) => void>()
       const Custom = (props: JSX.HTMLAttributes<HTMLDivElement>) => (
         <div
           {...props}
@@ -338,8 +338,8 @@ describe('render and polymorphic contracts', () => {
     const ownerDocument = realm === 'iframe' ? iframe.contentDocument! : document
     const host = ownerDocument.createElement('div')
     ownerDocument.body.append(host)
-    const onOpenChange = vi.fn()
-    const customKeyUp = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const customKeyUp = vi.fn<(...args: Array<any>) => void>()
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button
         {...props}
@@ -371,7 +371,7 @@ describe('render and polymorphic contracts', () => {
   })
 
   it('normal forwarded keyboard events work without a forwarded ref', () => {
-    const keyDown = vi.fn()
+    const keyDown = vi.fn<(...args: Array<any>) => void>()
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => {
       const attributes = omit(props, 'ref')
       return <button {...attributes}>Action</button>

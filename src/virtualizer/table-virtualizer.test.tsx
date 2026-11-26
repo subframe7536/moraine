@@ -166,7 +166,7 @@ describe('createTableVirtualizer', () => {
 
   it('scrolls to an index while mounted and becomes inert after unmount', async () => {
     const scrollElement = document.createElement('div')
-    const scrollTo = vi.fn()
+    const scrollTo = vi.fn<(...args: Array<any>) => void>()
     Object.defineProperties(scrollElement, {
       clientHeight: { configurable: true, value: 40 },
       scrollHeight: { configurable: true, value: 200 },
@@ -754,7 +754,7 @@ describe('createTableVirtualizer', () => {
       } = {},
     ) {
       const scrollElement = document.createElement('div')
-      const scrollTo = vi.fn()
+      const scrollTo = vi.fn<(...args: Array<any>) => void>()
       Object.defineProperties(scrollElement, {
         clientWidth: { configurable: true, value: 300 },
         scrollWidth: { configurable: true, value: 2000 },

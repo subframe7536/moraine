@@ -8,7 +8,7 @@ import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { ContextMenu } from './context-menu'
 describe('contextMenu', () => {
   it('keeps ordinary Enter and Space inert while supporting the ContextMenu key', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ContextMenu onOpenChange={onOpenChange}>
         <ContextMenu.Trigger>Target</ContextMenu.Trigger>
@@ -203,7 +203,7 @@ describe('contextMenu', () => {
   })
 
   it('opens on context menu event and supports keyboard selection', async () => {
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu>
@@ -378,8 +378,8 @@ describe('contextMenu', () => {
   })
 
   it('calls the trigger contextmenu handler for native right-clicks', async () => {
-    const onContextMenu = vi.fn((event: MouseEvent) => event.preventDefault())
-    const onOpenChange = vi.fn()
+    const onContextMenu = vi.fn<(event: MouseEvent) => any>((event) => event.preventDefault())
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ContextMenu onOpenChange={onOpenChange}>
         <ContextMenu.Trigger as="div" onContextMenu={onContextMenu}>
@@ -399,7 +399,7 @@ describe('contextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger
@@ -432,7 +432,7 @@ describe('contextMenu', () => {
   })
 
   it('focuses content on open, supports typeahead, and restores trigger wrapper focus on escape', async () => {
-    const triggerRef = vi.fn()
+    const triggerRef = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger
@@ -491,7 +491,7 @@ describe('contextMenu', () => {
   })
 
   it('fires onOpenChange when opened and blocks opening when disabled', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const enabledScreen = render(() => (
       <ContextMenu onOpenChange={onOpenChange}>
@@ -514,7 +514,7 @@ describe('contextMenu', () => {
 
     enabledScreen.unmount()
 
-    const disabledOnOpenChange = vi.fn()
+    const disabledOnOpenChange = vi.fn<(...args: Array<any>) => void>()
     const disabledScreen = render(() => (
       <ContextMenu disabled onOpenChange={disabledOnOpenChange}>
         <ContextMenu.Trigger as="div" data-testid="disabled-row">
@@ -538,7 +538,7 @@ describe('contextMenu', () => {
   })
 
   it('supports controlled open state and reports right-click open attempts', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu open={false} onOpenChange={onOpenChange}>
@@ -597,7 +597,7 @@ describe('contextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -626,7 +626,7 @@ describe('contextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -660,8 +660,8 @@ describe('contextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      const firstHandler = vi.fn()
-      const secondHandler = vi.fn()
+      const firstHandler = vi.fn<(...args: Array<any>) => void>()
+      const secondHandler = vi.fn<(...args: Array<any>) => void>()
       const [controlledOpen, setControlledOpen] = createSignal<boolean | undefined>(undefined)
       const [onOpenChange, setOnOpenChange] = createSignal(() => firstHandler)
       const screen = render(() => (
@@ -748,7 +748,7 @@ describe('contextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -796,7 +796,7 @@ describe('contextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -825,7 +825,7 @@ describe('contextMenu', () => {
 
     try {
       const [disabled, setDisabled] = createSignal(false)
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu disabled={disabled()} onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -854,7 +854,7 @@ describe('contextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger
@@ -895,7 +895,7 @@ describe('contextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1073,12 +1073,12 @@ describe('contextMenu', () => {
   })
 
   it('renders item matrix, nested submenu, and content slots', async () => {
-    const contentTop = vi.fn((props: { sub: boolean }) => (
+    const contentTop = vi.fn<(props: { sub: boolean }) => any>((props) => (
       <div data-testid={props.sub ? 'content-top-sub' : 'content-top-root'}>
         {props.sub ? 'Top Sub' : 'Top Root'}
       </div>
     ))
-    const contentBottom = vi.fn((props: { sub: boolean }) => (
+    const contentBottom = vi.fn<(props: { sub: boolean }) => any>((props) => (
       <div data-testid={props.sub ? 'content-bottom-sub' : 'content-bottom-root'}>
         {props.sub ? 'Bottom Sub' : 'Bottom Root'}
       </div>
@@ -1368,7 +1368,7 @@ describe('contextMenu', () => {
   })
 
   it('passes itemRender context for root and nested items', async () => {
-    const itemRender = vi.fn((props: any) => (
+    const itemRender = vi.fn<(props: any) => any>((props) => (
       <span data-testid={`custom-${String(props.item.label)}-${props.depth}`}>
         {String(props.item.label)}:{props.depth}:{String(props.hasChildren)}:
         {String(props.item.type === 'checkbox')}
@@ -1476,8 +1476,8 @@ describe('contextMenu', () => {
   })
 
   it('supports checkbox toggle and keeps disabled item from selecting', async () => {
-    const onCheckedChange = vi.fn()
-    const onDisabledSelect = vi.fn()
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
+    const onDisabledSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu>
@@ -1520,7 +1520,7 @@ describe('contextMenu', () => {
   })
 
   it('keeps context menu open when clicking or pressing on a disabled item', async () => {
-    const onSelect = vi.fn()
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu>
@@ -1565,8 +1565,8 @@ describe('contextMenu', () => {
   })
 
   it('supports radio items with grouped keyboard selection and disabled prevention', async () => {
-    const onValueChange = vi.fn()
-    const onDisabledSelect = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onDisabledSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu>
@@ -1792,7 +1792,7 @@ describe('contextMenu', () => {
   })
 
   it('does not invoke root onContentPointerDown or onContextMenu on submenu content interactions', async () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ContextMenu defaultOpen onOpenChange={onOpenChange}>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>

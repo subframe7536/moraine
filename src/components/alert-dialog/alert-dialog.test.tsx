@@ -61,8 +61,8 @@ describe('alertDialog', () => {
 
   it('resolves action from OK and cancel from the cancel button', async () => {
     flush(() => setup())
-    const onAction = vi.fn()
-    const onCancel = vi.fn()
+    const onAction = vi.fn<(...args: Array<any>) => void>()
+    const onCancel = vi.fn<(...args: Array<any>) => void>()
     const confirmed = AlertDialog.confirm({
       title: 'Delete project',
       description: 'This cannot be undone.',
@@ -136,7 +136,7 @@ describe('alertDialog', () => {
 
   it('keeps outside pointer dismissal disabled and still closes on Escape', async () => {
     flush(() => setup())
-    const onClose = vi.fn()
+    const onClose = vi.fn<(...args: Array<any>) => void>()
     const result = AlertDialog.confirm({ title: 'Stay', onClose })
     await waitForTitle('Stay')
 
@@ -157,7 +157,7 @@ describe('alertDialog', () => {
 
   it('closes from the overlay when closeOnOutsideClick is set and can block Escape', async () => {
     flush(() => setup())
-    const onClose = vi.fn()
+    const onClose = vi.fn<(...args: Array<any>) => void>()
     const blocked = AlertDialog.info({
       title: 'Info',
       cancel: true,
@@ -292,8 +292,8 @@ describe('alertDialog', () => {
 
   it('corner close dismisses without running cancel, and close settles before exit finishes', async () => {
     flush(() => setup())
-    const onCancel = vi.fn()
-    const onClose = vi.fn()
+    const onCancel = vi.fn<(...args: Array<any>) => void>()
+    const onClose = vi.fn<(...args: Array<any>) => void>()
     const closed = AlertDialog.info({
       title: 'Closable',
       closable: true,
@@ -592,7 +592,7 @@ describe('alertDialog', () => {
 
   it('ignores a second OK click while the first action is pending', async () => {
     flush(() => setup())
-    const onAction = vi.fn(
+    const onAction = vi.fn<() => any>(
       () =>
         new Promise<void>(() => {
           // stays pending
@@ -700,7 +700,7 @@ describe('alertDialog', () => {
   })
 
   it('custom render receives options and shares action semantics, and dialogRender is the fallback', async () => {
-    const dialogRender = vi.fn((props: AlertDialogT.DialogRenderProps) => (
+    const dialogRender = vi.fn<(props: AlertDialogT.DialogRenderProps) => any>((props) => (
       <p data-testid="host-render">{props.options.title}</p>
     ))
     render(() => <AlertDialog dialogRender={dialogRender} />)
@@ -791,7 +791,7 @@ describe('alertDialog', () => {
         <AlertDialog />
       </Show>
     ))
-    const onClose = vi.fn()
+    const onClose = vi.fn<(...args: Array<any>) => void>()
     const result = AlertDialog.show({ title: 'Gone', onClose })
     await waitForTitle('Gone')
     flush(() => setMounted(false))
