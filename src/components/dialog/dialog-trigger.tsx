@@ -3,7 +3,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 
 import { useDialogContext } from './dialog-context'
@@ -26,7 +25,7 @@ import type { DialogT } from './dialog.types'
 export function DialogTrigger<T extends ValidComponent = 'button'>(
   props: DialogT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props as DialogT.TriggerProps, 'class', 'style')
+  const local = props as DialogT.TriggerProps
   const rest = omit(props as DialogT.TriggerProps, 'class', 'style')
   const dialog = useDialogContext()
   const {
