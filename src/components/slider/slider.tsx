@@ -3,6 +3,7 @@ import {
   children as resolveChildren,
   createMemo,
   For,
+  Repeat,
   merge,
   onSettled,
   Show,
@@ -189,7 +190,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
 
   const thumbCount = createMemo(() => slider.currentValues().length)
   const isMultiple = createMemo(() => thumbCount() > 1)
-  const thumbIndexes = createMemo(() => Array.from({ length: thumbCount() }, (_, index) => index))
   const child = resolveChildren(() => props.children as JSX.Element)
   const resolvedChildren = createMemo(() => {
     const value = child() as SliderT.Base<TValue>['children']
@@ -256,7 +256,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         </Show>
       </div>
 
-      <For each={thumbIndexes()}>
+      <Repeat count={thumbCount()}>
         {(thumbIndex) => {
           const thumbSlot = slotWith('thumb', {
             enforced: () => ({
@@ -350,7 +350,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             </div>
           )
         }}
-      </For>
+      </Repeat>
 
       {resolvedChildren()}
     </div>

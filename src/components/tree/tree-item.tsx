@@ -1,6 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import {
   For,
+  Repeat,
   Show,
   createMemo,
   createEffect,
@@ -371,9 +372,9 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         <div data-slot="tree-row" {...rowSlot}>
           <Show when={variants.indentGuide && props.item.level > 1}>
             <span data-slot="tree-guides" aria-hidden="true" class={TREE_GUIDES_CLASS}>
-              <For each={Array.from({ length: props.item.level - 1 })} keyed={false}>
+              <Repeat count={Math.max(0, props.item.level - 1)}>
                 {() => <span data-slot="tree-guide" {...guideSlot} />}
-              </For>
+              </Repeat>
             </span>
           </Show>
           {props.children}
