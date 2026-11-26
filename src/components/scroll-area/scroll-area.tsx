@@ -13,7 +13,7 @@ import {
 import { useRecipe } from '../../provider'
 import { EMPTY_AXIS_METRICS, createScrollMetrics } from '../../shared/scroll-metrics'
 import type { AxisMetrics } from '../../shared/scroll-metrics'
-import { callHandler, callRef, pick } from '../../shared/utils'
+import { callHandler, callRef } from '../../shared/utils'
 
 import {
   SCROLL_AREA_SCROLLBAR_CLASS,
@@ -108,32 +108,6 @@ function createReleaseDelay(delay: () => number) {
  * ```
  */
 export function ScrollArea(props: ScrollAreaProps): JSX.Element {
-  const local = pick(
-    props,
-    'ref',
-    'viewportRef',
-    'children',
-    'orientation',
-    'scrollbarMode',
-    'scrollbarWidth',
-    'fade',
-    'fadeSize',
-    'scrollThreshold',
-    'scrollHideDelay',
-    'onOverflowChange',
-    'onTopReached',
-    'onBottomReached',
-    'onLeftReached',
-    'onRightReached',
-    'onScroll',
-    'onPointerEnter',
-    'onPointerLeave',
-    'tabindex',
-    'class',
-    'style',
-    'classes',
-    'styles',
-  )
   const rest = omit(
     props,
     'ref',
@@ -162,7 +136,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   )
   const [viewport, setViewport] = createSignal<HTMLDivElement>()
   const [dragging, setDragging] = createSignal<ScrollAreaT.Axis>()
-  const hideDelay = () => local.scrollHideDelay ?? 600
+  const hideDelay = () => props.scrollHideDelay ?? 600
   const scrolling = createReleaseDelay(hideDelay)
   const hovering = createReleaseDelay(hideDelay)
   const metrics = createScrollMetrics(viewport, () => {
@@ -174,7 +148,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     slots: { root: rootSlot, viewport: viewportSlot, content: contentSlot, corner: cornerSlot },
     variants,
     slotWith,
-  } = useRecipe(scrollAreaRecipe, local, {
+  } = useRecipe(scrollAreaRecipe, props, {
     data: {
       root: scrollAreaDataAttributes.root(() => ({
         orientation: orientation(),
@@ -192,9 +166,9 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     own: {
       viewport: () => (fade() ? { style: SCROLL_AREA_SHADOW_STYLE } : undefined),
       root: () =>
-        local.fadeSize === undefined
+        props.fadeSize === undefined
           ? undefined
-          : { style: { '--scroll-area-shadow-size': `${Math.max(0, local.fadeSize)}px` } },
+          : { style: { '--scroll-area-shadow-size': `${Math.max(0, props.fadeSize)}px` } },
     },
     enforced: {
       root: () => {
@@ -224,7 +198,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
 
   const overflow = createMemo(
     (): ScrollAreaT.Overflow => {
-      const threshold = Math.max(0, local.scrollThreshold ?? 0)
+      const threshold = Math.max(0, props.scrollThreshold ?? 0)
       const edges = (axis: ScrollAreaT.Axis): ScrollAreaT.AxisOverflow => {
         const { extent, position } = axisMetrics(axis)
         // Scroll positions may be fractional while client and scroll sizes are integers.
@@ -259,7 +233,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   createEffect(
     overflow,
     (current, previous) => {
-      local.onOverflowChange?.(current)
+      props.onOverflowChange?.(current)
       if (!previous) {
         return
       }
@@ -271,19 +245,19 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
         const reachedEnd = previous[axis].end && !current[axis].end
         if (axis === 'y') {
           if (reachedStart) {
-            local.onTopReached?.()
+            props.onTopReached?.()
           }
           if (reachedEnd) {
-            local.onBottomReached?.()
+            props.onBottomReached?.()
           }
         } else {
           // `start`/`end` are logical: in RTL they sit at the right and left edges.
           const rtl = untrack(() => metrics().rtl)
           if (reachedStart) {
-            ;(rtl ? local.onRightReached : local.onLeftReached)?.()
+            ;(rtl ? props.onRightReached : props.onLeftReached)?.()
           }
           if (reachedEnd) {
-            ;(rtl ? local.onLeftReached : local.onRightReached)?.()
+            ;(rtl ? props.onLeftReached : props.onRightReached)?.()
           }
         }
       }
@@ -327,28 +301,28 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       data-slot="scroll-area"
       {...rootSlot}
       {...rest}
-      ref={(element) => callRef(() => local.ref, element)}
+      ref={(element) => callRef(() => props.ref, element)}
       onPointerEnter={(event) => {
         hovering.hold()
-        callHandler(event, local.onPointerEnter)
+        callHandler(event, props.onPointerEnter)
       }}
       onPointerLeave={(event) => {
         hovering.release()
-        callHandler(event, local.onPointerLeave)
+        callHandler(event, props.onPointerLeave)
       }}
     >
       <div
         data-slot="scroll-area-viewport"
         {...viewportSlot}
-        tabindex={local.tabindex ?? (canScroll() ? 0 : -1)}
+        tabindex={props.tabindex ?? (canScroll() ? 0 : -1)}
         ref={(element) => {
           setViewport(element)
-          callRef(() => local.viewportRef, element)
+          callRef(() => props.viewportRef, element)
         }}
-        onScroll={(event) => callHandler(event, local.onScroll)}
+        onScroll={(event) => callHandler(event, props.onScroll)}
       >
         <div data-slot="scroll-area-content" {...contentSlot}>
-          {local.children}
+          {props.children}
         </div>
       </div>
       <Show when={customScrollbar()}>
