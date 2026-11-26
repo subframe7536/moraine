@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { ButtonGroupProvider } from './button-group-context'
 import { ButtonGroupSeparator } from './button-group-separator'
@@ -27,18 +26,6 @@ import type { ButtonGroupProps } from './button-group.types'
  * ```
  */
 export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
-  const local = pick(
-    props,
-    'orientation',
-    'role',
-    'size',
-    'variant',
-    'tone',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  )
   const rest = omit(
     props,
     'orientation',
@@ -54,13 +41,13 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(buttonGroupRecipe, local)
+  } = useRecipe(buttonGroupRecipe, props)
 
   return (
     <ButtonGroupProvider
       value={{
         get size() {
-          return local.size ?? undefined
+          return props.size ?? undefined
         },
         get variant() {
           return variants.variant
@@ -72,11 +59,11 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
           return variants.orientation
         },
         get slotOverrides() {
-          return { classes: local.classes, styles: local.styles }
+          return { classes: props.classes, styles: props.styles }
         },
       }}
     >
-      <div role={local.role ?? 'group'} data-slot="button-group" {...rootSlot} {...rest} />
+      <div role={props.role ?? 'group'} data-slot="button-group" {...rootSlot} {...rest} />
     </ButtonGroupProvider>
   )
 }

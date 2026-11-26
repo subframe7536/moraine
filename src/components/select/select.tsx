@@ -3,7 +3,7 @@ import { createMemo, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
 import { useFieldContext } from '../field/field-context'
@@ -56,15 +56,13 @@ import type { SelectProps, SelectT } from './select.types'
 export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   props: SelectProps<T>,
 ): JSX.Element {
-  const local = pick(props, ...SINGLE_SELECT_LOCAL_PROP_KEYS)
-  const baseSelectProps = pick(props, ...SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS)
   const rootProps = omit(
     props,
     ...SINGLE_SELECT_LOCAL_PROP_KEYS,
     ...SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const messages = useMessages('select', defaultSelectMessages, () => local.translations)
+  const messages = useMessages('select', defaultSelectMessages, () => props.translations)
   const {
     slots,
     slots: {
@@ -78,16 +76,16 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
     variants,
   } = useRecipe(selectRecipe, props, {
     slot: 'control',
-    data: { trailing: selectDataAttributes.trailing({ loading: () => local.loading }) },
+    data: { trailing: selectDataAttributes.trailing({ loading: () => props.loading }) },
     context: () => ({ variants: { size: field?.size } }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(slots)
   const source = createMemo(
     (prev: ReturnType<typeof createSource<SelectT.NormalizedItem<T>>> | undefined) =>
-      createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
+      createSource(normalizeSelectEntries<T>(props.items ?? []), undefined, prev),
   )
-  const selection = createMemo(() => singleValueToSelection(local.value))
-  const defaultSelection = () => singleValueToSelection(local.defaultValue)
+  const selection = createMemo(() => singleValueToSelection(props.value))
+  const defaultSelection = () => singleValueToSelection(props.defaultValue)
 
   function Control(): JSX.Element {
     const state = useSelectContext<SelectT.NormalizedItem<T>>()
@@ -104,7 +102,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
         return
       }
       state.change([])
-      local.onClear?.()
+      props.onClear?.()
       state.focusOwner()?.focus()
     }
     return (
@@ -112,50 +110,50 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
         <BaseSelect.Control
           {...controlSlot}
           {...rootProps}
-          ref={(element) => callRef(() => local.ref, element)}
+          ref={(element) => callRef(() => props.ref, element)}
         >
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
-            aria-busy={local.loading ? 'true' : undefined}
+            aria-busy={props.loading ? 'true' : undefined}
             {...triggerSlot}
-            ref={(element) => callRef(() => local.triggerRef, element)}
+            ref={(element) => callRef(() => props.triggerRef, element)}
             onKeyDown={createSelectClearKeyDownHandler({
-              clearable: () => local.clearable,
+              clearable: () => props.clearable,
               canClear: hasValue,
               clear,
             })}
           >
-            <Show when={local.leading}>
+            <Show when={props.leading}>
               {(icon) => <Icon name={icon()} data-slot="select-leading" {...leadingSlot} />}
             </Show>
             <span data-slot="select-value" {...valueSlot}>
               {selectedItem()?.label ??
                 (hasValue()
                   ? String(state.value()[0])
-                  : (local.placeholder ?? messages().placeholder))}
+                  : (props.placeholder ?? messages().placeholder))}
             </span>
             <Icon
               data-slot="select-trailing"
               name={
-                local.loading
-                  ? (local.loadingIcon ?? 'icon-loading')
-                  : (local.trailing ?? 'icon-chevron-down')
+                props.loading
+                  ? (props.loadingIcon ?? 'icon-loading')
+                  : (props.trailing ?? 'icon-chevron-down')
               }
               {...trailingSlot}
             />
           </BaseSelect.Trigger>
-          <Show when={!local.loading && local.clearable && hasValue()}>
+          <Show when={!props.loading && props.clearable && hasValue()}>
             <ClearButton
               dataSlot="select-clear"
               ariaLabel={messages().clear}
               slot={clearSlot}
               disabled={state.locked()}
-              clearIcon={local.clearIcon}
+              clearIcon={props.clearIcon}
               onFocusOwner={() => state.focusOwner()?.focus()}
               onClear={clear}
             />
           </Show>
         </BaseSelect.Control>
-        <DefaultSelectContent {...local} view={source()} slot={(slot) => slots[slot]} />
+        <DefaultSelectContent {...props} view={source()} slot={(slot) => slots[slot]} />
       </>
     )
   }
@@ -163,13 +161,36 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   return (
     <BaseSelectRoot<SelectT.NormalizedItem<T>>
       slotOwner="select"
-      {...baseSelectProps}
+      getItemLabel={props.getItemLabel}
+      id={props.id}
+      name={props.name}
+      form={props.form}
+      required={props.required}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      open={props.open}
+      defaultOpen={props.defaultOpen}
+      onOpenChange={props.onOpenChange}
+      onExitComplete={props.onExitComplete}
+      preventScroll={props.preventScroll}
+      isItemDisabled={props.isItemDisabled}
+      placement={props.placement}
+      align={props.align}
+      gutter={props.gutter}
+      shift={props.shift}
+      flip={props.flip}
+      slide={props.slide}
+      overflowPadding={props.overflowPadding}
+      closeOnEscape={props.closeOnEscape}
+      closeOnOutsideClick={props.closeOnOutsideClick}
+      onClosePrevented={props.onClosePrevented}
+      closeOnSelect={props.closeOnSelect}
       items={source().items}
       serializeValue={(value) => serializeSourceValue(source(), value)}
       value={selection()}
       defaultValue={defaultSelection()}
-      onValueChange={(values) => local.onValueChange?.(values[0] ?? null)}
-      onReset={local.onReset}
+      onValueChange={(values) => props.onValueChange?.(values[0] ?? null)}
+      onReset={props.onReset}
       multiple={false}
       size={variants.size ?? undefined}
       classes={baseSelectStyles.classes()}

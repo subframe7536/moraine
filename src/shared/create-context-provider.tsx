@@ -1,5 +1,6 @@
 import type { FlowComponent } from 'solid-js'
 import { createContext, useContext } from 'solid-js'
+
 /**
  * Creates a typed context provider and hook.
  *
@@ -10,21 +11,29 @@ export function createContextProvider<T>(
   name: string,
   defaultValue?: T,
 ): readonly [FlowComponent<{ value: T }>, () => T] {
-  // `useContext` throws its own error when the context has no default; `null`
-  // marks "no provider" so the hook's custom message wins.
-  const context = createContext<T | null>(defaultValue === undefined ? null : defaultValue, {
-    name,
-  })
+  const context =
+    defaultValue !== undefined
+      ? createContext<T>(defaultValue, { name })
+      : createContext<T>(undefined, { name })
 
   const useContextHook =
     defaultValue !== undefined
-      ? () => useContext(context) ?? defaultValue
+      ? () => useContext(context)
       : () => {
-          const ctx = useContext(context)
-          if (ctx === null) {
-            throw new Error(`use${name}Context must be used within <${name}Provider />`)
+          try {
+            return useContext(context)
+          } catch (error) {
+            if (
+              error instanceof Error &&
+              (error.constructor.name === 'ContextNotFoundError' ||
+                error.constructor.name === 'NoOwnerError')
+            ) {
+              throw new Error(`use${name}Context must be used within <${name}Provider />`, {
+                cause: error,
+              })
+            }
+            throw error
           }
-          return ctx
         }
 
   return [context, useContextHook] as const

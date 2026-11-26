@@ -4,7 +4,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { CardAction } from './card-action'
 import { CardBody } from './card-body'
@@ -36,14 +35,13 @@ import type { CardT } from './card.types'
  * ```
  */
 export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): JSX.Element {
-  const local = pick(props, 'as', 'variant', 'size', 'classes', 'styles', 'class', 'style')
   const rest = omit(props, 'as', 'variant', 'size', 'classes', 'styles', 'class', 'style')
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(cardRecipe, local)
+  } = useRecipe(cardRecipe, props)
 
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
 
   return (
     <CardProvider
@@ -55,7 +53,7 @@ export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): J
           return variants.size
         },
         get slotOverrides() {
-          return { classes: local.classes, styles: local.styles }
+          return { classes: props.classes, styles: props.styles }
         },
       }}
     >

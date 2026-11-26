@@ -4,7 +4,6 @@ import { createEffect, createMemo, createSignal, Show, omit } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { formatLocaleNumber } from '../../provider/locale/number'
-import { pick } from '../../shared/utils'
 import { useFieldContext } from '../field/field-context'
 import { Slider } from '../slider'
 import type { SliderT } from '../slider'
@@ -48,18 +47,6 @@ function countDecimals(value: number): number {
  * ```
  */
 export function BoldSlider(props: BoldSliderProps): JSX.Element {
-  const local = pick(
-    props,
-    'label',
-    'valueLabel',
-    'size',
-    'variant',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'aria-label',
-  )
   const rest = omit(
     props,
     'label',
@@ -91,7 +78,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     variants,
     slotWith,
     overrides,
-  } = useRecipe(boldSliderRecipe, local, {
+  } = useRecipe(boldSliderRecipe, props, {
     context: () => ({ variants: { size: themeField?.size } }),
     enforced: {
       track: () => ({
@@ -106,8 +93,8 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   })
 
   const formatValue = (value: number, fraction: number): string => {
-    if (typeof local.valueLabel === 'function') {
-      return local.valueLabel({ percent: fraction * 100, value, max: props.max ?? 100 })
+    if (typeof props.valueLabel === 'function') {
+      return props.valueLabel({ percent: fraction * 100, value, max: props.max ?? 100 })
     }
     const step = props.step
     const effectiveStep = step === undefined ? 1 : step > 0 ? step : undefined
@@ -176,7 +163,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
         data: boldSliderDataAttributes.value({ fill: () => textProps.fill }),
       })
       // Each text layer owns its label instance; a JSX node cannot be inserted twice.
-      const label = createMemo(() => local.label)
+      const label = createMemo(() => props.label)
 
       return (
         <>
@@ -185,7 +172,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
               {label()}
             </span>
           </Show>
-          <Show when={local.valueLabel ?? true}>
+          <Show when={props.valueLabel ?? true}>
             <span data-slot="bold-slider-value" {...valueSlot}>
               {formatted()}
             </span>
@@ -222,7 +209,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       orientation="horizontal"
       size={variants.size}
       aria-label={
-        local['aria-label'] ?? (typeof local.label === 'string' ? local.label : undefined)
+        props['aria-label'] ?? (typeof props.label === 'string' ? props.label : undefined)
       }
       {...overrides({
         root: 'root',

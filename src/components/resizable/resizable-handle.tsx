@@ -9,7 +9,7 @@ import {
 } from 'solid-js'
 
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, pick } from '../../shared/utils'
+import { callHandler, callRef } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
 import { resolveDirection } from '../shared/overlay/direction'
 import { createSplitterHandle } from '../shared/splitter'
@@ -55,20 +55,6 @@ function callHandleEvent<E extends Event>(
  */
 export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
   const ctx = useResizableContext()
-  const local = pick(
-    props,
-    'intersection',
-    'children',
-    'class',
-    'style',
-    'ref',
-    'onMouseEnter',
-    'onMouseLeave',
-    'onFocus',
-    'onBlur',
-    'onKeyDown',
-    'onPointerDown',
-  )
   const rest = omit(
     props,
     'intersection',
@@ -85,7 +71,7 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
   )
 
   const [element, setElement] = createSignal<HTMLElement>()
-  const content = resolveChildren(() => local.children as JSX.Element)
+  const content = resolveChildren(() => props.children as JSX.Element)
 
   const registration: ResizableHandleRegistration = { element }
   const item: ResizableItem = { kind: 'handle', seq: 0, handle: registration }
@@ -145,7 +131,7 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
   const bindings = createSplitterHandle({
     orientation: ctx.orientation,
     disabled: handleDisabled,
-    intersection: () => local.intersection,
+    intersection: () => props.intersection,
     onDrag: (deltaPx, altKey) => {
       const rtl = ctx.orientation() === 'horizontal' && resolveDirection(element()) === 'rtl'
       ctx.dragHandle(precedingIndex(), rtl ? -deltaPx : deltaPx, altKey)
@@ -208,7 +194,7 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
   const {
     slots: { handle: handleSlot, grip: gripSlot },
     slotWith,
-  } = useRecipe(resizableRecipe, local, {
+  } = useRecipe(resizableRecipe, props, {
     slot: 'handle',
     context: () => ({ variants: { orientation: ctx.orientation() }, ...ctx.slotOverrides }),
     data: {
@@ -249,14 +235,14 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
       ref={(node) => {
         setElement(node)
         bindings.setElement(node)
-        callRef(() => local.ref, node)
+        callRef(() => props.ref, node)
       }}
-      onMouseEnter={(event) => callHandleEvent(event, local.onMouseEnter, bindings.onMouseEnter)}
-      onMouseLeave={(event) => callHandleEvent(event, local.onMouseLeave, bindings.onMouseLeave)}
-      onFocus={(event) => callHandleEvent(event, local.onFocus, bindings.onFocus)}
-      onBlur={(event) => callHandleEvent(event, local.onBlur, bindings.onBlur)}
-      onKeyDown={(event) => callHandleEvent(event, local.onKeyDown, bindings.onKeyDown)}
-      onPointerDown={(event) => callHandleEvent(event, local.onPointerDown, bindings.onPointerDown)}
+      onMouseEnter={(event) => callHandleEvent(event, props.onMouseEnter, bindings.onMouseEnter)}
+      onMouseLeave={(event) => callHandleEvent(event, props.onMouseLeave, bindings.onMouseLeave)}
+      onFocus={(event) => callHandleEvent(event, props.onFocus, bindings.onFocus)}
+      onBlur={(event) => callHandleEvent(event, props.onBlur, bindings.onBlur)}
+      onKeyDown={(event) => callHandleEvent(event, props.onKeyDown, bindings.onKeyDown)}
+      onPointerDown={(event) => callHandleEvent(event, props.onPointerDown, bindings.onPointerDown)}
     >
       <Show when={bindings.startIntersectionVisible()}>
         <div

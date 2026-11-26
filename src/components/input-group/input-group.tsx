@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/form/is-interactive-target'
@@ -33,18 +33,6 @@ import type { InputGroupProps } from './input-group.types'
  * ```
  */
 export function InputGroup(props: InputGroupProps): JSX.Element {
-  const local = pick(
-    props,
-    'children',
-    'size',
-    'variant',
-    'orientation',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'onPointerDown',
-  )
   const rest = omit(
     props,
     'children',
@@ -61,7 +49,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
   const {
     slots: { root: rootSlot, frame: frameSlot },
     variants,
-  } = useRecipe(inputGroupRecipe, local, {
+  } = useRecipe(inputGroupRecipe, props, {
     data: {
       root: inputGroupDataAttributes.root(() => ({
         inputGroup: true,
@@ -72,7 +60,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
   })
 
   const onPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
-    callHandler(event, local.onPointerDown)
+    callHandler(event, props.onPointerDown)
     if (
       event.defaultPrevented ||
       event.button !== 0 ||
@@ -105,7 +93,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
           return variants.orientation
         },
         get slotOverrides() {
-          return { classes: local.classes, styles: local.styles }
+          return { classes: props.classes, styles: props.styles }
         },
       }}
     >
@@ -116,7 +104,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
         {...rest}
         onPointerDown={onPointerDown}
       >
-        {local.children}
+        {props.children}
         <span aria-hidden="true" data-slot="input-group-frame" {...frameSlot} />
       </div>
     </InputGroupProvider>

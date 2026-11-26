@@ -8,7 +8,7 @@ import type { KeyBindingOptions } from '../../shared/keyboard'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import { pick, publishElement } from '../../shared/utils'
+import { publishElement } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 import { focusWithoutScrolling, getFocusableElements } from '../shared/overlay/focus'
 import { mergePopperElementProps } from '../shared/overlay/popper'
@@ -51,11 +51,10 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   if (!item) {
     throw new Error('NavigationMenu.Content must be used within NavigationMenu.Item')
   }
-  const local = pick(props, 'class', 'style')
   const rest = omit(props, 'class', 'style')
   const {
     slots: { content: contentSlot },
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     slot: 'content',
     varsSlot: 'content',
     data: {

@@ -4,7 +4,6 @@ import { untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import type { SlotClassValue } from '../../theme/style-types'
 
 import { useEmptyContext } from './empty-context'
@@ -27,12 +26,11 @@ export function createEmptyPart<S extends EmptyPartSlot>(
   return function EmptyPartComponent<T extends ValidComponent>(
     props: EmptyPartProps<T>,
   ): JSX.Element {
-    const local = pick(
-      props as { as?: ValidComponent; class?: SlotClassValue; style?: JSX.CSSProperties },
-      'as',
-      'class',
-      'style',
-    )
+    const local = props as {
+      as?: ValidComponent
+      class?: SlotClassValue
+      style?: JSX.CSSProperties
+    }
     const rest = omit(
       props as { as?: ValidComponent; class?: SlotClassValue; style?: JSX.CSSProperties },
       'as',
@@ -56,17 +54,16 @@ export function createEmptyPart<S extends EmptyPartSlot>(
 export function EmptyPart(
   props: EmptyPartProps & { slot: EmptyPartSlot; fallback: ValidComponent },
 ): JSX.Element {
-  const local = pick(props, 'slot', 'fallback', 'as', 'class', 'style')
   const rest = omit(props, 'slot', 'fallback', 'as', 'class', 'style')
   const context = useEmptyContext()
-  const slot = untrack(() => local.slot)
+  const slot = untrack(() => props.slot)
   const {
     slots: { [slot]: partSlot },
-  } = useRecipe(emptyRecipe, local, {
+  } = useRecipe(emptyRecipe, props, {
     slot,
     context: () => ({ variants: { size: context.size }, ...context.slotOverrides }),
   })
-  const Root = dynamic<ValidComponent>(() => local.as ?? local.fallback)
+  const Root = dynamic<ValidComponent>(() => props.as ?? props.fallback)
 
   return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
 }

@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { Show, createMemo, dynamicComponent, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { iconRecipe } from './icon.recipe'
 import type { IconProps } from './icon.types'
@@ -25,14 +24,13 @@ import type { IconProps } from './icon.types'
  * ```
  */
 export function Icon(props: IconProps): JSX.Element {
-  const local = pick(props, 'name', 'class', 'style', 'classes', 'styles', 'aria-hidden', 'role')
   const rest = omit(props, 'name', 'class', 'style', 'classes', 'styles', 'aria-hidden', 'role')
-  const name = createMemo(() => local.name)
+  const name = createMemo(() => props.name)
   const isString = createMemo(() => typeof name() === 'string')
 
   const {
     slots: { root: rootSlot },
-  } = useRecipe(iconRecipe, local, {
+  } = useRecipe(iconRecipe, props, {
     context: () => ({ variants: { isMask: isString() } }),
     own: { root: () => ({ class: isString() ? (name() as string) : undefined }) },
   })
@@ -41,8 +39,8 @@ export function Icon(props: IconProps): JSX.Element {
     const labelled = Boolean(rest['aria-label'] || rest['aria-labelledby'])
 
     return {
-      'aria-hidden': local['aria-hidden'] ?? (labelled ? undefined : 'true'),
-      role: local.role ?? (labelled ? 'img' : undefined),
+      'aria-hidden': props['aria-hidden'] ?? (labelled ? undefined : 'true'),
+      role: props.role ?? (labelled ? 'img' : undefined),
     }
   }
 

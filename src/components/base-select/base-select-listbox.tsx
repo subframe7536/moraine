@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import { createEffect, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { sameValue } from '../shared/form/select/collection'
 import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 
@@ -30,11 +30,10 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element {
   const state = useSelectContext()
-  const local = pick(props, 'class', 'style', 'ref')
   const rest = omit(props, 'class', 'style', 'ref')
   const {
     slots: { listbox: listboxSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'listbox',
     context: state.recipeContext,
   })
@@ -68,7 +67,7 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
       tabindex={-1}
       ref={(element) => {
         setListbox(element)
-        callRef(() => local.ref, element)
+        callRef(() => props.ref, element)
       }}
     />
   )

@@ -6,7 +6,6 @@ import { omit } from 'solid-js'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { pick } from '../../shared/utils'
 
 import { usePopoverContext } from './popover-context'
 import type { PopoverT } from './popover.types'
@@ -31,17 +30,16 @@ export function PopoverClose<T extends ValidComponent = 'button'>(
   props: PopoverT.CloseProps<T>,
 ): JSX.Element {
   const refKey = 'ref' as keyof PopoverT.CloseProps<T>
-  const local = pick(props, 'as', 'disabled', refKey)
   const rest = omit(props, 'as', 'disabled', refKey)
   const behavior = usePopoverContext()
-  const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
+  const tag: Accessor<ValidComponent> = () => props.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
-    ref: () => (local as { ref?: (el: HTMLElement) => void }).ref,
+    ref: () => (props as { ref?: (el: HTMLElement) => void }).ref,
   })
   const interaction = useButtonInteraction(
     {
-      disabled: () => Boolean(local.disabled),
+      disabled: () => Boolean(props.disabled),
       disabledForComponent: true,
       element: root.element,
       onPress: () => behavior.popper.setOpen(false),

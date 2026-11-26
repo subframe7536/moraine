@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import { createSignal, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callRef, pick, publishElement } from '../../shared/utils'
+import { callRef, publishElement } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -31,11 +31,10 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
   const state = useSelectContext()
-  const local = pick(props, 'class', 'style', 'ref')
   const rest = omit(props, 'class', 'style', 'ref')
   const {
     slots: { control: controlSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'control',
     data: {
       control: baseSelectDataAttributes.control({
@@ -63,7 +62,7 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
       {...rest}
       ref={(element) => {
         setElement(element)
-        callRef(() => local.ref, element)
+        callRef(() => props.ref, element)
       }}
     />
   )

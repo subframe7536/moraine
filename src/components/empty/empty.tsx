@@ -4,7 +4,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { EmptyActions } from './empty-actions'
 import { EmptyProvider } from './empty-context'
@@ -36,14 +35,13 @@ import type { EmptyT } from './empty.types'
  * ```
  */
 export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>): JSX.Element {
-  const local = pick(props, 'as', 'size', 'classes', 'styles', 'class', 'style')
   const rest = omit(props, 'as', 'size', 'classes', 'styles', 'class', 'style')
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(emptyRecipe, local)
+  } = useRecipe(emptyRecipe, props)
 
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
 
   return (
     <EmptyProvider
@@ -52,7 +50,7 @@ export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>):
           return variants.size
         },
         get slotOverrides() {
-          return { classes: local.classes, styles: local.styles }
+          return { classes: props.classes, styles: props.styles }
         },
       }}
     >

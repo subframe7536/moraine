@@ -4,7 +4,6 @@ import { untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import type { SlotClassValue } from '../../theme/style-types'
 
 import { useCardContext } from './card-context'
@@ -24,12 +23,11 @@ export function createCardPart<S extends CardPartSlot>(slot: S, fallback: ValidC
   return function CardPartComponent<T extends ValidComponent>(
     props: CardPartProps<T>,
   ): JSX.Element {
-    const local = pick(
-      props as { as?: ValidComponent; class?: SlotClassValue; style?: JSX.CSSProperties },
-      'as',
-      'class',
-      'style',
-    )
+    const local = props as {
+      as?: ValidComponent
+      class?: SlotClassValue
+      style?: JSX.CSSProperties
+    }
     const rest = omit(
       props as { as?: ValidComponent; class?: SlotClassValue; style?: JSX.CSSProperties },
       'as',
@@ -56,20 +54,19 @@ export function createCardPart<S extends CardPartSlot>(slot: S, fallback: ValidC
 export function CardPart(
   props: CardPartProps & { slot: CardPartSlot; fallback: ValidComponent },
 ): JSX.Element {
-  const local = pick(props, 'slot', 'fallback', 'as', 'class', 'style')
   const rest = omit(props, 'slot', 'fallback', 'as', 'class', 'style')
   const context = useCardContext()
-  const slot = untrack(() => local.slot)
+  const slot = untrack(() => props.slot)
   const {
     slots: { [slot]: partSlot },
-  } = useRecipe(cardRecipe, local, {
+  } = useRecipe(cardRecipe, props, {
     slot,
     context: () => ({
       variants: { variant: context.variant, size: context.size },
       ...context.slotOverrides,
     }),
   })
-  const Root = dynamic<ValidComponent>(() => local.as ?? local.fallback)
+  const Root = dynamic<ValidComponent>(() => props.as ?? props.fallback)
 
   return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
 }

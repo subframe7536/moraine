@@ -10,7 +10,7 @@ import { omit } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import type { FieldProps } from '../field'
 import { Field as FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form/form-reset-scheduler'
@@ -34,17 +34,6 @@ function hasErrorMessage(error: unknown): boolean {
  * focuses the first invalid field, tracks `isSubmitting`, and records handler errors on the store.
  */
 function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JSX.Element {
-  const local = pick(
-    props,
-    'class',
-    'style',
-    'classes',
-    'styles',
-    'of',
-    'onSubmit',
-    'onReset',
-    'translations',
-  )
   const formProps = omit(
     props,
     'class',
@@ -58,23 +47,23 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
   )
   const {
     slots: { root: rootSlot },
-  } = useRecipe(formRecipe, local, {
-    data: { root: formDataAttributes.root({ submitting: () => local.of.isSubmitting }) },
+  } = useRecipe(formRecipe, props, {
+    data: { root: formDataAttributes.root({ submitting: () => props.of.isSubmitting }) },
   })
-  const messages = useMessages('form', defaultFormMessages, () => local.translations)
+  const messages = useMessages('form', defaultFormMessages, () => props.translations)
 
   // Moraine also accepts root collection schemas, which Formisch's component typings exclude.
-  const formStore = () => local.of as FormStore
+  const formStore = () => props.of as FormStore
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
-    const form = local.of
-    callHandler(event, local.onReset)
+    const form = props.of
+    callHandler(event, props.onReset)
     scheduleFormReset(event, () => resetForm(form), 'form')
   }
 
   const onSubmit = async (output: unknown, event: SubmitEvent): Promise<void> => {
     try {
-      await local.onSubmit?.(output, event)
+      await props.onSubmit?.(output, event)
     } catch (error) {
       // Formisch stores `error.message`; give message-less errors a localized fallback.
       throw hasErrorMessage(error) ? error : new Error(messages().unknownError)

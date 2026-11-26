@@ -4,7 +4,6 @@ import { onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useDialogContent, useDialogContext } from './dialog-context'
 import { dialogRecipe } from './dialog.recipe'
@@ -13,7 +12,6 @@ function createDialogHeader(headerKind: 'explicit' | 'shorthand') {
   return function DialogHeader<T extends ValidComponent = 'div'>(
     props: DialogT.HeaderProps<T>,
   ): JSX.Element {
-    const local = pick(props, 'as', 'class', 'style')
     const rest = omit(props, 'as', 'class', 'style')
     const dialog = useDialogContext()
     const content = useDialogContent()
@@ -21,11 +19,11 @@ function createDialogHeader(headerKind: 'explicit' | 'shorthand') {
     onCleanup(unregister)
     const {
       slots: { header: headerSlot },
-    } = useRecipe(dialogRecipe, local, {
+    } = useRecipe(dialogRecipe, props, {
       slot: 'header',
       context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
     })
-    const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+    const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
     return <Root data-slot="dialog-header" {...headerSlot} {...(rest as Record<string, unknown>)} />
   }
 }

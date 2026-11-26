@@ -4,7 +4,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useDialogContent, useDialogContext } from './dialog-context'
 import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
@@ -28,13 +27,12 @@ import type { DialogT } from './dialog.types'
 export function DialogBody<T extends ValidComponent = 'div'>(
   props: DialogT.BodyProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style')
   const rest = omit(props, 'as', 'class', 'style')
   const dialog = useDialogContext()
   const content = useDialogContent()
   const {
     slots: { body: bodySlot },
-  } = useRecipe(dialogRecipe, local, {
+  } = useRecipe(dialogRecipe, props, {
     slot: 'body',
     data: {
       body: dialogDataAttributes.body({
@@ -45,6 +43,6 @@ export function DialogBody<T extends ValidComponent = 'div'>(
     },
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
   return <Root data-slot="dialog-body" {...bodySlot} {...(rest as Record<string, unknown>)} />
 }

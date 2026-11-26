@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { Button } from '../button'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 
@@ -41,27 +41,10 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
   props: ToggleButtonProps<T>,
 ): JSX.Element {
   const group = useButtonGroupContext()
-  const local = pick(
-    props as ToggleButtonProps<T> & {
-      ref?: unknown
-      onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
-    },
-    'as',
-    'pressed',
-    'defaultPressed',
-    'onPressedChange',
-    'variant',
-    'activeVariant',
-    'tone',
-    'activeTone',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'onClick',
-    'children',
-  )
+  const local = props as ToggleButtonProps<T> & {
+    ref?: unknown
+    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+  }
   const rest = omit(
     props as ToggleButtonProps<T> & {
       ref?: unknown
@@ -109,7 +92,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
     defaultValue: () => local.defaultPressed ?? false,
     onChange: (next) => local.onPressedChange?.(next),
   })
-  const child = resolveChildren(() => local.children)
+  const child = resolveChildren(() => local.children as JSX.Element)
   const buttonChildren = createMemo(() => {
     const value = child() as ToggleButtonT.Base['children']
     if (typeof value !== 'function') {
@@ -140,7 +123,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- Button renders the host; presentation is forwarded through overrides, so there is no slot binding to carry data.
       {...toggleButtonDataAttributes.root({ pressed })}
       {...(rest as Record<string, unknown>)}
-      as={local.as}
+      as={local.as as ValidComponent}
       aria-pressed={pressed() ? 'true' : 'false'}
       variant={pressed() ? variants.activeVariant : variants.variant}
       tone={pressed() ? variants.activeTone : variants.tone}

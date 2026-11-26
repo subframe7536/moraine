@@ -4,7 +4,6 @@ import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
@@ -32,7 +31,7 @@ import type { TreeT } from './tree.types'
 export function TreeItemLabel<T extends ValidComponent = 'span'>(
   props: TreeT.ItemLabelProps<T>,
 ): JSX.Element {
-  const local = pick(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
+  const local = props as TreeT.ItemLabelProps
   const rest = omit(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
   const itemContext = requireTreeItemContext()
   const context = useTreeContext()

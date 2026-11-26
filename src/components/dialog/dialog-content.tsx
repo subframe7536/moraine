@@ -17,7 +17,6 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -62,17 +61,7 @@ import type { DialogT } from './dialog.types'
 export function DialogContent<T extends ValidComponent = 'div'>(
   props: DialogT.ContentProps<T>,
 ): JSX.Element {
-  const local = pick(
-    props as DialogT.ContentProps<T> & { ref?: unknown; dir?: unknown },
-    'as',
-    'ref',
-    'title',
-    'description',
-    'children',
-    'class',
-    'style',
-    'dir',
-  )
+  const local = props as DialogT.ContentProps<T> & { ref?: unknown; dir?: unknown }
   const rest = omit(
     props as DialogT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
@@ -157,7 +146,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
     const contentShorthand = createShorthandContent(local)
-    const child = resolveChildren(() => local.children)
+    const child = resolveChildren(() => local.children as JSX.Element)
     const explicitChildren = createMemo(() =>
       renderWithProps(child(), {
         close: () => family.updateOpen(false),

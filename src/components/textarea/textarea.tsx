@@ -3,7 +3,7 @@ import { createEffect, merge, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
-import { callHandler, callRef, createId, pick } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
@@ -56,38 +56,6 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
 export function Textarea<
   TModifiers extends InputModifiers | undefined = InputModifiers | undefined,
 >(props: TextareaProps<TModifiers>): JSX.Element {
-  const local = pick(
-    props,
-    'ref',
-    'id',
-    'name',
-    'value',
-    'defaultValue',
-    'required',
-    'readOnly',
-    'disabled',
-    'size',
-    'variant',
-    'autoComplete',
-    'autoFocus',
-    'autoFocusDelay',
-    'autoResize',
-    'autoResizeDelay',
-    'rows',
-    'maxRows',
-    'modifiers',
-    'onValueChange',
-    'onChange',
-    'onInput',
-    'onBlur',
-    'onFocus',
-    'onCompositionStart',
-    'onCompositionEnd',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  )
   const rest = omit(
     props,
     'ref',
@@ -124,7 +92,7 @@ export function Textarea<
   const group = useInputGroupContext()
   const {
     slots: { root: rootSlot },
-  } = useRecipe(textareaRecipe, local, {
+  } = useRecipe(textareaRecipe, props, {
     data: {
       root: textareaDataAttributes.root(() => ({
         invalid: field.invalid,
@@ -153,7 +121,7 @@ export function Textarea<
       autoResize: false,
     },
 
-    local,
+    props,
   )
   const modifiers = () => merged.modifiers
   const generatedId = createId(() => merged.id, 'textarea')
@@ -356,7 +324,7 @@ export function Textarea<
       ref={(element) => {
         textareaEl = element
         field.setControlRef(element)
-        callRef(() => local.ref, element)
+        callRef(() => props.ref, element)
       }}
       onInput={onInput}
       onChange={onChange}

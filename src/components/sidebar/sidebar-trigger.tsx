@@ -5,7 +5,6 @@ import { omit } from 'solid-js'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { pick } from '../../shared/utils'
 
 import { useSidebarContext } from './sidebar-context'
 import { sidebarDataAttributes } from './sidebar.recipe'
@@ -34,12 +33,11 @@ import type { SidebarT } from './sidebar.types'
 export function SidebarTrigger<T extends ValidComponent = 'button'>(
   props: SidebarT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'disabled', 'ref')
   const rest = omit(props, 'as', 'disabled', 'ref')
   const context = useSidebarContext()
-  const tag = () => local.as ?? 'button'
-  const root = createPolymorphicRoot({ tag, ref: () => local.ref })
-  const disabled = () => Boolean(local.disabled)
+  const tag = () => props.as ?? 'button'
+  const root = createPolymorphicRoot({ tag, ref: () => props.ref })
+  const disabled = () => Boolean(props.disabled)
   const defaultAriaControls = () =>
     context.mobile() && !context.open() ? undefined : context.panelId()
 

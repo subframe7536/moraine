@@ -6,7 +6,7 @@ import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createScrollMetrics } from '../../shared/scroll-metrics'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { listRecipe } from './list.recipe'
@@ -37,22 +37,7 @@ import type { ListProps } from './list.types'
 export function List<TItem, T extends ValidComponent = 'ul'>(
   props: ListProps<TItem, T>,
 ): JSX.Element {
-  const local = pick(
-    props as ListProps<TItem, T> & { ref?: unknown },
-    'as',
-    'items',
-    'itemRender',
-    'virtualizer',
-    'emptyRender',
-    'scrollThreshold',
-    'onTopReached',
-    'onBottomReached',
-    'ref',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  )
+  const local = props as ListProps<TItem, T> & { ref?: unknown }
   const rest = omit(
     props as ListProps<TItem, T> & { ref?: unknown },
     'as',

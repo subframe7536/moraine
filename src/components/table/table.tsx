@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { TableBody } from './table-body'
 import { TableCaption } from './table-caption'
@@ -45,20 +44,6 @@ import type { TableT } from './table.types'
  * ```
  */
 export function Table(props: TableT.Props): JSX.Element {
-  const local = pick(
-    props,
-    'size',
-    'striped',
-    'highlightOnHover',
-    'border',
-    'containerRef',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'ref',
-    'children',
-  )
   const rest = omit(
     props,
     'size',
@@ -76,13 +61,13 @@ export function Table(props: TableT.Props): JSX.Element {
   const {
     slots: { container: containerSlot, root: rootSlot },
     variants,
-  } = useRecipe(tableRecipe, local)
+  } = useRecipe(tableRecipe, props)
 
   return (
-    <TableProvider value={{ variants, slotOverrides: pickSlotOverrides(local) }}>
-      <div ref={local.containerRef} data-slot="table-container" {...containerSlot}>
-        <table data-slot="table" {...rootSlot} {...rest} ref={local.ref}>
-          {local.children}
+    <TableProvider value={{ variants, slotOverrides: pickSlotOverrides(props) }}>
+      <div ref={props.containerRef} data-slot="table-container" {...containerSlot}>
+        <table data-slot="table" {...rootSlot} {...rest} ref={props.ref}>
+          {props.children}
         </table>
       </div>
     </TableProvider>

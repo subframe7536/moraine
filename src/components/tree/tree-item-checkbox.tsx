@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 import { CheckControl } from '../shared/check-control/check-control'
 
 import { requireTreeItemContext, useTreeContext } from './tree-context'
@@ -35,13 +34,12 @@ import type { TreeT } from './tree.types'
  * ```
  */
 export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Element {
-  const local = pick(props, 'checkedIcon', 'indeterminateIcon', 'class', 'style')
   const rest = omit(props, 'checkedIcon', 'indeterminateIcon', 'class', 'style')
   const context = useTreeContext()
   const itemContext = requireTreeItemContext()
   const {
     slots: { checkbox: checkboxSlot },
-  } = useRecipe(treeRecipe, local, {
+  } = useRecipe(treeRecipe, props, {
     slot: 'checkbox',
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
@@ -60,8 +58,8 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
             : itemContext.item.checkedState === 'checked'
         }
         disabled={itemContext.item.disabled}
-        checkedIcon={local.checkedIcon}
-        indeterminateIcon={local.indeterminateIcon}
+        checkedIcon={props.checkedIcon}
+        indeterminateIcon={props.indeterminateIcon}
         onCheckedChange={(checked) => context.state.setChecked(itemContext.item.key, checked)}
       />
     </Show>

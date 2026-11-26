@@ -7,7 +7,7 @@ import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasContent } from '../../shared/jsx-content'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId, pick } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
@@ -46,38 +46,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
     ref?: Ref<HTMLDivElement>
   }
-  const local = pick(
-    props as RootProps,
-    'ref',
-    'inputRef',
-    'id',
-    'name',
-    'form',
-    'disabled',
-    'required',
-    'readOnly',
-    'value',
-    'checked',
-    'defaultChecked',
-    'trueValue',
-    'falseValue',
-    'loading',
-    'loadingIcon',
-    'checkedIcon',
-    'uncheckedIcon',
-    'label',
-    'description',
-    'onCheckedChange',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'onClick',
-    'onFocus',
-    'onBlur',
-    'tabindex',
-  )
+  const local = props as RootProps
   const rest = omit(
     props as RootProps,
     'ref',

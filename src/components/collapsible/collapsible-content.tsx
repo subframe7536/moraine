@@ -4,7 +4,7 @@ import { createSignal, Show, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
 import {
@@ -33,7 +33,7 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
-  const local = pick(props as CollapsibleT.ContentProps, 'as', 'class', 'style', 'ref')
+  const local = props as CollapsibleT.ContentProps
   const rest = omit(props as CollapsibleT.ContentProps, 'as', 'class', 'style', 'ref')
   const context = useCollapsibleContext()
   if (!context) {

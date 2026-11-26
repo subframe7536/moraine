@@ -8,7 +8,7 @@ import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -50,19 +50,6 @@ export function BaseSelectTrigger<
     onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
     ref?: HTMLElement | ((el: HTMLElement) => void)
   }
-  const local = pick(
-    typedProps,
-    'as',
-    'children',
-    'class',
-    'style',
-    'disabled',
-    'onPointerDown',
-    'onKeyDown',
-    'onFocus',
-    'onBlur',
-    'ref',
-  )
   const rest = omit(
     typedProps,
     'as',
@@ -78,14 +65,14 @@ export function BaseSelectTrigger<
   )
   const {
     slots: { trigger: triggerSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, typedProps, {
     slot: 'trigger',
     data: {
       trigger: baseSelectDataAttributes.trigger({
         invalid: state.invalid,
         expanded: state.open,
         closed: () => !state.open(),
-        disabled: () => Boolean(state.disabled() || local.disabled),
+        disabled: () => Boolean(state.disabled() || typedProps.disabled),
       }),
     },
     context: state.recipeContext,
@@ -104,12 +91,12 @@ export function BaseSelectTrigger<
       return state.readOnly()
     },
   }
-  const child = resolveChildren(() => local.children)
+  const child = resolveChildren(() => typedProps.children as JSX.Element)
   const resolvedChildren = createMemo(() => renderWithProps(child(), presentation))
-  const tag = () => local.as ?? 'button'
+  const tag = () => typedProps.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
-    ref: () => local.ref,
+    ref: () => typedProps.ref,
     registration: {
       element: state.focusOwner,
       setElement: state.setFocusOwner,
@@ -117,7 +104,7 @@ export function BaseSelectTrigger<
   })
   const eventProps = merge({ role: 'combobox' as const }, rest, {
     onPointerDown(event: PointerEvent) {
-      callHandler(event, local.onPointerDown)
+      callHandler(event, typedProps.onPointerDown)
       if (
         !event.defaultPrevented &&
         !state.disabled() &&
@@ -129,17 +116,17 @@ export function BaseSelectTrigger<
       }
     },
     onKeyDown: createKeyDownHandler({
-      onKeyDown: () => local.onKeyDown,
+      onKeyDown: () => typedProps.onKeyDown,
       onUnhandled: (event) => state.keyDown(event),
     }),
     onFocus(event: FocusEvent) {
-      callHandler(event, local.onFocus)
+      callHandler(event, typedProps.onFocus)
       if (!event.defaultPrevented) {
         state.focus(event)
       }
     },
     onBlur(event: FocusEvent) {
-      callHandler(event, local.onBlur)
+      callHandler(event, typedProps.onBlur)
       if (!event.defaultPrevented) {
         state.blur(event)
       }
@@ -149,7 +136,7 @@ export function BaseSelectTrigger<
     {
       tag,
       disabledForComponent: true,
-      disabled: () => state.disabled() || Boolean(local.disabled),
+      disabled: () => state.disabled() || Boolean(typedProps.disabled),
       element: root.element,
       onPress: () => {
         state.focusOwner()?.focus()

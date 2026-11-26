@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
@@ -61,15 +61,13 @@ import type { ComboboxProps, ComboboxT } from './combobox.types'
 export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.Item>(
   props: ComboboxProps<T>,
 ): JSX.Element {
-  const local = pick(props, ...COMBOBOX_LOCAL_PROP_KEYS)
-  const baseSelectProps = pick(props, ...SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS)
   const rootProps = omit(
     props,
     ...COMBOBOX_LOCAL_PROP_KEYS,
     ...SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const messages = useMessages('combobox', defaultComboboxMessages, () => local.translations)
+  const messages = useMessages('combobox', defaultComboboxMessages, () => props.translations)
   const {
     slots,
     slots: {
@@ -92,23 +90,23 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
         readonly: undefined,
         required: undefined,
       }),
-      trigger: comboboxDataAttributes.trigger({ loading: () => local.loading }),
+      trigger: comboboxDataAttributes.trigger({ loading: () => props.loading }),
     },
     context: () => ({ variants: { size: field?.size } }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(slots)
   const source = createMemo(
     (prev: ReturnType<typeof createSource<ComboboxT.NormalizedItem<T>>> | undefined) =>
-      createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
+      createSource(normalizeSelectEntries<T>(props.items ?? []), undefined, prev),
   )
   const search = useComboboxSearch(
-    local,
+    props,
     () => true,
     () => source(),
-    () => baseSelectProps.getItemLabel,
+    () => props.getItemLabel,
   )
-  const selection = createMemo(() => singleValueToSelection(local.value))
-  const defaultSelection = () => singleValueToSelection(local.defaultValue)
+  const selection = createMemo(() => singleValueToSelection(props.value))
+  const defaultSelection = () => singleValueToSelection(props.defaultValue)
 
   function Control(): JSX.Element {
     const state = useSelectContext<ComboboxT.NormalizedItem<T>>()
@@ -119,7 +117,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     const selectedLabel = () => {
       const item = selectedItem()
       return item
-        ? labelString(item, baseSelectProps.getItemLabel)
+        ? labelString(item, props.getItemLabel)
         : state.value().length
           ? String(state.value()[0])
           : ''
@@ -129,10 +127,10 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       searchValue: search.value,
       setSearchValue: search.setValue,
       get maxLength() {
-        return local.searchMaxLength
+        return props.searchMaxLength
       },
       get autoComplete() {
-        return local.autoComplete
+        return props.autoComplete
       },
       displayValue: () => (state.open() ? search.value() : selectedLabel()),
     })
@@ -147,21 +145,21 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       input.discardComposition()
       state.change([])
       search.setValue('')
-      local.onClear?.()
+      props.onClear?.()
       focusInput()
     }
     const dispatchInputKeyDown = createKeyDownHandler<HTMLInputElement>({
       keys: {
         Escape: {
-          when: () => Boolean(local.clearable) && canClear() && !state.open(),
+          when: () => Boolean(props.clearable) && canClear() && !state.open(),
           handle: clear,
         },
         Delete: {
-          when: () => Boolean(local.clearable) && canClear() && !search.value(),
+          when: () => Boolean(props.clearable) && canClear() && !search.value(),
           handle: clear,
         },
         Backspace: {
-          when: () => Boolean(local.clearable) && canClear() && !search.value(),
+          when: () => Boolean(props.clearable) && canClear() && !search.value(),
           handle: clear,
         },
       },
@@ -182,7 +180,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     const controlPress = useControlPress({
       focusOwner: state.focusOwner,
       focus: focusInput,
-      openOnControlClick: () => local.openOnControlClick ?? false,
+      openOnControlClick: () => props.openOnControlClick ?? false,
       setOpen: state.setOpen,
       get onPointerDown() {
         return rootProps.onPointerDown
@@ -198,9 +196,9 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           {...controlSlot}
           {...rootProps}
           {...controlPress}
-          ref={(element) => callRef(() => local.ref, element)}
+          ref={(element) => callRef(() => props.ref, element)}
         >
-          <Show when={local.leading}>
+          <Show when={props.leading}>
             {(icon) => <Icon name={icon()} data-slot="combobox-leading" {...leadingSlot} />}
           </Show>
           <input
@@ -208,45 +206,45 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             {...state.ariaAttrs()}
             data-slot="combobox-input"
             {...inputSlot}
-            placeholder={(local.placeholder ?? messages().placeholder) || undefined}
+            placeholder={(props.placeholder ?? messages().placeholder) || undefined}
             ref={(element) => {
               input.inputProps.ref(element)
-              callRef(() => local.inputRef, element)
+              callRef(() => props.inputRef, element)
             }}
             onKeyDown={onInputKeyDown}
           />
-          <Show when={!local.loading && local.clearable && canClear()}>
+          <Show when={!props.loading && props.clearable && canClear()}>
             <ClearButton
               dataSlot="combobox-clear"
               ariaLabel={messages().clear}
               slot={clearSlot}
               disabled={state.locked()}
-              clearIcon={local.clearIcon}
+              clearIcon={props.clearIcon}
               onFocusOwner={focusInput}
               onClear={clear}
             />
           </Show>
           <ToggleTrigger
             dataSlot="combobox-trigger"
-            ariaLabel={local.loading ? messages().loading : messages().toggle}
+            ariaLabel={props.loading ? messages().loading : messages().toggle}
             ariaControls={state.listboxId()}
             expanded={state.open()}
-            loading={local.loading}
-            loadingIcon={local.loadingIcon}
+            loading={props.loading}
+            loadingIcon={props.loadingIcon}
             slot={triggerSlot}
-            trailing={local.trailing}
+            trailing={props.trailing}
             disabled={state.disabled()}
             onFocusOwner={focusInput}
             onClick={() => state.setOpen(!state.open())}
           />
         </BaseSelect.Control>
         <DefaultSelectContent
-          {...local}
+          {...props}
           view={search.view()}
           slot={(slot) => slots[slot]}
           emptyRender={(emptyProps) => (
-            <Show when={local.emptyRender !== undefined} fallback={messages().empty}>
-              {renderWithProps(local.emptyRender, {
+            <Show when={props.emptyRender !== undefined} fallback={messages().empty}>
+              {renderWithProps(props.emptyRender, {
                 get searchValue() {
                   return search.value()
                 },
@@ -265,20 +263,42 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
   return (
     <BaseSelectRoot<ComboboxT.NormalizedItem<T>>
       slotOwner="combobox"
-      {...baseSelectProps}
+      getItemLabel={props.getItemLabel}
+      id={props.id}
+      name={props.name}
+      form={props.form}
+      required={props.required}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      open={props.open}
+      defaultOpen={props.defaultOpen}
+      onOpenChange={props.onOpenChange}
+      preventScroll={props.preventScroll}
+      isItemDisabled={props.isItemDisabled}
+      placement={props.placement}
+      align={props.align}
+      gutter={props.gutter}
+      shift={props.shift}
+      flip={props.flip}
+      slide={props.slide}
+      overflowPadding={props.overflowPadding}
+      closeOnEscape={props.closeOnEscape}
+      closeOnOutsideClick={props.closeOnOutsideClick}
+      onClosePrevented={props.onClosePrevented}
+      closeOnSelect={props.closeOnSelect}
       onExitComplete={() => {
         search.setValue('')
-        baseSelectProps.onExitComplete?.()
+        props.onExitComplete?.()
       }}
       items={search.view().items}
       getItemByValue={(value) => source().byValue.get(value)}
       serializeValue={(value) => serializeSourceValue(source(), value)}
       value={selection()}
       defaultValue={defaultSelection()}
-      onValueChange={(values) => local.onValueChange?.(values[0] ?? null)}
+      onValueChange={(values) => props.onValueChange?.(values[0] ?? null)}
       onReset={() => {
         search.setValue('')
-        local.onReset?.()
+        props.onReset?.()
       }}
       multiple={false}
       size={variants.size ?? undefined}

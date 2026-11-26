@@ -4,7 +4,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { useRegisteredContentId } from '../shared/overlay/content-anatomy'
 
 import { useDialogContent, useDialogContext } from './dialog-context'
@@ -33,18 +32,17 @@ import type { DialogT } from './dialog.types'
 export function DialogTitle<T extends ValidComponent = 'h2'>(
   props: DialogT.TitleProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style', 'id')
   const rest = omit(props, 'as', 'class', 'style', 'id')
   const dialog = useDialogContext()
   const content = useDialogContent()
-  const id = useRegisteredContentId(() => local.id, content.registerTitle)
+  const id = useRegisteredContentId(() => props.id, content.registerTitle)
   const {
     slots: { title: titleSlot },
-  } = useRecipe(dialogRecipe, local, {
+  } = useRecipe(dialogRecipe, props, {
     slot: 'title',
     context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'h2')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'h2')
   return (
     <Root
       data-slot="dialog-title"

@@ -16,7 +16,6 @@ import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useAutoLoadingClick } from '../../shared/use-auto-loading'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { pick } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 
@@ -44,26 +43,7 @@ import type { ButtonProps } from './button.types'
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const group = useButtonGroupContext()
-  const local = pick(
-    props as ButtonProps<T> & { ref?: unknown },
-    'as',
-    'variant',
-    'tone',
-    'size',
-    'pressEffect',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'ref',
-    'disabled',
-    'loading',
-    'autoLoading',
-    'loadingIcon',
-    'leading',
-    'trailing',
-    'children',
-  )
+  const local = props as ButtonProps<T> & { ref?: unknown }
   const rest = omit(
     props as ButtonProps<T> & { ref?: unknown },
     'as',
@@ -173,7 +153,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   )
 
   const binding = root.bind(interactionProps)
-  const child = resolveChildren(() => local.children)
+  const child = resolveChildren(() => local.children as JSX.Element)
   const resolvedChildren = createMemo(() =>
     renderWithProps(child(), {
       get loading() {

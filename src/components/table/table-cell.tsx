@@ -1,8 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
-import { pick } from '../../shared/utils'
-
 import { useTablePart } from './table-part'
 import { TABLE_TEXT_ALIGN_CLASS } from './table.recipe'
 import type { TableT } from './table.types'
@@ -26,11 +24,10 @@ import type { TableT } from './table.types'
  * ```
  */
 export function TableCell(props: TableT.CellProps): JSX.Element {
-  const local = pick(props, 'align', 'class', 'style')
   const rest = omit(props, 'align', 'class', 'style')
-  const { cell: cellSlot } = useTablePart('cell', local, {
+  const { cell: cellSlot } = useTablePart('cell', props, {
     own: () => ({
-      class: TABLE_TEXT_ALIGN_CLASS[local.align ?? 'start'],
+      class: TABLE_TEXT_ALIGN_CLASS[props.align ?? 'start'],
     }),
   })
 

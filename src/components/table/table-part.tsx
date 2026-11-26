@@ -6,7 +6,6 @@ import { omit } from 'solid-js'
 import { useRecipe } from '../../provider'
 import type { SlotValue, UseRecipeResult } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import type { DataAttributeBag } from '../../theme/style-contract'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -43,9 +42,8 @@ export function createTablePart<P extends TablePartProps>(
 ): FlowComponent<P> {
   const Tag = dynamic(() => tag)
   return function TablePartComponent(props): JSX.Element {
-    const local = pick(props, 'class', 'style')
     const rest = omit(props, 'class', 'style')
-    const slots = useTablePart(slot, local)
+    const slots = useTablePart(slot, props)
 
     return <Tag data-slot={`table-${slot}`} {...slots[slot]} {...rest} />
   }

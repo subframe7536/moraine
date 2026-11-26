@@ -4,7 +4,7 @@ import { createEffect, createSignal, Show, omit, createRenderEffect } from 'soli
 
 import { useRecipe } from '../../provider'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { useFloatingPosition } from '../shared/overlay/floating'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
 import { resolveFloatingPlacement } from '../shared/overlay/placement'
@@ -39,11 +39,10 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectContext()
-  const local = pick(props, 'ref', 'class', 'style')
   const rest = omit(props, 'ref', 'class', 'style')
   const {
     slots: { content: contentSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'content',
     data: {
       content: baseSelectDataAttributes.content(() => ({
@@ -146,7 +145,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
             {...rest}
             ref={(element) => {
               setContent(element)
-              callRef(() => local.ref, element)
+              callRef(() => props.ref, element)
             }}
           />
         </div>

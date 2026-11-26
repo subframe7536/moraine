@@ -3,7 +3,6 @@ import { dynamic } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useSidebarStyles } from './sidebar-context'
 import type { SidebarT } from './sidebar.types'
@@ -27,12 +26,11 @@ import type { SidebarT } from './sidebar.types'
 export function SidebarGroupLabel<T extends ValidComponent = 'div'>(
   props: SidebarT.GroupLabelProps<T>,
 ): JSX.Element {
-  const local = pick(props, 'as', 'class', 'style')
   const rest = omit(props, 'as', 'class', 'style')
   const {
     slots: { groupLabel: groupLabelSlot },
-  } = useSidebarStyles('groupLabel', local)
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  } = useSidebarStyles('groupLabel', props)
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
 
   return (
     <Root

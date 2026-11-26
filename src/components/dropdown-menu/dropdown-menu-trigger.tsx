@@ -7,7 +7,7 @@ import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler, pick } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { validateOverlayTrigger } from '../shared/overlay/trigger'
 
 import { useDropdownMenuContext } from './dropdown-menu-context'
@@ -31,7 +31,7 @@ import type { DropdownMenuT } from './dropdown-menu.types'
 export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   props: DropdownMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const local = pick(props as DropdownMenuT.TriggerProps, 'as', 'class', 'style', 'disabled', 'ref')
+  const local = props as DropdownMenuT.TriggerProps
   const rest = omit(props as DropdownMenuT.TriggerProps, 'as', 'class', 'style', 'disabled', 'ref')
   const context = useDropdownMenuContext()
 
