@@ -1212,6 +1212,7 @@ it('does not highlight from a stationary pointer move', () => {
   Object.defineProperty(moving, 'movementX', { value: 1 })
   Object.defineProperty(moving, 'movementY', { value: 0 })
   options[0]!.dispatchEvent(moving)
+  flush()
   expect(options[0]?.getAttribute('data-highlighted')).toBe('')
 })
 
