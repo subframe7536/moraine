@@ -60,15 +60,10 @@ export default defineConfig({
       '@src': sourceRoot,
       moraine: sourceRoot,
     },
-    dedupe: ['solid-js', 'solid-js', '@solidjs/router'],
+    dedupe: ['solid-js', '@solidjs/web', '@solidjs/router'],
   },
   optimizeDeps: {
     entries: ['routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
-  },
-  build: {
-    rolldownOptions: {
-      checks: { pluginTimings: false },
-    },
   },
   environments: {
     ssr: {
