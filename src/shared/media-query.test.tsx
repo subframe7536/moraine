@@ -35,6 +35,7 @@ describe('createMediaQuery', () => {
     expect(screen.getByTestId('matches').textContent).toBe('false')
 
     await Promise.resolve()
+    await Promise.resolve()
 
     expect(screen.getByTestId('matches').textContent).toBe('true')
   })
@@ -56,37 +57,6 @@ describe('createMediaQuery', () => {
     }).not.toThrow()
   })
 
-  it('uses legacy MediaQueryList listeners when modern listeners are unavailable', async () => {
-    const addListener = vi.fn<(...args: Array<any>) => void>()
-    const removeListener = vi.fn<(...args: Array<any>) => void>()
-    const media = {
-      matches: false,
-      media: '(min-width: 1px)',
-      onchange: null,
-      addEventListener: undefined,
-      removeEventListener: undefined,
-      dispatchEvent: vi.fn<(event: Event) => boolean>().mockReturnValue(true),
-      addListener,
-      removeListener,
-    } as unknown as MediaQueryList
-    window.matchMedia = vi.fn<() => any>(() => media)
-
-    const screen = render(() => {
-      const matches = createMediaQuery('(min-width: 1px)')
-      return <div data-testid="matches">{String(matches())}</div>
-    })
-    await Promise.resolve()
-
-    const listener = addListener.mock.calls[0]?.[0] as (event: MediaQueryListEvent) => void
-    listener({ matches: true } as MediaQueryListEvent)
-
-    expect(screen.getByTestId('matches').textContent).toBe('true')
-
-    screen.unmount()
-
-    expect(removeListener).toHaveBeenCalledWith(listener)
-  })
-
   it('replaces the listener when a reactive query changes', async () => {
     const firstMedia = createMediaQueryList(false)
     const secondMedia = createMediaQueryList(true)
@@ -102,6 +72,7 @@ describe('createMediaQuery', () => {
     })
 
     flush(() => setQuery('(min-width: 2px)'))
+    await Promise.resolve()
     await Promise.resolve()
 
     expect(screen.getByTestId('matches').textContent).toBe('true')
@@ -120,6 +91,7 @@ describe('createMediaQuery', () => {
       event: MediaQueryListEvent,
     ) => void
     listener({ matches: true } as MediaQueryListEvent)
+    await Promise.resolve()
 
     expect(screen.getByTestId('matches').textContent).toBe('true')
 

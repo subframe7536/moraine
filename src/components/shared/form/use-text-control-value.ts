@@ -4,7 +4,6 @@ import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import type { InputModifiers, ModifierValue } from '../../../shared/input-modifiers'
 import { applyInputModifiers } from '../../../shared/input-modifiers'
-import { settle } from '../../../shared/utils'
 type TextControlElement = HTMLInputElement | HTMLTextAreaElement
 type TextControlValue = string | number | null
 
@@ -132,14 +131,14 @@ export function useTextControlValue<
       preserveLazyCompositionDraft = true
       lazyCompositionExternalValue = getExternalValue()
     }
-    settle(() => setComposing(true))
+    setComposing(true)
   }
 
   function onCompositionEnd(): void {
     const version = compositionVersion
     queueMicrotask(() => {
       if (compositionVersion === version) {
-        settle(() => setComposing(false))
+        setComposing(false)
       }
     })
   }
