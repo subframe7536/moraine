@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic, isServer } from '@solidjs/web'
-import { Show, createRenderEffect, createSignal, onCleanup, omit } from 'solid-js'
+import { Show, createEffect, createRenderEffect, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
@@ -47,14 +47,14 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   // Server rendering is pure, so the server renders the panel with its own id and registers
   // nothing; the client registers it while hydrating.
   if (!isServer) {
-    createRenderEffect(
+    createEffect(
       () => local.id,
       (id) => {
         context.setPanelId(id)
+        return () => context.setPanelId(undefined)
       },
       { transparent: true },
     )
-    onCleanup(() => context.setPanelId(undefined))
   }
   const content = resolvePropsChildren(props)
   const { slotWith } = useSidebarStyles('panel', local)

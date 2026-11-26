@@ -95,7 +95,7 @@ export function Field<T extends ValidComponent = 'div'>(
   const ariaId = createId(() => props.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
     Array<{ id: () => string; labelFor: () => boolean; key: symbol }>
-  >([], { ownedWrite: true })
+  >([])
 
   const standalonePath = createMemo<FieldPath | undefined>(() => {
     const name = props.name

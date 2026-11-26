@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { isServer } from '@solidjs/web'
-import { createSignal, omit } from 'solid-js'
+import { createEffect, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createId } from '../../shared/utils'
@@ -47,16 +47,11 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
     context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
   const value = createId(() => props.value, 'navigation-menu-item')
-  const [trigger, setTrigger] = createSignal<HTMLButtonElement | undefined>(undefined, {
-    ownedWrite: true,
-  })
+  const [trigger, setTrigger] = createSignal<HTMLButtonElement | undefined>(undefined)
   const [content, setContent] = createSignal<HTMLDivElement>()
-  const [contentTrees, setContentTrees] = createSignal<Array<JSX.Element>>([], {
-    ownedWrite: true,
-  })
+  const [contentTrees, setContentTrees] = createSignal<Array<JSX.Element>>([])
   const [triggerOptions, setTriggerOptions] = createSignal<{ disabled?: boolean } | undefined>(
     undefined,
-    { ownedWrite: true },
   )
   const item: NavigationMenuItemContextValue = {
     value,
@@ -71,9 +66,23 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
       if (isServer) {
         return () => {}
       }
-      setContentTrees((trees) => [...trees, tree])
-      return () =>
-        queueMicrotask(() => setContentTrees((trees) => trees.filter((node) => node !== tree)))
+      let active = true
+      createEffect(
+        () => undefined,
+        () => {
+          if (!active) {
+            return
+          }
+          setContentTrees((trees) => [...trees, tree])
+          return () => {
+            setContentTrees((trees) => trees.filter((node) => node !== tree))
+          }
+        },
+        { transparent: true },
+      )
+      return () => {
+        active = false
+      }
     },
     setTriggerOptions,
   }

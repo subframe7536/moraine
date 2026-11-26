@@ -1,6 +1,6 @@
 import { getOverflowAncestors } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { For, createEffect, createSignal, onCleanup, untrack } from 'solid-js'
+import { For, createEffect, createSignal, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { attachEventListener } from '../../shared/event-listener'
@@ -148,11 +148,17 @@ export function NavigationMenuPanel(): JSX.Element {
       }}
     >
       {(floating) => {
-        context.setFloating(floating)
-        onCleanup(() => {
-          context.setFloating(undefined)
-          setSize({})
-        })
+        createEffect(
+          () => undefined,
+          () => {
+            context.setFloating(floating)
+            return () => {
+              context.setFloating(undefined)
+              setSize({})
+            }
+          },
+          { transparent: true },
+        )
         return (
           <div
             {...floating.contentProps}

@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { isServer } from '@solidjs/web'
-import { Show, onCleanup, omit } from 'solid-js'
+import { createEffect, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -56,8 +56,14 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   }
   // Server rendering is pure, so the trigger registers its options with the item on the client.
   if (!isServer) {
-    item.setTriggerOptions(props)
-    onCleanup(() => item.setTriggerOptions(undefined))
+    createEffect(
+      () => undefined,
+      () => {
+        item.setTriggerOptions(props)
+        return () => item.setTriggerOptions(undefined)
+      },
+      { transparent: true },
+    )
   }
   const local = props as NavigationMenuT.TriggerProps<T> & { id?: string }
   const rest = omit(
