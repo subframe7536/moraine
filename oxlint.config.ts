@@ -22,7 +22,6 @@ export default subfLint(
           customReactiveFunctions: [
             'publishElement',
             'bindSelectableItemHandlers',
-            'settle',
             'attachEventListener',
             'callRef',
             'queueMicrotask',

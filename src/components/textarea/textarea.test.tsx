@@ -283,6 +283,7 @@ describe('textarea', () => {
 
     expect(textarea.value).toBe('拼音')
     await Promise.resolve()
+    await Promise.resolve()
     expect(textarea.value).toBe('Locked')
   })
 

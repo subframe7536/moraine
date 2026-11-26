@@ -1,5 +1,4 @@
 import { createControllableValue } from '../../../../shared/controllable-value'
-import { settle } from '../../../../shared/utils'
 /** Controlled or uncontrolled text used to search a collection. */
 interface SearchQueryOptions {
   value?: string
@@ -18,7 +17,7 @@ export function useSearchQuery(options: SearchQueryOptions = {}) {
 
   function updateValue(nextValue: string): string {
     const next = options.maxLength === undefined ? nextValue : nextValue.slice(0, options.maxLength)
-    settle(() => setValue(next))
+    setValue(next)
     return next
   }
 

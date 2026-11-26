@@ -616,6 +616,7 @@ it('lets Enter submit when the open list has nothing to commit', () => {
   fireEvent.input(input, { target: { value: 'zzzz' } })
   const enter = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter' })
   input.dispatchEvent(enter)
+  flush()
   expect(enter.defaultPrevented).toBe(false)
   expect(input.getAttribute('aria-expanded')).toBe('false')
 })

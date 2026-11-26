@@ -1412,6 +1412,7 @@ describe('dropdownMenu', () => {
     expect(onDensityChange).toHaveBeenCalledExactlyOnceWith('comfortable')
 
     comfortableItem.focus()
+    flush()
     fireEvent.keyDown(comfortableItem, { key: 'ArrowUp' })
     fireEvent.keyDown(document.activeElement!, { key: 'Enter' })
 

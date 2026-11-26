@@ -724,6 +724,7 @@ describe('baseDialog primitives', () => {
 
     const keyEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
     divTrigger.dispatchEvent(keyEvent)
+    flush()
     expect(keyEvent.defaultPrevented).toBe(true)
 
     expect(document.body.textContent).toContain('Div content')

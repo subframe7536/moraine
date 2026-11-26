@@ -22,7 +22,7 @@ function PresenceElement(props: {
     <div
       {...props.attrs}
       ref={(node) => {
-        flush(() => setElement(node))
+        setElement(node)
         props.onElement?.(node)
       }}
     />
@@ -411,6 +411,7 @@ describe('createTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(true)
 
     vi.advanceTimersByTime(1)
+    await Promise.resolve()
     expect(fixture.presence.present()).toBe(false)
   })
 

@@ -1,9 +1,8 @@
 import { isServer } from '@solidjs/web'
 import type { JSX } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { createRoot, createStore, runWithOwner } from 'solid-js'
+import { createRoot, createStore, runWithOwner, flush } from 'solid-js'
 
-import { settle } from '../../shared/utils'
 import type { FeedbackCloseReason } from '../shared/overlay/feedback/feedback.types'
 import { createCloseResult } from '../shared/overlay/feedback/handle'
 import { createHostRegistry } from '../shared/overlay/feedback/host-registry'
@@ -218,8 +217,8 @@ export function createToastStore(): ToastStore {
     const result = createCloseResult()
     const handle: ToastT.Handle = {
       id,
-      update: (options) => settle(() => update(id, options)),
-      close: () => settle(() => close(id, 'api')),
+      update: (options) => flush(() => update(id, options)),
+      close: () => flush(() => close(id, 'api')),
       result: result.result,
     }
     sessions.set(id, { handle, settle: result.settle, onClose })
@@ -306,11 +305,11 @@ export function createToastStore(): ToastStore {
       return toasts
     },
     registry,
-    add: (options, render) => settle(() => add(options, render)),
-    update: (id, options) => settle(() => update(id, options)),
-    close: (id, reason) => settle(() => close(id, reason)),
-    remove: (id) => settle(() => remove(id)),
-    abandonHost: (hostId) => settle(() => abandonHost(hostId)),
+    add: (options, render) => flush(() => add(options, render)),
+    update: (id, options) => flush(() => update(id, options)),
+    close: (id, reason) => flush(() => close(id, reason)),
+    remove: (id) => flush(() => remove(id)),
+    abandonHost: (hostId) => flush(() => abandonHost(hostId)),
   }
 }
 

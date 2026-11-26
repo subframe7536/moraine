@@ -28,7 +28,6 @@ import {
   createId,
   pick,
   resolvePropsChildren,
-  settle,
   publishElement,
 } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
@@ -156,11 +155,9 @@ export function createPopper(
 
   function setOpen(nextOpen: boolean): void {
     // Outside dismissal and focus handlers run unowned; settle the write.
-    settle(() => {
-      if (!props.disabled) {
-        setControlledOpen(nextOpen)
-      }
-    })
+    if (!props.disabled) {
+      setControlledOpen(nextOpen)
+    }
   }
 
   return {

@@ -907,6 +907,7 @@ describe('pinInput', () => {
     const invalidEvent = new Event('invalid', { cancelable: true })
     hidden.dispatchEvent(invalidEvent)
 
+    flush()
     expect(invalidEvent.defaultPrevented).toBe(true)
     expect(document.activeElement).toBe(inputs[0])
     expect(root.getAttribute('data-invalid')).toBe('')
@@ -1151,6 +1152,7 @@ describe('pinInput', () => {
     expect(inputs[2]?.hasAttribute('data-filled')).toBe(false)
 
     inputs[0]!.focus()
+    flush()
     expect(root.hasAttribute('data-focused')).toBe(true)
 
     fireEvent.input(inputs[2]!, { target: { value: '3' } })
@@ -1159,6 +1161,7 @@ describe('pinInput', () => {
     expect(inputs[2]?.hasAttribute('data-filled')).toBe(true)
 
     inputs[0]!.blur()
+    flush()
     expect(root.hasAttribute('data-focused')).toBe(false)
   })
 

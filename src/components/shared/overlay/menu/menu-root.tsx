@@ -71,7 +71,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
     () => [(() => props.open)(), rootLayerState(), (() => rootLayerState()?.submenus())()],
     ([open, layer, submenus]) => {
       if (!open && layer) {
-        layer.closeSubmenus(undefined, submenus)
+        layer.closeSubmenus(undefined, submenus, false)
       }
     },
   )

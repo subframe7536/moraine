@@ -2,7 +2,6 @@ import type { Accessor } from 'solid-js'
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
-import { settle } from './utils'
 export interface CreateTransitionPresenceOptions {
   open: Accessor<boolean>
   onExitComplete?: () => void
@@ -154,7 +153,7 @@ export function createTransitionPresence(
       return
     }
 
-    settle(endExit)
+    endExit()
     if (!disposed) {
       options.onExitComplete?.()
     }
@@ -293,7 +292,7 @@ export function createTransitionPresence(
       }
 
       if (currentElements.length === 0) {
-        settle(endExit)
+        endExit()
         if (!disposed) {
           options.onExitComplete?.()
         }

@@ -236,8 +236,10 @@ describe('boldSlider', () => {
 
     thumb.blur()
     thumb.focus()
+    flush()
     expect(thumb.hasAttribute('data-focus-visible')).toBe(true)
     thumb.blur()
+    flush()
     expect(thumb.hasAttribute('data-focus-visible')).toBe(false)
   })
 

@@ -117,6 +117,7 @@ describe('scrollArea', () => {
 
     flush(() => setDimensions(viewport, { scrollHeight: 300 }))
     resize()
+    flush()
     expect(viewport.tabIndex).toBe(0)
   })
 
@@ -292,6 +293,7 @@ describe('scrollArea', () => {
     fireEvent.pointerLeave(root)
     expect(visible()).toBe(true)
     vi.advanceTimersByTime(300)
+    flush()
     expect(visible()).toBe(false)
 
     flush(() => setMode('scroll'))
@@ -301,6 +303,7 @@ describe('scrollArea', () => {
     expect(visible()).toBe(true)
     expect(root.hasAttribute('data-scrolling')).toBe(true)
     vi.advanceTimersByTime(300)
+    flush()
     expect(visible()).toBe(false)
 
     flush(() => setMode('always'))
@@ -411,6 +414,7 @@ describe('scrollArea', () => {
 
     flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
     resize()
+    flush()
     expect(edges(root, 'y')).toEqual([false, true])
 
     screen.unmount()

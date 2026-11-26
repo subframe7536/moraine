@@ -15,7 +15,6 @@ import {
   untrack,
 } from 'solid-js'
 
-import { settle } from '../shared/utils'
 /**
  * Lightweight Solid-native signal subscription without relying on `observable`.
  * `defer: true` aligns with `@tanstack/store` subscription semantics, notifying
@@ -112,7 +111,7 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
         set: (updater: T | ((prev: T) => T)) => {
           // Table-core mutators run unowned; settle so the write is visible to
           // the table's derived memos before the caller reads them back.
-          settle(() => {
+          flush(() => {
             if (typeof updater === 'function') {
               setSignal(
                 updater as (
