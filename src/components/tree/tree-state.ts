@@ -1,8 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack, createProjection } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
-import { createSelector } from '../../shared/utils'
 
 import { createTreeNavigation } from './tree-navigation'
 import type { TreeNavigation } from './tree-navigation'
@@ -204,9 +203,22 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     onChange: (keys) => options.onExpandedKeysChange?.([...keys]),
   })
   const expandedSet = createMemo(() => new Set(expandedKeys()))
-  const isExpanded = createSelector<ReadonlySet<string>, string>(expandedSet, (key, set) =>
-    set.has(key),
-  )
+  let previousExpanded: ReadonlySet<string> = new Set()
+  const expandedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = expandedSet()
+    for (const key of previousExpanded) {
+      if (!next.has(key)) {
+        delete draft[key]
+      }
+    }
+    for (const key of next) {
+      if (!previousExpanded.has(key)) {
+        draft[key] = true
+      }
+    }
+    previousExpanded = next
+  }, {})
+  const isExpanded = (key: string): boolean => expandedMap[key] === true
 
   function addExpanded(keys: ReadonlyArray<string>): void {
     setExpandedKeys((previous) => {
@@ -284,9 +296,22 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     onChange: (keys) => options.onSelectedKeysChange?.([...keys]),
   })
   const selectedSet = createMemo(() => new Set(selectedKeys()))
-  const isSelected = createSelector<ReadonlySet<string>, string>(selectedSet, (key, set) =>
-    set.has(key),
-  )
+  let previousSelected: ReadonlySet<string> = new Set()
+  const selectedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = selectedSet()
+    for (const key of previousSelected) {
+      if (!next.has(key)) {
+        delete draft[key]
+      }
+    }
+    for (const key of next) {
+      if (!previousSelected.has(key)) {
+        draft[key] = true
+      }
+    }
+    previousSelected = next
+  }, {})
+  const isSelected = (key: string): boolean => selectedMap[key] === true
   let anchorKey: string | undefined
   let rangeSnapshot = new Set<string>()
 
