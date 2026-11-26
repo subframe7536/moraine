@@ -3,7 +3,7 @@ import { isServer } from '@solidjs/web'
 import { createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { createId, pick } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 
 import { NavigationMenuItemProvider, useNavigationMenuContext } from './navigation-menu-context'
 import type { NavigationMenuItemContextValue } from './navigation-menu-context'
@@ -33,11 +33,10 @@ import type { NavigationMenuT } from './navigation-menu.types'
  */
 export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Element {
   const context = useNavigationMenuContext()
-  const local = pick(props, 'value', 'disabled', 'class', 'style')
   const rest = omit(props, 'value', 'disabled', 'class', 'style')
   const {
     slots: { item: itemSlot },
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     slot: 'item',
     data: {
       item: navigationMenuDataAttributes.item(() => ({
@@ -47,7 +46,7 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
     },
     context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
-  const value = createId(() => local.value, 'navigation-menu-item')
+  const value = createId(() => props.value, 'navigation-menu-item')
   const [trigger, setTrigger] = createSignal<HTMLButtonElement | undefined>(undefined, {
     ownedWrite: true,
   })
@@ -62,7 +61,7 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
   const item: NavigationMenuItemContextValue = {
     value,
     disabled: () =>
-      Boolean(context.options.disabled || local.disabled || triggerOptions()?.disabled),
+      Boolean(context.options.disabled || props.disabled || triggerOptions()?.disabled),
     trigger,
     setTrigger,
     content,

@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { useNavigationMenuContext } from './navigation-menu-context'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
@@ -26,11 +25,10 @@ import type { NavigationMenuT } from './navigation-menu.types'
  */
 export function NavigationMenuList(props: NavigationMenuT.ListProps): JSX.Element {
   const context = useNavigationMenuContext()
-  const local = pick(props, 'class', 'style')
   const rest = omit(props, 'class', 'style')
   const {
     slots: { list: listSlot },
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     slot: 'list',
     data: { list: navigationMenuDataAttributes.list({ orientation: context.orientation }) },
     context: () => ({

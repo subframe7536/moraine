@@ -6,7 +6,7 @@ import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
-import { createId, pick } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { Icon } from '../icon'
 import { resolveDirection } from '../shared/overlay/direction'
 import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
@@ -59,15 +59,7 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
     item.setTriggerOptions(props)
     onCleanup(() => item.setTriggerOptions(undefined))
   }
-  const local = pick(
-    props as NavigationMenuT.TriggerProps<T> & { id?: string },
-    'as',
-    'id',
-    'disabled',
-    'children',
-    'class',
-    'style',
-  )
+  const local = props as NavigationMenuT.TriggerProps<T> & { id?: string }
   const rest = omit(
     props as NavigationMenuT.TriggerProps<T> & { id?: string },
     'as',
@@ -128,7 +120,7 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   return (
     <>
       <PopperTrigger
-        as={local.as}
+        as={local.as as ValidComponent}
         {...attributes}
         context={{
           options: context.options,

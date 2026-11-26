@@ -4,7 +4,6 @@ import { Show, merge, omit } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { pick } from '../../shared/utils'
 import { mergePopperElementProps } from '../shared/overlay/popper'
 
 import { useNavigationMenuContext, useNavigationMenuItemContext } from './navigation-menu-context'
@@ -38,17 +37,6 @@ import type { NavigationMenuT } from './navigation-menu.types'
 export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Element {
   const context = useNavigationMenuContext()
   const item = useNavigationMenuItemContext()
-  const local = pick(
-    props,
-    'id',
-    'active',
-    'disabled',
-    'closeOnSelect',
-    'linkRender',
-    'href',
-    'class',
-    'style',
-  )
   const rest = omit(
     props,
     'id',
@@ -62,21 +50,21 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
   )
   const {
     slots: { link: linkSlot },
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     slot: 'link',
     data: {
-      link: navigationMenuDataAttributes.link(() => ({ active: () => local.active, disabled })),
+      link: navigationMenuDataAttributes.link(() => ({ active: () => props.active, disabled })),
     },
     context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
-  const disabled = () => Boolean(context.options.disabled || item?.disabled() || local.disabled)
+  const disabled = () => Boolean(context.options.disabled || item?.disabled() || props.disabled)
   const attributes = merge(
     mergePopperElementProps<HTMLAnchorElement>(
       {
         onClick: (event) => {
           if (disabled()) {
             event.preventDefault()
-          } else if (local.closeOnSelect !== false) {
+          } else if (props.closeOnSelect !== false) {
             context.close()
           }
         },
@@ -89,7 +77,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     ),
     {
       get href() {
-        return disabled() ? undefined : local.href
+        return disabled() ? undefined : props.href
       },
       get tabindex() {
         return disabled() ? -1 : rest.tabindex
@@ -100,7 +88,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     attributes,
     {
       get id() {
-        return local.id
+        return props.id
       },
       get role() {
         return disabled() ? 'link' : rest.role
@@ -109,7 +97,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
         return disabled() ? 'true' : undefined
       },
       get 'aria-current'() {
-        return local.active ? 'page' : rest['aria-current']
+        return props.active ? 'page' : rest['aria-current']
       },
       'data-slot': 'navigation-menu-link',
       ...navigationMenuControlData,
@@ -117,7 +105,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     linkSlot,
   )
   return (
-    <Show when={local.linkRender} keyed fallback={<a {...linkProps} />}>
+    <Show when={props.linkRender} keyed fallback={<a {...linkProps} />}>
       {(linkRender) => renderWithProps(linkRender, linkProps as NavigationMenuT.LinkRenderProps)}
     </Show>
   )

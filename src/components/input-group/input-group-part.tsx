@@ -4,7 +4,6 @@ import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useInputGroupContext } from './input-group-context'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
@@ -13,7 +12,6 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
   return function InputGroupPart<T extends ValidComponent = 'div'>(
     props: InputGroupT.LeadingProps<T> | InputGroupT.TrailingProps<T>,
   ): JSX.Element {
-    const local = pick(props, 'as', 'compact', 'class', 'style')
     const rest = omit(props, 'as', 'compact', 'class', 'style')
     const group = useInputGroupContext()
     if (!group.grouped) {
@@ -23,7 +21,7 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
     const {
       slots: { [part]: partSlot },
       variants,
-    } = useRecipe(inputGroupRecipe, local, {
+    } = useRecipe(inputGroupRecipe, props, {
       slot: part,
       data: {
         [part]: inputGroupDataAttributes[part](() => ({
@@ -40,7 +38,7 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
         ...group.slotOverrides,
       }),
     })
-    const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+    const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
 
     return (
       <Root
