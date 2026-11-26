@@ -6,7 +6,6 @@ import { createEffect, createMemo, createSignal, For, omit, createStore } from '
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { attachEventListener, attachEventListenerMap } from '../../shared/event-listener'
-import { pick } from '../../shared/utils'
 import { inertFeedbackHandle } from '../shared/overlay/feedback/handle'
 
 import { ToastList } from './toast-list'
@@ -35,29 +34,6 @@ function withType(type: ToastT.Variants['type'], options: ToastT.Options): Toast
  * methods.
  */
 function ToastRoot(props: ToastProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'placement',
-    'align',
-    'size',
-    'type',
-    'variant',
-    'itemRender',
-    'maxVisible',
-    'duration',
-    'closable',
-    'progress',
-    'expanded',
-    'preventDuplicate',
-    'gap',
-    'aria-label',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'translations',
-  )
   const rest = omit(
     props,
     'id',
@@ -81,28 +57,28 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'style',
     'translations',
   )
-  const messages = useMessages('toast', defaultToastMessages, () => local.translations)
+  const messages = useMessages('toast', defaultToastMessages, () => props.translations)
   const store = getDefaultToastStore()
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
   const [heights, setHeights] = createStore<Record<string | number, number>>({})
 
   const hostDefaults = createMemo<ToastHostDefaults>(() => ({
-    type: local.type,
-    size: local.size,
-    variant: local.variant,
-    placement: local.placement,
-    align: local.align,
-    duration: local.duration,
-    closable: local.closable,
-    progress: local.progress,
-    preventDuplicate: local.preventDuplicate,
-    classes: local.classes,
-    styles: local.styles,
-    translations: local.translations,
+    type: props.type,
+    size: props.size,
+    variant: props.variant,
+    placement: props.placement,
+    align: props.align,
+    duration: props.duration,
+    closable: props.closable,
+    progress: props.progress,
+    preventDuplicate: props.preventDuplicate,
+    classes: props.classes,
+    styles: props.styles,
+    translations: props.translations,
   }))
   const controller: ToastHost = {
-    id: () => local.id,
+    id: () => props.id,
     get defaults() {
       return hostDefaults()
     },
@@ -110,10 +86,10 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const {
     slots: { root: rootSlot },
-  } = useRecipe(toastRecipe, local)
+  } = useRecipe(toastRecipe, props)
 
   createEffect(
-    () => local.id,
+    () => props.id,
     (id) => {
       const unregister = store.registry.register(controller)
       return () => {
@@ -123,7 +99,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
     },
   )
 
-  const filteredToasts = createMemo(() => store.toasts.filter((toast) => toast.hostId === local.id))
+  const filteredToasts = createMemo(() => store.toasts.filter((toast) => toast.hostId === props.id))
   const hasToasts = () => filteredToasts().some((toast) => !toast.closed)
 
   createEffect(hasToasts, (active) => {
@@ -148,7 +124,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
   })
 
   const possiblePositions = createMemo(() => {
-    const defaultKey = `${local.placement ?? 'bottom'}-${local.align ?? 'end'}`
+    const defaultKey = `${props.placement ?? 'bottom'}-${props.align ?? 'end'}`
     const activePositions = filteredToasts().map((toast) => {
       const options = resolveToastOptions(toast.options, hostDefaults())
       return `${options.placement}-${options.align}`
@@ -183,7 +159,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-live="polite"
         aria-relevant="additions text"
         aria-atomic="false"
-        aria-label={local['aria-label'] ?? messages().label}
+        aria-label={props['aria-label'] ?? messages().label}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (
@@ -192,12 +168,12 @@ function ToastRoot(props: ToastProps): JSX.Element {
               filteredToasts={filteredToasts()}
               host={hostDefaults()}
               store={store}
-              expanded={local.expanded}
+              expanded={props.expanded}
               hostPaused={isDocumentHidden() || !isWindowFocused()}
               heights={heights}
-              gap={local.gap ?? DEFAULT_TOAST_GAP}
-              maxVisible={local.maxVisible ?? 3}
-              itemRender={local.itemRender}
+              gap={props.gap ?? DEFAULT_TOAST_GAP}
+              maxVisible={props.maxVisible ?? 3}
+              itemRender={props.itemRender}
               onHeight={updateHeight}
             />
           )}

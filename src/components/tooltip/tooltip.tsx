@@ -4,7 +4,7 @@ import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { attachEventListener } from '../../shared/event-listener'
-import { createId, mergeDefaults } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { createPopper } from '../shared/overlay/popper'
 
 import { TooltipContent } from './tooltip-content'
@@ -120,21 +120,10 @@ function shouldOpenImmediately(ownerDocument: Document | undefined): boolean {
  * ```
  */
 export function Tooltip(props: TooltipProps): JSX.Element {
-  const merged = mergeDefaults(
-    {
-      openDelay: 600,
-      closeDelay: 200,
-      skipDelay: 300,
-      gutter: 4,
-      overflowPadding: 4,
-    },
-    props,
-  )
-
-  const tooltipId = createId(() => merged.id, 'tooltip')
+  const tooltipId = createId(() => props.id, 'tooltip')
   const [open, setOpen] = createControllableValue<boolean>({
-    value: () => merged.open,
-    defaultValue: () => merged.defaultOpen ?? false,
+    value: () => props.open,
+    defaultValue: () => props.defaultOpen ?? false,
   })
   const popper = createPopper(
     {
@@ -146,7 +135,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       },
       onOpenChange: requestOpen,
       get disabled() {
-        return merged.disabled
+        return props.disabled
       },
     },
     'tooltip',
@@ -191,7 +180,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
   function requestOpen(nextOpen: boolean): void {
     setOpen(nextOpen)
-    merged.onOpenChange?.(nextOpen)
+    props.onOpenChange?.(nextOpen)
   }
 
   function closeImmediately(): boolean {
@@ -208,7 +197,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     // Staged writes are invisible to `open()`: an uncontrolled close always
     // takes effect at the next settle; a controlled one only if the parent
     // accepts it, so fall back to the committed read.
-    const closed = merged.open === undefined || !open()
+    const closed = props.open === undefined || !open()
     if (!closed) {
       setShouldUseInstantMotion(false)
     }
@@ -235,7 +224,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       ignoreNextFocusAfterWindowBlur = false
     }
 
-    if (merged.disabled || dismissedByPress) {
+    if (props.disabled || dismissedByPress) {
       return
     }
 
@@ -251,7 +240,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       return
     }
 
-    if (merged.openDelay <= 0) {
+    if ((props.openDelay ?? 600) <= 0) {
       requestTooltipOpen(false)
       return
     }
@@ -259,12 +248,12 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     setShouldUseInstantMotion(false)
     const version = ++timerVersion
     timers.open = setTimeout(() => {
-      if (!ownerAlive || version !== timerVersion || merged.disabled) {
+      if (!ownerAlive || version !== timerVersion || props.disabled) {
         return
       }
 
       requestTooltipOpen(false)
-    }, merged.openDelay)
+    }, props.openDelay ?? 600)
   }
 
   function scheduleClose(): void {
@@ -281,7 +270,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
     clearCloseTimer()
 
-    if (merged.closeDelay <= 0) {
+    if ((props.closeDelay ?? 200) <= 0) {
       setShouldUseInstantMotion(false)
       popper.setOpen(false)
       return
@@ -289,18 +278,18 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
     const version = ++timerVersion
     timers.close = setTimeout(() => {
-      if (!ownerAlive || version !== timerVersion || merged.disabled) {
+      if (!ownerAlive || version !== timerVersion || props.disabled) {
         return
       }
 
       setShouldUseInstantMotion(false)
       popper.setOpen(false)
       clearCloseTimer()
-    }, merged.closeDelay)
+    }, props.closeDelay ?? 200)
   }
 
   createEffect(
-    () => Boolean(merged.disabled),
+    () => Boolean(props.disabled),
     (disabled) => {
       if (disabled) {
         invalidateTimers()
@@ -326,7 +315,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   })
 
   createEffect(
-    () => [open() && !merged.disabled, ownerDocument(), tooltipId(), merged.skipDelay] as const,
+    () =>
+      [open() && !props.disabled, ownerDocument(), tooltipId(), props.skipDelay ?? 300] as const,
     ([isResolvedOpen, currentDocument, id, skipDelay]) => {
       if (activeDocument && (activeDocument !== currentDocument || !isResolvedOpen)) {
         clearActiveTooltip(activeDocument, id)
@@ -369,7 +359,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   )
 
   const behavior: ReturnType<typeof useTooltipContext> = {
-    options: merged,
+    options: props,
     popper,
     instantMotion: shouldUseInstantMotion,
     initialPosition,
@@ -390,10 +380,10 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       }
     },
     get slotOverrides() {
-      return { classes: merged.classes, styles: merged.styles }
+      return { classes: props.classes, styles: props.styles }
     },
   }
-  return <TooltipProvider value={behavior}>{merged.children}</TooltipProvider>
+  return <TooltipProvider value={behavior}>{props.children}</TooltipProvider>
 }
 
 Tooltip.Trigger = TooltipTrigger

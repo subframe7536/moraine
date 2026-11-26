@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { Show, children as resolveChildren, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 import { KbdGroup } from '../kbd-group'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
@@ -32,7 +31,6 @@ import type { TooltipT } from './tooltip.types'
  * ```
  */
 export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
-  const local = pick(props, 'kbds', 'children', 'class', 'style')
   const rest = omit(props, 'kbds', 'children', 'class', 'style')
 
   const behavior = useTooltipContext()
@@ -52,7 +50,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     slots: { text: textSlot, kbds: kbdsSlot },
     slotWith,
     variants,
-  } = useRecipe(tooltipRecipe, local, {
+  } = useRecipe(tooltipRecipe, props, {
     slot: 'content',
     context: () => ({ variants: { variant: behavior.options.variant }, ...behavior.slotOverrides }),
   })
@@ -63,11 +61,11 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       placement={behavior.options.placement ?? 'top'}
       forceMount={behavior.options.forceMount}
       initialPosition={behavior.initialPosition()}
-      gutter={behavior.options.gutter}
+      gutter={behavior.options.gutter ?? 4}
       shift={behavior.options.shift}
       flip={behavior.options.flip}
       slide={behavior.options.slide}
-      overflowPadding={behavior.options.overflowPadding}
+      overflowPadding={behavior.options.overflowPadding ?? 4}
       role="tooltip"
       finalFocus={false}
       positionerClass={
@@ -76,8 +74,8 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     >
       {(context) => {
         const contentProps = merge(context.contentProps, contentEvents)
-        const text = resolveChildren(() => local.children)
-        const kbds = createMemo(() => local.kbds)
+        const text = resolveChildren(() => props.children)
+        const kbds = createMemo(() => props.kbds)
         const contentSlot = slotWith('content', {
           data: tooltipContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

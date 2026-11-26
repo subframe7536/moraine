@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 
 import { useTreeContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
@@ -32,19 +31,18 @@ import type { TreeT } from './tree.types'
  * ```
  */
 export function TreeItemAction(props: TreeT.ItemActionProps): JSX.Element {
-  const local = pick(props, 'children', 'class', 'style')
   const rest = omit(props, 'children', 'class', 'style')
   const context = useTreeContext()
   const {
     slots: { action: actionSlot },
-  } = useRecipe(treeRecipe, local, {
+  } = useRecipe(treeRecipe, props, {
     slot: 'action',
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
   return (
     <div data-slot="tree-action" {...actionSlot} {...rest}>
-      {local.children}
+      {props.children}
     </div>
   )
 }
