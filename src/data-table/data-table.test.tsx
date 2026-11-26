@@ -82,12 +82,14 @@ describe('dataTable', () => {
     createRoot((dispose) => {
       const warnSpy = vi.spyOn(console, 'warn')
       const table = createPersonTable()
-      table.getColumn('name')?.setFilterValue('Alice')
+      flush(() => table.getColumn('name')?.setFilterValue('Alice'))
       expect(table.getFilteredRowModel().rows.length).toBe(1)
       expect(table.getFilteredRowModel().rows[0]?.getValue('name')).toBe('Alice')
 
-      table.getColumn('name')?.setFilterValue(undefined)
-      table.setGlobalFilter('Designer')
+      flush(() => {
+        table.getColumn('name')?.setFilterValue(undefined)
+        table.setGlobalFilter('Designer')
+      })
       expect(table.getFilteredRowModel().rows.length).toBe(1)
       expect(table.getFilteredRowModel().rows[0]?.getValue('name')).toBe('Bob')
 
@@ -702,7 +704,7 @@ describe('dataTable', () => {
     })
 
     expect(screen.queryByText('Child')).toBeNull()
-    table.getRowModel().rows[0]!.toggleExpanded()
+    flush(() => table.getRowModel().rows[0]!.toggleExpanded())
     expect(screen.getByText('Child')).toBeDefined()
   })
 
@@ -1212,9 +1214,11 @@ describe('dataTable', () => {
     document.dispatchEvent(
       new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: 160 }),
     )
-    document.dispatchEvent(
-      new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
-    )
+    flush(() => {
+      document.dispatchEvent(
+        new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
+      )
+    })
 
     expect((ths[0] as HTMLElement).style.width).toBe('160px')
     expect((tds[0] as HTMLElement).style.width).toBe('160px')
@@ -1318,9 +1322,11 @@ describe('dataTable', () => {
     )
     // onEnd keeps the width until the drag is released.
     expect(th.style.width).toBe('100px')
-    document.dispatchEvent(
-      new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
-    )
+    flush(() => {
+      document.dispatchEvent(
+        new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
+      )
+    })
     expect(th.style.width).toBe('160px')
   })
 
