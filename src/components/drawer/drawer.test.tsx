@@ -1054,7 +1054,7 @@ describe('drawer', () => {
     expect(movementValue()).toBe('0px')
   })
 
-  it('rTL scroller claims drags toward content start and yields at the edge', async () => {
+  it('rtl scroller claims drags toward content start and yields at the edge', async () => {
     const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Drawer defaultOpen side="left" onOpenChange={onOpenChange}>

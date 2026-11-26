@@ -79,7 +79,7 @@ describe('createSelectableCollectionNavigation', () => {
     })
   })
 
-  describe('rTL-aware horizontal navigation', () => {
+  describe('rtl-aware horizontal navigation', () => {
     it('flips arrow keys for RTL horizontal orientation', () => {
       const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
       const onSelect = vi.fn<(...args: Array<any>) => void>()
@@ -126,7 +126,7 @@ describe('createSelectableCollectionNavigation', () => {
       document.body.removeChild(rtlElement)
     })
 
-    it('rTL does not affect vertical orientation', () => {
+    it('rtl does not affect vertical orientation', () => {
       const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
       const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
