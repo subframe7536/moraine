@@ -3,7 +3,7 @@ import { createEffect, createMemo, createSignal, merge, onCleanup, untrack } fro
 import { createContextProvider } from '../../shared/create-context-provider'
 import { attachEventListenerMap } from '../../shared/event-listener'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { createId, settle } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../shared/overlay/dom'
 import { createOverlayMenuOpen } from '../shared/overlay/menu'
 import type { OverlayMenuFocusStrategy } from '../shared/overlay/menu'
@@ -90,11 +90,9 @@ export function createContextMenu(props: ContextMenuProps) {
     }
 
     // Context menu entry points run from unowned timers and pointer handlers.
-    settle(() => {
-      setAutoFocusStrategy(strategy)
-      setAnchorPoint({ x, y })
-      commitOpen(true)
-    })
+    setAutoFocusStrategy(strategy)
+    setAnchorPoint({ x, y })
+    commitOpen(true)
   }
 
   const openFromTriggerCenter = (strategy: OverlayMenuFocusStrategy): void => {
@@ -112,7 +110,7 @@ export function createContextMenu(props: ContextMenuProps) {
     event.stopPropagation()
 
     if (open()) {
-      settle(() => commitOpen(false))
+      commitOpen(false)
       return
     }
 
@@ -175,7 +173,7 @@ export function createContextMenu(props: ContextMenuProps) {
     }
 
     suppressContextMenuFromPointer(event)
-    settle(() => commitOpen(false))
+    commitOpen(false)
   }
 
   const clearLongPressTimeout = (): void => {
@@ -269,7 +267,7 @@ export function createContextMenu(props: ContextMenuProps) {
           event.stopPropagation()
 
           if (open()) {
-            settle(() => commitOpen(false))
+            commitOpen(false)
             return
           }
 
@@ -302,7 +300,7 @@ export function createContextMenu(props: ContextMenuProps) {
     event.stopPropagation()
 
     if (open()) {
-      settle(() => commitOpen(false))
+      commitOpen(false)
       return
     }
 
@@ -318,7 +316,7 @@ export function createContextMenu(props: ContextMenuProps) {
     event.stopPropagation()
 
     if (open()) {
-      settle(() => commitOpen(false))
+      commitOpen(false)
     }
   }
 
@@ -331,7 +329,7 @@ export function createContextMenu(props: ContextMenuProps) {
 
     if (open()) {
       suppressContextMenuFromPointer(event)
-      settle(() => commitOpen(false))
+      commitOpen(false)
       return
     }
 
@@ -350,7 +348,7 @@ export function createContextMenu(props: ContextMenuProps) {
       return
     }
 
-    settle(() => setAnchorPoint({ x: event.clientX, y: event.clientY }))
+    setAnchorPoint({ x: event.clientX, y: event.clientY })
     initiatingPointerId = event.pointerId
     longPressStartPoint = { x: event.clientX, y: event.clientY }
     const pointerId = event.pointerId
@@ -521,7 +519,7 @@ export function createContextMenu(props: ContextMenuProps) {
       get open() {
         return open()
       },
-      onClose: () => settle(() => commitOpen(false)),
+      onClose: () => commitOpen(false),
       onExitComplete: () => merged.onExitComplete?.(),
       get mount() {
         return merged.mount

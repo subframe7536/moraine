@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import type { ClassValue } from 'cn'
 import type { Accessor, Component } from 'solid-js'
-import { Show, createSignal, onSettled, createRenderEffect } from 'solid-js'
+import { Show, createSignal, onFlush, onSettled, createRenderEffect } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
@@ -322,10 +322,10 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         return
       }
 
+      onFlush(() => closeRoot({ restoreFocus: true }))
       if ('onSelect' in itemProps.item) {
         itemProps.item.onSelect?.()
       }
-      closeRoot({ restoreFocus: true })
     }
 
     const handlers = createSelectableItemHandlers(layer, {
