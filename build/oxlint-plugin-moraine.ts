@@ -725,7 +725,7 @@ export default {
         },
         messages: {
           lifecycleInRef:
-            'Do not call "{{name}}" inside a ref callback. Store the element in a signal and move this work into "bindElement" in the owner that renders it.',
+            'Do not call "{{name}}" inside a ref callback. Store the element in a signal and move this work into "createEffect" or "createRenderEffect" in the owner that renders it.',
         },
       },
       create(context: RuleContext): Pick<RuleListeners, 'CallExpression'> {
