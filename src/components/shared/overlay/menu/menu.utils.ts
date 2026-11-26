@@ -147,7 +147,7 @@ export interface OverlayMenuRegisteredItem {
 }
 
 export interface OverlayMenuRegisteredSubmenu {
-  close: () => void
+  close: (syncFlush?: boolean) => void
   id: string
 }
 
@@ -168,6 +168,7 @@ export interface OverlayMenuLayerState {
   closeSubmenus: (
     exceptId?: string,
     registeredSubmenus?: Array<OverlayMenuRegisteredSubmenu>,
+    syncFlush?: boolean,
   ) => void
   submenus: Accessor<Array<OverlayMenuRegisteredSubmenu>>
   /** Whether `node` sits inside this layer's positioner or a descendant submenu positioner. */
@@ -399,13 +400,17 @@ export function useOverlayMenuLayerState(
       }
     | undefined
 
-  const closeSubmenus = (exceptId?: string, registeredSubmenus = submenus()): void => {
+  const closeSubmenus = (
+    exceptId?: string,
+    registeredSubmenus = submenus(),
+    syncFlush = true,
+  ): void => {
     for (const submenu of [...registeredSubmenus].reverse()) {
       if (submenu.id === exceptId) {
         continue
       }
 
-      submenu.close()
+      submenu.close(syncFlush)
     }
   }
 
