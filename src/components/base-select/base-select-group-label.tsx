@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import { createEffect, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { createId, pick } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { useGroupContext } from './base-select-group-context'
@@ -33,11 +33,10 @@ export function BaseSelectGroupLabel(props: BaseSelectT.GroupLabelProps): JSX.El
   const state = useSelectContext()
   const group = useGroupContext()
   const id = createId(() => props.id as string | undefined, 'select-group-label')
-  const local = pick(props, 'class', 'style')
   const rest = omit(props, 'class', 'style')
   const {
     slots: { groupLabel: groupLabelSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'groupLabel',
     context: state.recipeContext,
   })

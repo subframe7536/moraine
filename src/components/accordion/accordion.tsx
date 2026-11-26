@@ -21,7 +21,7 @@ import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, createId, pick } from '../../shared/utils'
+import { callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
@@ -115,27 +115,6 @@ function AccordionItemPanel(props: {
  * ```
  */
 export function Accordion(props: AccordionProps): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'value',
-    'defaultValue',
-    'multiple',
-    'collapsible',
-    'loop',
-    'onValueChange',
-    'items',
-    'disabled',
-    'transition',
-    'forceMount',
-    'expandIcon',
-    'headingLevel',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'ref',
-  )
   const rest = omit(
     props,
     'id',
@@ -166,7 +145,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       body: bodySlot,
     },
     slotWith,
-  } = useRecipe(accordionRecipe, local, {
+  } = useRecipe(accordionRecipe, props, {
     data: { root: accordionDataAttributes.root(() => ({ disabled: () => merged.disabled })) },
   })
 
@@ -179,7 +158,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       expandIcon: 'icon-chevron-down',
       headingLevel: 3 as const,
     },
-    local,
+    props,
   )
 
   const rootId = createId(() => merged.id, 'accordion')
@@ -327,7 +306,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       {...rootSlot}
       {...rest}
       ref={(element) => {
-        callRef(() => local.ref, element)
+        callRef(() => props.ref, element)
       }}
       id={rootId()}
     >
@@ -510,7 +489,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 disclosure={disclosure}
                 contentId={contentId()}
                 triggerId={triggerId()}
-                slotOverrides={pickSlotOverrides(local)}
+                slotOverrides={pickSlotOverrides(props)}
               >
                 <Show when={disclosure.shouldMount()}>
                   <Content />

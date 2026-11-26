@@ -8,7 +8,7 @@ import { createControllableValue } from '../../shared/controllable-value'
 import { hasContent } from '../../shared/jsx-content'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
@@ -41,30 +41,7 @@ const ALERT_TONE_ICONS: Record<string, IconT.Name> = {
  * ```
  */
 export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>): JSX.Element {
-  const local = pick(
-    props as AlertT.Props<T> & { ref?: unknown },
-    'as',
-    'title',
-    'description',
-    'actions',
-    'icon',
-    'closable',
-    'closeIcon',
-    'fullWidth',
-    'open',
-    'defaultOpen',
-    'onOpenChange',
-    'onExitComplete',
-    'tone',
-    'variant',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'children',
-    'ref',
-    'translations',
-  )
+  const local = props as AlertT.Props<T> & { ref?: unknown }
   const rest = omit(
     props as AlertT.Props<T> & { ref?: unknown },
     'as',

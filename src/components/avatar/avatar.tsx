@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { Show, createEffect, createMemo, createSignal, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { AVATAR_BADGE_ICON_CLASS, avatarDataAttributes, avatarRecipe } from './avatar.recipe'
@@ -46,21 +45,6 @@ function resolveFallbackText(text: string | undefined, alt: string | undefined):
  * ```
  */
 export function Avatar(props: AvatarProps): JSX.Element {
-  const local = pick(
-    props,
-    'src',
-    'alt',
-    'badge',
-    'badgePosition',
-    'text',
-    'icon',
-    'onStatusChange',
-    'class',
-    'style',
-    'classes',
-    'styles',
-    'size',
-  )
   const rest = omit(
     props,
     'src',
@@ -84,7 +68,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       fallbackIcon: fallbackIconSlot,
       badge: badgeSlot,
     },
-  } = useRecipe(avatarRecipe, local, {
+  } = useRecipe(avatarRecipe, props, {
     data: {
       root: avatarDataAttributes.root(() => ({ status })),
       image: avatarDataAttributes.image(() => ({ status })),
@@ -92,11 +76,11 @@ export function Avatar(props: AvatarProps): JSX.Element {
     },
   })
 
-  const source = createMemo(() => local.src?.trim() || undefined)
-  const alt = createMemo(() => local.alt)
-  const text = createMemo(() => local.text)
-  const icon = createMemo(() => local.icon)
-  const badge = createMemo(() => local.badge)
+  const source = createMemo(() => props.src?.trim() || undefined)
+  const alt = createMemo(() => props.alt)
+  const text = createMemo(() => props.text)
+  const icon = createMemo(() => props.icon)
+  const badge = createMemo(() => props.badge)
   const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
   const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
   const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
@@ -118,7 +102,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
 
     currentStatus = nextStatus
     setStatusSignal(nextStatus)
-    untrack(() => local.onStatusChange)?.(nextStatus)
+    untrack(() => props.onStatusChange)?.(nextStatus)
   }
 
   // Image load/error listeners and microtasks run unowned; settle the write.
@@ -136,7 +120,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
     const nextStatus: AvatarT.Status = currentSource ? 'loading' : 'error'
     if (currentStatus !== nextStatus) {
       currentStatus = nextStatus
-      untrack(() => local.onStatusChange)?.(nextStatus)
+      untrack(() => props.onStatusChange)?.(nextStatus)
     }
 
     if (!currentSource) {

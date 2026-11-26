@@ -5,7 +5,6 @@ import { Show, children as resolveChildren, createMemo, merge, omit } from 'soli
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { badgeRecipe } from './badge.recipe'
@@ -26,20 +25,6 @@ import type { BadgeProps } from './badge.types'
  * ```
  */
 export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): JSX.Element {
-  const local = pick(
-    props,
-    'as',
-    'size',
-    'variant',
-    'tone',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'leading',
-    'trailing',
-    'children',
-  )
   const rest = omit(
     props,
     'as',
@@ -54,12 +39,12 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
     'trailing',
     'children',
   )
-  const leading = createMemo(() => local.leading)
-  const trailing = createMemo(() => local.trailing)
-  const resolvedChildren = resolveChildren(() => local.children)
+  const leading = createMemo(() => props.leading)
+  const trailing = createMemo(() => props.trailing)
+  const resolvedChildren = resolveChildren(() => props.children)
   const hasChildren = () => hasContent(resolvedChildren())
   const square = () => !hasChildren() && Boolean(leading()) !== Boolean(trailing())
-  const styleProps = merge(local, {
+  const styleProps = merge(props, {
     get square() {
       return square()
     },
@@ -68,7 +53,7 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
     slots: { root: rootSlot, leading: leadingSlot, label: labelSlot, trailing: trailingSlot },
   } = useRecipe(badgeRecipe, styleProps)
 
-  const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'span')
 
   return (
     <Root data-slot="badge" {...rootSlot} {...(rest as Record<string, unknown>)}>

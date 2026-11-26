@@ -6,7 +6,6 @@ import { omit } from 'solid-js'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { pick } from '../../shared/utils'
 
 import { useBaseDialogContext } from './base-dialog-context'
 import type { BaseDialogT } from './base-dialog.types'
@@ -33,7 +32,7 @@ import type { BaseDialogT } from './base-dialog.types'
 export function BaseDialogClose<T extends ValidComponent = 'button'>(
   props: BaseDialogT.CloseProps<T>,
 ): JSX.Element {
-  const local = pick(props as BaseDialogT.CloseProps, 'as', 'disabled', 'ref')
+  const local = props as BaseDialogT.CloseProps
   const rest = omit(props as BaseDialogT.CloseProps, 'as', 'disabled', 'ref')
   const context = useBaseDialogContext()
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
