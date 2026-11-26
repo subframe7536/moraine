@@ -8,6 +8,17 @@
     "jsxImportSource": "@solidjs/web",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "moraine": ["../../src/index.ts"],
+      "moraine/data-table": ["../../src/data-table/index.ts"],
+      "moraine/dnd": ["../../src/dnd/index.ts"],
+      "moraine/tailwind": ["../../src/theme/tailwind.ts"],
+      "moraine/theme": ["../../src/theme.ts"],
+      "moraine/unocss": ["../../src/theme/unocss.ts"],
+      "moraine/utils": ["../../src/utils.ts"],
+      "moraine/virtualizer": ["../../src/virtualizer/index.ts"]
+    }
   }
 }
