@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { attachEventListener, attachEventListenerMap } from '../../shared/event-listener'
 import type { BaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -323,14 +323,14 @@ export function createDrawerSwipe(
   modal: BaseDialogContext,
   side: Accessor<NonNullable<DrawerT.Variants['side']>>,
 ): DrawerSwipeController {
-  const [swiping, setSwiping] = createSignal(false, { ownedWrite: true })
-  const [displacement, setDisplacement] = createSignal(0, { ownedWrite: true })
+  const [swiping, setSwiping] = createSignal(false)
+  const [displacement, setDisplacement] = createSignal(0)
   // The rendered translate captured when the gesture claimed the drag, so a
   // swipe mid enter/snap transition continues from the visual position.
-  const [baseline, setBaseline] = createSignal(0, { ownedWrite: true })
-  const [popupWidth, setPopupWidth] = createSignal(0, { ownedWrite: true })
-  const [viewportHeight, setViewportHeight] = createSignal(0, { ownedWrite: true })
-  const [rootFontSize, setRootFontSize] = createSignal(16, { ownedWrite: true })
+  const [baseline, setBaseline] = createSignal(0)
+  const [popupWidth, setPopupWidth] = createSignal(0)
+  const [viewportHeight, setViewportHeight] = createSignal(0)
+  const [rootFontSize, setRootFontSize] = createSignal(16)
 
   // The content element the gesture is bound to, for transform reads at claim.
   let swipeElement: HTMLElement | null = null
@@ -689,7 +689,7 @@ export function createDrawerSwipe(
       // `popupHeight() === 0` covers a mount into an already-open stack: the
       // first report can land before this attach runs, so the unmeasured
       // popup must still capture a size instead of staying pinned at 0.
-      if (drawer.nested.openCount() === 0 || popupHeight() === 0) {
+      if (untrack(drawer.nested.openCount) === 0 || untrack(popupHeight) === 0) {
         drawer.nested.setPopupHeight(content.offsetHeight)
         setPopupWidth(content.offsetWidth)
       }
