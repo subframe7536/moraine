@@ -15,7 +15,7 @@ import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId, pick } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { Icon } from '../icon'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -62,47 +62,6 @@ function isSameFileValue(a: unknown, b: unknown): boolean {
 export function FileUpload<TMultiple extends boolean = false>(
   props: FileUploadProps<TMultiple>,
 ): JSX.Element {
-  const local = pick(
-    props,
-    'id',
-    'name',
-    'form',
-    'value',
-    'defaultValue',
-    'required',
-    'disabled',
-    'readOnly',
-    'inputRef',
-    'onClick',
-    'onKeyDown',
-    'onFocus',
-    'onBlur',
-    'onDragOver',
-    'onDragLeave',
-    'onDrop',
-    'accept',
-    'multiple',
-    'dropzone',
-    'fileList',
-    'label',
-    'description',
-    'icon',
-    'fileIcon',
-    'maxFiles',
-    'minSize',
-    'maxSize',
-    'onValueChange',
-    'onValueInvalid',
-    'itemRender',
-    'size',
-    'variant',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'aria-label',
-    'translations',
-  )
   const rest = omit(
     props,
     'id',
@@ -144,7 +103,7 @@ export function FileUpload<TMultiple extends boolean = false>(
     'aria-label',
     'translations',
   )
-  const messages = useMessages('fileUpload', defaultFileUploadMessages, () => local.translations)
+  const messages = useMessages('fileUpload', defaultFileUploadMessages, () => props.translations)
   const themeField = useFieldContext()
   const {
     slots: {
@@ -163,7 +122,7 @@ export function FileUpload<TMultiple extends boolean = false>(
       fileRemove: fileRemoveSlot,
     },
     variants,
-  } = useRecipe(fileUploadRecipe, local, {
+  } = useRecipe(fileUploadRecipe, props, {
     data: {
       root: fileUploadDataAttributes.root(() => ({
         disabled: field.disabled,
@@ -188,7 +147,7 @@ export function FileUpload<TMultiple extends boolean = false>(
       icon: 'icon-upload' as const,
       fileIcon: 'icon-file' as const,
     },
-    local,
+    props,
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
@@ -196,8 +155,8 @@ export function FileUpload<TMultiple extends boolean = false>(
   const fileList = createMemo(() => merged.fileList)
 
   const initialDefaultValue = untrack(() => {
-    if (local.defaultValue !== undefined) {
-      return local.defaultValue
+    if (props.defaultValue !== undefined) {
+      return props.defaultValue
     }
     return (merged.multiple ? [] : null) as FileUploadT.Value<TMultiple>
   })
@@ -218,7 +177,7 @@ export function FileUpload<TMultiple extends boolean = false>(
         return merged.disabled
       },
       get required() {
-        return local.required
+        return props.required
       },
       get readOnly() {
         return merged.readOnly
@@ -233,7 +192,7 @@ export function FileUpload<TMultiple extends boolean = false>(
   )
 
   const [formValue, setFormValue, resetFormValue] = useFormValue<FileUploadT.Value<TMultiple>>({
-    value: () => local.value,
+    value: () => props.value,
     defaultValue: () => initialDefaultValue,
     onValueChange: (val) => merged.onValueChange?.(val),
     field,
@@ -306,7 +265,7 @@ export function FileUpload<TMultiple extends boolean = false>(
 
     return labelledBy
       ? { 'aria-labelledby': labelledBy }
-      : { 'aria-label': local['aria-label'] || messages().label }
+      : { 'aria-label': props['aria-label'] || messages().label }
   })
   const controlAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
@@ -371,11 +330,11 @@ export function FileUpload<TMultiple extends boolean = false>(
         ref={setControlElement}
         disabled={field.disabled()}
         onFocus={(event) => {
-          callHandler(event, local.onFocus)
+          callHandler(event, props.onFocus)
           field.emit('focus', event)
         }}
         onBlur={(event) => {
-          callHandler(event, local.onBlur)
+          callHandler(event, props.onBlur)
           field.emit('blur', event)
         }}
         onClick={onControlClick}
@@ -406,9 +365,9 @@ export function FileUpload<TMultiple extends boolean = false>(
         id={field.id()}
         ref={(element) => {
           setHiddenInput(element)
-          callRef(() => local.inputRef, element)
+          callRef(() => props.inputRef, element)
         }}
-        form={local.form}
+        form={props.form}
         name={field.name()}
         accept={merged.accept}
         multiple={merged.multiple}

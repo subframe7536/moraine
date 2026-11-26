@@ -3,7 +3,6 @@ import { merge, omit } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
-import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { BASE_DIALOG_ROOT_KEYS } from '../base-dialog/base-dialog-context'
 
@@ -44,7 +43,6 @@ import type { DrawerProps, DrawerT } from './drawer.types'
  * ```
  */
 export function Drawer(props: DrawerProps): JSX.Element {
-  const modalProps = pick(props, ...BASE_DIALOG_ROOT_KEYS)
   const drawerProps = omit(props, ...BASE_DIALOG_ROOT_KEYS)
   // `null` is a valid default (fully open), so only `undefined` falls back to the first snap point.
   const defaultSnapPoint = (): DrawerT.SnapPoint | null =>
@@ -74,13 +72,27 @@ export function Drawer(props: DrawerProps): JSX.Element {
   return (
     <DrawerProvider value={context}>
       <BaseDialog
-        {...modalProps}
+        id={props.id}
+        open={props.open}
+        defaultOpen={props.defaultOpen}
+        onOpenChange={props.onOpenChange}
+        transition={props.transition}
+        closeOnOutsideClick={props.closeOnOutsideClick}
+        closeOnEscape={props.closeOnEscape}
+        onClosePrevented={props.onClosePrevented}
+        preventScroll={props.preventScroll}
+        modal={props.modal}
+        mount={props.mount}
+        initialFocus={props.initialFocus}
+        finalFocus={props.finalFocus}
         onExitComplete={() => {
           // Restore the resting snap point once the drawer finished closing.
           setSnapPoint(defaultSnapPoint())
-          modalProps.onExitComplete?.()
+          props.onExitComplete?.()
         }}
-      />
+      >
+        {props.children}
+      </BaseDialog>
     </DrawerProvider>
   )
 }

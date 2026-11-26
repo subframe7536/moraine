@@ -4,7 +4,6 @@ import { onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 
 import { useDrawerContent, useDrawerContext } from './drawer-context'
 import { drawerDataAttributes, drawerRecipe } from './drawer.recipe'
@@ -13,7 +12,6 @@ function createDrawerHeader(headerKind: 'explicit' | 'shorthand') {
   return function DrawerHeader<T extends ValidComponent = 'div'>(
     props: DrawerT.HeaderProps<T>,
   ): JSX.Element {
-    const local = pick(props, 'as', 'class', 'style')
     const rest = omit(props, 'as', 'class', 'style')
     const drawer = useDrawerContext()
     const content = useDrawerContent()
@@ -21,12 +19,12 @@ function createDrawerHeader(headerKind: 'explicit' | 'shorthand') {
     onCleanup(unregister)
     const {
       slots: { header: headerSlot },
-    } = useRecipe(drawerRecipe, local, {
+    } = useRecipe(drawerRecipe, props, {
       slot: 'header',
       data: { header: drawerDataAttributes.header({ body: content.hasBody }) },
       context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
     })
-    const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+    const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
     return <Root data-slot="drawer-header" {...headerSlot} {...(rest as Record<string, unknown>)} />
   }
 }

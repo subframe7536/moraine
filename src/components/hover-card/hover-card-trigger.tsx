@@ -3,7 +3,6 @@ import { merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { pick } from '../../shared/utils'
 import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
 import type { createPopper } from '../shared/overlay/popper'
 import type { PopperTriggerProps } from '../shared/overlay/popper.types'
@@ -36,7 +35,6 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
   if (!context) {
     throw new Error('HoverCard.Trigger must be used within HoverCard')
   }
-  const local = pick(props, 'value')
   const rest = omit(props, 'value')
   const { slots } = useRecipe(hoverCardRecipe, props, {
     slot: 'trigger',
@@ -58,7 +56,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
             // Engines without :focus-visible support still open on keyboard focus.
           }
           if (focusVisible && !disabled()) {
-            context.activateTrigger(local.value, trigger)
+            context.activateTrigger(props.value, trigger)
             context.scheduleOpen(true)
           }
         },
@@ -67,7 +65,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
         },
         onPointerEnter: (event) => {
           if ((event.pointerType === 'mouse' || !event.pointerType) && !disabled()) {
-            context.activateTrigger(local.value, event.currentTarget)
+            context.activateTrigger(props.value, event.currentTarget)
             context.recordPoint(event.clientX, event.clientY)
             context.scheduleOpen()
           }
