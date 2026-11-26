@@ -1,7 +1,6 @@
 import type { Accessor } from 'solid-js'
-import { createSignal } from 'solid-js'
+import { createSignal, createRenderEffect } from 'solid-js'
 
-import { bindElement } from './element-binding'
 import { createEventListener } from './event-listener'
 import { settle } from './utils'
 export interface AxisMetrics {
@@ -47,7 +46,11 @@ export function createScrollMetrics(
     equals: (a, b) => a.rtl === b.rtl && sameAxis(a.x, b.x) && sameAxis(a.y, b.y),
   })
 
-  bindElement(viewport, (element) => {
+  createRenderEffect(viewport, (current) => {
+    if (!current) {
+      return
+    }
+    const element = current
     let disposed = false
 
     function measure(): void {

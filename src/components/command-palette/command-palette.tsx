@@ -9,6 +9,7 @@ import {
   merge,
   onCleanup,
   omit,
+  createProjection,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -18,14 +19,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import {
-  callHandler,
-  callRef,
-  createId,
-  isAndroidUserAgent,
-  pick,
-  createSelector,
-} from '../../shared/utils'
+import { callHandler, callRef, createId, isAndroidUserAgent, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 import { KbdGroup } from '../kbd-group'
 import { List } from '../list'
@@ -440,7 +434,18 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     const keys = enabledKeys()
     return previous !== undefined && keys.has(previous) ? previous : keys.values().next().value
   })
-  const isActive = createSelector(activeKey)
+  let previousActiveKey: string | undefined
+  const activeMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = activeKey()
+    if (previousActiveKey !== undefined && previousActiveKey !== next) {
+      delete draft[previousActiveKey]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousActiveKey = next
+  }, {})
+  const isActive = (key: string): boolean => activeMap[key] === true
   const activeDescendantId = createMemo(() =>
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
   )

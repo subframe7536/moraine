@@ -1,9 +1,17 @@
 import type { JSX } from '@solidjs/web'
-import { For, Show, createMemo, createEffect, createSignal, untrack, omit } from 'solid-js'
+import {
+  For,
+  Show,
+  createMemo,
+  createEffect,
+  createSignal,
+  untrack,
+  omit,
+  createRenderEffect,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef, pick } from '../../shared/utils'
 
@@ -135,7 +143,12 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   )
 
   const [shell, setShell] = createSignal<HTMLDivElement>()
-  bindElement(shell, disclosure.registerContentElement)
+  createRenderEffect(shell, (node) => {
+    if (!node) {
+      return
+    }
+    return disclosure.registerContentElement(node)
+  })
 
   return (
     <div
@@ -154,7 +167,12 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       <Show when={disclosure.shouldMount()}>
         {(_mounted) => {
           const [list, setList] = createSignal<HTMLUListElement>()
-          bindElement(list, disclosure.registerMeasureElement)
+          createRenderEffect(list, (node) => {
+            if (!node) {
+              return
+            }
+            return disclosure.registerMeasureElement(node)
+          })
           return (
             <ul ref={setList} role="group" class={TREE_LIST_CLASS}>
               <TreeItemList items={props.item.children} />

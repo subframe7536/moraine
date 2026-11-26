@@ -1,9 +1,8 @@
 import type { JSX } from '@solidjs/web'
-import { createSignal } from 'solid-js'
+import { createSignal, createRenderEffect } from 'solid-js'
 
-import { bindElement, publishElement } from '../../shared/element-binding'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callRef } from '../../shared/utils'
+import { callRef, publishElement } from '../../shared/utils'
 import { containFocusInContainer } from '../shared/overlay/focus'
 
 import type { BaseDialogContext } from './base-dialog-context'
@@ -22,7 +21,10 @@ export function createBaseDialogContentBinding(
   options: BaseDialogContentBindingOptions = {},
 ) {
   const [element, setElement] = createSignal<HTMLDivElement>()
-  bindElement(element, (current) => {
+  createRenderEffect(element, (current) => {
+    if (!current) {
+      return
+    }
     const unpublish = publishElement(context.contentElement, context.setContentElement)(current)
     const release = context.presence.registerElement(current)
     return () => {

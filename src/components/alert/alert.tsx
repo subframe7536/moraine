@@ -1,11 +1,10 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { createMemo, createSignal, Show, omit } from 'solid-js'
+import { createMemo, createSignal, Show, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
-import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
@@ -163,7 +162,12 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     <Show when={presence.present()}>
       {(_present) => {
         const [element, setElement] = createSignal<HTMLElement>()
-        bindElement(element, presence.registerElement)
+        createRenderEffect(element, (node) => {
+          if (!node) {
+            return
+          }
+          return presence.registerElement(node)
+        })
         return (
           <Root
             data-slot="alert"

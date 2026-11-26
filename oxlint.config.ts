@@ -20,7 +20,6 @@ export default subfLint(
         'warn',
         {
           customReactiveFunctions: [
-            'bindElement',
             'publishElement',
             'bindSelectableItemHandlers',
             'settle',

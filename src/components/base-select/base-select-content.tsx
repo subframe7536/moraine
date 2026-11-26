@@ -1,9 +1,8 @@
 import type { JSX } from '@solidjs/web'
 import { Portal, isServer } from '@solidjs/web'
-import { createEffect, createSignal, Show, omit } from 'solid-js'
+import { createEffect, createSignal, Show, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { callRef, pick } from '../../shared/utils'
 import { useFloatingPosition } from '../shared/overlay/floating'
@@ -65,7 +64,12 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
   const [content, setContent] = createSignal<HTMLDivElement>()
   const [positioner, setPositioner] = createSignal<HTMLDivElement>()
   const [side, setSide] = createSignal('bottom')
-  bindElement(content, presence.registerElement)
+  createRenderEffect(content, (node) => {
+    if (!node) {
+      return
+    }
+    return presence.registerElement(node)
+  })
   useFloatingPosition({
     contentElement: content,
     floatingElement: positioner,

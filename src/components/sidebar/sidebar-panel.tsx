@@ -3,9 +3,8 @@ import { dynamic, isServer } from '@solidjs/web'
 import { Show, createRenderEffect, createSignal, onCleanup, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
-import { bindElement, publishElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick, resolvePropsChildren } from '../../shared/utils'
+import { callRef, pick, resolvePropsChildren, publishElement } from '../../shared/utils'
 import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -81,7 +80,12 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     const [element, setElement] = createSignal<HTMLElement>()
     // Publish only the inline panel so `Rail` can measure it, even while closed.
     const publishedElement = () => (contentProps.mobile ? undefined : element())
-    bindElement(publishedElement, publishElement(context.panelElement, context.setPanelElement))
+    createRenderEffect(publishedElement, (node) => {
+      if (!node) {
+        return
+      }
+      return publishElement(context.panelElement, context.setPanelElement)(node)
+    })
     const panelSlot = slotWith('panel', {
       data: sidebarDataAttributes.panel({
         closed,

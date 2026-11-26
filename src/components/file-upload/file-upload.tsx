@@ -1,9 +1,17 @@
 import type { JSX } from '@solidjs/web'
-import { For, Show, createMemo, createSignal, merge, untrack, omit } from 'solid-js'
+import {
+  For,
+  Show,
+  createMemo,
+  createSignal,
+  merge,
+  untrack,
+  omit,
+  createRenderEffect,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
-import { bindElement } from '../../shared/element-binding'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -235,7 +243,10 @@ export function FileUpload<TMultiple extends boolean = false>(
   const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement | undefined>(undefined)
   const [controlElement, setControlElement] = createSignal<HTMLElement | undefined>(undefined)
 
-  bindElement(controlElement, (element) => {
+  createRenderEffect(controlElement, (element) => {
+    if (!element) {
+      return
+    }
     field.setControlRef(element)
     return () => field.setControlRef(undefined)
   })
