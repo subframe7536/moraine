@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { createSignal } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import { settle } from '../../../shared/utils'
 export interface UseHiddenInputValidationOptions {
   focusTarget?: () => HTMLElement | undefined | null
 }
@@ -21,7 +20,7 @@ export function useHiddenInputValidation(
 
   const onInvalid: JSX.EventHandlerUnion<HTMLInputElement, Event> = (event) => {
     event.preventDefault()
-    settle(() => setNativeInvalid(true))
+    setNativeInvalid(true)
     options?.focusTarget?.()?.focus()
   }
 
