@@ -39,11 +39,12 @@ render props (such as `itemRender`) instead of component props.
   - `moraine/data-attributes-in-slot-binding` (call `*DataAttributes` only as a `data` entry of `useRecipe` or `slotWith`)
   - `moraine/slot-binding-order` (destructure slot bindings to `<slot>Slot` and spread them before `{...rest}`)
   - `moraine/require-create-effect-on` (use the two-argument `createEffect(compute, apply)` signature)
-  - `moraine/ref-callback-assign-only` (no `onCleanup`, `onSettled`, effects, event-listener helpers, or `register*` calls inside ref callbacks; use `bindElement`)
+  - `moraine/ref-callback-assign-only` (no `onCleanup`, `onSettled`, effects, event-listener helpers, or `register*` calls inside ref callbacks; store the element in a signal and react via `createEffect`/`createRenderEffect`)
   - `moraine/no-emitted-extensions-in-imports` (disallow `.js`/`.jsx` extensions)
   - `moraine/no-string-style-prop` (prohibit string `style` in JSX)
   - `moraine/no-direct-component-call` (call components with `<Component />`, not function calls; require JSX-returning functions to be PascalCase components)
   - `moraine/no-re-export` (disallow "export { x }", require inline exports and disallow component re-exports)
+  - `moraine/no-redundant-compute-iife` (disallow zero-argument arrow IIFEs `(() => expr)()`)
   - `moraine/no-default-param-render-children` (children functions whose first parameter has a default or is a rest element run as accessors and never receive render props)
 - `pnpm run format` - Format code using oxfmt.
 - Run the fix-capable `lint` and `format` commands first; manually fix only issues they cannot resolve.
@@ -54,6 +55,7 @@ render props (such as `itemRender`) instead of component props.
 - `pnpm run test:lib` - Build the library, check consumer type fixtures, and run library and consumer tests.
 - `pnpm run test:docs` - Run documentation build logic tests.
 - `pnpm run test` - Run both test suites.
+- `pnpm run test:diagnostics` - Verify Solid 2.0 dev diagnostics stay at or below `test/solid-diagnostics-baseline.json`.
 - `pnpm vitest run <test-file>` - Run a single test file after building if it reads `dist/`.
 - **Note:** Tests use `jsdom` environment.
 

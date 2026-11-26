@@ -3,7 +3,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  For,
+  Repeat,
   onCleanup,
   onSettled,
   Show,
@@ -375,7 +375,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   useFormReset(getOwningForm, resetChars)
 
-  const indices = createMemo(() => Array.from({ length: length() }, (_, i) => i))
   const validationConfig = () => VALIDATION_CONFIG[validationType()]
   const inputMode = () => props.inputMode ?? validationConfig()?.inputMode ?? 'text'
 
@@ -560,7 +559,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
         />
       </Show>
 
-      <For each={indices()}>
+      <Repeat count={length()}>
         {(idx) => {
           const itemSlot = slotWith('input', {
             data: pinInputDataAttributes.input({
@@ -714,7 +713,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
             </>
           )
         }}
-      </For>
+      </Repeat>
     </div>
   )
 }

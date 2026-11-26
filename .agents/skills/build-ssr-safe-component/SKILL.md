@@ -80,7 +80,7 @@ Solid 2 memo semantics are precise and easy to confuse:
   because server attribute serialization and hydration spread effects can first read the same slot
   at different times.
 - Moraine's `resolvePropsChildren` (`src/shared/utils.ts`) is the canonical way to resolve a
-  component's `children` prop. It reads the own `children` descriptor rather than a `pick`/`omit`
+  component's `children` prop. It reads the own `children` descriptor rather than an `omit`
   props-view read, then pins the lazy children memo after first use so Solid 2 autodisposal cannot
   recreate the subtree.
 

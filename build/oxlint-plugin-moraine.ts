@@ -1039,6 +1039,39 @@ export default {
       },
     },
 
+    'no-redundant-compute-iife': {
+      meta: {
+        type: 'suggestion',
+        docs: {
+          description:
+            'Disallow zero-argument arrow IIFEs (() => expr)() left over from Solid 1 -> Solid 2 migration.',
+        },
+        messages: {
+          redundantIife:
+            'Avoid zero-argument arrow IIFE "(() => expr)()". Evaluate the expression directly.',
+        },
+      },
+      create(context: RuleContext): Pick<RuleListeners, 'CallExpression'> {
+        if (!isSourceFile(context.filename)) {
+          return {} as Pick<RuleListeners, 'CallExpression'>
+        }
+        return {
+          CallExpression(rawNode: AstNode) {
+            const node = rawNode as CallExpressionNode
+            if (
+              node.arguments.length === 0 &&
+              node.callee.type === 'ArrowFunctionExpression' &&
+              Array.isArray((node.callee as FunctionNode).params) &&
+              ((node.callee as FunctionNode).params?.length ?? 0) === 0 &&
+              (node.callee as FunctionNode).body?.type !== 'BlockStatement'
+            ) {
+              context.report({ node, messageId: 'redundantIife' })
+            }
+          },
+        }
+      },
+    },
+
     'no-default-param-render-children': {
       meta: {
         type: 'problem',
