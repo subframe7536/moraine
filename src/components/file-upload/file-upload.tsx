@@ -400,21 +400,23 @@ export function FileUpload<TMultiple extends boolean = false>(
                   />
                 }
               >
-                {(renderer) =>
-                  renderWithProps(renderer(), {
-                    file,
-                    get index() {
-                      return index()
-                    },
-                    get previewUrl() {
-                      return previewUrls().get(file)
-                    },
-                    remove: () => removeFileAt(index()),
-                    get disabled() {
-                      return !interactive()
-                    },
-                  })
-                }
+                {(renderer) => (
+                  <>
+                    {renderWithProps(renderer(), {
+                      file,
+                      get index() {
+                        return index()
+                      },
+                      get previewUrl() {
+                        return previewUrls().get(file)
+                      },
+                      remove: () => removeFileAt(index()),
+                      get disabled() {
+                        return !interactive()
+                      },
+                    })}
+                  </>
+                )}
               </Show>
             )}
           </For>

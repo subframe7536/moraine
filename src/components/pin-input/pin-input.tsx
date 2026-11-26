@@ -290,6 +290,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
       if (raw === '') {
         const next = [...chars()]
         next[idx] = ''
+        element.value = currentSlotChar
         setChars(next)
         element.value = chars()[idx] ?? ''
       } else {
@@ -305,6 +306,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     if (validChars.length > 1) {
       const next = spliceChars(chars(), idx, validChars, length())
       const nextJoined = next.join('')
+      element.value = currentSlotChar
       setChars(next)
       element.value = chars()[idx] ?? ''
       queueAction(nextJoined, Math.min(idx + validChars.length, length() - 1))
@@ -314,6 +316,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     const next = [...chars()]
     next[idx] = validChars[0] ?? ''
     const nextJoined = next.join('')
+    element.value = currentSlotChar
     setChars(next)
     element.value = chars()[idx] ?? ''
 

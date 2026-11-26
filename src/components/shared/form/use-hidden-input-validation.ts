@@ -15,7 +15,7 @@ export interface UseHiddenInputValidationReturn {
 export function useHiddenInputValidation(
   options?: UseHiddenInputValidationOptions,
 ): UseHiddenInputValidationReturn {
-  const [nativeInvalid, setNativeInvalid] = createSignal(false, { ownedWrite: true })
+  const [nativeInvalid, setNativeInvalid] = createSignal(false)
   const resetNativeInvalid = () => setNativeInvalid(false)
 
   const onInvalid: JSX.EventHandlerUnion<HTMLInputElement, Event> = (event) => {

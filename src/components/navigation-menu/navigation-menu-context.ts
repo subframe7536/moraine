@@ -80,14 +80,12 @@ export function createNavigationMenuState(
     defaultValue: () => options.defaultValue ?? null,
     onChange: (next) => options.onValueChange?.(next),
   })
-  const [items, setItems] = createSignal<Array<NavigationMenuItemContextValue>>([], {
-    ownedWrite: true,
-  })
+  const [items, setItems] = createSignal<Array<NavigationMenuItemContextValue>>([])
   const [rootElement, setRootElement] = createSignal<HTMLElement | undefined>(undefined)
   const [panelElement, setPanelElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [floating, setFloating] = createSignal<
     Pick<PopperContentContext, 'positionerElement' | 'positioned' | 'currentPlacement'> | undefined
-  >(undefined, { ownedWrite: true })
+  >(undefined)
   const positionerElement = () => floating()?.positionerElement()
   const [mounted, setMounted] = createSignal(false)
   const positioned = () => floating()?.positioned() ?? false
@@ -305,7 +303,7 @@ export function createNavigationMenuState(
   // Item changes can invalidate a controlled value; value updates alone do not request a change,
   // so the value is sampled untracked when the items change instead of being a dependency.
   createEffect(
-    () => [mounted(), (() => options.disabled)(), itemSnapshot()],
+    () => [mounted(), options.disabled, itemSnapshot()],
     ([ready, disabled]) => {
       if (!ready) {
         return
@@ -403,13 +401,17 @@ export function createNavigationMenuState(
       if (isServer) {
         return
       }
-      setItems((current) => [...current, item])
-      onCleanup(() =>
-        queueMicrotask(() => {
-          if (alive) {
-            setItems((current) => current.filter((candidate) => candidate !== item))
+      createEffect(
+        () => undefined,
+        () => {
+          setItems((current) => [...current, item])
+          return () => {
+            if (alive) {
+              setItems((current) => current.filter((candidate) => candidate !== item))
+            }
           }
-        }),
+        },
+        { transparent: true },
       )
     },
   }

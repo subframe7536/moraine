@@ -42,11 +42,11 @@ describe('createSolidReactivity', () => {
     const seen: Array<number> = []
 
     atom.subscribe((value) => seen.push(value))
-    atom.set(1)
+    flush(() => atom.set(1))
     expect(seen).toEqual([1])
 
     reactivity.dispose()
-    atom.set(2)
+    flush(() => atom.set(2))
 
     expect(seen).toEqual([1])
   })
@@ -59,7 +59,7 @@ describe('createTable', () => {
       const rowCount = createMemo(() => table.getRowModel().rows.length)
 
       expect(untrack(rowCount)).toBe(2)
-      table.setOptions((prev) => ({ ...prev, data: [...data, { a: '3', b: 'z' }] }))
+      flush(() => table.setOptions((prev) => ({ ...prev, data: [...data, { a: '3', b: 'z' }] })))
       expect(untrack(rowCount)).toBe(3)
 
       dispose()

@@ -14,113 +14,127 @@ void invalidDefault
 
 describe('createControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {
-    createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined, {
-        ownedWrite: true,
-      })
-      const [defaultValue, setDefaultValue] = createSignal('initial', { ownedWrite: true })
-      const [value] = createControllableValue({
-        value: controlledValue,
-        defaultValue,
-      })
+    const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined)
+    const [defaultValue, setDefaultValue] = createSignal('initial')
+    const [[value], dispose] = createRoot(
+      (d) =>
+        [
+          createControllableValue({
+            value: controlledValue,
+            defaultValue,
+          }),
+          d,
+        ] as const,
+    )
 
-      expect(value()).toBe('initial')
+    expect(value()).toBe('initial')
 
-      flush(() => setDefaultValue('changed'))
-      flush(() => setControlledValue('controlled'))
+    flush(() => setDefaultValue('changed'))
+    flush(() => setControlledValue('controlled'))
 
-      expect(value()).toBe('controlled')
+    expect(value()).toBe('controlled')
 
-      flush(() => setControlledValue(undefined))
+    flush(() => setControlledValue(undefined))
 
-      expect(value()).toBe('initial')
-      dispose()
-    })
+    expect(value()).toBe('initial')
+    dispose()
   })
 
   it('applies functional updates to the latest uncontrolled value', () => {
-    createRoot((dispose) => {
-      const [value, setValue] = createControllableValue<number>({
-        value: () => undefined,
-        defaultValue: () => 1,
-      })
+    const [[value, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          createControllableValue<number>({
+            value: () => undefined,
+            defaultValue: () => 1,
+          }),
+          d,
+        ] as const,
+    )
 
-      flush(() => setValue((previous) => previous + 1))
-      flush(() => setValue((previous) => previous + 1))
+    flush(() => setValue((previous) => previous + 1))
+    flush(() => setValue((previous) => previous + 1))
 
-      expect(value()).toBe(3)
-      dispose()
-    })
+    expect(value()).toBe(3)
+    dispose()
   })
 
   it('passes the controlled value to functional updates and keeps the uncontrolled value', () => {
-    createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<number | undefined>(10, {
-        ownedWrite: true,
-      })
-      const [value, setValue] = createControllableValue({
-        value: controlledValue,
-        defaultValue: () => 1,
-      })
-      let previousValue: number | undefined
+    const [controlledValue, setControlledValue] = createSignal<number | undefined>(10)
+    const [[value, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          createControllableValue({
+            value: controlledValue,
+            defaultValue: () => 1,
+          }),
+          d,
+        ] as const,
+    )
+    let previousValue: number | undefined
 
-      setValue((previous) => {
-        previousValue = previous
-        return 11
-      })
-
-      expect(previousValue).toBe(10)
-      expect(value()).toBe(10)
-
-      flush(() => setControlledValue(undefined))
-
-      expect(value()).toBe(1)
-      dispose()
+    setValue((previous) => {
+      previousValue = previous
+      return 11
     })
+
+    expect(previousValue).toBe(10)
+    expect(value()).toBe(10)
+
+    flush(() => setControlledValue(undefined))
+
+    expect(value()).toBe(1)
+    dispose()
   })
 
   it('reports changes for controlled and uncontrolled values', () => {
-    createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined, {
-        ownedWrite: true,
-      })
-      const onChange = vi.fn<(...args: Array<any>) => void>()
-      const [value, setValue] = createControllableValue({
-        value: controlledValue,
-        defaultValue: () => 'initial',
-        onChange,
-      })
+    const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined)
+    const onChange = vi.fn<(...args: Array<any>) => void>()
+    const [[value, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          createControllableValue({
+            value: controlledValue,
+            defaultValue: () => 'initial',
+            onChange,
+          }),
+          d,
+        ] as const,
+    )
 
-      flush(() => setValue('next'))
-      expect(value()).toBe('next')
-      expect(onChange).toHaveBeenCalledExactlyOnceWith('next')
+    flush(() => setValue('next'))
+    expect(value()).toBe('next')
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('next')
 
-      flush(() => setValue('next'))
-      expect(onChange).toHaveBeenCalledOnce()
+    flush(() => setValue('next'))
+    expect(onChange).toHaveBeenCalledOnce()
 
-      flush(() => setControlledValue('controlled'))
-      flush(() => setValue('proposed'))
-      expect(value()).toBe('controlled')
-      expect(onChange).toHaveBeenLastCalledWith('proposed')
-      expect(onChange).toHaveBeenCalledTimes(2)
+    flush(() => setControlledValue('controlled'))
+    flush(() => setValue('proposed'))
+    expect(value()).toBe('controlled')
+    expect(onChange).toHaveBeenLastCalledWith('proposed')
+    expect(onChange).toHaveBeenCalledTimes(2)
 
-      dispose()
-    })
+    dispose()
   })
 
   it('keeps the resolved API concrete', () => {
-    createRoot((dispose) => {
-      const [value, setValue] = createControllableValue<string>({
-        value: () => undefined,
-        defaultValue: () => 'default',
-      })
-      const accessor: Accessor<string> = value
-      const setter: (update: string | ((previous: string) => string)) => void = setValue
+    const [[value, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          createControllableValue<string>({
+            value: () => undefined,
+            defaultValue: () => 'default',
+          }),
+          d,
+        ] as const,
+    )
+    const accessor: Accessor<string> = value
+    const setter: (update: string | ((previous: string) => string)) => void = setValue
 
-      expect(accessor()).toBe('default')
-      flush(() => setter((previous) => `${previous}-next`))
-      expect(value()).toBe('default-next')
-      dispose()
-    })
+    expect(accessor()).toBe('default')
+    flush(() => setter((previous) => `${previous}-next`))
+    expect(value()).toBe('default-next')
+    dispose()
   })
 })

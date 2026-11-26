@@ -143,16 +143,9 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     return options.open() || (transition() && presence.present())
   }
 
-  const [contentHeight, setContentHeight] = createSignal(0, { ownedWrite: true })
-  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>(undefined, {
-    ownedWrite: true,
-  })
-  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>(
-    undefined,
-    {
-      ownedWrite: true,
-    },
-  )
+  const [contentHeight, setContentHeight] = createSignal(0)
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>(undefined)
+  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>(undefined)
 
   let contentEl: HTMLElement | undefined
   // One record per registration, so releasing a duplicate removes only its own entry.
@@ -236,7 +229,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       contentHasFocus = true
     }
     const onFocusOut = (event: FocusEvent) => {
-      if (options.open() && !element.contains(event.relatedTarget as Node | null)) {
+      if (untrack(options.open) && !element.contains(event.relatedTarget as Node | null)) {
         contentHasFocus = false
       }
     }

@@ -30,7 +30,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   )
 
   createEffect(
-    () => [(() => props.open)(), pendingFocusOnClose(), (() => props.triggerElement)()],
+    () => [props.open, pendingFocusOnClose(), props.triggerElement],
     ([open, pendingFocus, triggerElement]) => {
       if (open || !pendingFocus) {
         return
@@ -68,7 +68,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   )
 
   createEffect(
-    () => [(() => props.open)(), rootLayerState(), (() => rootLayerState()?.submenus())()],
+    () => [props.open, rootLayerState(), rootLayerState()?.submenus()],
     ([open, layer, submenus]) => {
       if (!open && layer) {
         layer.closeSubmenus(undefined, submenus, false)

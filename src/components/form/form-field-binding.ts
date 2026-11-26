@@ -70,7 +70,7 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
         // Formisch only types native controls, but its registry focuses any HTMLElement.
         field.props.ref(element as FieldElement)
         registeredElement = element as FieldElement
-        registeredStore = getFieldStore(form[INTERNAL], path())
+        registeredStore = getFieldStore(form[INTERNAL], untrack(path))
       }
     },
     setValue(value) {

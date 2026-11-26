@@ -215,12 +215,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   })
 
   createEffect(
-    () => [
-      field.path(),
-      (() => merged.checked)(),
-      (() => merged.trueValue)(),
-      (() => merged.falseValue)(),
-    ],
+    () => [field.path(), merged.checked, merged.trueValue, merged.falseValue],
     ([, value, trueValue, falseValue]) => {
       if (value !== undefined) {
         field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))

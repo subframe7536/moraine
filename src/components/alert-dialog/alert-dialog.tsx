@@ -73,9 +73,7 @@ function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): Alert
  */
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const owner = getOwner()
-  const [dialogs, setDialogs] = createSignal<Array<AlertDialogRecord>>([], {
-    ownedWrite: true,
-  })
+  const [dialogs, setDialogs] = createSignal<Array<AlertDialogRecord>>([])
   const removeDialog = (record: AlertDialogRecord): void => {
     setDialogs((current) => current.filter((item) => item !== record))
   }

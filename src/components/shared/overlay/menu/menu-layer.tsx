@@ -67,7 +67,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
     undefined,
   )
-  const [isPositioned, setIsPositioned] = createSignal(false, { ownedWrite: true })
+  const [isPositioned, setIsPositioned] = createSignal(false)
   const groups = createMemo(() => resolveMenuGroups(props.items))
 
   /**

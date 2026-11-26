@@ -300,7 +300,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   }
 
   createEffect(
-    () => [controlledValueSnapshot(), (() => merged.min)(), (() => merged.max)()],
+    () => [controlledValueSnapshot(), merged.min, merged.max],
     ([value, min, max]) => {
       const controlled = normalizeSliderValues(value, min, min, max)
       if (controlled !== undefined) {
@@ -310,7 +310,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   )
 
   createEffect(
-    () => [(() => merged.value)(), currentValues(), (() => merged.min)(), (() => merged.max)()],
+    () => [merged.value, currentValues(), merged.min, merged.max],
     ([value, displayed, min, max]) => {
       if (value !== undefined) {
         return

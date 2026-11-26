@@ -365,13 +365,9 @@ export function focusElement(element: HTMLElement | undefined): void {
 export function useOverlayMenuLayerState(
   subtreeBranches?: Set<HTMLElement>,
 ): OverlayMenuLayerState {
-  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined, {
-    ownedWrite: true,
-  })
+  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom-start')
-  const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined, {
-    ownedWrite: true,
-  })
+  const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined)
   let previousHighlightedId: string | undefined
   const highlightedMap = createProjection<Record<string, boolean>>((draft) => {
     const next = highlightedItemId()
@@ -384,12 +380,8 @@ export function useOverlayMenuLayerState(
     previousHighlightedId = next
   }, {})
   const isHighlighted = (id: string): boolean => highlightedMap[id] === true
-  const [items, setItems] = createSignal<Array<OverlayMenuRegisteredItem>>([], {
-    ownedWrite: true,
-  })
-  const [submenus, setSubmenus] = createSignal<Array<OverlayMenuRegisteredSubmenu>>([], {
-    ownedWrite: true,
-  })
+  const [items, setItems] = createSignal<Array<OverlayMenuRegisteredItem>>([])
+  const [submenus, setSubmenus] = createSignal<Array<OverlayMenuRegisteredSubmenu>>([])
   let pointerGraceIntent: OverlayMenuPointerGraceIntent | null = null
   let pointerGraceTimeoutId = 0
   let pointerGraceWindow: Window | undefined
@@ -402,7 +394,7 @@ export function useOverlayMenuLayerState(
 
   const closeSubmenus = (
     exceptId?: string,
-    registeredSubmenus = submenus(),
+    registeredSubmenus = untrack(submenus),
     syncFlush = true,
   ): void => {
     for (const submenu of [...registeredSubmenus].reverse()) {

@@ -538,7 +538,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
               when={props.emptyRender !== undefined}
               fallback={
                 <Show when={props.createItem && search.value()} fallback={messages().empty}>
-                  {(value) => messages().create({ value: value() })}
+                  {(value) => <>{messages().create({ value: value() })}</>}
                 </Show>
               }
             >

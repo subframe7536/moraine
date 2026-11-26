@@ -221,7 +221,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
     onActivate: (context) => {
       restoreFocusOnDeactivate = false
       if (context.entry.ownerDocument) {
-        syncModalRestoreFocus(isModal(), context.entry.ownerDocument)
+        syncModalRestoreFocus(untrack(isModal), context.entry.ownerDocument)
       }
       lastFocusedElement = undefined
     },
@@ -321,7 +321,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
       present: presence.present,
       // Untracked surfaces let the presence end on close without waiting for an animation.
       registerElement: (element) =>
-        transition() ? presence.registerElement(element) : () => undefined,
+        untrack(transition) ? presence.registerElement(element) : () => undefined,
     },
     transition,
     contentId,

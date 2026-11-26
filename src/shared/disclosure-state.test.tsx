@@ -140,25 +140,22 @@ describe('createDisclosureState', () => {
 
   it('restores trigger focus when content closes while focused', async () => {
     let setOpen!: (v: boolean) => void
-    let trigger!: HTMLButtonElement
-    let innerInput!: HTMLInputElement
     let disposeRoot!: () => void
 
-    createRoot((dispose) => {
+    const state = createRoot((dispose) => {
       disposeRoot = dispose
-      const [open, setControlledOpen] = createSignal(true, { ownedWrite: true })
+      const [open, setControlledOpen] = createSignal(true)
       setOpen = setControlledOpen
-      const state = createDisclosureState({ open })
-
-      trigger = document.createElement('button')
-      const content = document.createElement('div')
-      innerInput = document.createElement('input')
-      content.append(innerInput)
-      document.body.append(trigger, content)
-
-      flush(() => state.setTriggerElement(trigger))
-      flush(() => state.registerContentElement(content))
+      return createDisclosureState({ open })
     })
+    const trigger = document.createElement('button')
+    const content = document.createElement('div')
+    const innerInput = document.createElement('input')
+    content.append(innerInput)
+    document.body.append(trigger, content)
+
+    flush(() => state.setTriggerElement(trigger))
+    flush(() => state.registerContentElement(content))
 
     innerInput.focus()
     expect(document.activeElement).toBe(innerInput)
@@ -175,24 +172,21 @@ describe('createDisclosureState', () => {
 
   it('does not restore trigger focus if focus was outside content upon close', async () => {
     let setOpen!: (v: boolean) => void
-    let trigger!: HTMLButtonElement
-    let outside!: HTMLButtonElement
     let disposeRoot!: () => void
 
-    createRoot((dispose) => {
+    const state = createRoot((dispose) => {
       disposeRoot = dispose
-      const [open, setControlledOpen] = createSignal(true, { ownedWrite: true })
+      const [open, setControlledOpen] = createSignal(true)
       setOpen = setControlledOpen
-      const state = createDisclosureState({ open })
-
-      trigger = document.createElement('button')
-      outside = document.createElement('button')
-      const content = document.createElement('div')
-      document.body.append(trigger, outside, content)
-
-      flush(() => state.setTriggerElement(trigger))
-      flush(() => state.registerContentElement(content))
+      return createDisclosureState({ open })
     })
+    const trigger = document.createElement('button')
+    const outside = document.createElement('button')
+    const content = document.createElement('div')
+    document.body.append(trigger, outside, content)
+
+    flush(() => state.setTriggerElement(trigger))
+    flush(() => state.registerContentElement(content))
 
     outside.focus()
     expect(document.activeElement).toBe(outside)
@@ -213,25 +207,22 @@ describe('createDisclosureState', () => {
     const doc = iframe.contentDocument!
 
     let setOpen!: (v: boolean) => void
-    let trigger!: HTMLButtonElement
-    let input!: HTMLInputElement
     let disposeRoot!: () => void
 
-    createRoot((dispose) => {
+    const state = createRoot((dispose) => {
       disposeRoot = dispose
-      const [open, setControlledOpen] = createSignal(true, { ownedWrite: true })
+      const [open, setControlledOpen] = createSignal(true)
       setOpen = setControlledOpen
-      const state = createDisclosureState({ open })
-
-      trigger = doc.createElement('button')
-      const content = doc.createElement('div')
-      input = doc.createElement('input')
-      content.append(input)
-      doc.body.append(trigger, content)
-
-      flush(() => state.setTriggerElement(trigger))
-      flush(() => state.registerContentElement(content))
+      return createDisclosureState({ open })
     })
+    const trigger = doc.createElement('button')
+    const content = doc.createElement('div')
+    const input = doc.createElement('input')
+    content.append(input)
+    doc.body.append(trigger, content)
+
+    flush(() => state.setTriggerElement(trigger))
+    flush(() => state.registerContentElement(content))
 
     input.focus()
     expect(doc.activeElement).toBe(input)
@@ -296,18 +287,18 @@ describe('createDisclosureState', () => {
   })
 
   it('keeps the newer content element when a superseded one is released', () => {
-    createRoot((dispose) => {
-      const state = createDisclosureState({ open: () => true })
-      const first = document.createElement('div')
-      const second = document.createElement('div')
-      flush(() => setScrollHeight(first, () => 40))
+    const [state, dispose] = createRoot(
+      (d) => [createDisclosureState({ open: () => true }), d] as const,
+    )
+    const first = document.createElement('div')
+    const second = document.createElement('div')
+    flush(() => setScrollHeight(first, () => 40))
 
-      const releaseFirst = state.registerContentElement(first)
-      expect(state.contentHeight()).toBe(0)
-      flush(() => state.registerContentElement(second))
-      flush(() => releaseFirst())
-      expect(state.contentElement()).toBe(second)
-      dispose()
-    })
+    const releaseFirst = state.registerContentElement(first)
+    expect(state.contentHeight()).toBe(0)
+    flush(() => state.registerContentElement(second))
+    flush(() => releaseFirst())
+    expect(state.contentElement()).toBe(second)
+    dispose()
   })
 })

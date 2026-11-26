@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createSignal, onCleanup, omit } from 'solid-js'
+import { createSignal, onCleanup, omit, untrack } from 'solid-js'
 
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
@@ -76,8 +76,8 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
     resizable: () => props.resizable !== false,
     collapsible: () => props.collapsible === true,
     collapsedSize,
-    onCollapse: () => props.onCollapse?.(),
-    onExpand: () => props.onExpand?.(),
+    onCollapse: () => untrack(() => props.onCollapse)?.(),
+    onExpand: () => untrack(() => props.onExpand)?.(),
   }
   const item: ResizableItem = { kind: 'panel', seq: 0, panel: registration }
   onCleanup(ctx.registerItem(item))

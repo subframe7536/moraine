@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo, createSignal, onCleanup } from 'solid-js'
+import { createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider'
 import { attachEventListenerMap } from '../../shared/event-listener'
@@ -70,7 +70,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     return keys.find((key) => selected.has(key)) ?? keys[0]
   })
 
-  const [hasFocusWithin, setHasFocusWithin] = createSignal(false, { ownedWrite: true })
+  const [hasFocusWithin, setHasFocusWithin] = createSignal(false)
   const focusedKey = createMemo<string | undefined>(() => {
     const key = deps.getFocusedKey()
     if (key === undefined) {
@@ -88,7 +88,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   }
 
   function focus(key: string, focusOptions?: { dom?: boolean }): void {
-    const node = deps.registry().nodes.get(key)
+    const node = untrack(deps.registry).nodes.get(key)
     if (!node || node.disabled) {
       return
     }
@@ -172,7 +172,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   }
 
   function activate(key: string): void {
-    const node = deps.registry().nodes.get(key)
+    const node = untrack(deps.registry).nodes.get(key)
     if (!node || node.disabled) {
       return
     }
@@ -234,7 +234,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
       forward: {
         preventDefault: false,
         handle: (event, key) => {
-          const node = deps.registry().nodes.get(key)
+          const node = untrack(deps.registry).nodes.get(key)
           if (!node?.hasChildren) {
             return
           }
@@ -253,7 +253,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
       backward: {
         preventDefault: false,
         handle: (event, key) => {
-          const node = deps.registry().nodes.get(key)
+          const node = untrack(deps.registry).nodes.get(key)
           if (!node) {
             return
           }

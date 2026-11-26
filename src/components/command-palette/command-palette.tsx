@@ -317,7 +317,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   createEffect(
-    () => [inputElement(), (() => merged.autoFocus)()],
+    () => [inputElement(), merged.autoFocus],
     ([input, autoFocus]) => {
       if (!autoFocus || !input) {
         return

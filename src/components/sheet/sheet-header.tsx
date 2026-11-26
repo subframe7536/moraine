@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { onCleanup, omit } from 'solid-js'
+import { omit, onSettled } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -15,8 +15,7 @@ function createSheetHeader(headerKind: 'explicit' | 'shorthand') {
     const rest = omit(props, 'as', 'class', 'style')
     const sheet = useSheetContext()
     const content = useSheetContent()
-    const unregister = content.registerHeader(headerKind)
-    onCleanup(unregister)
+    onSettled(() => content.registerHeader(headerKind))
     const {
       slots: { header: headerSlot },
     } = useRecipe(sheetRecipe, props, {

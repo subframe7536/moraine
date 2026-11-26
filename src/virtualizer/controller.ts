@@ -138,7 +138,7 @@ export function createVirtualizerController<
 } {
   const [instance, setInstance] = createSignal<
     Virtualizer<TScrollElement, TItemElement> | undefined
-  >(undefined, { ownedWrite: true })
+  >(undefined)
   type ScrollRequest = Parameters<Virtualizer<TScrollElement, TItemElement>['scrollToIndex']>
   let attached = 0
   let pendingScroll: ScrollRequest | undefined
@@ -156,16 +156,18 @@ export function createVirtualizerController<
       }
     },
     attach: (adapterProps) => {
+      let attachedActive = true
       attached++
       onCleanup(() => {
+        attachedActive = false
         attached--
         if (attached === 0) {
           pendingScroll = undefined
         }
       })
-      const [mounted, setMounted] = createSignal(false, { ownedWrite: true })
+      const [mounted, setMounted] = createSignal(false)
       const [virtualItems, setVirtualItems] = createStore<Array<VirtualItem>>([])
-      const [totalSize, setTotalSize] = createSignal(0, { ownedWrite: true })
+      const [totalSize, setTotalSize] = createSignal(0)
       const publish = (source: Virtualizer<TScrollElement, TItemElement>): void => {
         setVirtualItems(reconcile(source.getVirtualItems(), 'index'))
         setTotalSize(source.getTotalSize())
@@ -175,7 +177,11 @@ export function createVirtualizerController<
         // microtask. Unowned callers (scroll listeners, microtasks) flush
         // their staged writes immediately.
         if (getOwner() !== null) {
-          queueMicrotask(() => flush(() => publish(source)))
+          queueMicrotask(() => {
+            if (attachedActive) {
+              flush(() => publish(source))
+            }
+          })
         } else {
           flush(() => publish(source))
         }
