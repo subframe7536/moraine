@@ -7,7 +7,6 @@ import { formatLocaleNumber } from '../../../provider/locale/number'
 import { createControllableValue } from '../../../shared/controllable-value'
 import type { KeyBindingOptions } from '../../../shared/keyboard'
 import { createKeyDownHandler, createKeyUpHandler } from '../../../shared/keyboard'
-import { settle } from '../../../shared/utils'
 import type { Orientation } from '../../../theme/style-types'
 import { defaultSliderMessages } from '../slider.messages'
 import type { SliderT } from '../slider.types'
@@ -420,7 +419,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
     activePointerId = event.pointerId
     activePointerTarget = target
-    settle(() => setFocusVisibleThumbIndex(undefined))
+    setFocusVisibleThumbIndex(undefined)
     setActiveThumbIndex(index)
     lastPointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
     pendingValues = undefined
@@ -689,7 +688,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   })
 
   function onThumbKeyDown(index: number, event: KeyboardEvent): void {
-    settle(() => setFocusVisibleThumbIndex(index))
+    setFocusVisibleThumbIndex(index)
     dispatchThumbKeyDown(event, index)
   }
 
@@ -702,7 +701,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
   function onThumbFocus(index: number, event: FocusEvent): void {
     lastUsedThumbIndex = index
-    settle(() => setFocusVisibleThumbIndex(pointerFocusPending ? undefined : index))
+    setFocusVisibleThumbIndex(pointerFocusPending ? undefined : index)
     if (!isThumbTarget(event.relatedTarget)) {
       options.onFocus?.(event)
     }
@@ -732,7 +731,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   })
 
   function onThumbBlur(event: FocusEvent): void {
-    settle(() => setFocusVisibleThumbIndex(undefined))
+    setFocusVisibleThumbIndex(undefined)
     if (isThumbTarget(event.relatedTarget)) {
       suppressNextBlurCommit = false
       return
