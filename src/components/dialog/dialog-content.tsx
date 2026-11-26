@@ -8,12 +8,12 @@ import {
   createSignal,
   merge,
   omit,
+  createRenderEffect,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
@@ -129,7 +129,15 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   function RenderDialogOverlay(): JSX.Element {
     const [overlay, setOverlay] = createSignal<HTMLDivElement>()
     // Only the backdrop element animates as part of the presence; a plain wrapper does not.
-    bindElement(() => isOverlay() && overlay(), family.presence.registerElement)
+    createRenderEffect(
+      () => (isOverlay() ? overlay() : undefined),
+      (node) => {
+        if (!node) {
+          return
+        }
+        return family.presence.registerElement(node)
+      },
+    )
     return (
       <div
         data-slot={isOverlay() ? 'dialog-overlay' : undefined}
