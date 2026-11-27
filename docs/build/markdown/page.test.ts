@@ -218,4 +218,45 @@ describe('createDocsMdxOptions', () => {
     })
     expect(extension?.mdxContent).toContain('apiDoc={__moraineApiDoc}')
   })
+
+  it('extracts matching routeConfig in lightweight extendRoute without highlighting or anatomy validation', async () => {
+    const options = createDocsMdxOptions('/tmp/moraine-project', { lazyApiDoc: true })
+    const routeExtension = await options.extendRoute?.(
+      {
+        source: [
+          '# Button',
+          '## Usage',
+          '### With `icon`',
+          '## Usage',
+          '###### Deep heading ignored',
+          '<Anatomy value={{root: {missing: true}}} />',
+        ].join('\n\n'),
+        frontmatter: FRONTMATTER,
+        routeConfig: {},
+        data: {},
+      },
+      {
+        path: 'components/button/index.tsx',
+        sourcePath: 'pages/components/button/index.mdx',
+      },
+    )
+
+    expect(routeExtension).toEqual({
+      routeConfig: {
+        info: expect.objectContaining({
+          key: 'button',
+          sections: [
+            { id: 'usage', label: 'Usage', level: 1 },
+            { id: 'with-icon', label: 'With icon', level: 2 },
+            { id: 'usage-2', label: 'Usage', level: 1 },
+            { id: 'api-reference', label: 'API Reference', level: 1 },
+            { id: 'api-props', label: 'Props', level: 2 },
+          ],
+        }),
+        metadata: expect.objectContaining({
+          title: 'Button | Moraine',
+        }),
+      },
+    })
+  })
 })

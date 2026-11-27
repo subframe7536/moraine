@@ -1,6 +1,19 @@
 // oxlint-disable eslint/no-await-in-loop -- Sequential traversal preserves AST replacement and removal order.
-import { defineHastPlugin, defineMdastPlugin } from 'satteri'
-import type { HastNode, MdastNode, MdastVisitorContext, MdxJsxAttributeUnion } from 'satteri'
+import {
+  createMdxMdastHandle,
+  defineHastPlugin,
+  defineMdastPlugin,
+  dropHandle,
+  resolveMdastSubscriptions,
+  visitMdastHandle,
+} from 'satteri'
+import type {
+  HastNode,
+  MdastNode,
+  MdastPluginInstance,
+  MdastVisitorContext,
+  MdxJsxAttributeUnion,
+} from 'satteri'
 
 import { highlightCodeBlock, parseCodeGroupId } from '../core/shiki.ts'
 import { toKebabCase } from '../core/strings.ts'
@@ -38,6 +51,46 @@ function toAnchorSlug(value: string): string {
   return toKebabCase(value) || 'section'
 }
 
+function createHeadingSlugGenerator() {
+  const headingSlugCounter = new Map<string, number>()
+
+  return (headingText: string): string => {
+    const baseSlug = toAnchorSlug(headingText)
+    const currentCount = headingSlugCounter.get(baseSlug) ?? 0
+    const nextCount = currentCount + 1
+    headingSlugCounter.set(baseSlug, nextCount)
+    return nextCount === 1 ? baseSlug : `${baseSlug}-${nextCount}`
+  }
+}
+
+export function extractOnThisPageEntries(source: string): Array<OnThisPageEntryLiteral> {
+  const entries: Array<OnThisPageEntryLiteral> = []
+  const createHeadingSlug = createHeadingSlugGenerator()
+  const handle = createMdxMdastHandle(source, DOCS_MDX_FEATURES, false)
+
+  try {
+    const plugin: MdastPluginInstance = {
+      heading(node, ctx) {
+        const headingText = ctx.textContent(node).trim()
+        const slug = createHeadingSlug(headingText)
+        if (node.depth >= 2 && node.depth <= 5 && headingText) {
+          entries.push({
+            id: slug,
+            label: headingText,
+            level: node.depth - 1,
+          })
+        }
+      },
+    }
+    const subscriptions = resolveMdastSubscriptions(plugin)
+    void visitMdastHandle(handle, plugin, subscriptions, source, undefined, undefined, 'mdx')
+  } finally {
+    dropHandle(handle)
+  }
+
+  return entries
+}
+
 function getNodeProperties(node: HastNode): Record<string, unknown> {
   if (node.type !== 'element') {
     return {}
@@ -61,15 +114,7 @@ function appendClass(node: HastNode, className: string): string {
 }
 
 export function createDocsHastPlugin() {
-  const headingSlugCounter = new Map<string, number>()
-
-  const createHeadingSlug = (headingText: string) => {
-    const baseSlug = toAnchorSlug(headingText)
-    const currentCount = headingSlugCounter.get(baseSlug) ?? 0
-    const nextCount = currentCount + 1
-    headingSlugCounter.set(baseSlug, nextCount)
-    return nextCount === 1 ? baseSlug : `${baseSlug}-${nextCount}`
-  }
+  const createHeadingSlug = createHeadingSlugGenerator()
 
   return defineHastPlugin({
     name: 'moraine-docs-hast',

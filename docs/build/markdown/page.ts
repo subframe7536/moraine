@@ -19,6 +19,7 @@ import {
   createDocsHastPlugin,
   DOCS_MDX_FEATURES,
   DOCS_ON_THIS_PAGE_DATA_KEY,
+  extractOnThisPageEntries,
 } from './plugins.ts'
 import type { OnThisPageEntryLiteral } from './plugins.ts'
 import { createMdxPreviewsPlugin } from './previews.ts'
@@ -77,6 +78,23 @@ export interface CreateDocsMdxOptionsConfig {
   lazyApiDoc?: boolean
 }
 
+export interface DocsMdxRouteInput {
+  source: string
+  frontmatter: Record<string, unknown>
+  routeConfig: Record<string, unknown>
+  data: Record<string, unknown>
+}
+
+export interface DocsMdxOptions extends MdxOptions {
+  extendRoute?: (
+    document: DocsMdxRouteInput,
+    context: Parameters<NonNullable<MdxOptions['extendLoad']>>[1],
+  ) =>
+    | Promise<{ routeConfig?: Record<string, unknown> } | void>
+    | { routeConfig?: Record<string, unknown> }
+    | void
+}
+
 function createDocsMdxProviderPlugin() {
   return defineMdastPlugin({
     name: 'moraine-docs-mdx-provider',
@@ -125,13 +143,50 @@ function createDocsApiDocPlugin() {
 export function createDocsMdxOptions(
   projectRoot: string,
   config: CreateDocsMdxOptionsConfig = {},
-): MdxOptions {
+): DocsMdxOptions {
   const lazyApiDoc = config.lazyApiDoc === true
   let cachedComponentKeys: Set<string> | undefined
 
   const getComponentKeys = () => {
     cachedComponentKeys ??= new Set(loadApiDocIndex(projectRoot)?.components.map(({ key }) => key))
     return cachedComponentKeys
+  }
+
+  const resolveRouteInputs = (
+    rawFrontmatter: Record<string, unknown>,
+    context: Parameters<NonNullable<MdxOptions['extendLoad']>>[1],
+  ) => {
+    const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
+    const page = resolveDocsPageContext(sourcePath)
+    const routeId =
+      context.routePath ??
+      `/${context.path
+        .replaceAll(/(^|\/)\([^)]*\)\//g, '$1')
+        .replace(/\.[^./]+$/, '')
+        .replace(/(^|\/)index$/, '$1')
+        .replace(/\/$/, '')}`
+    if (routeId !== page.routePath) {
+      throw new Error(
+        `[docs-mdx] route mismatch for ${sourcePath}: ${routeId} != ${page.routePath}`,
+      )
+    }
+    const frontmatter = validateFrontmatterData(rawFrontmatter, sourcePath)
+    const sourceApiDoc = loadComponentApiDoc(sourcePath)
+    return { sourcePath, page, frontmatter, sourceApiDoc }
+  }
+
+  const buildRouteConfig = (
+    page: ReturnType<typeof resolveDocsPageContext>,
+    frontmatter: FrontmatterData,
+    onThisPageEntries: Array<OnThisPageEntryLiteral>,
+    apiDoc: ReturnType<typeof loadComponentApiDoc>,
+  ) => {
+    const info = createDocsRouteInfo(page, frontmatter, getComponentKeys(), [
+      ...onThisPageEntries,
+      ...getApiReferenceTocEntries(apiDoc ?? undefined),
+    ])
+    const metadata = createDocsRouteMetadata(page.routePath, frontmatter)
+    return { info, metadata }
   }
 
   return {
@@ -144,44 +199,33 @@ export function createDocsMdxOptions(
       () => createDocsCodePlugin(),
     ],
     hastPlugins: [() => createDocsHastPlugin()],
-    async extendLoad(document, context) {
-      const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
-      const page = resolveDocsPageContext(sourcePath)
-      const routeId =
-        context.routePath ??
-        `/${context.path
-          .replaceAll(/(^|\/)\([^)]*\)\//g, '$1')
-          .replace(/\.[^./]+$/, '')
-          .replace(/(^|\/)index$/, '$1')
-          .replace(/\/$/, '')}`
-      if (routeId !== page.routePath) {
-        throw new Error(
-          `[docs-mdx] route mismatch for ${sourcePath}: ${routeId} != ${page.routePath}`,
-        )
+    extendRoute(document, context) {
+      const { page, frontmatter, sourceApiDoc } = resolveRouteInputs(document.frontmatter, context)
+      const onThisPageEntries = extractOnThisPageEntries(document.source)
+      return {
+        routeConfig: buildRouteConfig(page, frontmatter, onThisPageEntries, sourceApiDoc),
       }
-      const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)
-      const componentKeys = getComponentKeys()
+    },
+    async extendLoad(document, context) {
+      const { sourcePath, page, frontmatter, sourceApiDoc } = resolveRouteInputs(
+        document.frontmatter,
+        context,
+      )
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
         ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as Array<OnThisPageEntryLiteral>)
-        : []
-      const sourceApiDoc = loadComponentApiDoc(sourcePath)
+        : extractOnThisPageEntries(document.source)
       if (page.surface === 'components' && page.routePath !== '/components') {
         await validateAnatomy(document.source, sourcePath, sourceApiDoc ?? undefined)
       }
       const apiDoc =
         lazyApiDoc || !sourceApiDoc ? sourceApiDoc : await highlightApiTypes(sourceApiDoc)
-      const info = createDocsRouteInfo(page, frontmatter, componentKeys, [
-        ...onThisPageEntries,
-        ...getApiReferenceTocEntries(apiDoc ?? undefined),
-      ])
-      const metadata = createDocsRouteMetadata(page.routePath, frontmatter)
       const apiDocExpression =
         lazyApiDoc && sourceApiDoc
           ? '__moraineApiDoc'
           : (JSON.stringify(apiDoc ?? undefined) ?? 'undefined')
 
       return {
-        routeConfig: { info, metadata },
+        routeConfig: buildRouteConfig(page, frontmatter, onThisPageEntries, apiDoc),
         mdxContent: createMarkdownContent(
           page.routePath,
           apiDocExpression,
