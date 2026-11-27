@@ -1,11 +1,33 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
+import { merge } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Drawer } from './drawer'
-import { createDrawerContentRegistration, DrawerContentProvider } from './drawer-context'
+import { createDrawerContentRegistration, DrawerProvider, useDrawerContext } from './drawer-context'
+
+function PartsWithContent() {
+  const drawer = useDrawerContext()
+  const registration = createDrawerContentRegistration()
+  const value = merge(drawer, {
+    content: {
+      ...registration,
+      variants: { side: 'bottom' as const },
+    },
+  })
+  return (
+    <DrawerProvider value={value}>
+      <Drawer.Header>
+        <Drawer.Title id="server-drawer-title">Real title</Drawer.Title>
+        <Drawer.Description>Details</Drawer.Description>
+      </Drawer.Header>
+      <Drawer.Body>Body</Drawer.Body>
+      <Drawer.Footer>Actions</Drawer.Footer>
+    </DrawerProvider>
+  )
+}
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
     const value = content.getAttribute(attribute)
@@ -21,26 +43,11 @@ describe('drawer SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/components/drawer/drawer.ssr.fixture.tsx',
       'renderPartsFixture',
-      () => {
-        const registration = createDrawerContentRegistration()
-        return (
-          <Drawer>
-            <DrawerContentProvider
-              value={{
-                ...registration,
-                variants: { side: 'bottom' },
-              }}
-            >
-              <Drawer.Header>
-                <Drawer.Title id="server-drawer-title">Real title</Drawer.Title>
-                <Drawer.Description>Details</Drawer.Description>
-              </Drawer.Header>
-              <Drawer.Body>Body</Drawer.Body>
-              <Drawer.Footer>Actions</Drawer.Footer>
-            </DrawerContentProvider>
-          </Drawer>
-        )
-      },
+      () => (
+        <Drawer>
+          <PartsWithContent />
+        </Drawer>
+      ),
     )
     expect(container.querySelector('#server-drawer-title')).not.toBeNull()
     expect(container.querySelector('[data-slot="drawer-description"]')?.id).toBeTruthy()

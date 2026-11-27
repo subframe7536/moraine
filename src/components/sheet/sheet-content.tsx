@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { Show, createMemo, createSignal, omit, createRenderEffect } from 'solid-js'
+import { Show, createMemo, createSignal, merge, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -17,7 +17,7 @@ import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 import { createKeyboardInset } from '../shared/overlay/keyboard-inset'
 import { createShorthandContent } from '../shared/overlay/shorthand-content'
 
-import { SheetContentProvider, useSheetContext } from './sheet-context'
+import { SheetProvider, useSheetContext } from './sheet-context'
 import { SheetDescription } from './sheet-description'
 import { SheetShorthandHeader } from './sheet-header'
 import { SheetTitle } from './sheet-title'
@@ -174,18 +174,20 @@ export function SheetContent<T extends ValidComponent = 'div'>(
     )
   }
 
+  const sheetWithContent = merge(sheet, {
+    content: {
+      ...registration,
+      get variants() {
+        return variants
+      },
+    },
+  })
+
   return (
-    <SheetContentProvider
-      value={{
-        ...registration,
-        get variants() {
-          return variants
-        },
-      }}
-    >
+    <SheetProvider value={sheetWithContent}>
       <BaseDialogPortal>
         <RenderSheetOverlay />
       </BaseDialogPortal>
-    </SheetContentProvider>
+    </SheetProvider>
   )
 }

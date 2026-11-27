@@ -1,4 +1,5 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
+import { merge } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
@@ -7,7 +8,29 @@ import { Button } from '../button/button'
 import { Icon } from '../icon/icon'
 
 import { Dialog } from './dialog'
-import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
+import { DialogProvider, createDialogContentRegistration, useDialogContext } from './dialog-context'
+
+function PartsWithContent() {
+  const dialog = useDialogContext()
+  const registration = createDialogContentRegistration()
+  const value = merge(dialog, {
+    content: {
+      ...registration,
+      variants: { fullscreen: false, scrollable: false },
+      overlayScroll: () => false,
+    },
+  })
+  return (
+    <DialogProvider value={value}>
+      <Dialog.Header>
+        <Dialog.Title id="server-dialog-title">Real title</Dialog.Title>
+        <Dialog.Description>Details</Dialog.Description>
+      </Dialog.Header>
+      <Dialog.Body>Body</Dialog.Body>
+      <Dialog.Footer>Actions</Dialog.Footer>
+    </DialogProvider>
+  )
+}
 it('hydrates a polymorphic Button trigger with nested JSX icons', () => {
   const { container } = hydrateFixture(
     '/src/components/dialog/dialog.ssr.fixture.tsx',
@@ -42,27 +65,11 @@ describe('dialog SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/components/dialog/dialog.ssr.fixture.tsx',
       'renderPartsFixture',
-      () => {
-        const registration = createDialogContentRegistration()
-        return (
-          <Dialog>
-            <DialogContentProvider
-              value={{
-                ...registration,
-                variants: { fullscreen: false, scrollable: false },
-                overlayScroll: () => false,
-              }}
-            >
-              <Dialog.Header>
-                <Dialog.Title id="server-dialog-title">Real title</Dialog.Title>
-                <Dialog.Description>Details</Dialog.Description>
-              </Dialog.Header>
-              <Dialog.Body>Body</Dialog.Body>
-              <Dialog.Footer>Actions</Dialog.Footer>
-            </DialogContentProvider>
-          </Dialog>
-        )
-      },
+      () => (
+        <Dialog>
+          <PartsWithContent />
+        </Dialog>
+      ),
     )
     expect(container.querySelector('#server-dialog-title')).not.toBeNull()
     expect(container.querySelector('[data-slot="dialog-description"]')?.id).toBeTruthy()

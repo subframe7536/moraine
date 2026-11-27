@@ -3,8 +3,9 @@ import type { DragDropManagerInput, DragEndEvent } from '@dnd-kit/dom'
 import { isSortable, Sortable as DndSortable } from '@dnd-kit/dom/sortable'
 import { isServer } from '@solidjs/web'
 import type { FlowComponent } from 'solid-js'
-import { createContext, createEffect, createSignal, onCleanup, untrack, useContext } from 'solid-js'
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
+import { createContextProvider } from '../shared/create-context-provider'
 import { createDataAttributes } from '../theme/style-contract'
 
 import type {
@@ -257,7 +258,10 @@ export function createSortable(options: SortableOptions = {}): Sortable {
   const elements = new Map<SortableId, HTMLElement>()
   const animation = options.dropAnimation === false ? undefined : (options.dropAnimation ?? {})
 
-  const SortableContext = createContext<DragDropManager>()
+  const [SortableProvider, useSortableManager] = createContextProvider<DragDropManager | null>(
+    'Sortable',
+    null,
+  )
 
   /** Slides the element of `id` from `from` (viewport position) to where it has settled. */
   const animateInto = (manager: DragDropManager, id: SortableId, from: Rect): void => {
@@ -355,7 +359,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       current.destroy()
     })
 
-    return <SortableContext value={current}>{props.children}</SortableContext>
+    return <SortableProvider value={current}>{props.children}</SortableProvider>
   }
 
   // Handles rendered apart from their item attach by id, in either mount order.
@@ -385,7 +389,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     if (isServer) {
       return { ref: noop, handleRef: noop, targetRef: noop, dragging, dropPosition, attributes }
     }
-    const manager = useContext(SortableContext)
+    const manager = useSortableManager()
     if (!manager) {
       throw new Error('useItem must be called under the sortable Provider')
     }

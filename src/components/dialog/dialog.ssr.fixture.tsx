@@ -1,10 +1,11 @@
 import { renderToString } from '@solidjs/web'
+import { merge } from 'solid-js'
 
 import { Button } from '../button/button'
 import { Icon } from '../icon/icon'
 
 import { Dialog } from './dialog'
-import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
+import { DialogProvider, createDialogContentRegistration, useDialogContext } from './dialog-context'
 export function renderButtonTriggerFixture(): string {
   return renderToString(() => (
     <Dialog>
@@ -57,26 +58,32 @@ export function renderDialogFixture(): string {
   ))
 }
 
-export function renderPartsFixture(): string {
-  return renderToString(() => {
-    const registration = createDialogContentRegistration()
-    return (
-      <Dialog>
-        <DialogContentProvider
-          value={{
-            ...registration,
-            variants: { fullscreen: false, scrollable: false },
-            overlayScroll: () => false,
-          }}
-        >
-          <Dialog.Header>
-            <Dialog.Title id="server-dialog-title">Real title</Dialog.Title>
-            <Dialog.Description>Details</Dialog.Description>
-          </Dialog.Header>
-          <Dialog.Body>Body</Dialog.Body>
-          <Dialog.Footer>Actions</Dialog.Footer>
-        </DialogContentProvider>
-      </Dialog>
-    )
+function PartsWithContent() {
+  const dialog = useDialogContext()
+  const registration = createDialogContentRegistration()
+  const value = merge(dialog, {
+    content: {
+      ...registration,
+      variants: { fullscreen: false, scrollable: false },
+      overlayScroll: () => false,
+    },
   })
+  return (
+    <DialogProvider value={value}>
+      <Dialog.Header>
+        <Dialog.Title id="server-dialog-title">Real title</Dialog.Title>
+        <Dialog.Description>Details</Dialog.Description>
+      </Dialog.Header>
+      <Dialog.Body>Body</Dialog.Body>
+      <Dialog.Footer>Actions</Dialog.Footer>
+    </DialogProvider>
+  )
+}
+
+export function renderPartsFixture(): string {
+  return renderToString(() => (
+    <Dialog>
+      <PartsWithContent />
+    </Dialog>
+  ))
 }

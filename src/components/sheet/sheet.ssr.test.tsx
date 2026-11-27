@@ -1,4 +1,5 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
+import { merge } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
@@ -6,7 +7,28 @@ import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import { Sheet } from './sheet'
-import { SheetContentProvider } from './sheet-context'
+import { SheetProvider, useSheetContext } from './sheet-context'
+
+function PartsWithContent() {
+  const sheet = useSheetContext()
+  const registration = createContentAnatomy()
+  const value = merge(sheet, {
+    content: {
+      ...registration,
+      variants: { inset: false, side: 'right' as const },
+    },
+  })
+  return (
+    <SheetProvider value={value}>
+      <Sheet.Header>
+        <Sheet.Title id="server-sheet-title">Real title</Sheet.Title>
+        <Sheet.Description>Details</Sheet.Description>
+      </Sheet.Header>
+      <Sheet.Body>Body</Sheet.Body>
+      <Sheet.Footer>Actions</Sheet.Footer>
+    </SheetProvider>
+  )
+}
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
     const value = content.getAttribute(attribute)
@@ -22,26 +44,11 @@ describe('sheet SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/components/sheet/sheet.ssr.fixture.tsx',
       'renderPartsFixture',
-      () => {
-        const registration = createContentAnatomy()
-        return (
-          <Sheet>
-            <SheetContentProvider
-              value={{
-                ...registration,
-                variants: { inset: false, side: 'right' },
-              }}
-            >
-              <Sheet.Header>
-                <Sheet.Title id="server-sheet-title">Real title</Sheet.Title>
-                <Sheet.Description>Details</Sheet.Description>
-              </Sheet.Header>
-              <Sheet.Body>Body</Sheet.Body>
-              <Sheet.Footer>Actions</Sheet.Footer>
-            </SheetContentProvider>
-          </Sheet>
-        )
-      },
+      () => (
+        <Sheet>
+          <PartsWithContent />
+        </Sheet>
+      ),
     )
     expect(container.querySelector('#server-sheet-title')).not.toBeNull()
     expect(container.querySelector('[data-slot="sheet-description"]')?.id).toBeTruthy()

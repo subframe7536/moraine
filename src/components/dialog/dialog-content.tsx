@@ -1,6 +1,14 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { Show, createEffect, createMemo, createSignal, omit, createRenderEffect } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  merge,
+  omit,
+  createRenderEffect,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -15,11 +23,7 @@ import { BaseDialogPortal } from '../base-dialog/base-dialog-portal'
 import { Icon } from '../icon'
 import { createShorthandContent } from '../shared/overlay/shorthand-content'
 
-import {
-  DialogContentProvider,
-  createDialogContentRegistration,
-  useDialogContext,
-} from './dialog-context'
+import { DialogProvider, createDialogContentRegistration, useDialogContext } from './dialog-context'
 import { DialogDescription } from './dialog-description'
 import { DialogShorthandHeader } from './dialog-header'
 import { DialogTitle } from './dialog-title'
@@ -188,19 +192,21 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     )
   }
 
+  const dialogWithContent = merge(dialog, {
+    content: {
+      ...registration,
+      get variants() {
+        return variants
+      },
+      overlayScroll,
+    },
+  })
+
   return (
-    <DialogContentProvider
-      value={{
-        ...registration,
-        get variants() {
-          return variants
-        },
-        overlayScroll,
-      }}
-    >
+    <DialogProvider value={dialogWithContent}>
       <BaseDialogPortal>
         <RenderDialogOverlay />
       </BaseDialogPortal>
-    </DialogContentProvider>
+    </DialogProvider>
   )
 }

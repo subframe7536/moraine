@@ -5,6 +5,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  merge,
   onCleanup,
   omit,
   createRenderEffect,
@@ -25,11 +26,7 @@ import { Icon } from '../icon'
 import { createKeyboardInset } from '../shared/overlay/keyboard-inset'
 import { createShorthandContent } from '../shared/overlay/shorthand-content'
 
-import {
-  createDrawerContentRegistration,
-  DrawerContentProvider,
-  useDrawerContext,
-} from './drawer-context'
+import { createDrawerContentRegistration, DrawerProvider, useDrawerContext } from './drawer-context'
 import { DrawerDescription } from './drawer-description'
 import { DrawerShorthandHeader } from './drawer-header'
 import { createDrawerSwipe } from './drawer-swipe'
@@ -294,21 +291,23 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     )
   }
 
+  const drawerWithContent = merge(drawer, {
+    content: {
+      ...registration,
+      get variants() {
+        return variants
+      },
+    },
+  })
+
   return (
-    <DrawerContentProvider
-      value={{
-        ...registration,
-        get variants() {
-          return variants
-        },
-      }}
-    >
+    <DrawerProvider value={drawerWithContent}>
       <BaseDialogPortal>
         <Show when={isOverlay()}>
           <RenderDrawerOverlay />
         </Show>
         <RenderDrawerContent />
       </BaseDialogPortal>
-    </DrawerContentProvider>
+    </DrawerProvider>
   )
 }

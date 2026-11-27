@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createContext, createSignal, useContext } from 'solid-js'
+import { createSignal } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createContentAnatomy } from '../shared/overlay/content-anatomy'
@@ -116,23 +116,18 @@ export interface DrawerContextValue {
   onClosePrevented?: () => void
   snapPoint: Accessor<DrawerT.SnapPoint | null>
   setSnapPoint: (snapPoint: DrawerT.SnapPoint | null) => void
+  readonly content?: DrawerContentContext
 }
 
-const DrawerCtx = createContext<DrawerContextValue | null>(null, { name: 'Drawer' })
-
-export const DrawerProvider = DrawerCtx
+export const [DrawerProvider, useOptionalDrawerContext] =
+  /* @__PURE__ */ createContextProvider<DrawerContextValue | null>('Drawer', null)
 
 export function useDrawerContext(): DrawerContextValue {
-  const context = useContext(DrawerCtx)
+  const context = useOptionalDrawerContext()
   if (!context) {
-    throw new Error('useDrawerContext must be used within <DrawerProvider />')
+    throw new TypeError('useDrawerContext must be used within <DrawerProvider />')
   }
   return context
-}
-
-/** Reads the ambient drawer context when this drawer is nested inside one. */
-export function useOptionalDrawerContext(): DrawerContextValue | null {
-  return useContext(DrawerCtx)
 }
 
 export function createDrawerContentRegistration() {
@@ -158,5 +153,10 @@ export interface DrawerContentContext extends ReturnType<typeof createDrawerCont
   readonly variants: Required<DrawerT.Variants>
 }
 
-export const [DrawerContentProvider, useDrawerContent] =
-  /* @__PURE__ */ createContextProvider<DrawerContentContext>('DrawerContent')
+export function useDrawerContent(): DrawerContentContext {
+  const content = useDrawerContext().content
+  if (!content) {
+    throw new TypeError('useDrawerContent must be used within <Drawer.Content />')
+  }
+  return content
+}
