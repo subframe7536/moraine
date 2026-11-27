@@ -1,7 +1,6 @@
 import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
 import type { JSX } from '@solidjs/web'
 import { defineRoute } from 'solid-file-router'
-import { MDXProvider } from 'solid-file-router/mdx'
 import { Show, createEffect, createMemo, createSignal, untrack, Loading } from 'solid-js'
 
 import { Button, MoraineProvider, Progress, Sidebar } from '../../src'
@@ -11,7 +10,6 @@ import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.recipe'
 import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
 
 import { DocsHeader, DocsSidebar, DocsSidebarHeader } from './components/layout'
-import { DOCS_MDX_COMPONENTS } from './components/markdown'
 import { getDocsPages } from './docs-route'
 import { revealHashTarget, useHashScrolling } from './hooks/use-hash-scrolling'
 import { useScrollRetention } from './hooks/use-scroll-retention'
@@ -212,9 +210,7 @@ export const route = defineRoute({
 export default function DocsApp(props: { children?: JSX.Element }): JSX.Element {
   return (
     <MoraineProvider>
-      <MDXProvider components={DOCS_MDX_COMPONENTS}>
-        <DocsAppLayout>{props.children}</DocsAppLayout>
-      </MDXProvider>
+      <DocsAppLayout>{props.children}</DocsAppLayout>
     </MoraineProvider>
   )
 }

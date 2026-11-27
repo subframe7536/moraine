@@ -64,11 +64,36 @@ function createMarkdownContent(
     ...(sourcePath ? [`sourcePath=${serializeJsxExpression(sourcePath)}`] : []),
     ...(upstreamHref ? [`upstreamHref=${serializeJsxExpression(upstreamHref)}`] : []),
   ]
-  return `<components.Markdown\n  ${attrs.join('\n  ')}\n>\n  <MDXContent {...props} />\n</components.Markdown>`
+  return `<MoraineMdxProvider components={MoraineMdxComponents}>
+  <MoraineMdxComponents.Markdown
+    ${attrs.join('\n    ')}
+  >
+    <MDXContent {...props} components={MoraineMdxComponents} />
+  </MoraineMdxComponents.Markdown>
+</MoraineMdxProvider>`
 }
 
 export interface CreateDocsMdxOptionsConfig {
   lazyApiDoc?: boolean
+}
+
+function createDocsMdxProviderPlugin() {
+  return defineMdastPlugin({
+    name: 'moraine-docs-mdx-provider',
+    after(root, ctx) {
+      ctx.prependChild(root, [
+        {
+          type: 'mdxjsEsm' as const,
+          value: "import { MDXProvider as MoraineMdxProvider } from 'solid-file-router/mdx'",
+        },
+        {
+          type: 'mdxjsEsm' as const,
+          value:
+            "import { DOCS_MDX_COMPONENTS as MoraineMdxComponents } from '/routes/components/markdown/mdx-components'",
+        },
+      ])
+    },
+  })
 }
 
 function createDocsApiDocPlugin() {
@@ -112,6 +137,7 @@ export function createDocsMdxOptions(
   return {
     features: DOCS_MDX_FEATURES,
     mdastPlugins: [
+      () => createDocsMdxProviderPlugin(),
       ...(lazyApiDoc ? [() => createDocsApiDocPlugin()] : []),
       () => createMdxPreviewsPlugin(),
       () => createDocsCodeTabsPlugin(),

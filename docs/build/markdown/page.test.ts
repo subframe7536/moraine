@@ -100,8 +100,8 @@ describe('createDocsMdxOptions', () => {
         { name: 'twitter:description', content: 'Button description.' },
       ],
     })
-    expect(extension?.mdxContent).toContain('<components.Markdown')
-    expect(extension?.mdxContent).toContain('<MDXContent {...props} />')
+    expect(extension?.mdxContent).toContain('<MoraineMdxComponents.Markdown')
+    expect(extension?.mdxContent).toContain('<MDXContent {...props}')
     expect(extension?.mdxContent).toContain('routePath={"/components/button"}')
     expect(extension?.mdxContent).not.toContain('metadata={')
     expect(extension?.mdxContent).not.toContain('frontmatter={')
@@ -191,7 +191,7 @@ describe('createDocsMdxOptions', () => {
 
   it('defers apiDoc highlighting to virtual:api-doc/<key> when lazyApiDoc is enabled', async () => {
     const options = createDocsMdxOptions('/tmp/moraine-project', { lazyApiDoc: true })
-    expect(options.mdastPlugins?.length).toBe(4)
+    expect(options.mdastPlugins?.length).toBe(5)
 
     const extension = await options.extendLoad?.(
       {
