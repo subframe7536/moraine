@@ -78,14 +78,6 @@ export default defineConfig(({ command }) => ({
     client: {
       build: {
         rolldownOptions: {
-          // devtools: { mode: 'report' },
-          treeshake: {
-            // Route modules keep the page's MDX imports; without this every playground and preview
-            // (and the components they demo) stays in the eagerly loaded route table.
-            moduleSideEffects: [
-              { test: /[\\/]docs[\\/]pages[\\/].*\.tsx(?:\?.*)?$/, sideEffects: false },
-            ],
-          },
           output: {
             // Do not group the other library modules: they read each other's recipe constants at
             // load time, and manual chunks create import cycles that run a recipe before its
