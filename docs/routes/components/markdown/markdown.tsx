@@ -1,10 +1,7 @@
 import type { JSX } from '@solidjs/web'
-import { createMemo } from 'solid-js'
+import { useRouteInfo } from 'solid-file-router'
 
-import { getApiReferenceTocEntries } from '../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../build/api-doc/types'
-import type { FrontmatterData } from '../../../build/markdown/types'
-import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
 import { DocsApiReference } from './api-reference'
 import { ComponentDocContext } from './component-doc.context'
@@ -20,33 +17,32 @@ export interface DocsMdxCodeTabItem {
 }
 
 export interface RenderExampleMarkdownPageInput {
-  pageKey: string
-  surface: string
-  section: string
   routePath: string
-  markdownPath: string
   apiDoc?: ExamplePageApiDoc
-  frontmatter: FrontmatterData
-  onThisPageEntries?: Array<OnThisPageEntry>
+  sourcePath?: string
+  upstreamHref?: string
   children?: JSX.Element
 }
 
 export function Markdown(input: RenderExampleMarkdownPageInput) {
-  const onThisPageEntries = createMemo(() => [
-    ...(input.onThisPageEntries ?? []),
-    ...getApiReferenceTocEntries(input.apiDoc),
-  ])
+  const routeInfo = useRouteInfo()
+  // Index routes in solid-file-router's routeInfo carry a trailing slash (e.g. `/components/accordion/`).
+  const info = () =>
+    routeInfo[input.routePath] ??
+    (input.routePath === '/' ? undefined : routeInfo[`${input.routePath}/`])
+  const onThisPageEntries = () => info()?.sections ?? []
 
   return (
     <article class="text-foreground px-5 flex gap-8 min-h-screen w-full items-start sm:px-8">
       <div class="mx-auto flex-1 max-w-4xl min-w-0 w-full">
         <DocsPageHeader
-          pageKey={input.pageKey}
-          surface={input.surface}
-          section={input.section}
-          markdownPath={input.markdownPath}
+          title={info()?.title ?? ''}
+          description={info()?.description ?? ''}
+          surface={info()?.surface ?? 'docs'}
+          markdownPath={info()?.markdownPath ?? ''}
           apiDoc={input.apiDoc}
-          frontmatter={input.frontmatter}
+          sourcePath={input.sourcePath}
+          upstreamHref={input.upstreamHref}
         />
 
         <CompactOnThisPage entries={onThisPageEntries()} />
@@ -54,7 +50,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
         <div class="mb-24 mt-8 min-w-0 w-full">
           <ComponentDocContext
             value={{
-              name: input.apiDoc?.parts[0]?.name ?? input.frontmatter.title,
+              name: input.apiDoc?.parts[0]?.name ?? info()?.title ?? '',
               api: input.apiDoc,
             }}
           >

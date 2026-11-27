@@ -52,28 +52,19 @@ function createDocsRouteMetadata(
 }
 
 function createMarkdownContent(
-  pageKey: string,
-  surface: string,
-  section: string,
   routePath: string,
-  markdownPath: string,
-  frontmatter: unknown,
   apiDocExpression: string,
-  onThisPageEntries: ReadonlyArray<OnThisPageEntryLiteral>,
+  sourcePath?: string,
+  upstreamHref?: string,
 ): string {
-  return `<components.Markdown
-  {...props}
-  pageKey=${serializeJsxExpression(pageKey)}
-  surface=${serializeJsxExpression(surface)}
-  section=${serializeJsxExpression(section)}
-  routePath=${serializeJsxExpression(routePath)}
-  markdownPath=${serializeJsxExpression(markdownPath)}
-  frontmatter=${serializeJsxExpression(frontmatter)}
-  apiDoc={${apiDocExpression}}
-  onThisPageEntries=${serializeJsxExpression(onThisPageEntries)}
->
-  <MDXContent {...props} />
-</components.Markdown>`
+  const attrs = [
+    '{...props}',
+    `routePath=${serializeJsxExpression(routePath)}`,
+    ...(apiDocExpression !== 'undefined' ? [`apiDoc={${apiDocExpression}}`] : []),
+    ...(sourcePath ? [`sourcePath=${serializeJsxExpression(sourcePath)}`] : []),
+    ...(upstreamHref ? [`upstreamHref=${serializeJsxExpression(upstreamHref)}`] : []),
+  ]
+  return `<components.Markdown\n  ${attrs.join('\n  ')}\n>\n  <MDXContent {...props} />\n</components.Markdown>`
 }
 
 export interface CreateDocsMdxOptionsConfig {
@@ -166,14 +157,10 @@ export function createDocsMdxOptions(
       return {
         routeConfig: { info, metadata },
         mdxContent: createMarkdownContent(
-          page.pageKey,
-          page.surface,
-          info.section,
           page.routePath,
-          page.markdownPath,
-          frontmatter,
           apiDocExpression,
-          onThisPageEntries,
+          frontmatter.api?.path,
+          frontmatter.upstreamHref,
         ),
       }
     },

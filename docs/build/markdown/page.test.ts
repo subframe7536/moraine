@@ -102,8 +102,11 @@ describe('createDocsMdxOptions', () => {
     })
     expect(extension?.mdxContent).toContain('<components.Markdown')
     expect(extension?.mdxContent).toContain('<MDXContent {...props} />')
+    expect(extension?.mdxContent).toContain('routePath={"/components/button"}')
     expect(extension?.mdxContent).not.toContain('metadata={')
-    expect(extension?.mdxContent).toContain('markdownPath={"/components/button.md"}')
+    expect(extension?.mdxContent).not.toContain('frontmatter={')
+    expect(extension?.mdxContent).not.toContain('onThisPageEntries={')
+    expect(extension?.mdxContent).not.toContain('markdownPath={')
   })
 
   it('adds generated API sections after MDX headings', async () => {

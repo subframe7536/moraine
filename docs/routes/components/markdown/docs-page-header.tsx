@@ -2,23 +2,21 @@ import { Show } from 'solid-js'
 
 import { Badge, Button, CopyButton } from '../../../../src'
 import type { ComponentApi } from '../../../build/api-doc/types'
-import type { FrontmatterData } from '../../../build/markdown/types'
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 
 export interface DocsPageHeaderProps {
-  pageKey: string
+  title: string
+  description: string
   surface: string
-  section: string
   markdownPath: string
   apiDoc?: ComponentApi
-  frontmatter: FrontmatterData
+  sourcePath?: string
+  upstreamHref?: string
 }
 
 export function DocsPageHeader(props: DocsPageHeaderProps) {
-  const githubSourceHref = () => {
-    const sourcePath = props.frontmatter.api?.path
-    return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}.tsx` : undefined
-  }
+  const githubSourceHref = () =>
+    props.sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${props.sourcePath}.tsx` : undefined
 
   async function fetchMarkdownSource(): Promise<string> {
     const response = await fetch(props.markdownPath)
@@ -31,12 +29,10 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
   return (
     <header class="text-foreground mt-4 md:mt-8">
       <h1 class="text-2xl font-bold mt-3 outline-none wrap-anywhere sm:text-3xl" tabindex={-1}>
-        {props.frontmatter.title}
+        {props.title}
       </h1>
 
-      <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">
-        {props.frontmatter.description}
-      </p>
+      <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">{props.description}</p>
 
       <Show
         when={
@@ -97,7 +93,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
           )}
         </Show>
 
-        <Show when={props.frontmatter.upstreamHref}>
+        <Show when={props.upstreamHref}>
           {(href) => (
             <Button
               as="a"
