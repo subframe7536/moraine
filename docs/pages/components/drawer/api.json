@@ -208,7 +208,7 @@
         {
           "name": "snapPoints",
           "optional": true,
-          "type": "SnapPoint[]",
+          "type": "Array<SnapPoint>",
           "description": "Visible heights the drawer can rest at, measured from the edge it opens from, in any order.\nEach is a number (`<= 1` is a fraction of the viewport height, `> 1` is pixels) or a `px` or\n`rem` string; heights are clamped to the drawer and the viewport. Releasing a swipe settles\non the closest point (projected by the swipe velocity), and dragging past the lowest point\ndismisses the drawer. Only honored when `side` is `top` or `bottom`.",
           "examples": [
             "import { Button, Drawer } from 'moraine'\n\n<Drawer snapPoints={[0.4, '24rem', 1]}>\n  <Drawer.Trigger as={Button}>Open</Drawer.Trigger>\n  <Drawer.Content title=\"Details\">Drawer content</Drawer.Content>\n</Drawer>"

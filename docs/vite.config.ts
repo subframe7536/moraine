@@ -26,7 +26,7 @@ const docsRouter = new DocsFileSystemRouter([
   }),
 ])
 
-export default defineConfig({
+export default defineConfig(({command}) => ({
   plugins: [
     variantGroupPlugin(),
     docsBuildPlugin({ projectRoot }),
@@ -35,7 +35,6 @@ export default defineConfig({
       start: {
         app: 'App.tsx',
         document: 'Document.tsx',
-        clientSetup: 'client-setup.ts',
       },
       ssr: true,
       extensions: ['.mdx'],
@@ -46,7 +45,7 @@ export default defineConfig({
       router: docsRouter,
       mdx: createDocsMdxOptions(projectRoot),
       output: 'routes.d.ts',
-      ssg: {
+      ssg: command === 'build' && {
         concurrency: 4,
       },
     }),
@@ -126,4 +125,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))

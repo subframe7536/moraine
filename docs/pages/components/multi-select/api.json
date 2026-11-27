@@ -124,7 +124,7 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "NormalizedItem<TItem>['value'][]",
+          "type": "Array<NormalizedItem<TItem>['value']>",
           "description": "Initial selected values when `value` is not set. Read once on creation; a native form reset\nrestores it."
         },
         {
@@ -162,7 +162,7 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | Placement[]",
+          "type": "boolean | Array<Placement>",
           "description": "Whether to flip placement when the preferred side lacks space. `false` disables flipping. An\narray is an ordered list of fallback `Placement` values tried in order, each `top`,\n`bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example\n`['top', 'bottom-end']`).",
           "default": {
             "kind": "literal",
@@ -209,7 +209,7 @@
         {
           "name": "isItemDisabled",
           "optional": true,
-          "type": "(item: NormalizedItem<TItem>, values: readonly NormalizedItem<TItem>['value'][]) => boolean",
+          "type": "(item: NormalizedItem<TItem>, values: ReadonlyArray<NormalizedItem<TItem>['value']>) => boolean",
           "description": "Extra disabled rule, evaluated for every item together with the current selected values;\nreturn `true` to disable the item in addition to `item.disabled`. Disabled items cannot be\nselected, highlighted, or reached by typeahead. In `MultiSelect`, a selected disabled item\nkeeps its tag (it cannot be removed) and survives clearing. In `Select` and `Combobox`,\nstring items arrive as `{ value, label }`.",
           "examples": [
             "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Admin', value: 'admin' },\n    { label: 'Guest', value: 'guest' },\n  ]}\n  isItemDisabled={(item, values) => item.value === 'guest' && values.includes('admin')}\n/>"
@@ -236,8 +236,8 @@
         {
           "name": "items",
           "optional": true,
-          "type": "Entry<TItem>[]",
-          "typeDetails": "(string | {\n  /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */\n  value: string | number;\n  /** Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\nfiltering) fall back to `String(value)` unless `getItemLabel` is set. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. A disabled item is also left out of form submission. */\n  disabled?: boolean;\n  /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */\n  icon?: IconT.Name;\n  /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  /** Heading rendered above the group's items. Not selectable. */\n  label: JSX.Element;\n  /** Items in the group. Item values must be unique across the whole collection, not just the\ngroup: a repeated value is ignored (the first occurrence wins). A group with no remaining\nitems, or none matching the current search, renders nothing. */\n  children: (string | {\n    /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */\n    value: string | number;\n    /** Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\n  filtering) fall back to `String(value)` unless `getItemLabel` is set. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. A disabled item is also left out of form submission. */\n    disabled?: boolean;\n    /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */\n    icon?: IconT.Name;\n    /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */\n    description?: JSX.Element;\n  })[];\n} | {\n  /** Structural separator discriminator. */\n  type: 'separator';\n})[]",
+          "type": "Array<Entry<TItem>>",
+          "typeDetails": "(string | {\n  /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */\n  value: string | number;\n  /** Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\nfiltering) fall back to `String(value)` unless `getItemLabel` is set. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. A disabled item is also left out of form submission. */\n  disabled?: boolean;\n  /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */\n  icon?: IconT.Name;\n  /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  /** Heading rendered above the group's items. Not selectable. */\n  label: JSX.Element;\n  /** Items in the group. Item values must be unique across the whole collection, not just the\ngroup: a repeated value is ignored (the first occurrence wins). A group with no remaining\nitems, or none matching the current search, renders nothing. */\n  children: Array<string | {\n    /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */\n    value: string | number;\n    /** Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\n  filtering) fall back to `String(value)` unless `getItemLabel` is set. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. A disabled item is also left out of form submission. */\n    disabled?: boolean;\n    /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */\n    icon?: IconT.Name;\n    /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */\n    description?: JSX.Element;\n  }>;\n} | {\n  /** Structural separator discriminator. */\n  type: 'separator';\n})[]",
           "description": "Options of the popup list: plain strings (shorthand for `{ value, label }`), item objects,\n`{ type: 'group', label, children }` groups, and `{ type: 'separator' }` dividers. Item values must\nbe unique across the whole collection; a repeated value is ignored and logs an error in\ndevelopment. Items created through `createItem` are added on top of this list.",
           "examples": [
             "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Design', value: 'design' },\n    { type: 'separator' },\n    {\n      type: 'group',\n      label: 'Engineering',\n      children: [\n        { label: 'Frontend', value: 'frontend' },\n        { label: 'Backend', value: 'backend', disabled: true },\n      ],\n    },\n  ]}\n/>"
@@ -334,7 +334,7 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: NoInfer<NormalizedItem<TItem>['value'][]>) => void",
+          "type": "(value: NoInfer<Array<NormalizedItem<TItem>['value']>>) => void",
           "description": "Called with the full new array of selected values when the user adds or removes an item\n(clicking an option, `Enter`, removing a tag, or clearing). The search text is cleared\njust before it is called. Not called for prop updates or while disabled or read-only."
         },
         {
@@ -514,7 +514,7 @@
         {
           "name": "tokenSeparators",
           "optional": true,
-          "type": "string[]",
+          "type": "Array<string>",
           "description": "Strings that commit completed input tokens through `createItem` or an exact source match,\nwhile typing or pasting into the editable input. Duplicate separators are ignored and\noverlapping separators prefer the longest match.",
           "default": {
             "kind": "expression",
@@ -543,7 +543,7 @@
         {
           "name": "value",
           "optional": true,
-          "type": "NormalizedItem<TItem>['value'][]",
+          "type": "Array<NormalizedItem<TItem>['value']>",
           "description": "Controlled array of selected item values, in selection order. `undefined` keeps the\nselection uncontrolled; `[]` keeps it controlled and empty. In controlled mode the\nselection changes only when you update this prop in `onValueChange`."
         },
         {

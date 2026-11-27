@@ -1,3 +1,6 @@
+import '@subf/unocss/reset-tailwind-v4.css'
+import 'uno.css'
+
 import type { JSX } from '@solidjs/web'
 import { announceRoutes } from 'solid-file-router'
 

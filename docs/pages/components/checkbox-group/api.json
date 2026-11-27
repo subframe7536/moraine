@@ -36,7 +36,7 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "string[]",
+          "type": "Array<string>",
           "description": "Initially selected item values when uncontrolled; also the selection restored when the\nsurrounding native form is reset.",
           "default": {
             "kind": "expression",
@@ -84,7 +84,7 @@
         {
           "name": "items",
           "optional": true,
-          "type": "(string | Item)[]",
+          "type": "Array<string | Item>",
           "typeDetails": "(string | {\n  /** Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment). */\n  value: string;\n  /** Label rendered beside the item's checkbox. */\n  label?: JSX.Element;\n  /** Description rendered under the item's label. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. A disabled item is skipped by the group's `required`\nvalidation. */\n  disabled?: boolean;\n  /** Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling a mixed item always checks it: it adds the `value` to the group's `value` array, or\nchanges nothing when the `value` is already selected. Clear `indeterminate` to let the user\nuncheck it. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. Overrides the group's `checkedIcon`. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. Overrides the group's `indeterminateIcon`. */\n  indeterminateIcon?: IconT.Name;\n})[]",
           "description": "Options to render. A string is shorthand for an item whose `value` and `label` are that\nstring.",
           "examples": [
@@ -118,7 +118,7 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: string[]) => void",
+          "type": "(value: Array<string>) => void",
           "description": "Called after the user toggles an item, with the full new array of selected item values\n(previous values plus or minus the toggled one, in toggle order). Not called while the group\nis `disabled` or `readOnly`."
         },
         {
@@ -176,7 +176,7 @@
         {
           "name": "value",
           "optional": true,
-          "type": "string[]",
+          "type": "Array<string>",
           "description": "The `value` of every selected item (controlled). Leave it `undefined` for uncontrolled\nstate and update it from `onValueChange`."
         },
         {

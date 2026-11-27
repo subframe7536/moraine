@@ -63,7 +63,7 @@
         {
           "name": "items",
           "optional": true,
-          "type": "readonly TItem[]",
+          "type": "ReadonlyArray<TItem>",
           "description": "Collection to render, one `itemRender` call per entry. Treated as empty when `undefined`."
         },
         {
