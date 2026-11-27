@@ -88,14 +88,13 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
     async extendLoad(document, context) {
       const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
       const page = resolveDocsPageContext(sourcePath)
-      const pagesIndex = context.path.lastIndexOf('/pages/')
-      const contextPath =
-        pagesIndex >= 0 ? context.path.slice(pagesIndex + '/pages/'.length) : context.path
-      const routeId = `/${contextPath
-        .replaceAll(/(^|\/)\([^)]*\)\//g, '$1')
-        .replace(/\.[^./]+$/, '')
-        .replace(/(^|\/)index$/, '$1')
-        .replace(/\/$/, '')}`
+      const routeId =
+        context.routePath ??
+        `/${context.path
+          .replaceAll(/(^|\/)\([^)]*\)\//g, '$1')
+          .replace(/\.[^./]+$/, '')
+          .replace(/(^|\/)index$/, '$1')
+          .replace(/\/$/, '')}`
       if (routeId !== page.routePath) {
         throw new Error(
           `[docs-mdx] route mismatch for ${sourcePath}: ${routeId} != ${page.routePath}`,

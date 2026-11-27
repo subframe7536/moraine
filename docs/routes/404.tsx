@@ -1,4 +1,6 @@
-export const route = {}
+import { defineRoute } from 'solid-file-router'
+
+export const route = defineRoute({})
 
 export default function DocsNotFound() {
   return (

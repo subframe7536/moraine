@@ -1,5 +1,6 @@
 import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
 import type { JSX } from '@solidjs/web'
+import { defineRoute } from 'solid-file-router'
 import { MDXProvider } from 'solid-file-router/mdx'
 import { Show, createEffect, createMemo, createSignal, untrack, Loading } from 'solid-js'
 
@@ -190,7 +191,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   )
 }
 
-export const route = {}
+export const route = defineRoute({})
 
 export default function DocsApp(props: { children?: JSX.Element }): JSX.Element {
   return (

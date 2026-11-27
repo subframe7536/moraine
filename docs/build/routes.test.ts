@@ -4,10 +4,14 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 
 import path from 'pathe'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { resolveDocsPageContext } from './core/paths.ts'
 import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
+
+vi.mock('solid-file-router', () => ({
+  getRouteInfo: () => ROUTE_INFO,
+}))
 
 const ROUTE_INFO = {
   '/': {},
@@ -78,8 +82,7 @@ describe('docs route metadata', () => {
   })
 
   it('filters malformed sections and sorts pages across surfaces', async () => {
-    const { getDocsPages, registerDocsRouteInfo } = await import('../routes/docs-route.ts')
-    registerDocsRouteInfo(ROUTE_INFO)
+    const { getDocsPages } = await import('../routes/docs-route.ts')
     expect(getDocsPages()).toMatchObject([
       { path: '/docs/getting-started', surface: 'docs', sections: [] },
       {
