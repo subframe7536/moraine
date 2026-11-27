@@ -1,4 +1,7 @@
+import { fileURLToPath } from 'node:url'
+
 import path from 'pathe'
+import { defineMdastPlugin } from 'satteri'
 import type { MdxOptions } from 'solid-file-router/plugin'
 
 import { validateAnatomy } from '../anatomy.ts'
@@ -55,7 +58,7 @@ function createMarkdownContent(
   routePath: string,
   markdownPath: string,
   frontmatter: unknown,
-  apiDoc: unknown,
+  apiDocExpression: string,
   onThisPageEntries: ReadonlyArray<OnThisPageEntryLiteral>,
   metadata: DocsRouteMetadata,
 ): string {
@@ -67,7 +70,7 @@ function createMarkdownContent(
   routePath=${serializeJsxExpression(routePath)}
   markdownPath=${serializeJsxExpression(markdownPath)}
   frontmatter=${serializeJsxExpression(frontmatter)}
-  apiDoc=${serializeJsxExpression(apiDoc)}
+  apiDoc={${apiDocExpression}}
   onThisPageEntries=${serializeJsxExpression(onThisPageEntries)}
   metadata=${serializeJsxExpression(metadata)}
 >
@@ -75,11 +78,52 @@ function createMarkdownContent(
 </components.Markdown>`
 }
 
+export interface CreateDocsMdxOptionsConfig {
+  lazyApiDoc?: boolean
+}
+
+function createDocsApiDocPlugin() {
+  return defineMdastPlugin({
+    name: 'moraine-docs-api-doc',
+    after(root, ctx) {
+      const documentId = ctx.fileURL ? fileURLToPath(ctx.fileURL) : undefined
+      if (!documentId) {
+        return
+      }
+      const page = resolveDocsPageContext(documentId)
+      if (page.surface !== 'components' || page.routePath === '/components') {
+        return
+      }
+      if (!loadComponentApiDoc(documentId)) {
+        return
+      }
+      ctx.prependChild(root, [
+        {
+          type: 'mdxjsEsm' as const,
+          value: `import __moraineApiDoc from ${JSON.stringify(`virtual:api-doc/${page.pageKey}`)}`,
+        },
+      ])
+    },
+  })
+}
+
 /** Creates the docs-specific configuration layered on top of the built-in MDX provider. */
-export function createDocsMdxOptions(projectRoot: string): MdxOptions {
+export function createDocsMdxOptions(
+  projectRoot: string,
+  config: CreateDocsMdxOptionsConfig = {},
+): MdxOptions {
+  const lazyApiDoc = config.lazyApiDoc === true
+  let cachedComponentKeys: Set<string> | undefined
+
+  const getComponentKeys = () => {
+    cachedComponentKeys ??= new Set(loadApiDocIndex(projectRoot)?.components.map(({ key }) => key))
+    return cachedComponentKeys
+  }
+
   return {
     features: DOCS_MDX_FEATURES,
     mdastPlugins: [
+      ...(lazyApiDoc ? [() => createDocsApiDocPlugin()] : []),
       () => createMdxPreviewsPlugin(),
       () => createDocsCodeTabsPlugin(),
       () => createDocsCodePlugin(),
@@ -101,7 +145,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
         )
       }
       const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)
-      const componentKeys = new Set(loadApiDocIndex(projectRoot)?.components.map(({ key }) => key))
+      const componentKeys = getComponentKeys()
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
         ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as Array<OnThisPageEntryLiteral>)
         : []
@@ -109,12 +153,17 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       if (page.surface === 'components' && page.routePath !== '/components') {
         await validateAnatomy(document.source, sourcePath, sourceApiDoc ?? undefined)
       }
-      const apiDoc = sourceApiDoc ? await highlightApiTypes(sourceApiDoc) : undefined
+      const apiDoc =
+        lazyApiDoc || !sourceApiDoc ? sourceApiDoc : await highlightApiTypes(sourceApiDoc)
       const info = createDocsRouteInfo(page, frontmatter, componentKeys, [
         ...onThisPageEntries,
-        ...getApiReferenceTocEntries(apiDoc),
+        ...getApiReferenceTocEntries(apiDoc ?? undefined),
       ])
       const metadata = createDocsRouteMetadata(page.routePath, frontmatter)
+      const apiDocExpression =
+        lazyApiDoc && sourceApiDoc
+          ? '__moraineApiDoc'
+          : (JSON.stringify(apiDoc ?? undefined) ?? 'undefined')
 
       return {
         routeConfig: { info, metadata },
@@ -125,7 +174,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
           page.routePath,
           page.markdownPath,
           frontmatter,
-          apiDoc,
+          apiDocExpression,
           onThisPageEntries,
           metadata,
         ),

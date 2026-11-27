@@ -1,4 +1,5 @@
 export { docsBuildPlugin } from './plugin.ts'
+export { docsDevBarrelPlugin } from './dev-barrel.ts'
 export { createDocsMdxOptions } from './markdown/page.ts'
 export { DOCS_SITE, siteMetaPlugin } from './site-meta.ts'
 export { llmsTxtPlugin } from './llms.ts'

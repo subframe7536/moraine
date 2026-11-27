@@ -185,4 +185,34 @@ describe('createDocsMdxOptions', () => {
       canonical: 'https://moraine.subf.dev/docs/getting-started',
     })
   })
+
+  it('defers apiDoc highlighting to virtual:api-doc/<key> when lazyApiDoc is enabled', async () => {
+    const options = createDocsMdxOptions('/tmp/moraine-project', { lazyApiDoc: true })
+    expect(options.mdastPlugins?.length).toBe(4)
+
+    const extension = await options.extendLoad?.(
+      {
+        source: '## Usage\n\nUse Button.',
+        code: 'function MDXContent() {}',
+        component: 'MDXContent',
+        frontmatter: FRONTMATTER,
+        routeConfig: {},
+        data: { __moraineOnThisPageEntries: [{ id: 'button', label: 'Button', level: 1 }] },
+      },
+      {
+        path: 'components/button/index.tsx',
+        sourcePath: 'pages/components/button/index.mdx',
+      },
+    )
+
+    expect(extension?.routeConfig?.info).toMatchObject({
+      key: 'button',
+      sections: [
+        { id: 'button', label: 'Button', level: 1 },
+        { id: 'api-reference', label: 'API Reference', level: 1 },
+        { id: 'api-props', label: 'Props', level: 2 },
+      ],
+    })
+    expect(extension?.mdxContent).toContain('apiDoc={__moraineApiDoc}')
+  })
 })

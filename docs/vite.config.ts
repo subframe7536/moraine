@@ -6,17 +6,34 @@ import { defineConfig } from 'vite'
 
 import { variantGroupPlugin } from '../build/vite-plugin-variant-group.ts'
 
-import { createDocsMdxOptions, DOCS_SITE, docsBuildPlugin, llmsTxtPlugin } from './build/index.ts'
+import {
+  createDocsMdxOptions,
+  DOCS_SITE,
+  docsBuildPlugin,
+  docsDevBarrelPlugin,
+  llmsTxtPlugin,
+} from './build/index.ts'
 import unocfg from './unocss.config.ts'
 const docsRoot = import.meta.dirname
 const projectRoot = path.resolve(docsRoot, '..')
 const sourceRoot = path.resolve(projectRoot, 'src')
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     variantGroupPlugin(),
     docsBuildPlugin({ projectRoot }),
-    uno(unocfg),
+    docsDevBarrelPlugin({ projectRoot }),
+    uno(
+      command === 'serve'
+        ? {
+            ...unocfg,
+            content: {
+              filesystem: ['build/markdown/shared.recipe.ts'],
+              pipeline: unocfg.content?.pipeline,
+            },
+          }
+        : unocfg,
+    ),
     solid({
       start: {
         app: 'App.tsx',
@@ -41,7 +58,7 @@ export default defineConfig({
         },
       ],
       eager: ['/(app)', '/'],
-      mdx: createDocsMdxOptions(projectRoot),
+      mdx: createDocsMdxOptions(projectRoot, { lazyApiDoc: true }),
       output: 'routes.d.ts',
       ssg: { enable: 'build-only' },
     }),
@@ -101,4 +118,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
