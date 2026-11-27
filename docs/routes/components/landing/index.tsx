@@ -34,8 +34,8 @@ export function LandingPage() {
           <span class="text-primary block">Composable at every level.</span>
         </h1>
         <p class="text-sm text-muted-foreground leading-relaxed mt-4 max-w-2xl lg:text-lg sm:text-base sm:mt-5">
-          60 accessible SolidJS components with semantic tokens, intuitive props, and dedicated
-          primitives for UnoCSS and Tailwind CSS v4.
+          60 accessible SolidJS components with semantic tokens, composable primitives, and
+          first-class UnoCSS and Tailwind CSS v4 support.
         </p>
 
         <div class="mt-7 flex flex-wrap gap-2.5 items-center justify-center sm:gap-3">
@@ -60,7 +60,7 @@ export function LandingPage() {
             |
           </span>
           <span aria-hidden="true" class="basis-full h-0 sm:hidden" />
-          <span>Optional Peer Entries</span>
+          <span>Tree-Shakeable</span>
           <span aria-hidden="true">|</span>
           <span>SSR Safe</span>
         </p>

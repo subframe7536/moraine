@@ -55,17 +55,17 @@ const INTEGRATIONS = [
   {
     entry: 'moraine/data-table',
     engine: '@tanstack/table-core',
-    kind: 'Optional peer',
+    kind: 'On demand',
   },
   {
     entry: 'moraine/virtualizer',
     engine: '@tanstack/virtual-core',
-    kind: 'Optional peer',
+    kind: 'On demand',
   },
   {
     entry: 'moraine/dnd',
     engine: '@dnd-kit/dom',
-    kind: 'Optional peer',
+    kind: 'On demand',
   },
   {
     entry: 'moraine (createForm)',
@@ -136,7 +136,10 @@ function CodeCompareCard(props: {
 }) {
   return (
     <div
-      class={`p-5 border border-border rounded-xl bg-card flex flex-col gap-4 min-w-0 ${props.class}`}
+      class={cn(
+        'p-5 border border-border rounded-xl bg-card flex flex-col gap-4 min-w-0',
+        props.class,
+      )}
     >
       <div class="flex gap-3 items-start justify-between">
         <div>
@@ -394,12 +397,12 @@ export function ComponentRadar() {
                 {
                   value: 'transition',
                   label: 'Graceful transition',
-                  content: 'Expand and collapse with smooth movement',
+                  content: 'Expand and collapse panels with smooth transitions.',
                 },
                 {
                   value: 'custom',
                   label: 'Customizable',
-                  content: 'Control styles on every part of component',
+                  content: 'Customize styles on every part of a component via slots and recipes.',
                 },
               ]}
               classes={{
@@ -432,7 +435,8 @@ export function ComponentRadar() {
                   description: 'Add Moraine',
                   content: () => (
                     <p class="text-sm text-muted-foreground pt-3">
-                      Install the core package and optional peer entries only when needed.
+                      Add the core package, then install extra adapters like DataTable or DnD only
+                      when you need them.
                     </p>
                   ),
                 },
@@ -581,10 +585,10 @@ export function ComponentRadar() {
         <div class="mt-5 flex flex-col gap-5 md:flex-row">
           <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between md:w-60%">
             <div>
-              <h3 class="text-base font-semibold">Ecosystem library integrations</h3>
+              <h3 class="text-base font-semibold">Ecosystem integrations</h3>
               <p class="text-sm text-muted-foreground mt-1.5">
-                First-class adapters for TanStack Table, TanStack Virtual, dnd-kit, and Formisch via
-                dedicated subpath entries — keeping optional peers out of the core bundle.
+                First-class adapters for TanStack Table, TanStack Virtual, dnd-kit, and Formisch —
+                shipped as dedicated subpaths so heavy engines stay out of your core bundle.
               </p>
             </div>
 
@@ -593,8 +597,8 @@ export function ComponentRadar() {
                 <Table.Header>
                   <Table.Row>
                     <Table.Head>Entry point</Table.Head>
-                    <Table.Head class="max-sm:hidden">Library</Table.Head>
-                    <Table.Head align="end">Dependency</Table.Head>
+                    <Table.Head class="max-sm:hidden">Powered by</Table.Head>
+                    <Table.Head align="end">Bundle</Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>

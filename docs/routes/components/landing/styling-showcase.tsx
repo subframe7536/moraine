@@ -526,7 +526,11 @@ export function StylingShowcase() {
               <Popover.Trigger as={Button} aria-label="More deploy options">
                 <Icon name="i-lucide:chevron-down" class="size-3.5" />
               </Popover.Trigger>
-              <Popover.Content aria-label="Deploy options" class="p-3 w-52 space-y-2">
+              <Popover.Content
+                aria-label="Deploy options"
+                class="p-3 w-52 space-y-2"
+                style={themeStyle()}
+              >
                 <p class="text-xs font-medium">Preview target</p>
                 <p class="text-xs text-muted-foreground">
                   Portaled overlays automatically inherit the active theme tokens.
@@ -646,8 +650,8 @@ export function StylingShowcase() {
             >
               <Alert
                 tone="info"
-                title="Zero-runtime recipes active"
-                description="All 15+ controls in this canvas share one semantic token layer."
+                title="Unified theme tokens active"
+                description="Every control in this canvas shares one semantic token layer."
                 closable
                 open={alertOpen()}
                 onOpenChange={setAlertOpen}
@@ -726,7 +730,7 @@ export function StylingShowcase() {
             <Popover.Trigger as={Button} size="sm" variant="outline">
               Open Popover
             </Popover.Trigger>
-            <Popover.Content aria-label="Popover preview" class="p-3 w-52">
+            <Popover.Content aria-label="Popover preview" class="p-3 w-52" style={themeStyle()}>
               <p class="text-xs text-muted-foreground">
                 Anchored floating panel with collision detection.
               </p>
