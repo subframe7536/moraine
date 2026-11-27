@@ -84,7 +84,7 @@ export function CustomSlider() {
 
       <div
         ref={(element) => slider.setThumbRefs(() => [element])}
-        tabIndex={0}
+        tabindex={0}
         role="slider"
         aria-label="Amount"
         aria-valuenow={slider.currentValues()[0] ?? 0}

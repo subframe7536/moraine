@@ -103,7 +103,7 @@ export function CustomTabs() {
             ref={(element) => tabRefs.set(tab.id, element)}
             role="tab"
             aria-selected={selectedId() === tab.id}
-            tabIndex={selectedId() === tab.id ? 0 : -1}
+            tabindex={selectedId() === tab.id ? 0 : -1}
             onClick={() => setSelectedId(tab.id)}
             onKeyDown={(event) => nav.onNavigationKeyDown(event, tab.id, 'horizontal')}
             class="px-3 py-1.5 border-b-2"

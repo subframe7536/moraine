@@ -59,7 +59,7 @@ export function useHashScrolling(options: HashScrollingOptions) {
         if (scroll()) {
           return
         }
-        // A routed page can commit after Suspense settles. Observe that commit,
+        // A routed page can commit after Loading settles. Observe that commit,
         // instead of guessing its duration with a timer.
         observer = new MutationObserver(scroll)
         observer.observe(root, { childList: true, subtree: true })

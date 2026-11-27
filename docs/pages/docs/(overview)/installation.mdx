@@ -11,7 +11,7 @@ search:
 
 Start with a SolidJS application and a build pipeline that compiles Solid JSX:
 
-- **SolidJS**: `^1.9.19`, matching Moraine's peer dependency.
+- **SolidJS**: `solid-js` (`^2.0.3`) and `@solidjs/web` (`^2.0.3`), matching Moraine's peer dependencies.
 - **Build tool**: A Solid/Vite application or SolidStart.
 - **Styling**: The [UnoCSS integration](/docs/unocss) or the [Tailwind CSS v4 integration](/docs/tailwind).
 - **TypeScript**: Recommended for component props and collection types.
@@ -36,13 +36,13 @@ npm install moraine
 yarn add moraine
 ```
 
-The main `moraine` entry needs only `solid-js`. Other entries need an optional peer dependency, which you install yourself:
+The main `moraine` entry needs `solid-js` and `@solidjs/web`. Other entries need an optional peer dependency, which you install yourself:
 
 | Import path           | Provides                                                                  | Peer dependency                       |
 | :-------------------- | :------------------------------------------------------------------------ | :------------------------------------ |
-| `moraine`             | Components, `MoraineProvider`, `useLocale`, `cn`, `createCn`, and `useCn` | `solid-js`                            |
+| `moraine`             | Components, `MoraineProvider`, `useLocale`, `cn`, `createCn`, and `useCn` | `solid-js`, `@solidjs/web`            |
 | `moraine/theme`       | `defineTheme()` and theme types                                           | None                                  |
-| `moraine/utils`       | Utilities such as `createId` and `createMediaQuery`                       | `solid-js`                            |
+| `moraine/utils`       | Utilities such as `createId` and `createMediaQuery`                       | `solid-js`, `@solidjs/web`            |
 | `moraine/unocss`      | `presetMoraine()`                                                         | `@subf/unocss` (`^0.4.0`)             |
 | `moraine/tailwind`    | Tailwind CSS v4 plugin                                                    | `tailwindcss` (`^4.3.5`)              |
 | `moraine/data-table`  | `DataTable` and `createDataTable`                                         | `@tanstack/table-core` (`^9.3.1`)     |
@@ -141,7 +141,7 @@ If TypeScript reports errors on JSX elements or missing types, check that your `
 {
   "compilerOptions": {
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "@solidjs/web"
   }
 }
 ```

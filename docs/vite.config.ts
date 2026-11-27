@@ -26,7 +26,7 @@ const docsRouter = new DocsFileSystemRouter([
   }),
 ])
 
-export default defineConfig(({command}) => ({
+export default defineConfig(({ command }) => ({
   plugins: [
     variantGroupPlugin(),
     docsBuildPlugin({ projectRoot }),
@@ -76,8 +76,8 @@ export default defineConfig(({command}) => ({
           output: {
             // `resolveHandler` imports server.js with a `?t=` cache-buster. If lazy route
             // chunks back-import `../server.js`, Node loads a second copy and shared
-            // singletons (router context) lose identity, so inline the dynamic imports.
-            inlineDynamicImports: true,
+            // singletons (router context) lose identity, so disable code splitting.
+            codeSplitting: false,
           },
         },
       },

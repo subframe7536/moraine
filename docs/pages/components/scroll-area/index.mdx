@@ -56,8 +56,8 @@ scrolling. The root positions the scrollbars; the `viewport` scrolls; the `conte
 children. Put content layout such as `flex` and `gap` on `classes.content`, not on the root.
 
 `class`, `style`, `ref`, and other attributes such as `role` and `aria-label` go to the root.
-`onScroll` and `tabIndex` go to the viewport, and `viewportRef` receives it. The viewport joins
-the tab order while its content overflows and leaves it when the content fits; pass `tabIndex` to
+`onScroll` and `tabindex` go to the viewport, and `viewportRef` receives it. The viewport joins
+the tab order while its content overflows and leaves it when the content fits; pass `tabindex` to
 override this.
 
 ### Orientation

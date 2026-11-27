@@ -53,7 +53,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
   })
 
   createEffect(
-    () => [frame.mobile(), frame.open(), (() => props.activePage())()],
+    () => [frame.mobile(), frame.open(), props.activePage()],
     ([mobile, open]) => {
       if (!mobile || !open) {
         return

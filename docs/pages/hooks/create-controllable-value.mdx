@@ -24,6 +24,11 @@ interface CreateControllableValueOptions<T> {
   value: Accessor<T | undefined>
   defaultValue: Accessor<T>
   onChange?: (value: T) => void
+  /**
+   * Compares previous and next values to suppress redundant updates and `onChange` calls.
+   * @default Object.is
+   */
+  equals?: (prev: T, next: T) => boolean
 }
 ```
 
@@ -64,4 +69,4 @@ export function CustomToggle(props: CustomToggleProps) {
 - **Uncontrolled**: When `value()` returns `undefined`, the hook holds the state internally, seeded from `defaultValue()`. The setter updates that state and calls `onChange`.
 - `defaultValue()` is read once, when the hook runs.
 - The setter accepts a value or an updater function that receives the current value.
-- The setter skips `onChange` when the next value is `Object.is`-equal to the current one.
+- The setter skips state updates and `onChange` when `equals(previous, next)` (default `Object.is`) returns `true`.

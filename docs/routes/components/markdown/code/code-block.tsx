@@ -112,7 +112,7 @@ export function CodeBlock(props: CodeBlockProps) {
   }
 
   createEffect(
-    () => [(() => props.html)(), (() => props.code)()],
+    () => [props.html, props.code],
     ([html, code]) => {
       if (html !== undefined || code !== undefined) {
         queueMicrotask(updateExpandable)
@@ -179,11 +179,11 @@ export function CodeBlock(props: CodeBlockProps) {
             queueMicrotask(updateExpandable)
           }}
           tabindex={-1}
+          inert={isExpandable() && !isExpanded()}
           class={cn(
             'outline-none overscroll-x-contain h-full overflow-x-auto scrollbar-thumb-border scrollbar-track-transparent scrollbar-thin',
             isExpandable() && !isExpanded() && 'pointer-events-none',
           )}
-          {...{ 'prop:inert': isExpandable() && !isExpanded() ? true : undefined }}
         >
           <Show
             when={props.html}

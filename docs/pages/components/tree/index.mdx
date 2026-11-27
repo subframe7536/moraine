@@ -378,7 +378,7 @@ Clicks inside the actions never select or expand the item. Actions are always vi
 them on hover, style the `action` slot with the `group/tree-row` group that every row sets.
 
 The tree keeps a single tab stop and does not manage focus inside actions. Set
-`tabIndex={item.focused ? 0 : -1}` on each control so <kbd>Tab</kbd> from the focused item
+`tabindex={item.focused ? 0 : -1}` on each control so <kbd>Tab</kbd> from the focused item
 reaches only that row's actions.
 
 ```tsx
@@ -392,7 +392,7 @@ reaches only that row's actions.
       variant="ghost"
       size="icon-xs"
       leading="i-lucide:trash-2"
-      tabIndex={item.focused ? 0 : -1}
+      tabindex={item.focused ? 0 : -1}
       aria-label={`Delete ${item.label}`}
     />
   )}
@@ -513,6 +513,6 @@ Return a `tree.Item` from `itemRender` and compose the bound parts with your own
 
 Pass `actionRender` to add a button and a dropdown menu to each row. The `action` slot hides them
 until the row is hovered, focused, or its menu is open. Each control sets
-`tabIndex={item.focused ? 0 : -1}`, so <kbd>Tab</kbd> from an item reaches only its actions.
+`tabindex={item.focused ? 0 : -1}`, so <kbd>Tab</kbd> from an item reaches only its actions.
 
 <Preview path="./item-action" />

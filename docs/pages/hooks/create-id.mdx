@@ -18,7 +18,7 @@ import { createId } from 'moraine/utils'
 ```ts
 function createId(
   deterministicId?: () => string | null | undefined,
-  prefix = 'mo',
+  prefix: string | (() => string) = 'mo',
 ): Accessor<string>
 ```
 

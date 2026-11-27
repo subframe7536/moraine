@@ -63,9 +63,9 @@ export default defineConfig({
 Place `unocss.config.ts` and `vite.config.ts` in the application root. Register the UnoCSS plugin before Solid's plugin:
 
 ```ts title="vite.config.ts"
+import solid from '@solidjs/vite-plugin'
 import UnoCSS from '@subf/unocss/vite'
 import { defineConfig } from 'vite'
-import solid from 'vite-plugin-solid'
 
 export default defineConfig({
   plugins: [UnoCSS(), solid()],
