@@ -1,9 +1,9 @@
 import type { JSX } from '@solidjs/web'
-import { createMemo, onSettled, untrack } from 'solid-js'
+import { createMemo } from 'solid-js'
 
 import { getApiReferenceTocEntries } from '../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../build/api-doc/types'
-import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
+import type { FrontmatterData } from '../../../build/markdown/types'
 import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
 import { DocsApiReference } from './api-reference'
@@ -28,60 +28,10 @@ export interface RenderExampleMarkdownPageInput {
   apiDoc?: ExamplePageApiDoc
   frontmatter: FrontmatterData
   onThisPageEntries?: Array<OnThisPageEntry>
-  metadata?: DocsRouteMetadata
   children?: JSX.Element
 }
 
-function updateMetaTag(attribute: 'name' | 'property', value: string, content: string): void {
-  const meta = [...document.querySelectorAll<HTMLMetaElement>('meta')].find(
-    (element) => element.getAttribute(attribute) === value,
-  )
-  if (meta) {
-    meta.setAttribute('content', content)
-    return
-  }
-
-  const nextMeta = document.createElement('meta')
-  nextMeta.setAttribute(attribute, value)
-  nextMeta.setAttribute('content', content)
-  document.head.append(nextMeta)
-}
-
-function updateCanonical(href: string): void {
-  const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
-  if (canonical) {
-    canonical.setAttribute('href', href)
-    return
-  }
-
-  const nextCanonical = document.createElement('link')
-  nextCanonical.setAttribute('rel', 'canonical')
-  nextCanonical.setAttribute('href', href)
-  document.head.append(nextCanonical)
-}
-
-export function useDocsPage(metadata?: DocsRouteMetadata): void {
-  onSettled(() => {
-    if (!metadata) {
-      return
-    }
-
-    document.title = metadata.title
-    updateCanonical(metadata.canonical)
-    updateMetaTag('name', 'description', metadata.description)
-    for (const tag of metadata.meta) {
-      const attribute = tag.name !== undefined ? 'name' : 'property'
-      const value = tag.name ?? tag.property
-      if (value !== undefined) {
-        updateMetaTag(attribute, value, tag.content)
-      }
-    }
-  })
-}
-
 export function Markdown(input: RenderExampleMarkdownPageInput) {
-  useDocsPage(untrack(() => input.metadata))
-
   const onThisPageEntries = createMemo(() => [
     ...(input.onThisPageEntries ?? []),
     ...getApiReferenceTocEntries(input.apiDoc),

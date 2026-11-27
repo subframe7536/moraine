@@ -60,7 +60,6 @@ function createMarkdownContent(
   frontmatter: unknown,
   apiDocExpression: string,
   onThisPageEntries: ReadonlyArray<OnThisPageEntryLiteral>,
-  metadata: DocsRouteMetadata,
 ): string {
   return `<components.Markdown
   {...props}
@@ -72,7 +71,6 @@ function createMarkdownContent(
   frontmatter=${serializeJsxExpression(frontmatter)}
   apiDoc={${apiDocExpression}}
   onThisPageEntries=${serializeJsxExpression(onThisPageEntries)}
-  metadata=${serializeJsxExpression(metadata)}
 >
   <MDXContent {...props} />
 </components.Markdown>`
@@ -176,7 +174,6 @@ export function createDocsMdxOptions(
           frontmatter,
           apiDocExpression,
           onThisPageEntries,
-          metadata,
         ),
       }
     },

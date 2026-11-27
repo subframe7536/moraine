@@ -4,6 +4,16 @@ import { For } from 'solid-js'
 
 import { DOCS_SITE, buildSiteMetaTags } from './build/site-meta'
 
+const ROUTE_MANAGED_META = new Set([
+  'description',
+  'og:title',
+  'og:description',
+  'og:url',
+  'twitter:title',
+  'twitter:description',
+])
+
+// Page-level title/description/canonical/OG/Twitter text tags are managed per route by useHead.
 const SITE_TAGS = buildSiteMetaTags({
   ...DOCS_SITE,
   title: 'Moraine Docs',
@@ -12,6 +22,20 @@ const SITE_TAGS = buildSiteMetaTags({
   imageWidth: 1200,
   imageHeight: 630,
   twitterCard: 'summary_large_image',
+}).filter((tag) => {
+  if (tag.tag === 'title') {
+    return false
+  }
+  if (tag.tag === 'link' && tag.attrs?.rel === 'canonical') {
+    return false
+  }
+  if (tag.tag === 'meta') {
+    const key = tag.attrs?.name ?? tag.attrs?.property
+    if (typeof key === 'string' && ROUTE_MANAGED_META.has(key)) {
+      return false
+    }
+  }
+  return true
 })
 
 // Applies the system preference before modules load to avoid a wrong-theme first frame.

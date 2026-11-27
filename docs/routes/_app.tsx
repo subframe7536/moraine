@@ -6,6 +6,7 @@ import { Show, createEffect, createMemo, createSignal, untrack, Loading } from '
 
 import { Button, MoraineProvider, Progress, Sidebar } from '../../src'
 import { createMediaQuery } from '../../src/utils'
+import { DOCS_SITE } from '../build/site-meta'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.recipe'
 import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
 
@@ -191,7 +192,22 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   )
 }
 
-export const route = defineRoute({})
+const DEFAULT_TITLE = 'Moraine Docs'
+
+export const route = defineRoute({
+  metadata: {
+    title: DEFAULT_TITLE,
+    description: DOCS_SITE.description,
+    canonical: DOCS_SITE.siteUrl,
+    meta: [
+      { property: 'og:title', content: DEFAULT_TITLE },
+      { property: 'og:description', content: DOCS_SITE.description },
+      { property: 'og:url', content: DOCS_SITE.siteUrl },
+      { name: 'twitter:title', content: DEFAULT_TITLE },
+      { name: 'twitter:description', content: DOCS_SITE.description },
+    ],
+  },
+})
 
 export default function DocsApp(props: { children?: JSX.Element }): JSX.Element {
   return (

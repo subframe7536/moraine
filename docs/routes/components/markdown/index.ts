@@ -7,7 +7,6 @@ export { IconGallery } from './icon-gallery'
 export * from './markdown.recipe'
 export {
   Markdown,
-  useDocsPage,
   type DocsMdxCodeTabItem,
   type ExamplePageApiDoc,
   type RenderExampleMarkdownPageInput,

@@ -102,7 +102,7 @@ describe('createDocsMdxOptions', () => {
     })
     expect(extension?.mdxContent).toContain('<components.Markdown')
     expect(extension?.mdxContent).toContain('<MDXContent {...props} />')
-    expect(extension?.mdxContent).toContain('metadata={')
+    expect(extension?.mdxContent).not.toContain('metadata={')
     expect(extension?.mdxContent).toContain('markdownPath={"/components/button.md"}')
   })
 
