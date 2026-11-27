@@ -1,20 +1,11 @@
 import type { JSX } from '@solidjs/web'
-import {
-  children as resolveChildren,
-  createMemo,
-  For,
-  Repeat,
-  merge,
-  onSettled,
-  Show,
-  omit,
-} from 'solid-js'
+import { createMemo, For, Repeat, merge, onSettled, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, resolvePropsChildren } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -190,7 +181,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
 
   const thumbCount = createMemo(() => slider.currentValues().length)
   const isMultiple = createMemo(() => thumbCount() > 1)
-  const child = resolveChildren(() => props.children as JSX.Element)
+  const child = resolvePropsChildren(props as { children?: JSX.Element })
   const resolvedChildren = createMemo(() => {
     const value = child() as SliderT.Base<TValue>['children']
     if (typeof value !== 'function') {

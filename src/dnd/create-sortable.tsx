@@ -3,15 +3,7 @@ import type { DragDropManagerInput, DragEndEvent } from '@dnd-kit/dom'
 import { isSortable, Sortable as DndSortable } from '@dnd-kit/dom/sortable'
 import { isServer } from '@solidjs/web'
 import type { FlowComponent } from 'solid-js'
-import {
-  createContext,
-  createEffect,
-  createSignal,
-  onCleanup,
-  onSettled,
-  untrack,
-  useContext,
-} from 'solid-js'
+import { createContext, createEffect, createSignal, onCleanup, untrack, useContext } from 'solid-js'
 
 import { createDataAttributes } from '../theme/style-contract'
 
@@ -423,15 +415,21 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     )
     // Element and prop writes trigger plugin effects that measure shapes, which must wait until
     // the current render and the drag operation settle; refs therefore feed signals synced here.
+    // All client-only effects use `transparent: true` because `useItem` returns early on the server
+    // without allocating these primitives, so they must not consume hydration child IDs.
     const [itemElement, setItemElement] = createSignal<HTMLElement>()
     const [itemHandle, setItemHandle] = createSignal<HTMLElement>()
     const [itemTarget, setItemTarget] = createSignal<HTMLElement>()
-    onSettled(() => {
-      sortable.register()
-      return () => {
-        sortable.destroy()
-      }
-    })
+    createEffect(
+      () => undefined,
+      () => {
+        sortable.register()
+        return () => {
+          sortable.destroy()
+        }
+      },
+      { transparent: true },
+    )
     createEffect(
       () => [itemElement(), itemHandle(), itemTarget()],
       ([element, handle, target]) => {
@@ -445,6 +443,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
           sortable.target = target
         }
       },
+      { transparent: true },
     )
     createEffect(
       () => [input.id(), input.index(), input.disabled?.() ?? false] as const,
@@ -461,34 +460,43 @@ export function createSortable(options: SortableOptions = {}): Sortable {
           sortable.refreshShape()
         }
       },
+      { transparent: true },
     )
     const handleRef = (element: HTMLElement): void => {
       setItemHandle(element)
     }
-    createEffect(input.id, (id) => {
-      handleSetters.set(id, handleRef)
-      const pending = pendingHandles.get(id)
-      if (pending) {
-        pendingHandles.delete(id)
-        handleRef(pending)
-      }
-      return () => {
-        if (handleSetters.get(id) === handleRef) {
-          handleSetters.delete(id)
+    createEffect(
+      input.id,
+      (id) => {
+        handleSetters.set(id, handleRef)
+        const pending = pendingHandles.get(id)
+        if (pending) {
+          pendingHandles.delete(id)
+          handleRef(pending)
         }
-      }
-    })
+        return () => {
+          if (handleSetters.get(id) === handleRef) {
+            handleSetters.delete(id)
+          }
+        }
+      },
+      { transparent: true },
+    )
     let element: HTMLElement | undefined
-    createEffect(input.id, (id) => {
-      if (element) {
-        elements.set(id, element)
-      }
-      return () => {
-        if (elements.get(id) === element) {
-          elements.delete(id)
+    createEffect(
+      input.id,
+      (id) => {
+        if (element) {
+          elements.set(id, element)
         }
-      }
-    })
+        return () => {
+          if (elements.get(id) === element) {
+            elements.delete(id)
+          }
+        }
+      },
+      { transparent: true },
+    )
     return {
       ref: (next) => {
         element = next

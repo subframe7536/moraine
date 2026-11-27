@@ -565,6 +565,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         highlighted: () => itemProps.context.highlighted,
       }),
     })
+    const leadingRender = createLazyMemo(() => itemProps.item.item.leadingRender)
+    const trailingRender = createLazyMemo(() => itemProps.item.item.trailingRender)
 
     return (
       <Show
@@ -572,20 +574,15 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         keyed
         fallback={
           <>
-            <Show
-              when={
-                itemProps.item.item.leadingRender !== undefined ||
-                itemProps.item.item.icon !== undefined
-              }
-            >
+            <Show when={leadingRender() !== undefined || itemProps.item.item.icon !== undefined}>
               <span data-slot="command-palette-item-leading" {...itemLeadingSlot}>
                 <Show
-                  when={itemProps.item.item.leadingRender !== undefined}
+                  when={leadingRender() !== undefined}
                   fallback={
                     <Show when={itemProps.item.item.icon}>{(icon) => <Icon name={icon()} />}</Show>
                   }
                 >
-                  {renderWithProps(itemProps.item.item.leadingRender, itemProps.context)}
+                  {renderWithProps(leadingRender(), itemProps.context)}
                 </Show>
               </span>
             </Show>
@@ -609,21 +606,18 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             </span>
 
             <Show
-              when={
-                itemProps.item.item.trailingRender !== undefined ||
-                (itemProps.item.item.kbds?.length ?? 0) > 0
-              }
+              when={trailingRender() !== undefined || (itemProps.item.item.kbds?.length ?? 0) > 0}
             >
               <span data-slot="command-palette-item-trailing" {...itemTrailingSlot}>
                 <Show
-                  when={itemProps.item.item.trailingRender !== undefined}
+                  when={trailingRender() !== undefined}
                   fallback={
                     <Show when={itemProps.item.item.kbds}>
                       {(kbds) => <KbdGroup size="sm" items={kbds()} />}
                     </Show>
                   }
                 >
-                  {renderWithProps(itemProps.item.item.trailingRender, itemProps.context)}
+                  {renderWithProps(trailingRender(), itemProps.context)}
                 </Show>
               </span>
             </Show>
@@ -741,10 +735,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function EmptyState(): JSX.Element {
+    const emptyRender = createLazyMemo(() => merged.emptyRender)
     return (
       <div data-slot="command-palette-empty" {...emptySlot}>
-        <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
-          {renderWithProps(merged.emptyRender, getContext())}
+        <Show when={emptyRender() !== undefined} fallback={messages().empty}>
+          {renderWithProps(emptyRender(), getContext())}
         </Show>
       </div>
     )
@@ -814,6 +809,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       </div>
     )
   }
+
+  const footerRender = createLazyMemo(() => merged.footerRender)
 
   return (
     <div
@@ -923,9 +920,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         )}
       </Show>
 
-      <Show when={merged.footerRender !== undefined}>
+      <Show when={footerRender() !== undefined}>
         <div data-slot="command-palette-footer" {...footerSlot}>
-          {renderWithProps(merged.footerRender, getContext())}
+          {renderWithProps(footerRender(), getContext())}
         </div>
       </Show>
     </div>

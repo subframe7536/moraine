@@ -1,11 +1,11 @@
 import type { JSX } from '@solidjs/web'
-import { children as resolveChildren, createMemo, omit } from 'solid-js'
+import { createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 import { Button } from '../button'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 
@@ -92,7 +92,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
     defaultValue: () => local.defaultPressed ?? false,
     onChange: (next) => local.onPressedChange?.(next),
   })
-  const child = resolveChildren(() => local.children as JSX.Element)
+  const child = resolvePropsChildren(local as { children?: JSX.Element })
   const buttonChildren = createMemo(() => {
     const value = child() as ToggleButtonT.Base['children']
     if (typeof value !== 'function') {

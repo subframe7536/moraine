@@ -77,12 +77,12 @@ export function Avatar(props: AvatarProps): JSX.Element {
   })
 
   const source = createMemo(() => props.src?.trim() || undefined)
-  const alt = createMemo(() => props.alt)
-  const text = createMemo(() => props.text)
   const icon = createMemo(() => props.icon)
   const badge = createMemo(() => props.badge)
-  const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
-  const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
+  const fallbackText = createMemo(() => resolveFallbackText(props.text, props.alt))
+  const fallbackAccessibleLabel = createMemo(
+    () => props.alt?.trim() || props.text?.trim() || undefined,
+  )
   const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
   const [status, setStatusSignal] = createSignal<AvatarT.Status>(() =>
     source() ? 'loading' : 'error',
@@ -160,7 +160,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
             setStatus('error')
           }
         }}
-        alt={alt() ?? ''}
+        alt={props.alt ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
       />
 

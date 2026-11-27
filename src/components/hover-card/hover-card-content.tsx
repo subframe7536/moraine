@@ -1,7 +1,9 @@
 import type { JSX } from '@solidjs/web'
-import { children as resolveChildren, merge, omit } from 'solid-js'
+import { createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { renderWithProps } from '../../shared/render-with-props'
+import { resolvePropsChildren } from '../../shared/utils'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
 
@@ -71,11 +73,8 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
     >
       {(context) => {
         const contentProps = merge(context.contentProps, contentEvents)
-        const content = resolveChildren(() =>
-          typeof props.children === 'function'
-            ? props.children({ value: behavior.activeValue })
-            : props.children,
-        )
+        const child = resolvePropsChildren(props as { children?: JSX.Element })
+        const content = createMemo(() => renderWithProps(child(), { value: behavior.activeValue }))
         const contentSlot = slotWith('content', {
           data: hoverCardContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

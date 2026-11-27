@@ -1,7 +1,8 @@
 import type { JSX } from '@solidjs/web'
-import { Show, children as resolveChildren, createMemo, merge, omit } from 'solid-js'
+import { Show, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { resolvePropsChildren } from '../../shared/utils'
 import { KbdGroup } from '../kbd-group'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
@@ -74,8 +75,8 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     >
       {(context) => {
         const contentProps = merge(context.contentProps, contentEvents)
-        const text = resolveChildren(() => props.children)
-        const kbds = createMemo(() => props.kbds)
+        const text = resolvePropsChildren(props)
+        const kbds = () => props.kbds
         const contentSlot = slotWith('content', {
           data: tooltipContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

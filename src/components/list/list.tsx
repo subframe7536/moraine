@@ -129,7 +129,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
           />
         }
       >
-        {local.emptyRender !== undefined ? renderWithProps(local.emptyRender, {}) : null}
+        {renderWithProps(local.emptyRender, {})}
       </Show>
     </Root>
   )

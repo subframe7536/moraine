@@ -1,10 +1,11 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { children as resolveChildren, createMemo, omit } from 'solid-js'
+import { createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { resolvePropsChildren } from '../../shared/utils'
 
 import { createBaseDialogContentBinding } from './base-dialog-content-binding'
 import { useBaseDialogContext } from './base-dialog-context'
@@ -63,7 +64,7 @@ export function BaseDialogContent<T extends ValidComponent = 'div'>(
     context: () => context.slotOverrides,
   })
 
-  const child = resolveChildren(() => local.children as JSX.Element)
+  const child = resolvePropsChildren(local as { children?: JSX.Element })
   const body = createMemo(() =>
     renderWithProps(child(), {
       close: () => context.updateOpen(false),

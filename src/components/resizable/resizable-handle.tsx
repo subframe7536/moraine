@@ -1,15 +1,8 @@
 import type { JSX } from '@solidjs/web'
-import {
-  Show,
-  children as resolveChildren,
-  createMemo,
-  createSignal,
-  onCleanup,
-  omit,
-} from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, omit } from 'solid-js'
 
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler, callRef, resolvePropsChildren } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
 import { resolveDirection } from '../shared/overlay/direction'
 import { createSplitterHandle } from '../shared/splitter'
@@ -71,7 +64,7 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
   )
 
   const [element, setElement] = createSignal<HTMLElement>()
-  const content = resolveChildren(() => props.children as JSX.Element)
+  const content = resolvePropsChildren(props as { children?: JSX.Element })
 
   const registration: ResizableHandleRegistration = { element }
   const item: ResizableItem = { kind: 'handle', seq: 0, handle: registration }

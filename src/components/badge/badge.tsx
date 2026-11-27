@@ -1,10 +1,11 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { Show, children as resolveChildren, createMemo, merge, omit } from 'solid-js'
+import { Show, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
+import { resolvePropsChildren } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { badgeRecipe } from './badge.recipe'
@@ -41,7 +42,7 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
   )
   const leading = createMemo(() => props.leading)
   const trailing = createMemo(() => props.trailing)
-  const resolvedChildren = resolveChildren(() => props.children)
+  const resolvedChildren = resolvePropsChildren(props)
   const hasChildren = () => hasContent(resolvedChildren())
   const square = () => !hasChildren() && Boolean(leading()) !== Boolean(trailing())
   const styleProps = merge(props, {

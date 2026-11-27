@@ -3,6 +3,7 @@ import { createMemo, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
@@ -242,19 +243,22 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           {...props}
           view={search.view()}
           slot={(slot) => slots[slot]}
-          emptyRender={(emptyProps) => (
-            <Show when={props.emptyRender !== undefined} fallback={messages().empty}>
-              {renderWithProps(props.emptyRender, {
-                get searchValue() {
-                  return search.value()
-                },
-                get selectedValue() {
-                  return emptyProps.selectedValue
-                },
-                close: emptyProps.close,
-              })}
-            </Show>
-          )}
+          emptyRender={(emptyProps) => {
+            const emptyRender = createLazyMemo(() => props.emptyRender)
+            return (
+              <Show when={emptyRender() !== undefined} fallback={messages().empty}>
+                {renderWithProps(emptyRender(), {
+                  get searchValue() {
+                    return search.value()
+                  },
+                  get selectedValue() {
+                    return emptyProps.selectedValue
+                  },
+                  close: emptyProps.close,
+                })}
+              </Show>
+            )
+          }}
         />
       </>
     )

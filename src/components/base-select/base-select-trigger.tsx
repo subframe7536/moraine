@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { children as resolveChildren, createMemo, merge, omit } from 'solid-js'
+import { createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -8,7 +8,7 @@ import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -91,7 +91,7 @@ export function BaseSelectTrigger<
       return state.readOnly()
     },
   }
-  const child = resolveChildren(() => typedProps.children as JSX.Element)
+  const child = resolvePropsChildren(typedProps as { children?: JSX.Element })
   const resolvedChildren = createMemo(() => renderWithProps(child(), presentation))
   const tag = () => typedProps.as ?? 'button'
   const root = createPolymorphicRoot({

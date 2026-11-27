@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
 import {
   Show,
-  children as resolveChildren,
   createEffect,
   createMemo,
   createSignal,
@@ -13,10 +12,10 @@ import {
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
-import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { resolvePropsChildren } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -146,13 +145,12 @@ export function DialogContent<T extends ValidComponent = 'div'>(
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
     const contentShorthand = createShorthandContent(local)
-    const child = resolveChildren(() => local.children as JSX.Element)
+    const child = resolvePropsChildren(local as { children?: JSX.Element })
     const explicitChildren = createMemo(() =>
       renderWithProps(child(), {
         close: () => family.updateOpen(false),
       }),
     )
-    const closeIcon = createLazyMemo(() => merged.closeIcon)
     const tag = (): ValidComponent => local.as ?? 'div'
     const Root = dynamic(tag)
 
@@ -187,7 +185,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
             aria-label={messages().close}
             {...contentCloseSlot}
           >
-            <Icon name={closeIcon()} />
+            <Icon name={merged.closeIcon} />
           </BaseDialog.Close>
         </Show>
         {explicitChildren()}

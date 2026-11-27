@@ -1,9 +1,10 @@
 import type { JSX } from '@solidjs/web'
-import { Show, children as resolveChildren, merge, onCleanup, omit } from 'solid-js'
+import { Show, merge, onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import { createKeyDownHandler } from '../../shared/keyboard'
+import { resolvePropsChildren } from '../../shared/utils'
 import { getFocusableElements } from '../shared/overlay/focus'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
@@ -150,7 +151,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     >
       {(context) => {
         const contentProps = merge(context.contentProps, contentEvents)
-        const content = resolveChildren(() => props.children)
+        const content = resolvePropsChildren(props)
         const contentSlot = slotWith('content', {
           data: popoverContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

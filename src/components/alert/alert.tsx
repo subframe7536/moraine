@@ -5,6 +5,7 @@ import { createMemo, createSignal, Show, omit, createRenderEffect } from 'solid-
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
@@ -80,9 +81,9 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     onExitComplete: () => local.onExitComplete?.(),
   })
 
-  const title = createMemo(() => local.title)
-  const description = createMemo(() => local.description)
-  const actions = createMemo(() => local.actions)
+  const title = createLazyMemo(() => local.title)
+  const description = createLazyMemo(() => local.description)
+  const actions = createLazyMemo(() => local.actions)
   const hasDescription = () => hasContent(description())
   const isFullWidth = () => Boolean(local.fullWidth)
   const hasClose = () => Boolean(local.closable)

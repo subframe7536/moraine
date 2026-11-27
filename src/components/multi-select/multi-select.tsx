@@ -4,6 +4,7 @@ import { createMemo, createSignal, For, Show, omit } from 'solid-js'
 import { useRecipe } from '../../provider/index'
 import { collatorEquals, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
@@ -416,27 +417,32 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
               )}
             </For>
             <Show when={tags.overflow() > 0}>
-              <Show
-                when={props.tagOverflowRender !== undefined}
-                fallback={
-                  <span
-                    data-slot="multi-select-tag-overflow"
-                    aria-label={messages().overflow({ count: tags.overflow() })}
-                    {...tagOverflowSlot}
+              {(_overflow) => {
+                const tagOverflowRender = createLazyMemo(() => props.tagOverflowRender)
+                return (
+                  <Show
+                    when={tagOverflowRender() !== undefined}
+                    fallback={
+                      <span
+                        data-slot="multi-select-tag-overflow"
+                        aria-label={messages().overflow({ count: tags.overflow() })}
+                        {...tagOverflowSlot}
+                      >
+                        +{tags.overflow()}
+                      </span>
+                    }
                   >
-                    +{tags.overflow()}
-                  </span>
-                }
-              >
-                {renderWithProps(props.tagOverflowRender, {
-                  get count() {
-                    return tags.overflow()
-                  },
-                  get tags() {
-                    return overflowRenderTags()
-                  },
-                } satisfies MultiSelectT.TagOverflowRenderProps<T>)}
-              </Show>
+                    {renderWithProps(tagOverflowRender(), {
+                      get count() {
+                        return tags.overflow()
+                      },
+                      get tags() {
+                        return overflowRenderTags()
+                      },
+                    } satisfies MultiSelectT.TagOverflowRenderProps<T>)}
+                  </Show>
+                )
+              }}
             </Show>
             <Show
               when={editable()}
@@ -533,30 +539,33 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           {...props}
           view={search.view()}
           slot={(slot) => slots[slot]}
-          emptyRender={(emptyProps) => (
-            <Show
-              when={props.emptyRender !== undefined}
-              fallback={
-                <Show when={props.createItem && search.value()} fallback={messages().empty}>
-                  {(value) => <>{messages().create({ value: value() })}</>}
-                </Show>
-              }
-            >
-              {renderWithProps(props.emptyRender, {
-                get searchValue() {
-                  return search.value()
-                },
-                get selectedValues() {
-                  return state.value()
-                },
-                get atMaxValues() {
-                  return atMax()
-                },
-                create,
-                close: emptyProps.close,
-              })}
-            </Show>
-          )}
+          emptyRender={(emptyProps) => {
+            const emptyRender = createLazyMemo(() => props.emptyRender)
+            return (
+              <Show
+                when={emptyRender() !== undefined}
+                fallback={
+                  <Show when={props.createItem && search.value()} fallback={messages().empty}>
+                    {(value) => <>{messages().create({ value: value() })}</>}
+                  </Show>
+                }
+              >
+                {renderWithProps(emptyRender(), {
+                  get searchValue() {
+                    return search.value()
+                  },
+                  get selectedValues() {
+                    return state.value()
+                  },
+                  get atMaxValues() {
+                    return atMax()
+                  },
+                  create,
+                  close: emptyProps.close,
+                })}
+              </Show>
+            )
+          }}
         />
       </>
     )

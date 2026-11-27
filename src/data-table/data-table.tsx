@@ -17,6 +17,7 @@ import {
 import { Icon } from '../components/icon'
 import { pickSlotOverrides, useRecipe } from '../provider'
 import { useMessages } from '../provider/locale/locale-context'
+import { createLazyMemo } from '../shared/create-lazy-memo'
 import { renderWithProps } from '../shared/render-with-props'
 import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
@@ -224,10 +225,11 @@ export function DataTable<TData extends RowData = RowData>(
   }
 
   function RenderEmpty(): JSX.Element {
+    const emptyRender = createLazyMemo(() => props.emptyRender)
     return (
       <Show when={!props.loading}>
-        <Show when={props.emptyRender !== undefined} fallback={messages().empty}>
-          {renderWithProps(props.emptyRender, {
+        <Show when={emptyRender() !== undefined} fallback={messages().empty}>
+          {renderWithProps(emptyRender(), {
             get colSpan() {
               return colSpan()
             },
@@ -238,14 +240,15 @@ export function DataTable<TData extends RowData = RowData>(
   }
 
   function RenderLoading(): JSX.Element {
+    const loadingRender = createLazyMemo(() => props.loadingRender)
     return (
       <Show
-        when={props.loadingRender !== undefined}
+        when={loadingRender() !== undefined}
         fallback={
           <Icon name="icon-loading" class={DATA_TABLE_LOADING_ICON_CLASS} aria-hidden="true" />
         }
       >
-        {renderWithProps(props.loadingRender, {
+        {renderWithProps(loadingRender(), {
           get colSpan() {
             return colSpan()
           },

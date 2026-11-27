@@ -1,5 +1,4 @@
 import type { JSX } from '@solidjs/web'
-import { isServer } from '@solidjs/web'
 import {
   For,
   Match,
@@ -338,7 +337,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       ref={setPositionerElement}
       data-slot={slotName('positioner')}
       class={'left-0 top-0 absolute'}
-      style={isServer ? { visibility: 'hidden' } : undefined}
     >
       <div
         data-slot={slotName('content')}

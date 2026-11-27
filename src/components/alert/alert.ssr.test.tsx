@@ -1,8 +1,10 @@
-import { createSignal, flush } from 'solid-js'
+import { render } from '@solidjs/testing-library'
+import { createComponent, createSignal, flush } from 'solid-js'
 import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
+import { Alert } from './alert'
 import { AlertHydrationFixture } from './alert.ssr.fixture'
 import type { AlertT } from './alert.types'
 it('hydrates alert fixture and updates reactive props', () => {
@@ -47,4 +49,41 @@ it('hydrates minimal alert fixture without description or close', () => {
 
   flush(() => setTitle('Updated minimal'))
   expect(container.querySelector('[data-slot="alert-title"]')?.textContent).toBe('Updated minimal')
+})
+
+it('does not instantiate title, description, or actions while closed', () => {
+  const [open, setOpen] = createSignal(false)
+  let titleReads = 0
+  let descriptionReads = 0
+  let actionsReads = 0
+
+  const view = render(() =>
+    createComponent(Alert, {
+      get open() {
+        return open()
+      },
+      get title() {
+        titleReads += 1
+        return <span>Alert title</span>
+      },
+      get description() {
+        descriptionReads += 1
+        return <span>Alert description</span>
+      },
+      get actions() {
+        actionsReads += 1
+        return <button type="button">Undo</button>
+      },
+    }),
+  )
+
+  expect(titleReads).toBe(0)
+  expect(descriptionReads).toBe(0)
+  expect(actionsReads).toBe(0)
+
+  flush(() => setOpen(true))
+  expect(titleReads).toBe(1)
+  expect(descriptionReads).toBe(1)
+  expect(actionsReads).toBe(1)
+  view.unmount()
 })

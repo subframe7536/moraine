@@ -1,8 +1,10 @@
-import { fireEvent } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
+import { createComponent } from 'solid-js'
 import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
+import { createTree } from './tree'
 import { TreeHydrationFixture } from './tree.ssr.fixture'
 const FIXTURE = '/src/components/tree/tree.ssr.fixture.tsx'
 
@@ -58,4 +60,42 @@ it('hydrates the default checkbox in each row when checkable', () => {
   expect(container.querySelector('[aria-label="index.ts"]')?.getAttribute('aria-checked')).toBe(
     'true',
   )
+})
+
+it('reads JSX children getters once in ItemLabel and ItemTrigger', () => {
+  let labelReads = 0
+  let triggerReads = 0
+
+  const view = render(() => {
+    const tree = createTree<string>({
+      items: () => ['Docs'],
+      getKey: (name) => name,
+    })
+
+    return (
+      <tree.Tree
+        aria-label="Folders"
+        itemRender={(item) => (
+          <tree.Item item={item}>
+            {createComponent(tree.ItemTrigger, {
+              get children() {
+                triggerReads += 1
+                return <span>&gt;</span>
+              },
+            })}
+            {createComponent(tree.ItemLabel, {
+              get children() {
+                labelReads += 1
+                return <span>{item.label}</span>
+              },
+            })}
+          </tree.Item>
+        )}
+      />
+    )
+  })
+
+  expect(triggerReads).toBe(1)
+  expect(labelReads).toBe(1)
+  view.unmount()
 })

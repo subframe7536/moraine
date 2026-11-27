@@ -3,8 +3,9 @@ import { dynamic } from '@solidjs/web'
 import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { requireTreeItemContext, useTreeContext } from './tree-context'
@@ -71,6 +72,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
+  const resolvedChildren = resolvePropsChildren(local)
   const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
 
   return (
@@ -89,7 +91,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
       }}
     >
       <Show
-        when={local.children}
+        when={hasContent(resolvedChildren())}
         fallback={
           <Icon
             name={
@@ -102,7 +104,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
           />
         }
       >
-        {local.children}
+        {resolvedChildren()}
       </Show>
     </Root>
   )

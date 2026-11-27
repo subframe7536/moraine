@@ -3,7 +3,9 @@ import { dynamic } from '@solidjs/web'
 import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
+import { resolvePropsChildren } from '../../shared/utils'
 
 import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
@@ -42,12 +44,13 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
+  const resolvedChildren = resolvePropsChildren(local)
   const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
 
   return (
     <Root data-slot="tree-label" {...labelSlot} {...rest}>
-      <Show when={local.children} fallback={itemContext.item.label}>
-        {local.children}
+      <Show when={hasContent(resolvedChildren())} fallback={itemContext.item.label}>
+        {resolvedChildren()}
       </Show>
     </Root>
   )

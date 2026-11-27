@@ -1,6 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { isServer } from '@solidjs/web'
-import { createEffect, createSignal, omit } from 'solid-js'
+import { createSignal, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createId } from '../../shared/utils'
@@ -63,23 +62,16 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
     setContent,
     contentTrees,
     registerContent: (tree) => {
-      if (isServer) {
-        return () => {}
-      }
       let active = true
-      createEffect(
-        () => undefined,
-        () => {
-          if (!active) {
-            return
-          }
-          setContentTrees((trees) => [...trees, tree])
-          return () => {
-            setContentTrees((trees) => trees.filter((node) => node !== tree))
-          }
-        },
-        { transparent: true },
-      )
+      onSettled(() => {
+        if (!active) {
+          return
+        }
+        setContentTrees((trees) => [...trees, tree])
+        return () => {
+          setContentTrees((trees) => trees.filter((node) => node !== tree))
+        }
+      })
       return () => {
         active = false
       }

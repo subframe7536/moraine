@@ -1,13 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import {
-  Show,
-  children as resolveChildren,
-  createEffect,
-  createMemo,
-  createSignal,
-  omit,
-} from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -16,6 +9,7 @@ import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useAutoLoadingClick } from '../../shared/use-auto-loading'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { resolvePropsChildren } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 
@@ -153,7 +147,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   )
 
   const binding = root.bind(interactionProps)
-  const child = resolveChildren(() => local.children as JSX.Element)
+  const child = resolvePropsChildren(local as { children?: JSX.Element })
   const resolvedChildren = createMemo(() =>
     renderWithProps(child(), {
       get loading() {

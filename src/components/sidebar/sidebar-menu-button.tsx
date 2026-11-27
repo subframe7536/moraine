@@ -1,12 +1,12 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { children as resolveChildren, createMemo, merge, Show, omit } from 'solid-js'
+import { createMemo, merge, Show, omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -159,7 +159,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
   })
 
   const binding = root.bind(elementProps)
-  const children = resolveChildren(() => local.children)
+  const children = resolvePropsChildren(local)
   const hasChildren = () => hasContent(children())
   const Root = dynamic(resolvedTag)
   return (

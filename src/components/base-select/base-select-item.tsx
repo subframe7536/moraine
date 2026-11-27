@@ -1,9 +1,9 @@
 import type { JSX } from '@solidjs/web'
-import { children as resolveChildren, createMemo, omit } from 'solid-js'
+import { createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler, callRef, resolvePropsChildren } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -77,7 +77,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       return disabled()
     },
   }
-  const child = resolveChildren(() => props.children as JSX.Element)
+  const child = resolvePropsChildren(props as { children?: JSX.Element })
   const resolvedChildren = createMemo(() => {
     const value = child()
     if (value === undefined) {

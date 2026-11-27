@@ -1,4 +1,5 @@
-import { Show, createSignal, flush } from 'solid-js'
+import { render } from '@solidjs/testing-library'
+import { Show, createComponent, createSignal, flush } from 'solid-js'
 import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
@@ -83,4 +84,21 @@ it('hydrates hidden-label Field without replacing its label or control', () => {
   expect(document.getElementById(input.getAttribute('aria-describedby')!)?.textContent).toBe(
     'No matching commands',
   )
+})
+
+it('reads a JSX label getter once within a single mount', () => {
+  let labelReads = 0
+  const view = render(() =>
+    createComponent(Field, {
+      get label() {
+        labelReads += 1
+        return <span>Email</span>
+      },
+      children: <Input />,
+    }),
+  )
+
+  expect(labelReads).toBe(1)
+  expect(view.container.querySelector('[data-slot="field-label"]')?.textContent).toBe('Email')
+  view.unmount()
 })

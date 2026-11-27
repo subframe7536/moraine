@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { Show, children as resolveChildren, createMemo, omit } from 'solid-js'
+import { Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -9,7 +9,7 @@ import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 
@@ -93,7 +93,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
 
-  const child = resolveChildren(() => local.children as JSX.Element)
+  const child = resolvePropsChildren(local as { children?: JSX.Element })
   const resolvedChildren = createMemo(() => {
     const value = child() as CopyButtonT.Base['children']
     if (typeof value !== 'function') {

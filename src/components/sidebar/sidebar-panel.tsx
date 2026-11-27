@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { dynamic, isServer } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
 import { Show, createEffect, createRenderEffect, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
@@ -43,19 +43,14 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     'style',
     'ref',
   )
-  // Registered during setup so `Trigger` and `Rail` reference the same id in `aria-controls`.
-  // Server rendering is pure, so the server renders the panel with its own id and registers
-  // nothing; the client registers it while hydrating.
-  if (!isServer) {
-    createEffect(
-      () => local.id,
-      (id) => {
-        context.setPanelId(id)
-        return () => context.setPanelId(undefined)
-      },
-      { transparent: true },
-    )
-  }
+  // Register the panel id on the client so `Trigger` and `Rail` reference it in `aria-controls`.
+  createEffect(
+    () => local.id,
+    (id) => {
+      context.setPanelId(id)
+      return () => context.setPanelId(undefined)
+    },
+  )
   const content = resolvePropsChildren(props)
   const { slotWith } = useSidebarStyles('panel', local)
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())

@@ -53,8 +53,9 @@ export function Field<T extends ValidComponent = 'div'>(
     'style',
   )
   const isRequired = () => Boolean(props.required)
-  const labelHidden = () => !hasContent(props.label) && Boolean(props.hiddenLabel)
-  const label = createMemo(() => (hasContent(props.label) ? props.label : props.hiddenLabel))
+  const rawLabel = createMemo(() => props.label)
+  const labelHidden = () => !hasContent(rawLabel()) && Boolean(props.hiddenLabel)
+  const label = () => (hasContent(rawLabel()) ? rawLabel() : props.hiddenLabel)
   const description = createMemo(() => props.description)
   const hint = createMemo(() => props.hint)
   const help = createMemo(() => props.help)
