@@ -3,11 +3,8 @@ import {
   createEffect,
   createMemo,
   createRenderEffect,
-  createRoot,
   createSignal,
-  getOwner,
   onCleanup,
-  runWithOwner,
   untrack,
 } from 'solid-js'
 
@@ -84,7 +81,6 @@ export interface DisclosureState {
 }
 
 export function createDisclosureState(options: CreateDisclosureStateOptions): DisclosureState {
-  const stateOwner = getOwner()
   const disabled = createMemo(() => Boolean(options.disabled?.()))
   const transition = createMemo(() =>
     typeof options.transition === 'function' ? options.transition() : (options.transition ?? true),
@@ -127,14 +123,9 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const inert = () => (closed() ? (true as const) : undefined)
   const ariaHidden = () => (closed() ? ('true' as const) : undefined)
 
-  let everClosed = false
-  const initialOpen = createMemo(() => {
-    if (!options.open()) {
-      everClosed = true
-      return false
-    }
-    return !everClosed
-  })
+  const initialOpen = createMemo<boolean>((previous) =>
+    previous === false ? false : options.open(),
+  )
 
   function shouldMount(): boolean {
     if (forceMount()) {
@@ -201,6 +192,24 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }
   }
 
+  if (options.onBeforeMatch) {
+    // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
+    // attribute so `until-found` survives jsdom and hydrated SSR markup.
+    createRenderEffect(
+      () => [contentElement(), hiddenAttr()] as const,
+      ([element, value]) => {
+        if (!element) {
+          return
+        }
+        if (value === undefined) {
+          element.removeAttribute('hidden')
+        } else {
+          element.setAttribute('hidden', value)
+        }
+      },
+    )
+  }
+
   function restoreTriggerFocus(): void {
     // Snapshot reads inside an effect callback: the tracked dep is `open`;
     // whichever elements are current when it closes get the focus check.
@@ -229,7 +238,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       contentHasFocus = true
     }
     const onFocusOut = (event: FocusEvent) => {
-      if (untrack(options.open) && !element.contains(event.relatedTarget as Node | null)) {
+      if (options.open() && !element.contains(event.relatedTarget as Node | null)) {
         contentHasFocus = false
       }
     }
@@ -242,7 +251,6 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     const releasePresence = presence.registerElement(element)
 
     let removeBeforeMatch: (() => void) | undefined
-    let stopHiddenSync: (() => void) | undefined
     if (options.onBeforeMatch) {
       const reveal = options.onBeforeMatch
       removeBeforeMatch = attachEventListener(element, 'beforematch', () => {
@@ -253,36 +261,16 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
           element.setAttribute('hidden', value)
         }
       })
-      // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
-      // attribute so `until-found` survives jsdom and hydrated SSR markup.
-      stopHiddenSync = runWithOwner(stateOwner, () =>
-        createRoot((dispose) => {
-          createRenderEffect(
-            () => hiddenAttr(),
-            (value) => {
-              if (value === undefined) {
-                element.removeAttribute('hidden')
-              } else {
-                element.setAttribute('hidden', value)
-              }
-            },
-          )
-          return dispose
-        }),
-      )
     }
 
     return () => {
-      stopHiddenSync?.()
       removeBeforeMatch?.()
       releasePresence()
       removeListeners()
       if (removeContentFocusListeners === removeListeners) {
         removeContentFocusListeners = undefined
       }
-      if (untrack(contentElement) === element) {
-        setContentElementSignal(undefined)
-      }
+      setContentElementSignal((current) => (current === element ? undefined : current))
     }
   }
 

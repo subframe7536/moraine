@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createMemo, createSignal, flush } from 'solid-js'
+import { createMemo, createSignal, flush, onCleanup } from 'solid-js'
 
 import { callHandler } from './utils'
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
@@ -24,13 +24,20 @@ export function useAutoLoadingClick<T, E extends Event = MouseEvent>(
   onClick: JSX.EventHandler<T, E>
 } {
   const [pendingActionCount, setPendingActionCount] = createSignal(0)
+  let disposed = false
+
+  onCleanup(() => {
+    disposed = true
+  })
 
   const isLoading = createMemo(() =>
     Boolean(options.loading?.() || (options.autoLoading?.() && pendingActionCount() > 0)),
   )
 
   const decrement = (): void => {
-    setPendingActionCount((count) => Math.max(0, count - 1))
+    if (!disposed) {
+      setPendingActionCount((count) => Math.max(0, count - 1))
+    }
   }
 
   const onClick: JSX.EventHandler<T, E> = (event) => {

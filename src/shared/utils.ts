@@ -38,7 +38,12 @@ export function createId(
   prefix: string | (() => string) = 'mo',
 ): Accessor<string> {
   const uniqueId = createUniqueId()
-  const resolvedId = createMemo(() => {
+  if (!deterministicId && typeof prefix === 'string') {
+    const fixedId = `${prefix}-${uniqueId}`
+    return () => fixedId
+  }
+
+  return createMemo(() => {
     const id = deterministicId?.()
 
     // Return deterministic ID if provided
@@ -50,8 +55,6 @@ export function createId(
     const resolvedPrefix = typeof prefix === 'function' ? prefix() : prefix
     return `${resolvedPrefix}-${uniqueId}`
   })
-
-  return resolvedId
 }
 
 export interface HandlerCallResult<R = unknown> {
@@ -150,19 +153,24 @@ export function resolvePropsChildren(props: {
   return accessor
 }
 
+const latestPublishedElement = new WeakMap<object, unknown>()
+
 /**
  * Publishes an element to a longer-lived signal, such as a parent context.
  *
- * The cleanup clears the signal only while it still holds this element.
+ * The cleanup clears the signal only while it still holds this element,
+ * including across same-tick staged writes in Solid 2.
  */
 export function publishElement<T>(
-  get: Accessor<T | undefined>,
+  _get: Accessor<T | undefined>,
   set: (element: T | undefined) => void,
 ): (element: T) => VoidFunction {
   return (element) => {
+    latestPublishedElement.set(set, element)
     set(element)
     return () => {
-      if (untrack(get) === element) {
+      if (latestPublishedElement.get(set) === element) {
+        latestPublishedElement.delete(set)
         set(undefined)
       }
     }

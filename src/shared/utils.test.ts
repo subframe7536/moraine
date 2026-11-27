@@ -174,6 +174,24 @@ describe('publishElement', () => {
     unpublishB()
     expect(current).toBeUndefined()
   })
+
+  it('does not clobber a same-tick replacement staged on a Solid signal', () => {
+    const [element, setElement] = createSignal<string | undefined>(undefined)
+    const publish = publishElement(element, setElement)
+
+    const unpublishA = publish('a')
+    flush()
+    expect(untrack(element)).toBe('a')
+
+    const unpublishB = publish('b')
+    unpublishA()
+    flush()
+    expect(untrack(element)).toBe('b')
+
+    unpublishB()
+    flush()
+    expect(untrack(element)).toBeUndefined()
+  })
 })
 
 describe('createProjection selection cleanup', () => {

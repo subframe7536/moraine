@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, merge, untrack } from 'solid-js'
+import { createEffect, merge, untrack } from 'solid-js'
 
 import { isNativeButtonElement, isNativeButtonTag } from './native-button'
 import type { ValidComponent } from './types'
@@ -52,27 +52,29 @@ export function useButtonInteraction(
   // default so SSR emits it; component-rendered native buttons get the same
   // default injected post-mount below.
   const hasStaticTag = typeof untrack(options.tag) === 'string'
+  const isCustomTag = () => typeof options.tag() !== 'string'
+  const resolvedElement = () => (isCustomTag() ? options.element?.() : undefined)
 
-  // A string tag already names its element, so only custom component roots resolve semantics
-  // from the DOM. Their element is known only after the spread that renders it assigns the ref,
-  // so it is republished from an effect: the attribute getters below then re-run in the
-  // flush continuation instead of feeding the ref write back into the spread that made it.
-  const [componentElement, setComponentElement] = createSignal<HTMLElement | undefined>()
-  if (!hasStaticTag) {
-    createEffect(
-      () => [options.element?.(), props.type as string | undefined] as const,
-      ([element, type]) => {
-        setComponentElement(element)
-        if (element && isNativeButtonElement(element, type)) {
-          element.setAttribute(
-            'type',
-            type ?? (element.localName === 'input' ? (element as HTMLInputElement).type : 'button'),
-          )
-        }
-      },
-    )
-  }
-  const resolvedElement = () => (typeof options.tag() === 'string' ? undefined : componentElement())
+  // Custom component roots resolve native button semantics from their mounted DOM element.
+  // Set `type` post-mount instead of spreading `type: undefined` onto custom components.
+  createEffect(
+    () =>
+      isCustomTag()
+        ? ([options.element?.(), props.type as string | undefined] as const)
+        : undefined,
+    (entry) => {
+      if (!entry) {
+        return
+      }
+      const [element, type] = entry
+      if (element && isNativeButtonElement(element, type)) {
+        element.setAttribute(
+          'type',
+          type ?? (element.localName === 'input' ? (element as HTMLInputElement).type : 'button'),
+        )
+      }
+    },
+  )
 
   const isNativeButton = () => {
     const element = resolvedElement()
@@ -210,8 +212,7 @@ export function useButtonInteraction(
           return options.disabled() && !isFocusableWhenDisabled()
         }
 
-        const tag = options.tag()
-        if (!componentElement() && typeof tag !== 'string' && options.disabledForComponent) {
+        if (!resolvedElement() && isCustomTag() && options.disabledForComponent) {
           return options.disabled() && !isFocusableWhenDisabled()
         }
 

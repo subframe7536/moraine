@@ -1,6 +1,6 @@
 import { DelegatedEvents, delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createSignal, merge, omit, createRenderEffect } from 'solid-js'
+import { createEffect, createRenderEffect, createSignal, merge, omit } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
 import type { ValidComponent } from './types'
@@ -89,7 +89,7 @@ export function createPolymorphicRoot(options: {
     })
   }
 
-  createRenderEffect(
+  createEffect(
     () => {
       const root = element()
       if (!root) {

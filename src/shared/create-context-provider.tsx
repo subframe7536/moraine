@@ -23,12 +23,8 @@ export function createContextProvider<T>(
           try {
             return useContext(context)
           } catch (error) {
-            if (
-              error instanceof Error &&
-              (error.constructor.name === 'ContextNotFoundError' ||
-                error.constructor.name === 'NoOwnerError')
-            ) {
-              throw new Error(`use${name}Context must be used within <${name}Provider />`, {
+            if (error instanceof Error) {
+              throw new TypeError(`use${name}Context must be used within <${name}Provider />`, {
                 cause: error,
               })
             }

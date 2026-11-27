@@ -137,4 +137,79 @@ describe('createControllableValue', () => {
     expect(value()).toBe('default-next')
     dispose()
   })
+
+  it('composes synchronous uncontrolled writes before flush', () => {
+    const onChange = vi.fn<(next: number) => void>()
+    const [[value, setValue], dispose] = createRoot(
+      (d) =>
+        [
+          createControllableValue<number>({
+            value: () => undefined,
+            defaultValue: () => 1,
+            onChange,
+          }),
+          d,
+        ] as const,
+    )
+
+    setValue((previous) => previous + 1)
+    setValue((previous) => previous + 1)
+    setValue(3)
+
+    expect(value()).toBe(1)
+    expect(onChange.mock.calls).toEqual([[2], [3]])
+
+    flush()
+    expect(value()).toBe(3)
+
+    setValue(4)
+    setValue(3)
+    flush()
+
+    expect(value()).toBe(3)
+    expect(onChange.mock.calls).toEqual([[2], [3], [4], [3]])
+    dispose()
+  })
+
+  it('supports function values and custom equality', () => {
+    const firstFn = () => 'first'
+    const secondFn = () => 'second'
+    const [[fnValue, setFnValue], disposeFn] = createRoot(
+      (d) =>
+        [
+          createControllableValue<() => string>({
+            value: () => undefined,
+            defaultValue: () => firstFn,
+          }),
+          d,
+        ] as const,
+    )
+
+    expect(fnValue()).toBe(firstFn)
+    flush(() => setFnValue(() => secondFn))
+    expect(fnValue()).toBe(secondFn)
+    disposeFn()
+
+    const onChange = vi.fn<(next: ReadonlyArray<number>) => void>()
+    const [[items, setItems], disposeItems] = createRoot(
+      (d) =>
+        [
+          createControllableValue<ReadonlyArray<number>>({
+            value: () => undefined,
+            defaultValue: () => [1, 2],
+            onChange,
+            equals: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
+          }),
+          d,
+        ] as const,
+    )
+
+    flush(() => setItems([1, 2]))
+    expect(onChange).not.toHaveBeenCalled()
+
+    flush(() => setItems([1, 2, 3]))
+    expect(items()).toEqual([1, 2, 3])
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([1, 2, 3])
+    disposeItems()
+  })
 })

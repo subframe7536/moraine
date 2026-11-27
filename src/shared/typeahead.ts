@@ -1,4 +1,4 @@
-import { onCleanup } from 'solid-js'
+import { createMemo, onCleanup } from 'solid-js'
 
 import { collatorStartsWith, createSearchCollator } from '../provider/locale/collator'
 import { useLocale } from '../provider/locale/locale-context'
@@ -24,7 +24,7 @@ export function createTypeahead<T>(options: CreateTypeaheadOptions<T>): {
   let startIndex = 0
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const timeout = options.timeout ?? 500
-  const collator = () => createSearchCollator(locale())
+  const collator = createMemo(() => createSearchCollator(locale()))
 
   function reset(): void {
     search = ''
