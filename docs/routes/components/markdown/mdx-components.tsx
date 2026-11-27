@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import type { MDXComponents } from 'solid-file-router/mdx'
 import type { Component, ComponentProps } from 'solid-js'
-import { dynamicComponent } from 'solid-js'
+import { Show, createComponent } from 'solid-js'
 
 import { Kbd, cn } from '../../../../src'
 
@@ -41,8 +41,11 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   HooksIndex,
 
   Preview(props: MdxProps) {
-    const PreviewComponent = dynamicComponent(() => props.preview as Component | undefined)
-    return <PreviewComponent />
+    return (
+      <Show when={props.preview as Component | undefined}>
+        {(PreviewComponent) => createComponent(PreviewComponent(), {})}
+      </Show>
+    )
   },
 
   CodeTabs,
