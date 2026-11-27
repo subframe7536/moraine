@@ -100,7 +100,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
   )
 
   const filteredToasts = createMemo(() => store.toasts.filter((toast) => toast.hostId === props.id))
-  const hasToasts = () => filteredToasts().some((toast) => !toast.closed)
+  const hasToasts = createMemo(() => filteredToasts().some((toast) => !toast.closed))
 
   createEffect(hasToasts, (active) => {
     if (!active) {

@@ -1,11 +1,11 @@
 import type { JSX } from '@solidjs/web'
-import { For, Show, createMemo, merge, omit } from 'solid-js'
+import { For, Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
+import { callRef, mergeDefinedProps } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { Button } from '../button'
 import type { ButtonProps } from '../button'
@@ -155,7 +155,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
   })
   const messages = useMessages('pagination', defaultPaginationMessages, () => props.translations)
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       role: 'navigation' as const,
       pageSize: 10,

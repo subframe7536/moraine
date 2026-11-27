@@ -1,21 +1,12 @@
 import type { JSX } from '@solidjs/web'
-import {
-  For,
-  Show,
-  createMemo,
-  createSignal,
-  merge,
-  untrack,
-  omit,
-  createRenderEffect,
-} from 'solid-js'
+import { For, Show, createMemo, createSignal, untrack, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { Icon } from '../icon'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -138,7 +129,7 @@ export function FileUpload<TMultiple extends boolean = false>(
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       accept: '*',
       multiple: false,

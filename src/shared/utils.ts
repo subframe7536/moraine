@@ -1,7 +1,8 @@
 import { isServer } from '@solidjs/web'
 import type { JSX } from '@solidjs/web'
-import type { Accessor } from 'solid-js'
+import type { Accessor, merge as solidMerge } from 'solid-js'
 import {
+  $PROXY,
   children as resolveChildren,
   createMemo,
   createRenderEffect,
@@ -175,4 +176,78 @@ export function publishElement<T>(
       }
     }
   }
+}
+
+/**
+ * Merges reactive prop objects left-to-right like Solid 2's `merge()`, except
+ * `undefined` values fall back to earlier sources instead of overwriting them.
+ *
+ * Preserves reactive getters across all sources so explicit `undefined` props
+ * (e.g. forwarded optional props) never clobber defaults.
+ */
+export function mergeDefinedProps<T extends Array<object>>(
+  ...sources: T
+): ReturnType<typeof solidMerge<T>> {
+  const resolveValue = (property: PropertyKey): unknown => {
+    for (let i = sources.length - 1; i >= 0; i--) {
+      const source = sources[i] as Record<PropertyKey, unknown> | undefined
+      if (source && property in source) {
+        const value = source[property]
+        if (value !== undefined) {
+          return value
+        }
+      }
+    }
+    return undefined
+  }
+
+  return new Proxy(
+    {},
+    {
+      get(_target, property, receiver) {
+        if (property === $PROXY) {
+          return receiver
+        }
+        return resolveValue(property)
+      },
+      has(_target, property) {
+        if (property === $PROXY) {
+          return true
+        }
+        for (let i = sources.length - 1; i >= 0; i--) {
+          const source = sources[i] as Record<PropertyKey, unknown> | undefined
+          if (source && property in source) {
+            return true
+          }
+        }
+        return false
+      },
+      ownKeys() {
+        const keys = new Set<string | symbol>()
+        for (const source of sources) {
+          if (source) {
+            for (const key of Reflect.ownKeys(source)) {
+              keys.add(key)
+            }
+          }
+        }
+        return [...keys]
+      },
+      getOwnPropertyDescriptor(_target, property) {
+        for (let i = sources.length - 1; i >= 0; i--) {
+          const source = sources[i] as Record<PropertyKey, unknown> | undefined
+          if (source && property in source) {
+            return {
+              enumerable: true,
+              configurable: true,
+              get() {
+                return resolveValue(property)
+              },
+            }
+          }
+        }
+        return undefined
+      },
+    },
+  ) as ReturnType<typeof solidMerge<T>>
 }

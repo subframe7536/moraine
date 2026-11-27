@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 
 import { cn } from '../theme/cn'
 
-import { callRef, createId, publishElement } from './utils'
+import { callRef, createId, mergeDefinedProps, publishElement } from './utils'
 describe('callRef', () => {
   it('ignores element-valued refs', () => {
     const element = document.createElement('div')
@@ -220,5 +220,48 @@ describe('createProjection selection cleanup', () => {
     expect(untrack(() => activeMap['item-0'])).toBeUndefined()
     expect(untrack(() => Object.keys(activeMap))).toEqual(['item-50'])
     dispose()
+  })
+})
+
+describe('mergeDefinedProps', () => {
+  it('falls back to earlier sources when later keys evaluate to undefined while keeping reactivity', () => {
+    createRoot((dispose) => {
+      const [placement, setPlacement] = createSignal<'top' | 'bottom' | undefined>(undefined, {
+        ownedWrite: true,
+      })
+      const [closable, setClosable] = createSignal<boolean | undefined>(undefined, {
+        ownedWrite: true,
+      })
+
+      const merged = mergeDefinedProps(
+        { placement: 'bottom' as const, closable: true },
+        {
+          get placement() {
+            return placement()
+          },
+          get closable() {
+            return closable()
+          },
+        },
+      )
+
+      expect(untrack(() => merged.placement)).toBe('bottom')
+      expect(untrack(() => merged.closable)).toBe(true)
+
+      flush(() => {
+        setPlacement('top')
+        setClosable(false)
+      })
+      expect(untrack(() => merged.placement)).toBe('top')
+      expect(untrack(() => merged.closable)).toBe(false)
+
+      flush(() => {
+        setPlacement(undefined)
+        setClosable(undefined)
+      })
+      expect(untrack(() => merged.placement)).toBe('bottom')
+      expect(untrack(() => merged.closable)).toBe(true)
+      dispose()
+    })
   })
 })

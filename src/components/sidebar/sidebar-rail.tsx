@@ -36,6 +36,8 @@ interface RailDragSession {
   total: number
   startWidth: number
   baselineWidth: number | undefined
+  lastWidth: number | undefined
+  isOpen: boolean
 }
 
 /**
@@ -119,12 +121,16 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
 
   function applyDrag(deltaPx: number): void {
     if (!session) {
-      const startWidth = context.open() ? (context.width() ?? measuredPanelWidth()) : 0
+      const isOpen = context.open()
+      const currentWidth = context.width()
+      const startWidth = isOpen ? (currentWidth ?? measuredPanelWidth()) : 0
       session = {
         sign: measureSign(),
         total: 0,
         startWidth,
-        baselineWidth: context.width(),
+        baselineWidth: currentWidth,
+        lastWidth: currentWidth,
+        isOpen,
       }
       context.setResizing(true)
     }
@@ -136,17 +142,20 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
 
     const candidate = session.startWidth + session.sign * session.total
     if (candidate < context.minWidth() / 2) {
-      if (context.open()) {
+      if (session.isOpen) {
+        session.isOpen = false
         context.setOpen(false)
       }
       return
     }
 
-    if (!context.open()) {
+    if (!session.isOpen) {
+      session.isOpen = true
       context.setOpen(true)
     }
     const next = clamp(candidate, context.minWidth(), context.maxWidth())
-    if (next !== context.width()) {
+    if (next !== session.lastWidth) {
+      session.lastWidth = next
       context.setWidth(next)
     }
   }
@@ -155,7 +164,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
     context.setResizing(false)
     const finished = session
     session = null
-    const finalWidth = context.width()
+    const finalWidth = finished?.lastWidth ?? context.width()
     if (
       finished &&
       finalWidth !== undefined &&

@@ -213,7 +213,9 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   ): OverlayMenuItemRenderProps<TItem> {
     return {
       item,
-      depth: props.depth,
+      get depth() {
+        return props.depth
+      },
       hasChildren,
     }
   }
@@ -228,17 +230,23 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     const kbds = createLazyMemo(() =>
       'kbds' in contentProps.item ? contentProps.item.kbds : undefined,
     )
+    const itemRenderProps: OverlayMenuItemRenderProps<TItem> = {
+      get item() {
+        return contentProps.item
+      },
+      get depth() {
+        return props.depth
+      },
+      get hasChildren() {
+        return contentProps.hasChildren
+      },
+    }
     return (
       <Show
         when={itemRender() === undefined}
         fallback={
           <Show when={itemRender()} keyed>
-            {(render) =>
-              renderWithProps(
-                render,
-                getItemRenderProps(contentProps.item, contentProps.hasChildren),
-              )
-            }
+            {(render) => renderWithProps(render, itemRenderProps)}
           </Show>
         }
       >

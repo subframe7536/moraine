@@ -1,6 +1,6 @@
 import { DelegatedEvents, delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createRenderEffect, createSignal, merge, omit } from 'solid-js'
+import { createEffect, createMemo, createRenderEffect, createSignal, merge, omit } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
 import type { ValidComponent } from './types'
@@ -89,7 +89,10 @@ export function createPolymorphicRoot(options: {
     })
   }
 
-  createEffect(
+  const bridgeCustomClick = createMemo(() =>
+    Boolean(options.bridgeClick && typeof options.tag() !== 'string'),
+  )
+  const clickBinding = createMemo(
     () => {
       const root = element()
       if (!root) {
@@ -97,57 +100,62 @@ export function createPolymorphicRoot(options: {
       }
       return {
         root,
-        bridgeCustomClick: Boolean(options.bridgeClick && typeof options.tag() !== 'string'),
+        bridgeCustomClick: bridgeCustomClick(),
       }
     },
-    (binding) => {
-      if (!binding) {
-        return
-      }
-      const { root, bridgeCustomClick } = binding
-      let bridgeDocument: Document | undefined
-      let releaseDocument: VoidFunction | undefined
-      const bridgeClick = (event: MouseEvent) => {
-        // A custom root can unmount its element without telling this root; ignore it once detached.
-        if (element() !== root || !root.isConnected || !event.composedPath().includes(root)) {
-          return
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(event, 'currentTarget')
-        Object.defineProperty(event, 'currentTarget', { configurable: true, value: root })
-        try {
-          callHandler(event, boundProps?.onClick)
-        } finally {
-          if (descriptor) {
-            Object.defineProperty(event, 'currentTarget', descriptor)
-          } else {
-            delete (event as { currentTarget?: EventTarget | null }).currentTarget
-          }
-        }
-      }
-      const registerDocument = () => {
-        if (bridgeDocument === root.ownerDocument) {
-          return
-        }
-        releaseDocument?.()
-        bridgeDocument = root.ownerDocument
-        // Let Solid dispatch the target's handlers before trigger behavior, including in iframes.
-        delegateEvents(DELEGATED_EVENTS)
-        registerDelegatedContainer(bridgeDocument)
-        releaseDocument = bridgeCustomClick
-          ? attachClickBridge(bridgeDocument, seq, bridgeClick)
-          : undefined
-      }
-      registerDocument()
-      // A root may be adopted after mounting. Register on its new document before bubbling.
-      const releases = DELEGATED_EVENTS.map((name) =>
-        attachEventListener(root, name as keyof HTMLElementEventMap, registerDocument, true),
-      )
-      return () => {
-        releases.forEach((dispose) => dispose())
-        releaseDocument?.()
-      }
+    {
+      equals: (prev, next) =>
+        prev?.root === next?.root && prev?.bridgeCustomClick === next?.bridgeCustomClick,
     },
   )
+
+  createEffect(clickBinding, (binding) => {
+    if (!binding) {
+      return
+    }
+    const { root, bridgeCustomClick } = binding
+    let bridgeDocument: Document | undefined
+    let releaseDocument: VoidFunction | undefined
+    const bridgeClick = (event: MouseEvent) => {
+      // A custom root can unmount its element without telling this root; ignore it once detached.
+      if (element() !== root || !root.isConnected || !event.composedPath().includes(root)) {
+        return
+      }
+      const descriptor = Object.getOwnPropertyDescriptor(event, 'currentTarget')
+      Object.defineProperty(event, 'currentTarget', { configurable: true, value: root })
+      try {
+        callHandler(event, boundProps?.onClick)
+      } finally {
+        if (descriptor) {
+          Object.defineProperty(event, 'currentTarget', descriptor)
+        } else {
+          delete (event as { currentTarget?: EventTarget | null }).currentTarget
+        }
+      }
+    }
+    const registerDocument = () => {
+      if (bridgeDocument === root.ownerDocument) {
+        return
+      }
+      releaseDocument?.()
+      bridgeDocument = root.ownerDocument
+      // Let Solid dispatch the target's handlers before trigger behavior, including in iframes.
+      delegateEvents(DELEGATED_EVENTS)
+      registerDelegatedContainer(bridgeDocument)
+      releaseDocument = bridgeCustomClick
+        ? attachClickBridge(bridgeDocument, seq, bridgeClick)
+        : undefined
+    }
+    registerDocument()
+    // A root may be adopted after mounting. Register on its new document before bubbling.
+    const releases = DELEGATED_EVENTS.map((name) =>
+      attachEventListener(root, name as keyof HTMLElementEventMap, registerDocument, true),
+    )
+    return () => {
+      releases.forEach((dispose) => dispose())
+      releaseDocument?.()
+    }
+  })
 
   function bind<T extends object>(
     props: T,

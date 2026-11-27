@@ -229,6 +229,8 @@ interface DragState {
    */
   crossAxisTarget: boolean
   abandoned: boolean
+  /** Synchronous mirror of `swiping` for same-tick gesture checks before Solid 2 flushes. */
+  claimed: boolean
   /**
    * Reversed past `REVERSE_CANCEL_THRESHOLD` after locking the dismiss axis: the
    * release snaps back instead of settling or dismissing.
@@ -267,6 +269,7 @@ function createDrag(
     scrollRtl,
     crossAxisTarget,
     abandoned: false,
+    claimed: false,
     cancelled: false,
     moved: false,
     lastX: x,
@@ -554,7 +557,7 @@ export function createDrawerSwipe(
     if (drag === state) {
       drag = null
     }
-    const settle = released && swiping() && !state.abandoned && !state.cancelled
+    const settle = released && state.claimed && !state.abandoned && !state.cancelled
     setSwiping(false)
     if (settle) {
       settleDrag(state, endX, endY, timeStamp)
@@ -596,7 +599,7 @@ export function createDrawerSwipe(
     state.lastX = x
     state.lastY = y
 
-    if (!swiping()) {
+    if (!state.claimed) {
       if (Math.abs(main) < AXIS_LOCK_SLOP && Math.abs(cross) < AXIS_LOCK_SLOP) {
         return false
       }
@@ -638,6 +641,7 @@ export function createDrawerSwipe(
           setBaseline((vert ? translate.y : translate.x) * sign - snapPointOffset())
         }
       }
+      state.claimed = true
       setSwiping(true)
     }
 
@@ -787,7 +791,7 @@ export function createDrawerSwipe(
           }
           // A descendant claiming the gesture for itself while the swipe is
           // still pending wins for the rest of the drag.
-          if (!swiping() && moveEvent.defaultPrevented) {
+          if (!state.claimed && moveEvent.defaultPrevented) {
             state.abandoned = true
             return
           }
@@ -859,7 +863,7 @@ export function createDrawerSwipe(
         // The browser already committed this touch to native scrolling or
         // pinch. An unclaimed gesture cannot be taken back; a claimed one
         // keeps tracking so the popup still follows the finger.
-        if (!swiping()) {
+        if (!state.claimed) {
           state.abandoned = true
           return
         }
@@ -871,7 +875,7 @@ export function createDrawerSwipe(
       }
       // A descendant claiming the gesture for itself while the swipe is still
       // pending wins for the rest of the drag.
-      if (!swiping() && event.defaultPrevented) {
+      if (!state.claimed && event.defaultPrevented) {
         state.abandoned = true
         return
       }

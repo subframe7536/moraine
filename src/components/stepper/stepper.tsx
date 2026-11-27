@@ -8,7 +8,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId, toIdSegment } from '../../shared/utils'
+import { createId, mergeDefinedProps, toIdSegment } from '../../shared/utils'
 import { Icon } from '../icon/index'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -88,7 +88,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     data: { content: stepperDataAttributes.content({ selected: true }) },
   })
   const direction = useLocale().dir
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       get orientation() {
         return variants.orientation

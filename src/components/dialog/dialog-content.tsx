@@ -1,21 +1,13 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  merge,
-  omit,
-  createRenderEffect,
-} from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, omit, createRenderEffect } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { resolvePropsChildren } from '../../shared/utils'
+import { mergeDefinedProps, resolvePropsChildren } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -76,7 +68,10 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   const messages = useMessages('dialog', defaultDialogMessages, () => dialog.translations)
   const direction = useLocale().dir
   const family = useBaseDialogContext()
-  const merged = merge({ overlay: true, closable: true, closeIcon: 'icon-close' as const }, dialog)
+  const merged = mergeDefinedProps(
+    { overlay: true, closable: true, closeIcon: 'icon-close' as const },
+    dialog,
+  )
   const isOverlay = () => merged.overlay !== false
   const {
     slots: { content: contentSlot, contentClose: contentCloseSlot, overlay: overlaySlot },

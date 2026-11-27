@@ -182,23 +182,21 @@ export function createTreeSortable<T>(
   // Hovering inside a collapsed item expands it, which also loads lazy children.
   const expandDelay = options.expandDelay ?? 600
   if (expandDelay !== false) {
-    createEffect(
-      () => {
-        const state = sortable.state()
-        if (state?.position !== 'inside') {
-          return undefined
-        }
-        const item = tree.getItem(String(state.targetId))
-        return item && !item.expanded && item.hasChildren ? item.key : undefined
-      },
-      (key) => {
-        if (key === undefined) {
-          return
-        }
-        const timer = setTimeout(() => tree.expand(key), expandDelay)
-        return () => clearTimeout(timer)
-      },
-    )
+    const hoverExpandKey = createMemo(() => {
+      const state = sortable.state()
+      if (state?.position !== 'inside') {
+        return undefined
+      }
+      const item = tree.getItem(String(state.targetId))
+      return item && !item.expanded && item.hasChildren ? item.key : undefined
+    })
+    createEffect(hoverExpandKey, (key) => {
+      if (key === undefined) {
+        return
+      }
+      const timer = setTimeout(() => tree.expand(key), expandDelay)
+      return () => clearTimeout(timer)
+    })
   }
 
   const useNode = (item: TreeT.ItemInstance<T>): TreeSortableNode => {

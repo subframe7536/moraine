@@ -342,7 +342,15 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       props.toast.render,
     ],
     () => {
-      queueMicrotask(measureHeight)
+      let cancelled = false
+      queueMicrotask(() => {
+        if (!cancelled) {
+          measureHeight()
+        }
+      })
+      return () => {
+        cancelled = true
+      }
     },
     { defer: true },
   )

@@ -1,12 +1,13 @@
 import type { JSX } from '@solidjs/web'
 import type { Setter } from 'solid-js'
-import { createEffect, createMemo, createSignal, merge, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
 import { useLocale, useMessages } from '../../../provider/locale/locale-context'
 import { formatLocaleNumber } from '../../../provider/locale/number'
 import { createControllableValue } from '../../../shared/controllable-value'
 import type { KeyBindingOptions } from '../../../shared/keyboard'
 import { createKeyDownHandler, createKeyUpHandler } from '../../../shared/keyboard'
+import { mergeDefinedProps } from '../../../shared/utils'
 import type { Orientation } from '../../../theme/style-types'
 import { defaultSliderMessages } from '../slider.messages'
 import type { SliderT } from '../slider.types'
@@ -77,7 +78,7 @@ export type CreateSliderReturn<TValue extends SliderValue = SliderValue> = {
   onTrackPointerMove: (event: PointerEvent) => void
   onTrackPointerUp: (event: PointerEvent) => void
   rangeStyle: () => JSX.CSSProperties
-  resetValues: (values?: Array<number>) => void
+  resetValues: (values?: Array<number>) => Array<number>
   setThumbRefs: Setter<Array<HTMLDivElement | undefined>>
   setTrackRef: (element: HTMLDivElement | undefined) => void
   startEdge: () => 'left' | 'right' | 'top' | 'bottom'
@@ -143,7 +144,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   options: CreateSliderOptions<TValue> = {},
 ): CreateSliderReturn<TValue> {
   const { dir: providerDirection, locale } = useLocale()
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       min: 0,
       max: 100,
@@ -332,9 +333,11 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     pendingValues = undefined
   })
 
-  function resetValues(values?: Array<number>): void {
+  function resetValues(values?: Array<number>): Array<number> {
     pendingValues = undefined
-    setCurrentValues([...(values ?? getInitialValues())])
+    const next = [...(values ?? getInitialValues())]
+    setCurrentValues(next)
+    return next
   }
 
   function getPublicValue(values: Array<number>): TValue {

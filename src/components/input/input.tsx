@@ -1,9 +1,9 @@
 import type { JSX } from '@solidjs/web'
-import { merge, onSettled, omit } from 'solid-js'
+import { onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
@@ -84,7 +84,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     }),
   })
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       type: 'text',
       autoComplete: 'off',

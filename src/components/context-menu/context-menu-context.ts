@@ -3,7 +3,7 @@ import { createEffect, createMemo, createSignal, merge, onCleanup, untrack } fro
 import { createContextProvider } from '../../shared/create-context-provider'
 import { attachEventListenerMap } from '../../shared/event-listener'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { createId } from '../../shared/utils'
+import { createId, mergeDefinedProps } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../shared/overlay/dom'
 import { createOverlayMenuOpen } from '../shared/overlay/menu'
 import type { OverlayMenuFocusStrategy } from '../shared/overlay/menu'
@@ -39,7 +39,7 @@ function hasLongPressMovedBeyondTolerance(
  * Menu triggered by right-click or long press on its child content.
  */
 export function createContextMenu(props: ContextMenuProps) {
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       placement: 'right' as const,
       align: 'start' as const,

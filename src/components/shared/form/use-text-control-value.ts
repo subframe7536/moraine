@@ -104,9 +104,6 @@ export function useTextControlValue<
     if (controlledValue === undefined) {
       options.setFormValue(nextValue)
     }
-    if (controlledValue !== undefined && Object.is(options.value(), controlledValue)) {
-      options.setFormValue(controlledValue)
-    }
   }
 
   function restoreValue(value: TValue | undefined): void {

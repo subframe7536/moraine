@@ -29,6 +29,7 @@ export interface TagsFieldOptions<TValue> {
   query: Accessor<string>
   setQuery: (value: string) => string
   commitInput: (input: string) => boolean
+  commitInputs?: (inputs: ReadonlyArray<string>) => boolean
   tokenSeparators: Accessor<ReadonlyArray<string> | undefined>
   locked: Accessor<boolean>
   slot: (name: TagSlot) => SlotBinding
@@ -195,17 +196,27 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
 
   function tokenize(text: string, commitLast = false): string {
     let remaining = text
+    const tokens: Array<string> = []
     for (;;) {
       const match = nextSeparator(remaining, !commitLast)
       if (!match) {
         break
       }
-      options.commitInput(remaining.slice(0, match.index))
+      tokens.push(remaining.slice(0, match.index))
       remaining = remaining.slice(match.index + match.separator.length)
     }
     if (commitLast) {
-      options.commitInput(remaining)
-      return ''
+      tokens.push(remaining)
+      remaining = ''
+    }
+    if (tokens.length > 0) {
+      if (options.commitInputs) {
+        options.commitInputs(tokens)
+      } else {
+        for (const token of tokens) {
+          options.commitInput(token)
+        }
+      }
     }
     return remaining
   }

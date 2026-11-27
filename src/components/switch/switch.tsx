@@ -7,7 +7,7 @@ import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasContent } from '../../shared/jsx-content'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
@@ -123,7 +123,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       loading: false,
       loadingIcon: 'icon-loading' as const,

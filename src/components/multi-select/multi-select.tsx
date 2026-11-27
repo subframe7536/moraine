@@ -138,51 +138,79 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
     const state = useSelectContext<Item>()
     const atMax = () => props.maxValues !== undefined && state.value().length >= props.maxValues
 
-    function commitInput(input: string): boolean {
+    function commitInputs(inputs: ReadonlyArray<string>): boolean {
       if (state.locked()) {
         return false
       }
-      const normalized = input.trim()
-      if (!normalized) {
+      const nextValues = [...state.value()]
+      const newlyCreated: Array<Item> = []
+      const createdByValue = new Map<Value, Item>()
+      let committedAny = false
+
+      for (const input of inputs) {
+        const normalized = input.trim()
+        if (!normalized) {
+          continue
+        }
+        if (props.maxValues !== undefined && nextValues.length >= props.maxValues) {
+          break
+        }
+        const resolved = resolveInputItem(normalized)
+        if (resolved && nextValues.some((value) => sameValue(value, resolved.value))) {
+          continue
+        }
+        if (resolved && state.itemDisabled(resolved)) {
+          continue
+        }
+        let item = resolved
+        if (!item) {
+          if (!props.createItem) {
+            continue
+          }
+          const candidate = props.createItem(normalized)
+          if (
+            !candidate ||
+            (typeof candidate.value !== 'string' && typeof candidate.value !== 'number')
+          ) {
+            continue
+          }
+          const createdItem =
+            source().byValue.get(candidate.value) ??
+            createdByValue.get(candidate.value) ??
+            candidate
+          if (state.itemDisabled(createdItem)) {
+            continue
+          }
+          if (nextValues.some((value) => sameValue(value, createdItem.value))) {
+            continue
+          }
+          if (!source().byValue.has(createdItem.value) && !createdByValue.has(createdItem.value)) {
+            createdByValue.set(createdItem.value, createdItem)
+            newlyCreated.push(createdItem)
+          }
+          item = createdItem
+        }
+        nextValues.push(item.value)
+        committedAny = true
+      }
+
+      if (!committedAny) {
         return false
       }
-      const resolved = resolveInputItem(normalized)
-      if (resolved && state.value().some((value) => sameValue(value, resolved.value))) {
-        return false
-      }
-      if (atMax() || (resolved && state.itemDisabled(resolved))) {
-        return false
-      }
-      let item = resolved
-      if (!item) {
-        if (!props.createItem) {
-          return false
-        }
-        const candidate = props.createItem(normalized)
-        if (
-          !candidate ||
-          (typeof candidate.value !== 'string' && typeof candidate.value !== 'number')
-        ) {
-          return false
-        }
-        const createdItem = source().byValue.get(candidate.value) ?? candidate
-        if (state.itemDisabled(createdItem)) {
-          return false
-        }
-        if (state.value().some((value) => sameValue(value, createdItem.value))) {
-          return false
-        }
-        if (!source().byValue.has(createdItem.value)) {
-          setCreated((previous) =>
-            previous.some((entry) => sameValue(entry.value, createdItem.value))
-              ? previous
-              : [...previous, createdItem],
+      if (newlyCreated.length > 0) {
+        setCreated((previous) => {
+          const added = newlyCreated.filter(
+            (entry) => !previous.some((existing) => sameValue(existing.value, entry.value)),
           )
-        }
-        item = createdItem
+          return added.length > 0 ? [...previous, ...added] : previous
+        })
       }
-      state.change([...state.value(), item.value])
+      state.change(nextValues)
       return true
+    }
+
+    function commitInput(input: string): boolean {
+      return commitInputs([input])
     }
 
     function create(input = search.value()): boolean {
@@ -201,6 +229,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       query: search.value,
       setQuery: search.setValue,
       commitInput,
+      commitInputs,
       tokenSeparators: () => props.tokenSeparators,
       locked: state.locked,
       slot: (slot) => slots[slot],

@@ -6,7 +6,6 @@ import {
   createMemo,
   createSignal,
   onCleanup,
-  flush,
   onSettled,
   untrack,
   For,
@@ -190,13 +189,11 @@ export function createSelectState<T extends BaseSelectT.Item>(
     if (selectionEqual(before, after)) {
       return
     }
-    flush(() => {
-      resetNativeInvalid()
-      setSelection(after)
-      if (props.value === undefined) {
-        field.setFormValue(toFormValue(after, props.multiple === true))
-      }
-    })
+    resetNativeInvalid()
+    setSelection(after)
+    if (props.value === undefined) {
+      field.setFormValue(toFormValue(after, props.multiple === true))
+    }
     props.onValueChange?.(after)
     field.emit('change')
     field.emit('input')
@@ -473,7 +470,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
       const next = props.value !== undefined ? normalize(props.value) : initial
       field.setFormValue(toFormValue(next, props.multiple === true))
       if (formInput) {
-        formInput.value = primarySerializedValue()
+        formInput.value = next.flatMap((selected) => serialize(selected) ?? [])[0] ?? ''
       }
       props.onReset?.()
     },

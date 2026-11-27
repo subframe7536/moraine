@@ -1,22 +1,12 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import {
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  merge,
-  onCleanup,
-  onSettled,
-  untrack,
-  omit,
-} from 'solid-js'
+import { For, Show, createEffect, createMemo, onCleanup, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler, createKeyUpHandler, normalizeKey } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -124,7 +114,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     },
     context: () => ({ variants: { size: themeField?.size } }),
   })
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       loop: true,
     },

@@ -114,8 +114,7 @@ export function createSource<T extends BaseSelectT.Item>(
   }
   function getRow(key: string, item: T): SelectRow<T> {
     const existing = previousRows.get(key)
-    if (existing && existing.type === 'item') {
-      existing.item = item
+    if (existing && existing.type === 'item' && existing.item === item) {
       return existing
     }
     return { type: 'item', key, item }
@@ -140,17 +139,22 @@ export function createSource<T extends BaseSelectT.Item>(
       if (items.length > 0) {
         view.items.push(...items)
         const groupKey = `group:${index}`
+        const values = items.map((item) => item.value)
         const existing = previousRows.get(groupKey)
-        if (existing && existing.type === 'label') {
-          existing.label = entry.label
-          existing.values = items.map((item) => item.value)
+        if (
+          existing &&
+          existing.type === 'label' &&
+          existing.label === entry.label &&
+          existing.values.length === values.length &&
+          existing.values.every((value, i) => value === values[i])
+        ) {
           view.rows.push(existing)
         } else {
           view.rows.push({
             type: 'label',
             key: groupKey,
             label: entry.label,
-            values: items.map((item) => item.value),
+            values,
           })
         }
         view.rows.push(...items.map((item): SelectRow<T> => getRow(itemRowKey(item.value), item)))

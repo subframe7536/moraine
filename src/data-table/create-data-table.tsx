@@ -173,11 +173,10 @@ export function createDataTable<TData extends RowData = RowData>(
 
   const userGetRowId = options.getRowId
   const features = getDataTableFeatures()
-  // `merge` treats `undefined` as "fall back to a previous source". The
-  // initial options snapshot is captured once by `constructTable`, so a getter
-  // returning `undefined` would keep resurrecting stale values on later
-  // merges. Volatile options return `false`/`null` — `null` stays defined for
-  // merge but nullish for TanStack `??` defaults.
+  // Solid 2's `merge()` treats explicit `undefined` as an override, so omit
+  // `getRowId` unless `options.getRowId` is set, and return `false`/`null` for
+  // volatile options (`null` stays defined for `merge` while still triggering
+  // TanStack `??` defaults).
   //
   // Top-level options own every TanStack option they configure, so they merge after
   // `tableOptions`. Only options without a top-level counterpart stay overridable.
@@ -199,12 +198,18 @@ export function createDataTable<TData extends RowData = RowData>(
       get columns() {
         return memoizedColumns()
       },
-      getRowId: userGetRowId
-        ? (originalRow: TData, index: number, parent?: Row<DataTableFeatures, TData>): string => {
-            const leafId = userGetRowId(originalRow, index, parent)
-            return parent ? `${parent.id}.${leafId}` : leafId
+      ...(userGetRowId
+        ? {
+            getRowId: (
+              originalRow: TData,
+              index: number,
+              parent?: Row<DataTableFeatures, TData>,
+            ): string => {
+              const leafId = userGetRowId(originalRow, index, parent)
+              return parent ? `${parent.id}.${leafId}` : leafId
+            },
           }
-        : undefined,
+        : {}),
       get enableSorting() {
         return options.columnSortable ?? true
       },

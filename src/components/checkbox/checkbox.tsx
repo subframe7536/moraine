@@ -1,11 +1,11 @@
 import type { JSX } from '@solidjs/web'
-import { Show, createEffect, createMemo, merge, untrack, omit } from 'solid-js'
+import { Show, createEffect, createMemo, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
 import { PEER_CLASS, VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { Icon } from '../icon'
@@ -133,7 +133,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
   })
   indicatorPositionRef.current = () => variants.indicatorPosition
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       checkedIcon: 'icon-check' as const,
       indeterminateIcon: 'icon-minus' as const,

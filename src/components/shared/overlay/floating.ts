@@ -11,7 +11,7 @@ import {
 } from '@floating-ui/dom'
 import type { Coords, Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
 import type { Accessor } from 'solid-js'
-import { createEffect, createRoot, getOwner, onCleanup, runWithOwner, flush } from 'solid-js'
+import { createEffect, createRoot, flush, getOwner, onCleanup, runWithOwner } from 'solid-js'
 
 import { useLocale } from '../../../provider/locale/locale-context'
 

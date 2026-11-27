@@ -126,6 +126,7 @@ export function createTransitionPresence(
   let exitTimeout: ReturnType<typeof setTimeout> | undefined
   let nextRegistrationId = 0
   let disposed = false
+  let exitFinished = false
 
   const clearPendingAnimations = (): void => {
     if (exitTimeout !== undefined) {
@@ -137,6 +138,7 @@ export function createTransitionPresence(
   }
 
   const endExit = (): void => {
+    exitFinished = true
     clearPendingAnimations()
     setPresent(false)
   }
@@ -144,6 +146,7 @@ export function createTransitionPresence(
   // Runs from animation events, microtasks, and timers, outside any reactive scope.
   const finishHiding = (): void => {
     if (
+      exitFinished ||
       options.open() ||
       !present() ||
       pendingAnimations.size > 0 ||
@@ -282,11 +285,12 @@ export function createTransitionPresence(
       const currentElements = Array.from(new Set(registrations.values()))
 
       if (open) {
+        exitFinished = false
         clearPendingAnimations()
         return
       }
 
-      if (!isPresent) {
+      if (!isPresent || exitFinished) {
         return
       }
 

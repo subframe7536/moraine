@@ -7,7 +7,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  merge,
   onCleanup,
   untrack,
   omit,
@@ -21,7 +20,7 @@ import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, createId } from '../../shared/utils'
+import { callRef, createId, mergeDefinedProps } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
@@ -149,7 +148,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     data: { root: accordionDataAttributes.root(() => ({ disabled: () => merged.disabled })) },
   })
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       multiple: false,
       collapsible: true,

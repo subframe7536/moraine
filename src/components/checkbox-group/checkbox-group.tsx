@@ -1,8 +1,8 @@
 import type { JSX } from '@solidjs/web'
-import { DEV, For, Show, createEffect, createMemo, merge, untrack, omit } from 'solid-js'
+import { DEV, For, Show, createEffect, createMemo, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callHandler, createId } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { CheckboxCore } from '../checkbox/checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -139,7 +139,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       defaultValue: [] as Array<string>,
     },

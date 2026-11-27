@@ -32,7 +32,7 @@ export function createActionRunner(options: {
   let current: Promise<void> | undefined
 
   const run: ActionRunner['run'] = (kind, event, action) => {
-    if (options.closed() || pending()) {
+    if (options.closed() || current !== undefined || pending()) {
       return Promise.resolve()
     }
     let outcome: unknown

@@ -30,40 +30,38 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   )
 
   createEffect(
-    () => [props.open, pendingFocusOnClose(), props.triggerElement],
+    () => [props.open, pendingFocusOnClose(), props.triggerElement] as const,
     ([open, pendingFocus, triggerElement]) => {
       if (open || !pendingFocus) {
         return
       }
 
+      let cancelled = false
       queueMicrotask(() => {
-        untrack(() => {
-          if (props.open || pendingFocusOnClose() !== pendingFocus) {
-            return
-          }
+        if (cancelled || props.open || pendingFocusOnClose() !== pendingFocus) {
+          return
+        }
 
-          if (pendingFocus === 'trigger') {
-            focusTrigger(triggerElement)
-          } else if (triggerElement) {
-            const focusableElements = getFocusableElements(
-              triggerElement.ownerDocument.body,
-            ).filter(
-              (element) => ![...branches].some((branch) => containsComposed(branch, element)),
-            )
-            const triggerIndexes = focusableElements.flatMap((element, index) =>
-              element === triggerElement || containsComposed(triggerElement, element)
-                ? [index]
-                : [],
-            )
-            const triggerIndex = triggerIndexes.at(-1)
-            if (triggerIndex !== undefined) {
-              focusWithoutScrolling(focusableElements[triggerIndex + 1])
-            }
+        if (pendingFocus === 'trigger') {
+          focusTrigger(triggerElement)
+        } else if (triggerElement) {
+          const focusableElements = getFocusableElements(triggerElement.ownerDocument.body).filter(
+            (element) => ![...branches].some((branch) => containsComposed(branch, element)),
+          )
+          const triggerIndexes = focusableElements.flatMap((element, index) =>
+            element === triggerElement || containsComposed(triggerElement, element) ? [index] : [],
+          )
+          const triggerIndex = triggerIndexes.at(-1)
+          if (triggerIndex !== undefined) {
+            focusWithoutScrolling(focusableElements[triggerIndex + 1])
           }
+        }
 
-          setPendingFocusOnClose(undefined)
-        })
+        setPendingFocusOnClose(undefined)
       })
+      return () => {
+        cancelled = true
+      }
     },
   )
 
@@ -77,29 +75,33 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   )
 
   let latchedPreventScroll = true
-  createEffect(
-    () =>
-      [
-        contentPresence.present(),
-        rootLayerState()?.contentElement(),
-        props.preventScroll ?? true,
-      ] as const,
-    ([present, content, preventScroll], previous) => {
-      // `preventScroll` is latched when the menu opens so toggling it mid-cycle has no effect.
-      if (present && !previous?.[0]) {
-        latchedPreventScroll = preventScroll
-      }
-      if (!present || !latchedPreventScroll || !content) {
-        return
-      }
-
-      const releaseBodyScrollLock = acquireBodyScrollLock(content)
-
-      return () => {
-        releaseBodyScrollLock?.()
+  const scrollLockTarget = createMemo(
+    () => {
+      const present = contentPresence.present()
+      return {
+        present,
+        content: present ? rootLayerState()?.contentElement() : undefined,
       }
     },
+    {
+      equals: (prev, next) => prev.present === next.present && prev.content === next.content,
+    },
   )
+  createEffect(scrollLockTarget, ({ present, content }, previous) => {
+    // `preventScroll` is latched when the menu opens so toggling it mid-cycle has no effect.
+    if (present && !previous?.present) {
+      latchedPreventScroll = untrack(() => props.preventScroll ?? true)
+    }
+    if (!present || !latchedPreventScroll || !content) {
+      return
+    }
+
+    const releaseBodyScrollLock = acquireBodyScrollLock(content)
+
+    return () => {
+      releaseBodyScrollLock?.()
+    }
+  })
 
   const containsTarget = (node: Node): boolean => {
     if (props.triggerElement?.contains(node)) {

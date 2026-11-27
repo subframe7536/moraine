@@ -6,7 +6,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  merge,
   onCleanup,
   omit,
   untrack,
@@ -17,7 +16,7 @@ import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId, toIdSegment } from '../../shared/utils'
+import { createId, mergeDefinedProps, toIdSegment } from '../../shared/utils'
 import { Icon } from '../icon'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -96,7 +95,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     enforced: { indicator: () => ({ style: indicatorStyle() }) },
   })
   const direction = useLocale().dir
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       get orientation() {
         return variants.orientation
@@ -339,40 +338,48 @@ export function Tabs(props: TabsProps): JSX.Element {
     },
   )
 
-  createEffect(
-    () => [normalizedItems(), selectedKey(), triggerVersion(), listRef()] as const,
-    ([items, currentKey, , listElement]) => {
+  const observedResizeTargets = createMemo(
+    () => {
+      const currentKey = selectedKey()
       const selectedTrigger = currentKey === undefined ? undefined : triggerRefs.get(currentKey)
-
-      if (
-        typeof ResizeObserver === 'undefined' ||
-        !selectedTrigger ||
-        !items.some((item) => item.instanceKey === currentKey)
-      ) {
-        return
+      triggerVersion()
+      if (!selectedTrigger || !normalizedItems().some((item) => item.instanceKey === currentKey)) {
+        return undefined
       }
-
-      const resizeObserver = new ResizeObserver(() => {
-        // Observer callbacks run unowned; settle the measured style write.
-        computeIndicatorStyle(
-          untrack(selectedKey),
-          untrack(() => merged.orientation),
-          untrack(listRef),
-        )
-      })
-
-      // Overlays may insert these nodes after the effect runs, so observe detached triggers too.
-      resizeObserver.observe(selectedTrigger)
-
-      if (listElement) {
-        resizeObserver.observe(listElement)
-      }
-
-      return () => {
-        resizeObserver.disconnect()
-      }
+      return { selectedTrigger, listElement: listRef() }
+    },
+    {
+      equals: (prev, next) =>
+        prev?.selectedTrigger === next?.selectedTrigger && prev?.listElement === next?.listElement,
     },
   )
+
+  createEffect(observedResizeTargets, (targets) => {
+    if (typeof ResizeObserver === 'undefined' || !targets) {
+      return
+    }
+    const { selectedTrigger, listElement } = targets
+
+    const resizeObserver = new ResizeObserver(() => {
+      // Observer callbacks run unowned; settle the measured style write.
+      computeIndicatorStyle(
+        untrack(selectedKey),
+        untrack(() => merged.orientation),
+        untrack(listRef),
+      )
+    })
+
+    // Overlays may insert these nodes after the effect runs, so observe detached triggers too.
+    resizeObserver.observe(selectedTrigger)
+
+    if (listElement) {
+      resizeObserver.observe(listElement)
+    }
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  })
 
   return (
     <div data-slot="tabs" {...rootSlot} {...rest} id={rootId()}>

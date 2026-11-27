@@ -5,7 +5,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  merge,
   onCleanup,
   omit,
   createRenderEffect,
@@ -17,7 +16,7 @@ import { attachEventListenerMap } from '../../shared/event-listener'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { isAndroidUserAgent, resolvePropsChildren } from '../../shared/utils'
+import { isAndroidUserAgent, mergeDefinedProps, resolvePropsChildren } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -76,7 +75,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
   const messages = useMessages('drawer', defaultDrawerMessages, () => drawer.translations)
   const direction = useLocale().dir
   const family = useBaseDialogContext()
-  const merged = merge(
+  const merged = mergeDefinedProps(
     { overlay: true, closable: true, closeIcon: 'icon-close' as const, handle: true },
     drawer,
   )

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -71,6 +71,8 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   })
   const closeOnOutsideClick = () => props.closeOnOutsideClick !== false
   const closeOnEscape = () => props.closeOnEscape !== false
+  // Plain accessor (not a memo) so post-disposal checks in `onDeactivate` see the cleared
+  // `contentElement()` instead of a disposed memo's stale cached `true`.
   const isPresent = () => Boolean(contentElement() && presence.present())
   const isModal = () => props.modal !== false
   const transition = () => props.transition !== false
@@ -135,14 +137,23 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
     },
   )
 
+  const scrollLockTarget = createMemo(
+    () => ({
+      content: isPresent() ? contentElement() : undefined,
+      preventScroll: props.preventScroll ?? isModal(),
+      scrollableOverlay: overlayScroll(),
+    }),
+    {
+      equals: (prev, next) =>
+        prev.content === next.content &&
+        prev.preventScroll === next.preventScroll &&
+        prev.scrollableOverlay === next.scrollableOverlay,
+    },
+  )
+
   createEffect(
-    () =>
-      [
-        isPresent() ? contentElement() : undefined,
-        props.preventScroll ?? isModal(),
-        overlayScroll(),
-      ] as const,
-    ([currentContent, preventScroll, scrollableOverlay]) => {
+    scrollLockTarget,
+    ({ content: currentContent, preventScroll, scrollableOverlay }) => {
       if (!currentContent || !preventScroll) {
         return
       }
@@ -168,29 +179,28 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
     })
   })
 
-  createEffect(
-    () => (isPresent() && isModal() ? contentElement() : undefined),
-    (currentContent) => {
-      if (!currentContent) {
-        return
-      }
-      let active = true
-      let release: (() => void) | undefined
-      const openByTouch = pendingOpenInteraction === 'touch'
-      pendingOpenInteraction = null
-      queueMicrotask(() => {
-        if (active && currentContent.isConnected) {
-          release = acquireAriaHideOutside(currentContent)
-          focusInto(currentContent, openByTouch)
-        }
-      })
+  const modalContent = createMemo(() => (isPresent() && isModal() ? contentElement() : undefined))
 
-      return () => {
-        active = false
-        release?.()
+  createEffect(modalContent, (currentContent) => {
+    if (!currentContent) {
+      return
+    }
+    let active = true
+    let release: (() => void) | undefined
+    const openByTouch = pendingOpenInteraction === 'touch'
+    pendingOpenInteraction = null
+    queueMicrotask(() => {
+      if (active && currentContent.isConnected) {
+        release = acquireAriaHideOutside(currentContent)
+        focusInto(currentContent, openByTouch)
       }
-    },
-  )
+    })
+
+    return () => {
+      active = false
+      release?.()
+    }
+  })
 
   function syncModalRestoreFocus(modal: boolean, ownerDocument: Document) {
     if (modal && !restoreFocusOnDeactivate) {

@@ -238,7 +238,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       contentHasFocus = true
     }
     const onFocusOut = (event: FocusEvent) => {
-      if (options.open() && !element.contains(event.relatedTarget as Node | null)) {
+      if (untrack(options.open) && !element.contains(event.relatedTarget as Node | null)) {
         contentHasFocus = false
       }
     }
@@ -255,11 +255,16 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       const reveal = options.onBeforeMatch
       removeBeforeMatch = attachEventListener(element, 'beforematch', () => {
         reveal()
-        // The reveal strips `hidden`; restore it when the open was refused.
-        const value = hiddenAttr()
-        if (value !== undefined) {
-          element.setAttribute('hidden', value)
-        }
+        // Wait for Solid 2's microtask commit before checking whether the open was refused.
+        queueMicrotask(() => {
+          if (!element.isConnected) {
+            return
+          }
+          const value = hiddenAttr()
+          if (value !== undefined) {
+            element.setAttribute('hidden', value)
+          }
+        })
       })
     }
 

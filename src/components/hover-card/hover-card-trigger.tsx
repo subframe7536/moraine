@@ -1,8 +1,9 @@
 import type { JSX } from '@solidjs/web'
-import { merge, omit } from 'solid-js'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { mergeDefinedProps } from '../../shared/utils'
 import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
 import type { createPopper } from '../shared/overlay/popper'
 import type { PopperTriggerProps } from '../shared/overlay/popper.types'
@@ -43,7 +44,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
   const popper = context.popper
   // Hover and focus open the card outside the button interaction, so they check `disabled` here.
   const disabled = () => Boolean(props.disabled)
-  const triggerProps = merge(
+  const triggerProps = mergeDefinedProps(
     { as: 'a' as const },
     mergePopperElementProps<HTMLElement>(
       {

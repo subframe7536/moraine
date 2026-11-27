@@ -16,7 +16,7 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { toNumber } from '../../provider/locale/number'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
@@ -145,7 +145,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       stepSnapping: true,
     },
@@ -405,9 +405,9 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   useFormReset(
     () => inputEl?.form,
     () => {
-      state.reset(initialResetValue)
+      const resetText = state.reset(initialResetValue)
       if (inputEl) {
-        inputEl.value = state.formattedValue()
+        inputEl.value = resetText
       }
     },
   )

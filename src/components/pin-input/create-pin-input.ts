@@ -208,24 +208,20 @@ export function createPinInput(options: CreatePinInputOptions) {
   function resetChars(): void {
     options.resetNativeInvalid?.()
     const controlledValue = options.value?.()
+    const len = options.length()
+    let nextChars: Array<string>
     if (controlledValue === undefined) {
-      const resetValue = normalizeChars(
-        options.defaultValue,
-        options.length(),
-        options.validationType(),
-        normalize(),
-      )
-      setUncontrolledChars(() => resetValue)
-      options.setFormFieldValue(resetValue.join(''))
+      nextChars = normalizeChars(options.defaultValue, len, options.validationType(), normalize())
+      setUncontrolledChars(() => nextChars)
+      options.setFormFieldValue(nextChars.join(''))
     } else {
       options.setFormFieldValue(controlledValue)
+      nextChars = normalizeChars(controlledValue, len, options.validationType(), normalize())
     }
-    const current = chars()
-    const len = options.length()
     for (let i = 0; i < len; i++) {
       const el = options.inputEls[i]
       if (el) {
-        el.value = current[i] ?? ''
+        el.value = nextChars[i] ?? ''
       }
     }
   }

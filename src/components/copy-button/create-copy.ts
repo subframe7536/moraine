@@ -1,6 +1,6 @@
 import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createMemo, createSignal, onCleanup, untrack } from 'solid-js'
+import { createMemo, createSignal, onCleanup } from 'solid-js'
 
 export type CopyData = string | ClipboardItem | Array<ClipboardItem>
 
@@ -220,6 +220,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   let timer: ReturnType<typeof setTimeout> | undefined
   let attempt = 0
   let disposed = false
+  let currentStatus: CopyStatus = 'idle'
 
   onCleanup(() => {
     disposed = true
@@ -227,9 +228,10 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   })
 
   function notifyStatus(nextStatus: CopyStatus) {
-    if (untrack(status) === nextStatus) {
+    if (currentStatus === nextStatus) {
       return
     }
+    currentStatus = nextStatus
     setStatus(nextStatus)
     options.onStatusChange?.(nextStatus)
   }

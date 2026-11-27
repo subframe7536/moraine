@@ -289,7 +289,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     }
   }
 
-  function reset(initialResetValue: number | null): void {
+  function reset(initialResetValue: number | null): string {
     const controlledValue = options.explicitControlledValue()
     const nextValue =
       controlledValue === undefined
@@ -304,6 +304,9 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     options.setFormValue?.(nextValue ?? undefined)
     setDraftText(undefined)
     options.resetNativeInvalid?.()
+    return nextValue === null
+      ? ''
+      : formatLocaleNumber(nextValue, options.locale(), options.formatOptions())
   }
 
   return {

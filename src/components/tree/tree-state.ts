@@ -608,9 +608,14 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       // reachability is checked structurally: the item becomes visible when
       // every ancestor on its path can be (and just was) expanded.
       const ancestors = getAncestorKeys(registry(), key)
+      const needsExpand = ancestors.some((ancestorKey) => !expandedSet().has(ancestorKey))
       expandTo(key)
       if (ancestors.every((ancestorKey) => !isDisabled(ancestorKey))) {
-        navigation.focus(key)
+        if (needsExpand) {
+          queueMicrotask(() => navigation.focus(key))
+        } else {
+          navigation.focus(key)
+        }
       }
     },
     getItem,

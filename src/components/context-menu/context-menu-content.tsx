@@ -1,7 +1,8 @@
 import type { JSX } from '@solidjs/web'
-import { merge, omit } from 'solid-js'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { mergeDefinedProps } from '../../shared/utils'
 import { OverlayMenu } from '../shared/overlay/menu'
 
 import { useContextMenuContext } from './context-menu-context'
@@ -44,7 +45,10 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
   )
   const context = useContextMenuContext()
 
-  const merged = merge({ checkedIcon: 'icon-check', expandIcon: 'icon-chevron-right' }, props)
+  const merged = mergeDefinedProps(
+    { checkedIcon: 'icon-check', expandIcon: 'icon-chevron-right' },
+    props,
+  )
   const { slots } = useRecipe(contextMenuRecipe, props, {
     slot: 'content',
     context: () => ({ variants: { size: context.size?.() }, ...context.slotOverrides }),

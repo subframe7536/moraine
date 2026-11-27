@@ -38,12 +38,14 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     }
   }
 
-  const isPaused = () =>
-    options.isLoading() ||
-    initialDuration() === Number.POSITIVE_INFINITY ||
-    options.paused() ||
-    options.swiping() ||
-    options.running()
+  const isPaused = createMemo(
+    () =>
+      options.isLoading() ||
+      initialDuration() === Number.POSITIVE_INFINITY ||
+      options.paused() ||
+      options.swiping() ||
+      options.running(),
+  )
 
   const startTimer = () => {
     stopTimer()

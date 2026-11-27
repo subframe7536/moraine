@@ -7,7 +7,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  merge,
   untrack,
   omit,
   createRenderEffect,
@@ -26,6 +25,7 @@ import {
   callHandler,
   callRef,
   createId,
+  mergeDefinedProps,
   resolvePropsChildren,
   publishElement,
 } from '../../../shared/utils'
@@ -97,14 +97,15 @@ export function mergePopperElementProps<T extends HTMLElement>(
   const children = Object.getOwnPropertyDescriptor(user, 'children')
     ? resolvePropsChildren(user)
     : undefined
-  const contentProps = merge(
+  const contentProps = mergeDefinedProps(
     internal,
     user,
     handlers,
     {
       ref: composeElementRef(internal, user),
     },
-    children === undefined ? overrides : { ...overrides, children },
+    overrides,
+    children === undefined ? {} : { children },
   )
   return contentProps as JSX.HTMLAttributes<T>
 }
@@ -243,7 +244,7 @@ export function PopperContent(
   const cn = useCn()
   const direction = useLocale().dir
   const context = untrack(() => props.context)
-  const options = merge(
+  const options = mergeDefinedProps(
     {
       closeOnOutsideFocus: true,
       detachedPadding: 0,

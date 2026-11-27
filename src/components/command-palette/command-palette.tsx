@@ -6,7 +6,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  merge,
   onCleanup,
   omit,
   createProjection,
@@ -19,7 +18,13 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
+import {
+  callHandler,
+  callRef,
+  createId,
+  isAndroidUserAgent,
+  mergeDefinedProps,
+} from '../../shared/utils'
 import { Icon } from '../icon'
 import { KbdGroup } from '../kbd-group'
 import { List } from '../list'
@@ -235,7 +240,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     },
   })
 
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       get placeholder() {
         return messages().placeholder

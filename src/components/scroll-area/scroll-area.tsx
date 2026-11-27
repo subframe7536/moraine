@@ -274,7 +274,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     return AXIS_CONFIG[axis].thumbStyle(offset, size)
   }
 
-  let drag: { pointer: number; thumb: number } | undefined
+  let drag: { axis: 'x' | 'y'; pointer: number; thumb: number } | undefined
 
   /** Scrolls so the thumb starts `thumbOffset` px into its track. */
   function scrollToThumb(axis: ScrollAreaT.Axis, track: HTMLElement, thumbOffset: number): void {
@@ -360,12 +360,12 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
                     start = pointer - config.thumbSize(thumb) / 2
                     scrollToThumb(axis, track, start)
                   }
-                  drag = { pointer, thumb: start }
+                  drag = { axis, pointer, thumb: start }
                   track.setPointerCapture?.(event.pointerId)
                   setDragging(axis)
                 }}
                 onPointerMove={(event) => {
-                  if (drag && dragging() === axis) {
+                  if (drag && drag.axis === axis) {
                     const track = event.currentTarget
                     scrollToThumb(
                       axis,

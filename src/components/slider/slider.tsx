@@ -5,7 +5,13 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId, resolvePropsChildren } from '../../shared/utils'
+import {
+  callHandler,
+  callRef,
+  createId,
+  mergeDefinedProps,
+  resolvePropsChildren,
+} from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -107,7 +113,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     context: () => ({ variants: { size: themeField?.size } }),
     enforced: { range: () => ({ style: slider.rangeStyle() }) },
   })
-  const merged = merge(
+  const merged = mergeDefinedProps(
     {
       min: 0,
       max: 100,
@@ -161,8 +167,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   useFormReset(
     () => inputEls[0]?.form,
     () => {
-      slider.resetValues()
-      const nextValues = slider.currentValues()
+      const nextValues = slider.resetValues()
       for (let i = 0; i < nextValues.length; i++) {
         const input = inputEls[i]
         if (input) {

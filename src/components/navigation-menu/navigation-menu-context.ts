@@ -1,15 +1,7 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  onSettled,
-  merge,
-  untrack,
-} from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, onSettled, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -19,7 +11,7 @@ import type { KeyBindingOptions } from '../../shared/keyboard'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import { createId } from '../../shared/utils'
+import { createId, mergeDefinedProps } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { resolveDirection } from '../shared/overlay/direction'
 import { focusWithoutScrolling, getFocusableElements } from '../shared/overlay/focus'
@@ -59,7 +51,7 @@ export function createNavigationMenuState(
   orientation: Accessor<Orientation>,
 ) {
   const direction = useLocale().dir
-  const options = merge(
+  const options = mergeDefinedProps(
     {
       openDelay: 50,
       closeDelay: 50,

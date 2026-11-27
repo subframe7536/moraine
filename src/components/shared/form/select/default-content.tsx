@@ -209,7 +209,11 @@ function DefaultSelectContentBody<T extends SelectItem>(
           entries={props.view.rows}
           scrollElement={listbox()}
           render={(entry, _index, rowProps) => <Row entry={entry} props={rowProps} />}
-          fallback={<For each={props.view.rows}>{(row) => <Row entry={row} />}</For>}
+          fallback={
+            <For each={props.view.rows} keyed={(row) => row.key}>
+              {(row) => <Row entry={row()} />}
+            </For>
+          }
         />
       </BaseSelect.Listbox>
       <Show when={props.emptyRender} keyed>
