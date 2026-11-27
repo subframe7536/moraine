@@ -41,7 +41,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   HooksIndex,
 
   Preview(props: MdxProps) {
-    const PreviewComponent = dynamicComponent(() => props.component as Component | undefined)
+    const PreviewComponent = dynamicComponent(() => props.preview as Component | undefined)
     return <PreviewComponent />
   },
 

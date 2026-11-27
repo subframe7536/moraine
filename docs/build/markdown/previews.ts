@@ -101,7 +101,7 @@ export function createMdxPreviewsPlugin(id?: string): MdxPreviewsPlugin {
       ...(Array.isArray(record.attributes) ? record.attributes : []),
       {
         type: 'mdxJsxAttribute',
-        name: 'component',
+        name: 'preview',
         value: {
           type: 'mdxJsxAttributeValueExpression',
           value: preview.ident,
