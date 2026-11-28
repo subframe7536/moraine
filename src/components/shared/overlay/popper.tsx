@@ -15,7 +15,6 @@ import type { ValidComponent } from '../../../shared/types'
 import { useButtonInteraction } from '../../../shared/use-button-interaction'
 import {
   callHandler,
-  callRef,
   createId,
   mergeDefinedProps,
   resolvePropsChildren,
@@ -53,8 +52,17 @@ function composeElementRef<T extends HTMLElement>(
   let composed = inner.get(user) as ((element: T) => void) | undefined
   if (!composed) {
     composed = (element: T) => {
-      callRef(() => internal.ref, element)
-      callRef(() => user.ref, element)
+      for (const ref of [internal.ref, user.ref]) {
+        if (Array.isArray(ref)) {
+          for (const entry of ref.flat(Infinity)) {
+            if (typeof entry === 'function') {
+              entry(element)
+            }
+          }
+        } else if (typeof ref === 'function') {
+          ref(element)
+        }
+      }
     }
     inner.set(user, composed)
   }
@@ -271,11 +279,6 @@ export function PopperContent(
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>(() =>
     resolveFloatingPlacement(options.placement, options.align),
   )
-  const [mount, setPortalMount] = createSignal<HTMLElement>()
-  // Resolve after mounting, when the trigger may have been adopted into another document.
-  createEffect(triggerElement, (trigger) => {
-    setPortalMount(trigger?.ownerDocument.body)
-  })
   let restoreFocusAfterClose = true
 
   createEffect(context.isOpen, (open) => {
@@ -484,7 +487,7 @@ export function PopperContent(
           }),
         )
         return (
-          <Portal mount={(options.mount ?? mount()) as Element}>
+          <Portal mount={(options.mount ?? triggerElement()?.ownerDocument.body) as Element}>
             <div
               ref={setPositionerElement}
               dir={props.dir ?? direction()}

@@ -2,7 +2,6 @@ import type { JSX } from '@solidjs/web'
 import { createEffect, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callRef } from '../../shared/utils'
 
 import { useBaseDialogContext } from './base-dialog-context'
 import { baseDialogDataAttributes, baseDialogRecipe } from './base-dialog.recipe'
@@ -61,15 +60,7 @@ export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element 
   )
 
   return (
-    <div
-      data-slot="base-dialog-overlay"
-      {...overlaySlot}
-      {...rest}
-      ref={(element) => {
-        setElement(element)
-        callRef(() => props.ref, element)
-      }}
-    >
+    <div data-slot="base-dialog-overlay" {...overlaySlot} {...rest} ref={[setElement, props.ref]}>
       {props.children}
     </div>
   )

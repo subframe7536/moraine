@@ -1,8 +1,7 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, omit } from 'solid-js'
+import { createEffect, createSignal, onFlush, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callRef } from '../../shared/utils'
 import { sameValue } from '../shared/form/select/collection'
 import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 
@@ -44,8 +43,14 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
       if (key === undefined || !open || !element) {
         return
       }
-      queueMicrotask(() => {
-        if (listbox() !== element || !state.open() || !sameValue(state.highlightedValue(), key)) {
+      let cancelled = false
+      onFlush(() => {
+        if (
+          cancelled ||
+          listbox() !== element ||
+          !state.open() ||
+          !sameValue(state.highlightedValue(), key)
+        ) {
           return
         }
         const item = element.ownerDocument.getElementById(state.itemId(key))
@@ -53,6 +58,9 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
           scrollIntoViewWithin(item, element)
         }
       })
+      return () => {
+        cancelled = true
+      }
     },
   )
   return (
@@ -65,10 +73,7 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
       {...rest}
       id={state.listboxId()}
       tabindex={-1}
-      ref={(element) => {
-        setListbox(element)
-        callRef(() => props.ref, element)
-      }}
+      ref={[setListbox, props.ref]}
     />
   )
 }

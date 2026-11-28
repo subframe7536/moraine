@@ -1,10 +1,10 @@
 import type { JSX } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, Match, Show, Switch } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, Match, Show, Switch, untrack } from 'solid-js'
 
 import { useCn } from '../../../../provider/cn-context'
 import { renderWithProps } from '../../../../shared/render-with-props'
-import { callHandler, callRef } from '../../../../shared/utils'
+import { callHandler } from '../../../../shared/utils'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { mergeSlotBindingData } from '../../../../theme/use-recipe'
@@ -84,10 +84,15 @@ function DefaultSelectContentBody<T extends SelectItem>(
         item={item()}
         {...attributes()}
         {...itemProps.rowProps}
-        ref={(element) => {
-          callRef(() => attributes()?.ref, element)
-          itemProps.rowProps?.ref?.(element)
-        }}
+        ref={[
+          (element) => {
+            const ref = untrack(() => attributes()?.ref)
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          },
+          (element) => itemProps.rowProps?.ref?.(element),
+        ]}
         class={cn(attributes()?.class, itemProps.rowProps?.class)}
         style={{
           ...attributes()?.style,
@@ -185,10 +190,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
     <>
       <BaseSelect.Listbox
         {...props.listboxProps}
-        ref={(element) => {
-          setListbox(element)
-          callRef(() => props.listboxProps?.ref, element)
-        }}
+        ref={[setListbox, props.listboxProps?.ref]}
         onScroll={(event) => {
           callHandler(event, props.listboxProps?.onScroll)
           if (event.defaultPrevented) {

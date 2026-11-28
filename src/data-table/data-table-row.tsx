@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import type { Cell, RowData } from '@tanstack/table-core'
 import { For, Show, createMemo, merge, untrack, omit } from 'solid-js'
 
-import { callHandler, callRef } from '../shared/utils'
+import { callHandler } from '../shared/utils'
 import type { TableVirtualRowProps } from '../virtualizer/virtualizer.types'
 
 import { useDataTableContext } from './data-table-context'
@@ -139,12 +139,22 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
         data-slot="data-table-row"
         {...rowSlot}
         {...extraRest}
-        ref={(element) =>
-          untrack(() => {
-            callRef(() => props.virtualRowProps?.ref, element)
-            callRef(() => extraProps()?.ref, element)
-          })
-        }
+        ref={[
+          (element) =>
+            untrack(() => {
+              const ref = props.virtualRowProps?.ref
+              if (typeof ref === 'function') {
+                ref(element)
+              }
+            }),
+          (element) =>
+            untrack(() => {
+              const ref = extraProps()?.ref
+              if (typeof ref === 'function') {
+                ref(element)
+              }
+            }),
+        ]}
         onClick={(event) => {
           callHandler(event, extraProps()?.onClick)
           props.onRowClick?.(props.row, event)

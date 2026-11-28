@@ -3,7 +3,6 @@ import { createEffect, createSignal, untrack, omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { TreeItemProvider, TreeProvider } from './tree-context'
@@ -106,10 +105,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
       aria-multiselectable={state.selectionMode() === 'multiple' ? 'true' : undefined}
       {...rootSlot}
       {...rest}
-      ref={(element: HTMLElement) => {
-        setScrollElement(element)
-        callRef(() => props.ref, element)
-      }}
+      ref={[setScrollElement, props.ref]}
     >
       <TreeProvider value={context}>
         <VirtualContent<TreeT.ItemInstance<T>>

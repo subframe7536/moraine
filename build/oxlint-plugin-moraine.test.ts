@@ -305,11 +305,11 @@ describe('oxlint-plugin-moraine', () => {
       expect(ctx.reports.every((report) => report.messageId === 'lifecycleInRef')).toBe(true)
     })
 
-    it('allows assignments and callRef in refs, and lifecycle calls outside refs', () => {
+    it('allows assignments and forwardRef in refs, and lifecycle calls outside refs', () => {
       const ctx = createMockContext('/project/src/components/tree/tree-item.tsx')
       const visitor = rule.create(ctx)
 
-      visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'callRef' }, jsxRef))
+      visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'forwardRef' }, jsxRef))
       visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'setElement' }, jsxRef))
       visitor.CallExpression(
         callInFunction({ type: 'Identifier', name: 'onCleanup' }, (fn) => jsxRef(fn, 'onClick')),

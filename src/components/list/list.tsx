@@ -1,12 +1,11 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { For, Show, createEffect, createMemo, createSignal, omit } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createScrollMetrics } from '../../shared/scroll-metrics'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { listRecipe } from './list.recipe'
@@ -97,10 +96,15 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
       data-slot="list"
       {...rootSlot}
       {...(rest as Record<string, unknown>)}
-      ref={(element: HTMLElement) => {
-        setScrollElement(() => element)
-        callRef(() => local.ref, element)
-      }}
+      ref={[
+        (element: HTMLElement) => setScrollElement(() => element),
+        (element: HTMLElement) => {
+          const ref = untrack(() => local.ref)
+          if (typeof ref === 'function') {
+            ref(element)
+          }
+        },
+      ]}
     >
       <Show
         when={'emptyRender' in props && !local.items?.length}

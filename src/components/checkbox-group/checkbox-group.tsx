@@ -1,5 +1,15 @@
 import type { JSX } from '@solidjs/web'
-import { DEV, For, Show, createEffect, createMemo, createProjection, untrack, omit } from 'solid-js'
+import {
+  DEV,
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createProjection,
+  onFlush,
+  untrack,
+  omit,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
@@ -224,7 +234,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     () => {
       let cancelled = false
 
-      queueMicrotask(() => {
+      onFlush(() => {
         if (cancelled) {
           return
         }

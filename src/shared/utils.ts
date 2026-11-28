@@ -9,7 +9,6 @@ import {
   createUniqueId,
   getOwner,
   runWithOwner,
-  untrack,
 } from 'solid-js'
 
 /**
@@ -98,20 +97,6 @@ export function toIdSegment(value: string): string {
     /[^a-zA-Z0-9-]/g,
     (char) => `_${(char.codePointAt(0) ?? 0).toString(16)}_`,
   )
-}
-
-/**
- * Assigns a composed DOM ref without introducing React-style ref objects. Like Solid's own
- * `ref` binding, the ref is resolved untracked when the element is assigned, so `ref` is an
- * accessor of the caller's ref prop rather than a value read inside the ref callback.
- */
-export function callRef<T>(ref: () => unknown, element: T): void {
-  untrack(() => {
-    const resolved = ref()
-    if (typeof resolved === 'function') {
-      ;(resolved as (element: T) => void)(element)
-    }
-  })
 }
 
 /**

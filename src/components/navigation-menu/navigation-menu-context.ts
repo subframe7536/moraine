@@ -1,7 +1,7 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onSettled, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onFlush, onSettled, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -315,7 +315,7 @@ export function createNavigationMenuState(
         return
       }
       let cancelled = false
-      queueMicrotask(() => {
+      onFlush(() => {
         if (cancelled || activeItem()?.value() !== requested) {
           return
         }

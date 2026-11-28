@@ -1,11 +1,11 @@
 import type { JSX } from '@solidjs/web'
-import { Show, createEffect, createMemo, untrack, omit } from 'solid-js'
+import { Show, createEffect, createMemo, onFlush, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { PEER_CLASS, VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { Icon } from '../icon'
@@ -277,15 +277,11 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     return attrs
   }
 
-  createEffect(
-    () => [resolvedChecked(), indeterminate()],
-    ([checked, isIndeterminate]) => {
-      if (inputEl) {
-        inputEl.checked = checked
-        inputEl.indeterminate = isIndeterminate
-      }
-    },
-  )
+  createEffect(indeterminate, (isIndeterminate) => {
+    if (inputEl) {
+      inputEl.indeterminate = isIndeterminate
+    }
+  })
 
   useFormReset(
     () => inputEl?.form,
@@ -309,7 +305,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
 
       // A form-level restore may round `checked()` back to its current value, in which case
       // the `checked` property binding never re-applies; sync the DOM after the reset flush.
-      queueMicrotask(() => {
+      onFlush(() => {
         if (inputEl) {
           inputEl.checked = checked() === true
           inputEl.indeterminate = checked() === 'indeterminate'
@@ -401,10 +397,17 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     <div data-slot="checkbox" {...rootSlot} {...rest} onClick={onRootClick}>
       <div data-slot="checkbox-container" {...containerSlot}>
         <HiddenInput
-          ref={(element) => {
-            inputEl = element
-            callRef(() => props.inputRef, element)
-          }}
+          ref={[
+            (element) => {
+              inputEl = element
+            },
+            (element) => {
+              const ref = untrack(() => props.inputRef)
+              if (typeof ref === 'function') {
+                ref(element)
+              }
+            },
+          ]}
           id={`${field.id()}-input`}
           type="checkbox"
           name={field.name()}
@@ -428,8 +431,12 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
             }
 
             handleCheckedChange(event.currentTarget.checked)
-            event.currentTarget.checked = resolvedChecked()
-            event.currentTarget.indeterminate = indeterminate()
+            onFlush(() => {
+              if (inputEl) {
+                inputEl.checked = resolvedChecked()
+                inputEl.indeterminate = indeterminate()
+              }
+            })
           }}
         />
 

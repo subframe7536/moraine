@@ -1,20 +1,10 @@
 import type { JSX } from '@solidjs/web'
-import {
-  For,
-  Repeat,
-  Show,
-  createMemo,
-  createEffect,
-  createSignal,
-  untrack,
-  omit,
-  createRenderEffect,
-} from 'solid-js'
+import { For, Repeat, Show, createMemo, createEffect, createSignal, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 
 import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-context'
 import { TreeItemAction } from './tree-item-action'
@@ -144,7 +134,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   )
 
   const [shell, setShell] = createSignal<HTMLDivElement>()
-  createRenderEffect(shell, (node) => {
+  createEffect(shell, (node) => {
     if (!node) {
       return
     }
@@ -153,13 +143,15 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
 
   return (
     <div
-      ref={(element) => {
-        contentElement = element
-        setShell(element)
-      }}
+      ref={[
+        (element) => {
+          contentElement = element
+        },
+        setShell,
+      ]}
       aria-hidden={disclosure.ariaHidden()}
       hidden={disclosure.hidden() && !allowHeightMotion()}
-      {...{ 'prop:inert': disclosure.inert() }}
+      inert={disclosure.inert()}
       data-slot="tree-content"
       {...contentSlot}
       onAnimationEnd={settle}
@@ -168,7 +160,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       <Show when={disclosure.shouldMount()}>
         {(_mounted) => {
           const [list, setList] = createSignal<HTMLUListElement>()
-          createRenderEffect(list, (node) => {
+          createEffect(list, (node) => {
             if (!node) {
               return
             }
@@ -328,11 +320,21 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         }
         aria-disabled={props.item.disabled ? 'true' : undefined}
         aria-busy={props.item.loading ? 'true' : undefined}
-        ref={(element: HTMLElement) => {
-          setItemElement(element)
-          callRef(() => row()?.ref, element)
-          callRef(() => props.ref, element)
-        }}
+        ref={[
+          setItemElement,
+          (element: HTMLElement) => {
+            const ref = untrack(() => row()?.ref)
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          },
+          (element: HTMLLIElement) => {
+            const ref = untrack(() => props.ref)
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          },
+        ]}
         onClick={(event: MouseEvent) => {
           if (
             !callHandler(event, props.onClick).defaultPrevented &&

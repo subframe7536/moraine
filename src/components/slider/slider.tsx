@@ -1,17 +1,11 @@
 import type { JSX } from '@solidjs/web'
-import { createMemo, For, Repeat, merge, onSettled, Show, omit } from 'solid-js'
+import { createMemo, For, Repeat, merge, onSettled, Show, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { renderWithProps } from '../../shared/render-with-props'
-import {
-  callHandler,
-  callRef,
-  createId,
-  mergeDefinedProps,
-  resolvePropsChildren,
-} from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps, resolvePropsChildren } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -217,7 +211,12 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-slot="slider"
       {...rootSlot}
       {...rest}
-      ref={(element) => callRef(() => props.ref, element)}
+      ref={(element) => {
+        const ref = untrack(() => props.ref)
+        if (typeof ref === 'function') {
+          ref(element)
+        }
+      }}
       id={`${field.id()}-root`}
       aria-label={props['aria-label']}
       {...field.ariaAttrs()}
@@ -276,16 +275,16 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
 
           return (
             <div
-              ref={(element) => {
-                slider.setThumbRefs((previous) => {
-                  const next = [...previous]
-                  next[thumbIndex] = element
-                  return next
-                })
-                if (thumbIndex === 0) {
-                  field.setControlRef(element)
-                }
-              }}
+              ref={[
+                (element) => {
+                  slider.setThumbRefs((previous) => {
+                    const next = [...previous]
+                    next[thumbIndex] = element
+                    return next
+                  })
+                },
+                thumbIndex === 0 ? field.setControlRef : undefined,
+              ]}
               data-slot="slider-thumb"
               {...thumbSlot}
               role="slider"
@@ -321,12 +320,19 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               onBlur={slider.onThumbBlur}
             >
               <HiddenInput
-                ref={(element) => {
-                  inputEls[thumbIndex] = element
-                  if (thumbIndex === 0) {
-                    callRef(() => props.inputRef, element)
-                  }
-                }}
+                ref={[
+                  (element) => {
+                    inputEls[thumbIndex] = element
+                  },
+                  thumbIndex === 0
+                    ? (element) => {
+                        const ref = untrack(() => Reflect.get(props, 'inputRef'))
+                        if (typeof ref === 'function') {
+                          ref(element)
+                        }
+                      }
+                    : undefined,
+                ]}
                 type="range"
                 id={field.id() + (thumbIndex === 0 ? '' : `-${thumbIndex + 1}`)}
                 name={field.name()}

@@ -5,6 +5,7 @@ import {
   createRenderEffect,
   createSignal,
   onCleanup,
+  onFlush,
   untrack,
 } from 'solid-js'
 
@@ -165,7 +166,15 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   }
 
   createEffect(options.open, () => {
-    queueContentHeightMeasurement()
+    let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled && contentEl?.isConnected) {
+        measureContentHeight(contentEl)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
   })
 
   function observeMeasureElement(element: HTMLElement | undefined): void {
@@ -256,7 +265,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       removeBeforeMatch = attachEventListener(element, 'beforematch', () => {
         reveal()
         // Wait for Solid 2's microtask commit before checking whether the open was refused.
-        queueMicrotask(() => {
+        onFlush(() => {
           if (!element.isConnected) {
             return
           }

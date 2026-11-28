@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { DEV, For, Show, createEffect, createMemo, createSignal, onSettled, omit } from 'solid-js'
+import { DEV, For, Show, createEffect, createMemo, createSignal, onFlush, omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import type { SlotOverrides } from '../../provider'
@@ -9,7 +9,7 @@ import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, createId, mergeDefinedProps } from '../../shared/utils'
+import { createId, mergeDefinedProps } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
@@ -174,7 +174,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const triggerRefs = new Map<string, HTMLButtonElement>()
   let lastFocusedIndex = -1
   let lastFocusedValue: string | undefined
-  let focusRecoveryVersion = 0
 
   function getEnabledItems(): Array<string> {
     if (merged.disabled) {
@@ -253,10 +252,10 @@ export function Accordion(props: AccordionProps): JSX.Element {
       const enabledItemCount = disabledItems.filter(
         (itemDisabled) => !disabled && !itemDisabled,
       ).length
-      const version = ++focusRecoveryVersion
+      let cancelled = false
 
-      queueMicrotask(() => {
-        if (version !== focusRecoveryVersion || !lastFocusedValue || enabledItemCount === 0) {
+      onFlush(() => {
+        if (cancelled || !lastFocusedValue || enabledItemCount === 0) {
           return
         }
 
@@ -279,23 +278,15 @@ export function Accordion(props: AccordionProps): JSX.Element {
           triggerRefs.get(target)?.focus()
         }
       })
+
+      return () => {
+        cancelled = true
+      }
     },
   )
 
-  onSettled(() => () => {
-    focusRecoveryVersion += 1
-  })
-
   return (
-    <div
-      data-slot="accordion"
-      {...rootSlot}
-      {...rest}
-      ref={(element) => {
-        callRef(() => props.ref, element)
-      }}
-      id={rootId()}
-    >
+    <div data-slot="accordion" {...rootSlot} {...rest} ref={props.ref} id={rootId()}>
       <For each={items()}>
         {(item) => {
           const itemIdSegment = createId(undefined, 'accordion-item')

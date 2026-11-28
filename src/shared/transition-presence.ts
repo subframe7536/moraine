@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
+import { createEffect, createSignal, onCleanup, onFlush, untrack } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
 export interface CreateTransitionPresenceOptions {
@@ -280,7 +280,7 @@ export function createTransitionPresence(
   })
 
   createEffect(
-    () => [options.open(), present(), revision()] as const,
+    () => [options.open(), present(), !options.open() && present() ? revision() : 0] as const,
     ([open, isPresent]) => {
       const currentElements = Array.from(new Set(registrations.values()))
 
@@ -304,7 +304,7 @@ export function createTransitionPresence(
 
       let cancelled = false
 
-      queueMicrotask(() => {
+      onFlush(() => {
         if (cancelled || disposed) {
           return
         }

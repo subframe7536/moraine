@@ -1,63 +1,9 @@
-import {
-  createRenderEffect,
-  createRoot,
-  createSignal,
-  flush,
-  createProjection,
-  untrack,
-} from 'solid-js'
+import { createRoot, createSignal, flush, createProjection, untrack } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { cn } from '../theme/cn'
 
-import { callRef, createId, mergeDefinedProps, publishElement } from './utils'
-describe('callRef', () => {
-  it('ignores element-valued refs', () => {
-    const element = document.createElement('div')
-
-    expect(() => callRef(() => element, element)).not.toThrow()
-  })
-
-  it('calls callback refs', () => {
-    let received: HTMLDivElement | undefined
-    const element = document.createElement('div')
-
-    callRef(
-      () => (value: HTMLDivElement) => {
-        received = value
-      },
-      element,
-    )
-
-    expect(received).toBe(element)
-  })
-
-  it('untracks reactive reads inside callback refs', () => {
-    const [count, setCount] = createSignal(0, { ownedWrite: true })
-    let runs = 0
-    const element = document.createElement('div')
-
-    createRoot((dispose) => {
-      createRenderEffect(
-        () => undefined,
-        () => {
-          runs++
-          callRef(
-            () => (_el: HTMLDivElement) => {
-              count()
-            },
-            element,
-          )
-        },
-      )
-
-      expect(runs).toBe(1)
-      flush(() => setCount(1))
-      expect(runs).toBe(1)
-      dispose()
-    })
-  })
-})
+import { createId, mergeDefinedProps, publishElement } from './utils'
 
 function resolveId(deterministicId?: () => string | null | undefined, prefix?: string): string {
   return createRoot((dispose) => {

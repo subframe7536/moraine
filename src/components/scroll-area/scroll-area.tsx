@@ -13,7 +13,7 @@ import {
 import { useRecipe } from '../../provider'
 import { EMPTY_AXIS_METRICS, createScrollMetrics } from '../../shared/scroll-metrics'
 import type { AxisMetrics } from '../../shared/scroll-metrics'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 
 import {
   SCROLL_AREA_SCROLLBAR_CLASS,
@@ -301,7 +301,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       data-slot="scroll-area"
       {...rootSlot}
       {...rest}
-      ref={(element) => callRef(() => props.ref, element)}
+      ref={props.ref}
       onPointerEnter={(event) => {
         hovering.hold()
         callHandler(event, props.onPointerEnter)
@@ -315,10 +315,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
         data-slot="scroll-area-viewport"
         {...viewportSlot}
         tabindex={props.tabindex ?? (canScroll() ? 0 : -1)}
-        ref={(element) => {
-          setViewport(element)
-          callRef(() => props.viewportRef, element)
-        }}
+        ref={[setViewport, props.viewportRef]}
         onScroll={(event) => callHandler(event, props.onScroll)}
       >
         <div data-slot="scroll-area-content" {...contentSlot}>

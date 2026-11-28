@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal } from 'solid-js'
+import { createEffect, createMemo, createSignal, onFlush } from 'solid-js'
 
 import { useMessages } from '../../../../provider/locale/locale-context'
 import type { ComponentMessages } from '../../../../provider/locale/messages.types'
@@ -152,7 +152,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
 
   function removeTag(index: number, direction: -1 | 1): void {
     if (remove(index, false)) {
-      queueMicrotask(() => focusNearest(index - (direction === 1 ? 1 : 0), direction))
+      onFlush(() => focusNearest(index - (direction === 1 ? 1 : 0), direction))
     }
   }
 

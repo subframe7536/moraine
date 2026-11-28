@@ -1,15 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import {
-  DEV,
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  omit,
-  onSettled,
-  untrack,
-} from 'solid-js'
+import { DEV, For, Show, createEffect, createMemo, createSignal, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -182,12 +172,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   // DOM removal resets activeElement before owner cleanup runs, so the focused
   // trigger is captured on focus instead.
   let lastFocusedTrigger: HTMLButtonElement | undefined
-  let disposed = false
-  let focusRecoveryGeneration = 0
-
-  onSettled(() => () => {
-    disposed = true
-  })
+  const [pendingRecoveryKey, setPendingRecoveryKey] = createSignal<string | undefined | null>(null)
   const effectiveHighlighted = createMemo<string | undefined>(() => {
     const focused = highlightedKey()
 
@@ -298,14 +283,14 @@ export function Tabs(props: TabsProps): JSX.Element {
     },
   )
 
-  // Reordered items keep their DOM nodes but lose focus, while recreated items
-  // register fresh trigger refs only after old owner cleanups, so the recovery
-  // lookup retries a few microtask hops.
   function recoverFocus(recoveryKey: string | undefined): void {
-    const generation = ++focusRecoveryGeneration
+    setPendingRecoveryKey(recoveryKey)
+  }
 
-    const attemptRecovery = (attemptsLeft: number): void => {
-      if (disposed || generation !== focusRecoveryGeneration) {
+  createEffect(
+    () => [pendingRecoveryKey(), triggerVersion()] as const,
+    ([recoveryKey]) => {
+      if (recoveryKey === null) {
         return
       }
       const trigger = lastFocusedTrigger?.isConnected
@@ -313,17 +298,16 @@ export function Tabs(props: TabsProps): JSX.Element {
         : recoveryKey === undefined
           ? undefined
           : triggerRefs.get(recoveryKey)
-      if (recoveryKey !== undefined && trigger === undefined && attemptsLeft > 0) {
-        queueMicrotask(() => attemptRecovery(attemptsLeft - 1))
+      if (recoveryKey !== undefined && trigger === undefined) {
         return
       }
-      const ownerDocument = trigger?.ownerDocument ?? untrack(listRef)?.ownerDocument
+      setPendingRecoveryKey(null)
+      const ownerDocument = trigger?.ownerDocument ?? listRef()?.ownerDocument
       if (ownerDocument !== undefined && ownerDocument.activeElement === ownerDocument.body) {
         trigger?.focus()
       }
-    }
-    queueMicrotask(() => attemptRecovery(8))
-  }
+    },
+  )
 
   createEffect(
     () => normalizedItems(),

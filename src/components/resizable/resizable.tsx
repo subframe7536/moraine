@@ -13,7 +13,6 @@ import {
 
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyBinding } from '../../shared/keyboard'
-import { callRef } from '../../shared/utils'
 import { pickSlotOverrides, useRecipe } from '../../theme/use-recipe'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -465,8 +464,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
     applyLayout(next)
     commitLayout(next)
-    setResizing(true)
-    queueMicrotask(() => setResizing(false))
     event.preventDefault()
   }
 
@@ -772,7 +769,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
         data-slot="resizable"
         {...rootSlot}
         {...rest}
-        ref={(element) => callRef(() => props.ref, element)}
+        ref={(element) => {
+          const ref = untrack(() => props.ref)
+          if (typeof ref === 'function') {
+            ref(element)
+          }
+        }}
         id={props.id}
       >
         {props.children}

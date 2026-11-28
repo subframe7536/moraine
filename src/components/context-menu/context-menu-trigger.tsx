@@ -1,11 +1,11 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { merge, onSettled, omit } from 'solid-js'
+import { onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, mergeDefinedProps } from '../../shared/utils'
 import {
   getContextMenuTriggerAccessibility,
   validateOverlayTrigger,
@@ -90,7 +90,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     onPointerUp: (event: Event) => dispatchTriggerEvent('onPointerUp', event),
     onPointerCancel: (event: Event) => dispatchTriggerEvent('onPointerCancel', event),
   }
-  const triggerProps = merge(
+  const triggerProps = mergeDefinedProps(
     { 'data-slot': 'context-menu-trigger' },
     context.triggerProps,
     triggerSlot,

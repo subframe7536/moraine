@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { createMemo, merge, omit } from 'solid-js'
+import { createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -8,7 +8,7 @@ import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler, resolvePropsChildren } from '../../shared/utils'
+import { callHandler, mergeDefinedProps, resolvePropsChildren } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -102,7 +102,7 @@ export function BaseSelectTrigger<
       setElement: state.setFocusOwner,
     },
   })
-  const eventProps = merge({ role: 'combobox' as const }, rest, {
+  const eventProps = mergeDefinedProps({ role: 'combobox' as const }, rest, {
     onPointerDown(event: PointerEvent) {
       callHandler(event, typedProps.onPointerDown)
       if (

@@ -115,7 +115,10 @@ export function useTextControlValue<
     const element = options.getElement()
 
     if (element && value !== undefined && options.shouldRestoreValue?.() !== false) {
-      element.value = String(value ?? '')
+      const next = String(value ?? '')
+      if (element.value !== next) {
+        element.value = next
+      }
     }
   }
 

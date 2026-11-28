@@ -33,6 +33,8 @@ export interface SplitterHandleRegistration {
 interface RegisteredHandleEntry {
   handle: SplitterHandleRegistration
   rootElement: HTMLElement | undefined
+  startIntersection: SplitterHandleRegistration | null
+  endIntersection: SplitterHandleRegistration | null
 }
 
 interface DragHandleSnapshot {
@@ -254,6 +256,10 @@ function getHandleIntersection(
   handle: SplitterHandleRegistration,
   edge: SplitterIntersectionEdge,
 ): SplitterHandleRegistration | null {
+  const entry = registeredHandles.get(handle.id)
+  if (entry) {
+    return edge === 'start' ? entry.startIntersection : entry.endIntersection
+  }
   return edge === 'start' ? handle.getStartIntersection() : handle.getEndIntersection()
 }
 
@@ -300,8 +306,12 @@ function setIntersection(
   edge: SplitterIntersectionEdge,
   intersection: SplitterHandleRegistration,
 ): void {
+  const entry = registeredHandles.get(handle.id)
   if (edge === 'start') {
     if (handle.getStartIntersectionEnabled()) {
+      if (entry) {
+        entry.startIntersection = intersection
+      }
       handle.setStartIntersection(intersection)
     }
 
@@ -309,6 +319,9 @@ function setIntersection(
   }
 
   if (handle.getEndIntersectionEnabled()) {
+    if (entry) {
+      entry.endIntersection = intersection
+    }
     handle.setEndIntersection(intersection)
   }
 }
@@ -365,6 +378,8 @@ function assignIntersections(snapshots: Array<HandleSnapshot>): void {
 
 export function refreshSplitterIntersections(): void {
   for (const entry of registeredHandles.values()) {
+    entry.startIntersection = null
+    entry.endIntersection = null
     entry.handle.setStartIntersection(null)
     entry.handle.setEndIntersection(null)
   }
@@ -404,6 +419,8 @@ export function registerSplitterHandle(handle: SplitterHandleRegistration): () =
   registeredHandles.set(handle.id, {
     handle,
     rootElement: resolveTopMostRootElement(handle),
+    startIntersection: null,
+    endIntersection: null,
   })
   scheduleSplitterIntersectionsRefresh()
 

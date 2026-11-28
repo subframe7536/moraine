@@ -1,12 +1,12 @@
 import type { JSX } from '@solidjs/web'
-import { For, Show, createEffect, createMemo, createSignal, untrack, omit } from 'solid-js'
+import { For, Show, createMemo, createSignal, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { Icon } from '../icon'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -193,14 +193,6 @@ export function FileUpload<TMultiple extends boolean = false>(
   const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement | undefined>(undefined)
   const [controlElement, setControlElement] = createSignal<HTMLElement | undefined>(undefined)
 
-  createEffect(controlElement, (element) => {
-    if (!element) {
-      return
-    }
-    field.setControlRef(element)
-    return () => field.setControlRef(undefined)
-  })
-
   const { nativeInvalid, resetNativeInvalid, onInvalid } = useHiddenInputValidation({
     focusTarget: controlElement,
   })
@@ -333,7 +325,7 @@ export function FileUpload<TMultiple extends boolean = false>(
         data-slot="file-upload-control"
         {...controlAriaAttrs()}
         {...controlSlot}
-        ref={setControlElement}
+        ref={[setControlElement, field.setControlRef]}
         disabled={field.disabled()}
         onFocus={(event) => {
           callHandler(event, props.onFocus)
@@ -369,10 +361,7 @@ export function FileUpload<TMultiple extends boolean = false>(
       <HiddenInput
         type="file"
         id={field.id()}
-        ref={(element) => {
-          setHiddenInput(element)
-          callRef(() => props.inputRef, element)
-        }}
+        ref={[setHiddenInput, props.inputRef]}
         form={props.form}
         name={field.name()}
         accept={merged.accept}

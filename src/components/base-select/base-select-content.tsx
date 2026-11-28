@@ -4,7 +4,6 @@ import { createEffect, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import { callRef } from '../../shared/utils'
 import { useFloatingPosition } from '../shared/overlay/floating'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
 import { resolveFloatingPlacement } from '../shared/overlay/placement'
@@ -62,16 +61,18 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
   })
   const [content, setContent] = createSignal<HTMLDivElement>()
   const [positioner, setPositioner] = createSignal<HTMLDivElement>()
+  const activeContent = () => (presence.present() ? content() : undefined)
+  const activePositioner = () => (presence.present() ? positioner() : undefined)
   const [side, setSide] = createSignal('bottom')
-  createEffect(content, (node) => {
+  createEffect(activeContent, (node) => {
     if (!node) {
       return
     }
     return presence.registerElement(node)
   })
   useFloatingPosition({
-    contentElement: content,
-    floatingElement: positioner,
+    contentElement: activeContent,
+    floatingElement: activePositioner,
     getReferenceElement: () => state.anchor() ?? state.focusOwner(),
     flip: () => state.props.flip ?? true,
     gutter: () => state.props.gutter ?? 4,
@@ -93,8 +94,6 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
       ] as const,
     ([present, preventScroll, reference]) => {
       if (!present) {
-        // The content unmounted with the Show branch; release its presence registration.
-        setContent(undefined)
         return
       }
       if (preventScroll) {
@@ -107,7 +106,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
       Boolean(
         state.anchor()?.contains(node) ||
         state.focusOwner()?.contains(node) ||
-        positioner()?.contains(node),
+        activePositioner()?.contains(node),
       ),
     onPointerOutside: (event) => {
       if (state.open() && !event.defaultPrevented) {
@@ -142,10 +141,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
             data-slot={state.slotName('content')}
             {...contentSlot}
             {...rest}
-            ref={(element) => {
-              setContent(element)
-              callRef(() => props.ref, element)
-            }}
+            ref={[setContent, props.ref]}
           />
         </div>
       </Portal>

@@ -6,7 +6,7 @@ import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { createSplitterHandle } from '../shared/splitter'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -269,11 +269,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
         disabled={isButton() ? disabled() : undefined}
         aria-disabled={disabled() ? 'true' : undefined}
         tabindex={disabled() ? -1 : 0}
-        ref={(node: HTMLElement) => {
-          setElement(node)
-          bindings.setElement(node)
-          callRef(() => local.ref, node)
-        }}
+        ref={[setElement, bindings.setElement, local.ref]}
         onClick={(event: MouseEvent) => callRailEvent(event, local.onClick, onClick)}
         onKeyDown={(event: KeyboardEvent) =>
           callRailEvent(event, local.onKeyDown, bindings.onKeyDown)

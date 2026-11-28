@@ -1,4 +1,4 @@
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, vi, it } from 'vitest'
 
 import { useAutoLoadingClick } from './use-auto-loading'
@@ -46,6 +46,7 @@ describe('useAutoLoadingClick', () => {
 
     lifecycle.state.onClick(createClickEvent())
     lifecycle.state.onClick(createClickEvent())
+    flush()
 
     expect(lifecycle.state.isLoading()).toBe(true)
 
@@ -75,6 +76,7 @@ describe('useAutoLoadingClick', () => {
     }))
 
     lifecycle.state.onClick(createClickEvent())
+    flush()
     expect(lifecycle.state.isLoading()).toBe(true)
 
     task.reject(error)
@@ -97,6 +99,7 @@ describe('useAutoLoadingClick', () => {
     }))
 
     lifecycle.state.onClick(createClickEvent())
+    flush()
     expect(lifecycle.state.isLoading()).toBe(true)
 
     lifecycle.dispose()
@@ -148,6 +151,7 @@ describe('useAutoLoadingClick', () => {
     }))
 
     lifecycle.state.onClick(createClickEvent())
+    flush()
     expect(lifecycle.state.isLoading()).toBe(true)
 
     await Promise.resolve()
@@ -195,6 +199,7 @@ describe('useAutoLoadingClick', () => {
 
     lifecycle.state.onClick(createClickEvent())
     lifecycle.setLoading(false)
+    flush()
 
     expect(lifecycle.state.isLoading()).toBe(true)
 

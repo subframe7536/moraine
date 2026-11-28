@@ -7,7 +7,6 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
@@ -415,12 +414,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
 
     return (
       <>
-        <BaseSelect.Control
-          {...controlSlot}
-          {...rootProps}
-          {...controlPress}
-          ref={(element) => callRef(() => props.ref, element)}
-        >
+        <BaseSelect.Control {...controlSlot} {...rootProps} {...controlPress} ref={props.ref}>
           <Show when={props.leading}>
             {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...leadingSlot} />}
           </Show>
@@ -494,10 +488,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                 data-slot="multi-select-input"
                 {...inputSlot}
                 placeholder={tags.tags().length ? '' : placeholder()}
-                ref={(element) => {
-                  inputBinding.inputProps.ref(element)
-                  callRef(() => props.inputRef, element)
-                }}
+                ref={[inputBinding.inputProps.ref, props.inputRef]}
                 onPaste={(event) => tags.onPaste(event, inputBinding.isComposing())}
                 onKeyDown={onEditableInputKeyDown}
               />

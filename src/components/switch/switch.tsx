@@ -1,13 +1,13 @@
 import type { JSX } from '@solidjs/web'
 import type { Ref } from 'solid-js'
-import { Show, createEffect, createMemo, merge, untrack, omit } from 'solid-js'
+import { Show, createEffect, createMemo, merge, onFlush, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasContent } from '../../shared/jsx-content'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
@@ -252,12 +252,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     return attrs
   }
 
-  createEffect(checked, (isChecked) => {
-    if (inputEl) {
-      inputEl.checked = isChecked
-    }
-  })
-
   function toggle(): void {
     if (field.disabled() || field.readOnly()) {
       return
@@ -280,7 +274,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       field.setFormValue(nextChecked ? merged.trueValue : merged.falseValue)
       // A form-level restore may round `checked()` back to its current value, in which case
       // the `checked` property binding never re-applies; sync the DOM after the reset flush.
-      queueMicrotask(() => {
+      onFlush(() => {
         if (inputEl) {
           inputEl.checked = checked()
         }
@@ -334,18 +328,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div
-      data-slot="switch"
-      {...rootSlot}
-      {...rest}
-      ref={(element) => callRef(() => local.ref, element)}
-      onClick={onRootClick}
-    >
+    <div data-slot="switch" {...rootSlot} {...rest} ref={local.ref} onClick={onRootClick}>
       <HiddenInput
-        ref={(element) => {
-          inputEl = element
-          callRef(() => local.inputRef, element)
-        }}
+        ref={[
+          (element) => {
+            inputEl = element
+          },
+          local.inputRef,
+        ]}
         id={`${field.id()}-input`}
         type="checkbox"
         name={field.name()}
@@ -368,7 +358,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           }
 
           handleCheckedChange(event.currentTarget.checked)
-          event.currentTarget.checked = checked()
+          onFlush(() => {
+            if (inputEl) {
+              inputEl.checked = checked()
+            }
+          })
         }}
       />
 

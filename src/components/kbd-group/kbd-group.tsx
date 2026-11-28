@@ -86,13 +86,18 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                 data-slot="kbd-group-item"
               />
               <Show when={index() < normalizedItems().length - 1}>
-                <Show
-                  when={typeof props.separator === 'function' && props.separator}
-                  fallback={(props.separator as JSX.Element) ?? '+'}
-                  keyed
-                >
-                  {(Separator) => <Separator index={index()} />}
-                </Show>
+                {(_show) => {
+                  const separator = createMemo(() => props.separator)
+                  return (
+                    <Show
+                      when={typeof separator() === 'function' && separator()}
+                      fallback={(separator() as JSX.Element) ?? '+'}
+                      keyed
+                    >
+                      {(Separator) => <Separator index={index()} />}
+                    </Show>
+                  )
+                }}
               </Show>
             </>
           )}

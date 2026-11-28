@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import { createEffect, createSignal } from 'solid-js'
 
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callRef, publishElement } from '../../shared/utils'
+import { publishElement } from '../../shared/utils'
 import { containFocusInContainer } from '../shared/overlay/focus'
 
 import type { BaseDialogContext } from './base-dialog-context'
@@ -36,7 +36,10 @@ export function createBaseDialogContentBinding(
   return {
     ref: (element: HTMLDivElement) => {
       setElement(element)
-      callRef(() => options.ref?.(), element)
+      const userRef = options.ref?.()
+      if (typeof userRef === 'function') {
+        userRef(element)
+      }
     },
     onKeyDown: createKeyDownHandler<HTMLDivElement>({
       onKeyDown: () => options.onKeyDown?.(),

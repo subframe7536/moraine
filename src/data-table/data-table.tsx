@@ -19,7 +19,6 @@ import { pickSlotOverrides, useRecipe } from '../provider'
 import { useMessages } from '../provider/locale/locale-context'
 import { createLazyMemo } from '../shared/create-lazy-memo'
 import { renderWithProps } from '../shared/render-with-props'
-import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 import type {
   TableVirtualColumnLayout,
@@ -289,11 +288,7 @@ export function DataTable<TData extends RowData = RowData>(
           slotWith(section, { enforced: () => ({ style: layout.sectionStyle(section) }) }),
       }}
     >
-      <div
-        ref={(el) => callRef(() => props.containerRef, el)}
-        data-slot="data-table-container"
-        {...containerSlot}
-      >
+      <div ref={props.containerRef} data-slot="data-table-container" {...containerSlot}>
         {/* Screen readers announce changes inside a live region that already exists, so the
             status stays mounted and only its text follows `loading`. */}
         <span data-slot="data-table-status" role="status" class={VISUALLY_HIDDEN_CLASS}>

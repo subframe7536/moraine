@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onFlush, untrack } from 'solid-js'
 
 import { attachEventListener, attachEventListenerMap } from '../../shared/event-listener'
 import type { BaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -538,8 +538,8 @@ export function createDrawerSwipe(
   function closeSwipe(): void {
     // Keep the last movement so the exit animation starts from the drag position.
     modal.updateOpen(false)
-    queueMicrotask(() => {
-      if (modal.open()) {
+    onFlush(() => {
+      if (!drag && modal.open()) {
         // A controlled parent refused the close: animate back to rest.
         resetDrag()
       }

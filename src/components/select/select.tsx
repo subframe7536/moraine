@@ -3,7 +3,6 @@ import { createMemo, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
-import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
 import { useFieldContext } from '../field/field-context'
@@ -107,15 +106,11 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
     }
     return (
       <>
-        <BaseSelect.Control
-          {...controlSlot}
-          {...rootProps}
-          ref={(element) => callRef(() => props.ref, element)}
-        >
+        <BaseSelect.Control {...controlSlot} {...rootProps} ref={props.ref}>
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
             aria-busy={props.loading ? 'true' : undefined}
             {...triggerSlot}
-            ref={(element) => callRef(() => props.triggerRef, element)}
+            ref={props.triggerRef}
             onKeyDown={createSelectClearKeyDownHandler({
               clearable: () => props.clearable,
               canClear: hasValue,

@@ -1,8 +1,8 @@
 import type { JSX } from '@solidjs/web'
-import { Show, createMemo, createSignal, onCleanup, omit } from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, omit, untrack } from 'solid-js'
 
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, resolvePropsChildren } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
 import { resolveDirection } from '../shared/overlay/direction'
 import { createSplitterHandle } from '../shared/splitter'
@@ -225,11 +225,16 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
       aria-valuemax={aria().valueMax}
       aria-disabled={handleDisabled() ? 'true' : undefined}
       tabindex={handleDisabled() ? -1 : 0}
-      ref={(node) => {
-        setElement(node)
-        bindings.setElement(node)
-        callRef(() => props.ref, node)
-      }}
+      ref={[
+        setElement,
+        bindings.setElement,
+        (node) => {
+          const ref = untrack(() => Reflect.get(props, 'ref'))
+          if (typeof ref === 'function') {
+            ref(node)
+          }
+        },
+      ]}
       onMouseEnter={(event) => callHandleEvent(event, props.onMouseEnter, bindings.onMouseEnter)}
       onMouseLeave={(event) => callHandleEvent(event, props.onMouseLeave, bindings.onMouseLeave)}
       onFocus={(event) => callHandleEvent(event, props.onFocus, bindings.onFocus)}

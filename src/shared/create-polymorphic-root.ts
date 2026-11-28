@@ -1,10 +1,10 @@
 import { DelegatedEvents, delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createRenderEffect, createSignal, merge, omit } from 'solid-js'
+import { createEffect, createMemo, createSignal, merge, omit, untrack } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
 import type { ValidComponent } from './types'
-import { callHandler, callRef, publishElement } from './utils'
+import { callHandler, publishElement } from './utils'
 const DELEGATED_EVENTS = [
   'click',
   'keydown',
@@ -81,7 +81,7 @@ export function createPolymorphicRoot(options: {
 
   if (options.registration) {
     const publish = publishElement(options.registration.element, options.registration.setElement)
-    createRenderEffect(element, (node) => {
+    createEffect(element, (node) => {
       if (!node) {
         return
       }
@@ -170,7 +170,18 @@ export function createPolymorphicRoot(options: {
       },
       ref(next: HTMLElement) {
         setElement(next)
-        callRef(() => options.ref?.(), next)
+        untrack(() => {
+          const ref = options.ref?.()
+          if (Array.isArray(ref)) {
+            for (const entry of ref.flat(Infinity)) {
+              if (typeof entry === 'function') {
+                entry(next)
+              }
+            }
+          } else if (typeof ref === 'function') {
+            ref(next)
+          }
+        })
       },
     }) as Omit<T, 'ref'> & { ref: (element: HTMLElement) => void }
     return binding

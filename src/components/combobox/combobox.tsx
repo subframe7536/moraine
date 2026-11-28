@@ -6,7 +6,6 @@ import { useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
@@ -193,12 +192,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
 
     return (
       <>
-        <BaseSelect.Control
-          {...controlSlot}
-          {...rootProps}
-          {...controlPress}
-          ref={(element) => callRef(() => props.ref, element)}
-        >
+        <BaseSelect.Control {...controlSlot} {...rootProps} {...controlPress} ref={props.ref}>
           <Show when={props.leading}>
             {(icon) => <Icon name={icon()} data-slot="combobox-leading" {...leadingSlot} />}
           </Show>
@@ -208,10 +202,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             data-slot="combobox-input"
             {...inputSlot}
             placeholder={(props.placeholder ?? messages().placeholder) || undefined}
-            ref={(element) => {
-              input.inputProps.ref(element)
-              callRef(() => props.inputRef, element)
-            }}
+            ref={[input.inputProps.ref, props.inputRef]}
             onKeyDown={onInputKeyDown}
           />
           <Show when={!props.loading && props.clearable && canClear()}>

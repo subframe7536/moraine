@@ -7,7 +7,7 @@ import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, mergeDefinedProps } from '../../shared/utils'
 import { validateOverlayTrigger } from '../shared/overlay/trigger'
 
 import { useDropdownMenuContext } from './dropdown-menu-context'
@@ -103,7 +103,7 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     },
     events,
   )
-  const triggerProps = merge(
+  const triggerProps = mergeDefinedProps(
     { 'data-slot': 'dropdown-menu-trigger' },
     context.triggerProps,
     triggerSlot,

@@ -1,9 +1,9 @@
 import type { JSX } from '@solidjs/web'
-import { createMemo, omit } from 'solid-js'
+import { createMemo, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, resolvePropsChildren } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -91,7 +91,18 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       data-slot={state.slotName('item')}
       {...itemSlot}
       {...rest}
-      ref={(element) => callRef(() => props.ref, element)}
+      ref={(element) => {
+        const ref = untrack(() => props.ref)
+        if (Array.isArray(ref)) {
+          for (const entry of (ref as Array<unknown>).flat(Infinity)) {
+            if (typeof entry === 'function') {
+              entry(element)
+            }
+          }
+        } else if (typeof ref === 'function') {
+          ref(element)
+        }
+      }}
       id={state.itemId(item().value)}
       tabindex={-1}
       aria-selected={selected() ? 'true' : 'false'}

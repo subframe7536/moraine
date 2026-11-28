@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   onCleanup,
+  onFlush,
   onSettled,
   untrack,
   For,
@@ -218,7 +219,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     )
     if (shouldClose) {
       const target = focusOwner()
-      queueMicrotask(() => {
+      onFlush(() => {
         if (!open() && target === focusOwner() && target?.isConnected) {
           target.focus()
         }

@@ -1,5 +1,12 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, untrack, createProjection } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createProjection,
+  createSignal,
+  onSettled,
+  untrack,
+} from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 
@@ -171,6 +178,11 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     previousLoadingKeys = nextKeys
   }, {})
 
+  let disposed = false
+  onSettled(() => () => {
+    disposed = true
+  })
+
   async function runLoad(
     key: string,
     item: T,
@@ -180,11 +192,16 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     try {
       children = await loadChildren(item)
     } catch (error) {
-      setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
-      options.onLoadChildrenError?.({ item, error })
+      if (!disposed) {
+        setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
+        options.onLoadChildrenError?.({ item, error })
+      }
       return false
     } finally {
       inFlight.delete(key)
+    }
+    if (disposed) {
+      return false
     }
     setLoaded((previous) => ({ ...previous, [key]: { raw: item, children } }))
     setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
@@ -629,7 +646,11 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       expandTo(key)
       if (ancestors.every((ancestorKey) => !isDisabled(ancestorKey))) {
         if (needsExpand) {
-          queueMicrotask(() => navigation.focus(key))
+          queueMicrotask(() => {
+            if (!disposed) {
+              navigation.focus(key)
+            }
+          })
         } else {
           navigation.focus(key)
         }

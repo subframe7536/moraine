@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import type { RowData } from '@tanstack/table-core'
 import type { Component } from 'solid-js'
-import { Show, createSignal, dynamicComponent, createRenderEffect } from 'solid-js'
+import { Show, createEffect, createSignal, dynamicComponent } from 'solid-js'
 
 import { useRecipe } from '../provider'
 import type { SlotOverrides } from '../provider'
@@ -65,18 +65,24 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
       {(_mounted) => {
         const [content, setContent] = createSignal<HTMLDivElement>()
         const [body, setBody] = createSignal<HTMLDivElement>()
-        createRenderEffect(content, (node) => {
-          if (!node) {
-            return
-          }
-          return props.disclosure.registerContentElement(node)
-        })
-        createRenderEffect(body, (node) => {
-          if (!node) {
-            return
-          }
-          return props.disclosure.registerMeasureElement(node)
-        })
+        createEffect(
+          () => [content(), props.disclosure] as const,
+          ([node, disclosure]) => {
+            if (!node) {
+              return
+            }
+            return disclosure.registerContentElement(node)
+          },
+        )
+        createEffect(
+          () => [body(), props.disclosure] as const,
+          ([node, disclosure]) => {
+            if (!node) {
+              return
+            }
+            return disclosure.registerMeasureElement(node)
+          },
+        )
         return (
           <tr data-slot="data-table-expanded-row" {...expandedRowSlot}>
             <td data-slot="data-table-expanded-cell" colspan={props.colSpan} {...expandedCellSlot}>

@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
-import { callRef, createId } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 
 import { SidebarContent } from './sidebar-content'
@@ -209,15 +209,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 
   return (
     <SidebarProvider value={context}>
-      <div
-        data-slot="sidebar"
-        {...rootSlot}
-        {...rest}
-        ref={(element) => {
-          setRootElement(element)
-          callRef(() => props.ref, element)
-        }}
-      >
+      <div data-slot="sidebar" {...rootSlot} {...rest} ref={[setRootElement, props.ref]}>
         {props.children}
       </div>
     </SidebarProvider>

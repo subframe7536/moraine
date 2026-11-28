@@ -6,8 +6,10 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  onFlush,
   onSettled,
   omit,
+  untrack,
   createProjection,
 } from 'solid-js'
 
@@ -18,13 +20,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import {
-  callHandler,
-  callRef,
-  createId,
-  isAndroidUserAgent,
-  mergeDefinedProps,
-} from '../../shared/utils'
+import { callHandler, createId, isAndroidUserAgent, mergeDefinedProps } from '../../shared/utils'
 import { Icon } from '../icon'
 import { KbdGroup } from '../kbd-group'
 import { List } from '../list'
@@ -272,7 +268,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   })
   const currentSearchValue = search.value
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
-  let listboxElement: HTMLDivElement | undefined
+  const [listboxElement, setListboxElement] = createSignal<HTMLDivElement | undefined>()
   const listboxId = createId(undefined, 'command-palette-listbox')
   const descriptionPosition = () => variants.descriptionPosition
   const composition = createCompositionState()
@@ -328,11 +324,15 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         return
       }
 
-      queueMicrotask(() => {
-        if (input.isConnected && !input.closest('[role="dialog"]')) {
+      let cancelled = false
+      onFlush(() => {
+        if (!cancelled && input.isConnected && !input.closest('[role="dialog"]')) {
           input.focus({ preventScroll: true })
         }
       })
+      return () => {
+        cancelled = true
+      }
     },
   )
 
@@ -441,9 +441,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         // Rows outside the virtual window have no element to scroll into view.
         entryIndex: visible && virtualizer ? virtualEntryIndexByKey().get(key) : undefined,
         id: activeDescendantId(),
+        listbox: listboxElement(),
       }
     },
-    ({ visible, virtualizer, entryIndex, id }) => {
+    ({ visible, virtualizer, entryIndex, id, listbox }) => {
       if (!visible) {
         return
       }
@@ -451,12 +452,19 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         virtualizer.scrollToIndex(entryIndex)
         return
       }
-      queueMicrotask(() => {
-        const element = id ? listboxElement?.ownerDocument.getElementById(id) : undefined
-        if (element && listboxElement?.contains(element)) {
+      let cancelled = false
+      onFlush(() => {
+        if (cancelled) {
+          return
+        }
+        const element = id ? listbox?.ownerDocument.getElementById(id) : undefined
+        if (element && listbox?.contains(element)) {
           element.scrollIntoView?.({ block: 'nearest' })
         }
       })
+      return () => {
+        cancelled = true
+      }
     },
   )
 
@@ -469,7 +477,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     isDisabled: (item) => item.disabled,
     loop: () => true,
     activationMode: () => 'manual',
-    getDirection: () => resolveDirection(listboxElement, direction()),
+    getDirection: () => resolveDirection(listboxElement(), direction()),
     focusValue: (value) => {
       setActiveKey(value)
     },
@@ -696,10 +704,16 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           merged.virtualizer ? visibleItemPositionByKey().get(itemProps.item.key) : undefined
         }
         aria-setsize={merged.virtualizer ? visibleItems().length : undefined}
-        ref={(element) => {
-          callRef(() => itemAttributes()?.ref, element)
-          itemProps.virtualProps?.ref?.(element)
-        }}
+        ref={[
+          (element) => {
+            const attrs = untrack(itemAttributes)
+            const ref = attrs?.ref
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          },
+          (element) => itemProps.virtualProps?.ref?.(element),
+        ]}
         {...itemSlot}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)
@@ -751,8 +765,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function handleListboxRef(element: HTMLDivElement): void {
-    listboxElement = element
-    callRef(() => merged.listboxProps?.ref, element)
+    setListboxElement(element)
+    const ref = untrack(() => merged.listboxProps?.ref)
+    if (typeof ref === 'function') {
+      ref(element)
+    }
   }
 
   const listboxSlot = slotWith('listbox', {
@@ -817,13 +834,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   const footerRender = createLazyMemo(() => merged.footerRender)
 
+  const forwardInputPropsRef = (el: HTMLInputElement): void => {
+    const ref = untrack(() => merged.inputProps?.ref)
+    if (typeof ref === 'function') {
+      ref(el)
+    }
+  }
+  const forwardInputRef = (el: HTMLInputElement): void => {
+    const ref = untrack(() => Reflect.get(props, 'inputRef'))
+    if (typeof ref === 'function') {
+      ref(el)
+    }
+  }
+
   return (
-    <div
-      data-slot="command-palette"
-      {...rootSlot}
-      {...rest}
-      ref={(el) => callRef(() => props.ref, el)}
-    >
+    <div data-slot="command-palette" {...rootSlot} {...rest} ref={props.ref}>
       <div data-slot="command-palette-input-wrapper" {...inputWrapperSlot}>
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leading}
@@ -834,11 +859,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
         <input
           {...merged.inputProps}
-          ref={(el) => {
-            setInputElement(el)
-            callRef(() => merged.inputProps?.ref, el)
-            callRef(() => props.inputRef, el)
-          }}
+          ref={[setInputElement, forwardInputPropsRef, forwardInputRef]}
           data-slot="command-palette-input"
           {...inputSlot}
           role="combobox"

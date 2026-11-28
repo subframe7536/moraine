@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import { createSignal, onCleanup, omit, untrack } from 'solid-js'
 
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, createId } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
 
 import { clamp, fixToPrecision } from './hook'
@@ -133,10 +133,15 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
       data-slot="resizable-panel"
       {...panelSlot}
       {...rest}
-      ref={(node) => {
-        setElement(node)
-        callRef(() => props.ref, node)
-      }}
+      ref={[
+        setElement,
+        (node) => {
+          const ref = untrack(() => props.ref)
+          if (typeof ref === 'function') {
+            ref(node)
+          }
+        },
+      ]}
       id={panelId()}
       onTransitionEnd={(event) => {
         const result = callHandler(event, props.onTransitionEnd)

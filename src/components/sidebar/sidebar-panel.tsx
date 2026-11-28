@@ -4,7 +4,7 @@ import { Show, createEffect, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, resolvePropsChildren, publishElement } from '../../shared/utils'
+import { resolvePropsChildren, publishElement } from '../../shared/utils'
 import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -86,10 +86,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
       <Root
         data-slot="sidebar-panel"
         {...panelSlot}
-        ref={(node: HTMLElement) => {
-          setElement(node)
-          callRef(() => local.ref, node)
-        }}
+        ref={[setElement, local.ref]}
         aria-hidden={closed() ? 'true' : undefined}
         {...{ 'prop:inert': closed() ? true : undefined }}
         aria-label={local['aria-label']}

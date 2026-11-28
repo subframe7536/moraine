@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, onSettled } from 'solid-js'
+import { createEffect, createMemo, createSignal, onFlush } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { attachEventListener } from '../../shared/event-listener'
@@ -20,40 +20,31 @@ function readBrowserLocale(): string {
 }
 
 /**
- * Starts at `en-US` through SSR and hydration. After `onSettled` + `queueMicrotask`,
+ * Starts at `en-US` through SSR and hydration. After hydration settles,
  * follows `navigator.language` and `languagechange` while `enabled` is true.
  */
 export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<string> {
   const [browserLocale, setBrowserLocale] = createSignal(FALLBACK_LOCALE)
-  const [ready, setReady] = createSignal(false)
 
-  onSettled(() => {
-    let active = true
-    queueMicrotask(() => {
-      if (active) {
-        setReady(true)
+  createEffect(enabled, (active) => {
+    if (!active || typeof window === 'undefined') {
+      return
+    }
+
+    let cancelled = false
+    const apply = (): void => {
+      if (!cancelled) {
+        setBrowserLocale(readBrowserLocale())
       }
-    })
+    }
+
+    onFlush(apply)
+    const detach = attachEventListener(window, 'languagechange', apply)
     return () => {
-      active = false
+      cancelled = true
+      detach()
     }
   })
 
-  const apply = (): void => {
-    setBrowserLocale(readBrowserLocale())
-  }
-
-  createEffect(
-    () => enabled() && ready(),
-    (active) => {
-      if (!active || typeof window === 'undefined') {
-        return
-      }
-
-      apply()
-      return attachEventListener(window, 'languagechange', apply)
-    },
-  )
-
-  return createMemo(() => (enabled() && ready() ? browserLocale() : FALLBACK_LOCALE))
+  return createMemo(() => (enabled() ? browserLocale() : FALLBACK_LOCALE))
 }

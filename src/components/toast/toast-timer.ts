@@ -26,7 +26,7 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     return options.options().type === 'loading' ? Number.POSITIVE_INFINITY : DEFAULT_TOAST_DURATION
   })
 
-  let remainingTime = untrack(initialDuration)
+  let remainingTime: number | undefined
   let timerId: ReturnType<typeof setTimeout> | undefined
   let bumpTimerId: ReturnType<typeof setTimeout> | undefined
   let closeTimerStartTime = 0
@@ -52,6 +52,7 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     if (untrack(isPaused)) {
       return
     }
+    remainingTime ??= untrack(initialDuration)
     closeTimerStartTime = Date.now()
     if (remainingTime <= 0) {
       options.onTimeout()
@@ -113,7 +114,7 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     if (paused) {
       if (closeTimerStartTime > 0) {
         const elapsed = Date.now() - closeTimerStartTime
-        remainingTime = Math.max(0, remainingTime - elapsed)
+        remainingTime = Math.max(0, (remainingTime ?? initialDuration()) - elapsed)
         closeTimerStartTime = 0
       }
       stopTimer()

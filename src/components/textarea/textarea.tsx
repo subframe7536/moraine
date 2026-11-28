@@ -3,7 +3,7 @@ import { createEffect, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
-import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
@@ -321,11 +321,13 @@ export function Textarea<
       {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
       {...textControl.controlledValueProps()}
-      ref={(element) => {
-        textareaEl = element
-        field.setControlRef(element)
-        callRef(() => props.ref, element)
-      }}
+      ref={[
+        (element) => {
+          textareaEl = element
+        },
+        field.setControlRef,
+        props.ref,
+      ]}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

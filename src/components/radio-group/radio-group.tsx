@@ -16,7 +16,7 @@ import { useRecipe } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler, createKeyUpHandler, normalizeKey } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -328,12 +328,16 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     dispatchItemKeyUp(event, item)
   }
 
+  let disposed = false
   onSettled(() => {
     for (const item of normalizedItems()) {
       const input = inputRefs.get(item.id)
       if (input) {
         input.defaultChecked = isSelected(item)
       }
+    }
+    return () => {
+      disposed = true
     }
   })
 
@@ -378,13 +382,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const ItemTag = dynamic(() => (variants.variant === 'list' ? 'div' : 'label'))
 
   return (
-    <div
-      data-slot="radio-group"
-      {...rootSlot}
-      {...rest}
-      id={`${groupId()}-root`}
-      ref={(element) => callRef(() => props.ref, element)}
-    >
+    <div data-slot="radio-group" {...rootSlot} {...rest} id={`${groupId()}-root`} ref={props.ref}>
       <fieldset
         role="radiogroup"
         data-slot="radio-group-fieldset"
@@ -442,7 +440,11 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               }
 
               if (shouldRestoreFocus) {
-                queueMicrotask(() => inputRefs.get(tabbableItemId() ?? '')?.focus())
+                queueMicrotask(() => {
+                  if (!disposed) {
+                    inputRefs.get(tabbableItemId() ?? '')?.focus()
+                  }
+                })
               }
             })
 
@@ -450,10 +452,12 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               <ItemTag id={item.id} data-slot="radio-group-item" {...itemSlot}>
                 <div data-slot="radio-group-container" {...containerSlot}>
                   <HiddenInput
-                    ref={(element) => {
-                      input = element
-                      inputRefs.set(item.id, element)
-                    }}
+                    ref={[
+                      (element) => {
+                        input = element
+                      },
+                      (element) => inputRefs.set(item.id, element),
+                    ]}
                     id={item.inputId}
                     type="radio"
                     name={field.name()}
@@ -478,7 +482,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     onChange={(event) => {
                       event.stopPropagation()
                       onChange(item.value)
-                      syncInputCheckedState()
                     }}
                     onKeyDown={(event) => {
                       onItemKeyDown(event, item)

@@ -1,10 +1,9 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { createEffect, createSignal, Show, omit } from 'solid-js'
+import { createEffect, createSignal, Show, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
 import {
@@ -95,7 +94,12 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
           data-slot="collapsible-content"
           {...contentSlot}
           {...rest}
-          ref={(element: HTMLElement) => callRef(() => local.ref, element)}
+          ref={(element: HTMLDivElement) => {
+            const ref = untrack(() => local.ref)
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          }}
         />
       </Show>
     </div>

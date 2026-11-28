@@ -17,7 +17,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
-import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
+import { callHandler, createId, isAndroidUserAgent } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
@@ -221,8 +221,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
         filtered.push(el)
       }
     }
-    if (filtered.length > 0) {
-      callRef(() => props.inputsRef, filtered)
+    if (filtered.length > 0 && typeof props.inputsRef === 'function') {
+      props.inputsRef(filtered)
     }
   }
 
@@ -475,10 +475,12 @@ export function PinInput(props: PinInputProps): JSX.Element {
       {...rest}
       id={`${field.id()}-root`}
       {...field.ariaAttrs()}
-      ref={(element) => {
-        rootEl = element
-        callRef(() => props.ref, element)
-      }}
+      ref={[
+        (element) => {
+          rootEl = element
+        },
+        props.ref,
+      ]}
       onFocusIn={(event) => {
         if (
           callHandler(event, props.onFocusIn).defaultPrevented ||

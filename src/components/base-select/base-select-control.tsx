@@ -1,8 +1,8 @@
 import type { JSX } from '@solidjs/web'
-import { createSignal, omit, createRenderEffect } from 'solid-js'
+import { createEffect, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callRef, publishElement } from '../../shared/utils'
+import { publishElement } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -49,7 +49,7 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
     context: state.recipeContext,
   })
   const [element, setElement] = createSignal<HTMLDivElement>()
-  createRenderEffect(element, (node) => {
+  createEffect(element, (node) => {
     if (!node) {
       return
     }
@@ -60,10 +60,7 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
       data-slot={state.slotName('control')}
       {...controlSlot}
       {...rest}
-      ref={(element) => {
-        setElement(element)
-        callRef(() => props.ref, element)
-      }}
+      ref={[setElement, props.ref]}
     />
   )
 }

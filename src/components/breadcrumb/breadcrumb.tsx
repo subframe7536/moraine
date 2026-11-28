@@ -6,7 +6,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { defaultBreadcrumbMessages } from './breadcrumb.messages'
@@ -78,7 +78,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       data-slot="breadcrumb"
       {...rootSlot}
       {...rest}
-      ref={(el) => callRef(() => props.ref, el)}
+      ref={props.ref}
       aria-label={props['aria-label'] ?? messages().label}
     >
       <ol data-slot="breadcrumb-list" {...listSlot}>

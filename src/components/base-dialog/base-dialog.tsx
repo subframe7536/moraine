@@ -280,7 +280,10 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
       }
       const currentContent = contentElement()
       queueMicrotask(() => {
-        if (lastFocusedElement?.isConnected && currentContent?.contains(lastFocusedElement)) {
+        if (!isPresent() || !currentContent?.isConnected) {
+          return
+        }
+        if (lastFocusedElement?.isConnected && currentContent.contains(lastFocusedElement)) {
           focusWithoutScrolling(lastFocusedElement)
         } else {
           focusInto(currentContent)

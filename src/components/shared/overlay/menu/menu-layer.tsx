@@ -13,7 +13,7 @@ import {
 
 import { useCn } from '../../../../provider/cn-context'
 import { attachEventListener } from '../../../../shared/event-listener'
-import { callHandler, callRef, createId } from '../../../../shared/utils'
+import { callHandler, createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
@@ -187,8 +187,15 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       }
 
       if (typeof ownerWindow?.requestAnimationFrame !== 'function') {
-        queueMicrotask(runAutoFocus)
-        return
+        let cancelled = false
+        queueMicrotask(() => {
+          if (!cancelled) {
+            runAutoFocus()
+          }
+        })
+        return () => {
+          cancelled = true
+        }
       }
 
       frameId = ownerWindow.requestAnimationFrame(() => {
@@ -346,10 +353,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         {...contentSlot}
         {...props.elementAttrs}
         {...contentPresentation}
-        ref={(element: HTMLDivElement) => {
-          layer.setContentElement(element)
-          callRef(() => props.elementAttrs?.ref, element)
-        }}
+        ref={[layer.setContentElement, props.elementAttrs?.ref]}
         onKeyDown={onContentKeyDown}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.elementAttrs?.onPointerDown)

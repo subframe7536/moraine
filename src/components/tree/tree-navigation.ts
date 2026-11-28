@@ -140,18 +140,16 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
 
   function registerElement(key: string, element: HTMLElement): () => void {
     elements.set(key, element)
-    queueMicrotask(() => {
-      if (
-        pendingFocus?.key === key &&
-        pendingFocus.expires > Date.now() &&
-        elements.get(key) === element &&
-        element.isConnected
-      ) {
-        pendingFocus = undefined
-        element.focus()
-        setHasFocusWithin(isFocusWithin())
-      }
-    })
+    if (
+      pendingFocus?.key === key &&
+      pendingFocus.expires > Date.now() &&
+      elements.get(key) === element &&
+      element.isConnected
+    ) {
+      pendingFocus = undefined
+      element.focus()
+      setHasFocusWithin(isFocusWithin())
+    }
     return () => {
       if (elements.get(key) === element) {
         elements.delete(key)

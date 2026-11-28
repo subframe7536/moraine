@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, mergeDefinedProps } from '../../shared/utils'
+import { mergeDefinedProps } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { Button } from '../button'
 import type { ButtonProps } from '../button'
@@ -268,7 +268,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       role={merged.role}
       {...rootSlot}
       {...rest}
-      ref={(el) => callRef(() => props.ref, el)}
+      ref={props.ref}
       aria-label={props['aria-label'] ?? messages().label}
     >
       <ul data-slot="pagination-list" {...listSlot}>

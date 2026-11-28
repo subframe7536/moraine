@@ -1,5 +1,5 @@
 import { KeyboardSensor, PointerSensor } from '@dnd-kit/dom'
-import { createEffect, createMemo, merge } from 'solid-js'
+import { createEffect, createMemo, createSignal, merge } from 'solid-js'
 
 import type { TreeT } from '../components/tree/tree.types'
 
@@ -207,21 +207,22 @@ export function createTreeSortable<T>(
       positions: () =>
         (options.canNest?.(item) ?? true) ? ['before', 'inside', 'after'] : ['before', 'after'],
     })
+    const [element, setElement] = createSignal<HTMLElement>()
+    createEffect(element, (el) => {
+      if (!el) {
+        return
+      }
+      // The item element also holds its child group, so drops measure against the row.
+      const row = el.querySelector<HTMLElement>(ROW_SELECTOR)
+      if (row) {
+        node.targetRef(row)
+      }
+    })
     const props = merge(
       {
-        ref: (element: HTMLElement) => {
-          node.ref(element)
-          // The item element also holds its child group, so drops measure against the row.
-          const attachRow = (): boolean => {
-            const row = element.querySelector<HTMLElement>(ROW_SELECTOR)
-            if (row) {
-              node.targetRef(row)
-            }
-            return row !== null
-          }
-          if (!attachRow()) {
-            queueMicrotask(attachRow)
-          }
+        ref: (el: HTMLElement) => {
+          node.ref(el)
+          setElement(el)
         },
       },
       node.attributes,

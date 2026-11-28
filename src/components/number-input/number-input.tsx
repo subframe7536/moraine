@@ -16,7 +16,7 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { toNumber } from '../../provider/locale/number'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId, mergeDefinedProps } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
@@ -472,7 +472,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       {...rootSlot}
       {...rest}
       id={`${field.id()}-root`}
-      ref={(element) => callRef(() => props.ref, element)}
+      ref={props.ref}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
@@ -502,11 +502,13 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         role="spinbutton"
         placeholder={merged.placeholder}
         {...inputSlot}
-        ref={(e) => {
-          inputEl = e
-          field.setControlRef(e)
-          callRef(() => props.inputRef, e)
-        }}
+        ref={[
+          (e) => {
+            inputEl = e
+          },
+          field.setControlRef,
+          props.inputRef,
+        ]}
         id={field.id()}
         form={merged.form}
         value={state.draftText() ?? state.formattedValue()}

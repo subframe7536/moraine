@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { createEffect, createMemo, createSignal, Show, omit } from 'solid-js'
+import { createEffect, createMemo, createSignal, Show, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -9,7 +9,6 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
@@ -153,10 +152,15 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
             aria-live={defaultAriaLive()}
             {...rootSlot}
             {...(rest as Record<string, unknown>)}
-            ref={(element: HTMLElement) => {
-              setElement(element)
-              callRef(() => local.ref, element)
-            }}
+            ref={[
+              setElement,
+              (element: HTMLElement) => {
+                const ref = untrack(() => local.ref)
+                if (typeof ref === 'function') {
+                  ref(element)
+                }
+              },
+            ]}
           >
             <Show when={hasIcon()}>
               <div data-slot="alert-icon" {...iconSlot}>
