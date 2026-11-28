@@ -123,14 +123,20 @@ function ToastRoot(props: ToastProps): JSX.Element {
     }
   })
 
-  const possiblePositions = createMemo(() => {
-    const defaultKey = `${props.placement ?? 'bottom'}-${props.align ?? 'end'}`
-    const activePositions = filteredToasts().map((toast) => {
-      const options = resolveToastOptions(toast.options, hostDefaults())
-      return `${options.placement}-${options.align}`
-    })
-    return Array.from(new Set([defaultKey, ...activePositions]))
-  })
+  const possiblePositions = createMemo(
+    () => {
+      const defaultKey = `${props.placement ?? 'bottom'}-${props.align ?? 'end'}`
+      const activePositions = filteredToasts().map((toast) => {
+        const options = resolveToastOptions(toast.options, hostDefaults())
+        return `${options.placement}-${options.align}`
+      })
+      return Array.from(new Set([defaultKey, ...activePositions]))
+    },
+    {
+      equals: (prev, next) =>
+        prev.length === next.length && prev.every((value, index) => value === next[index]),
+    },
+  )
 
   const updateHeight = (id: string | number, height: number) => {
     if (height <= 0) {

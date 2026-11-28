@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import { isServer } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { For, createSignal, getOwner, onCleanup, runWithOwner, flush } from 'solid-js'
+import { For, createEffect, createSignal, getOwner, runWithOwner, flush } from 'solid-js'
 
 import { inertFeedbackHandle } from '../shared/overlay/feedback/handle'
 import { createHostRegistry } from '../shared/overlay/feedback/host-registry'
@@ -129,13 +129,18 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
       }
     },
   }
-  const unregister = registry.register(controller)
-  onCleanup(() => {
-    unregister()
-    for (const item of dialogs()) {
-      item.abandon()
-    }
-  })
+  createEffect(
+    () => props.id,
+    () => {
+      const unregister = registry.register(controller)
+      return () => {
+        unregister()
+        for (const item of dialogs()) {
+          item.abandon()
+        }
+      }
+    },
+  )
 
   return (
     <For each={dialogs()}>

@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { createMemo, createSignal, Show, omit, createRenderEffect } from 'solid-js'
+import { createEffect, createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -140,7 +140,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     <Show when={presence.present()}>
       {(_present) => {
         const [element, setElement] = createSignal<HTMLElement>()
-        createRenderEffect(element, (node) => {
+        createEffect(element, (node) => {
           if (!node) {
             return
           }

@@ -1,14 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  onSettled,
-  Show,
-  untrack,
-} from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled, Show, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -191,7 +183,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     },
   )
 
-  onCleanup(() => {
+  onSettled(() => () => {
     if (exitTimerId) {
       clearTimeout(exitTimerId)
     }

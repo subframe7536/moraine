@@ -29,19 +29,29 @@ export interface ToastListProps {
 export function ToastList(props: ToastListProps): JSX.Element {
   const [isHovered, setIsHovered] = createSignal(false)
   const [isInteracting, setIsInteracting] = createSignal(false)
-  const position = createMemo<Partial<ToastT.Variants>>(() => {
-    const [placement, align] = props.positionKey.split('-')
-    return {
-      placement: placement as ToastT.Variants['placement'],
-      align: align as OverlayAlign,
-    }
-  })
+  const position = createMemo<Partial<ToastT.Variants>>(
+    () => {
+      const [placement, align] = props.positionKey.split('-')
+      return {
+        placement: placement as ToastT.Variants['placement'],
+        align: align as OverlayAlign,
+      }
+    },
+    {
+      equals: (prev, next) => prev.placement === next.placement && prev.align === next.align,
+    },
+  )
 
-  const groupToasts = createMemo(() =>
-    props.filteredToasts.filter((toast) => {
-      const options = resolveToastOptions(toast.options, props.host)
-      return `${options.placement}-${options.align}` === props.positionKey
-    }),
+  const groupToasts = createMemo(
+    () =>
+      props.filteredToasts.filter((toast) => {
+        const options = resolveToastOptions(toast.options, props.host)
+        return `${options.placement}-${options.align}` === props.positionKey
+      }),
+    {
+      equals: (prev, next) =>
+        prev.length === next.length && prev.every((toast, index) => toast === next[index]),
+    },
   )
 
   const layoutExpanded = () => Boolean(props.expanded) || isHovered()

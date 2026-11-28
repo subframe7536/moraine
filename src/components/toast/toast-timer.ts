@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled, untrack } from 'solid-js'
 
 import type { ToastRecord } from './toast-store'
 import type { ToastT } from './toast.types'
@@ -122,7 +122,7 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     }
   })
 
-  onCleanup(() => {
+  onSettled(() => () => {
     disposed = true
     clearTimeout(timerId)
     if (bumpTimerId) {

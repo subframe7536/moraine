@@ -309,7 +309,7 @@ export function createToastStore(): ToastStore {
     update: (id, options) => flush(() => update(id, options)),
     close: (id, reason) => flush(() => close(id, reason)),
     remove: (id) => flush(() => remove(id)),
-    abandonHost: (hostId) => flush(() => abandonHost(hostId)),
+    abandonHost,
   }
 }
 

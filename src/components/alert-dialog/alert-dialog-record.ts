@@ -116,12 +116,16 @@ export function createAlertDialogRecord(
     }
   }
 
-  const finish = (reason: FeedbackCloseReason): boolean => {
+  const finish = (reason: FeedbackCloseReason, sync = true): boolean => {
     if (!result.settle(reason)) {
       return false
     }
     const notify = options().onClose
-    flush(() => setOpen(false))
+    if (sync) {
+      flush(() => setOpen(false))
+    } else {
+      setOpen(false)
+    }
     notify?.(reason)
     return true
   }
@@ -173,7 +177,7 @@ export function createAlertDialogRecord(
       result: result.result,
     },
     abandon: () => {
-      finish('api')
+      finish('api', false)
     },
     remove: () => undefined,
   }
