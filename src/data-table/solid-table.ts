@@ -114,6 +114,20 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
       })
     },
     createWritableAtom: <T>(initialValue: T, options?: TableAtomOptions<T>) => {
+      // On the server nothing re-renders; a plain value box avoids Solid 2's
+      // `SERVER_WRITE` warning when table-core initializes its atoms while keeping
+      // identical hydration-id behavior (non-function signals allocate no id).
+      if (isServer && typeof initialValue !== 'function') {
+        let value = initialValue
+        // Returned function is a reactive accessor wrapper for TanStack Table atoms.
+        return Object.assign(() => value, {
+          get: () => value,
+          set: (updater: T | ((prev: T) => T)) => {
+            value = typeof updater === 'function' ? (updater as (prev: T) => T)(value) : updater
+          },
+          subscribe: () => ({ unsubscribe: () => {} }),
+        })
+      }
       type Value = Exclude<T, (...args: Array<never>) => unknown>
       const signalOptions = {
         equals: options?.compare,
