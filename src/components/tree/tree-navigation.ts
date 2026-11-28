@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo, createSignal, onCleanup, untrack } from 'solid-js'
+import { createMemo, createProjection, createSignal, onSettled, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider'
 import { attachEventListenerMap } from '../../shared/event-listener'
@@ -36,6 +36,10 @@ export interface TreeNavigation {
   tabStopKey: Accessor<string | undefined>
   /** Key of the item that currently holds DOM focus. */
   focusedKey: Accessor<string | undefined>
+  /** O(1) reactive check for whether `key` is the current tab stop. */
+  isTabStop: (key: string) => boolean
+  /** O(1) reactive check for whether `key` is currently focused. */
+  isFocused: (key: string) => boolean
   focus: (key: string, options?: { dom?: boolean }) => void
   onKeyDown: (event: KeyboardEvent, key: string) => void
   registerElement: (key: string, element: HTMLElement) => () => void
@@ -82,6 +86,32 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     }
     return hasFocusWithin() || !root ? tabStop : undefined
   })
+
+  let previousTabStop: string | undefined
+  const tabStopMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = tabStopKey()
+    if (previousTabStop !== undefined && previousTabStop !== next) {
+      delete draft[previousTabStop]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousTabStop = next
+  }, {})
+  const isTabStop = (key: string): boolean => tabStopMap[key] === true
+
+  let previousFocused: string | undefined
+  const focusedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = focusedKey()
+    if (previousFocused !== undefined && previousFocused !== next) {
+      delete draft[previousFocused]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousFocused = next
+  }, {})
+  const isFocused = (key: string): boolean => focusedMap[key] === true
 
   function isFocusWithin(): boolean {
     return !!root && root.contains(root.ownerDocument.activeElement)
@@ -280,7 +310,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     },
   })
 
-  onCleanup(() => {
+  onSettled(() => () => {
     removeRootListeners?.()
     removeRootListeners = undefined
     elements.clear()
@@ -290,6 +320,8 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   return {
     tabStopKey,
     focusedKey,
+    isTabStop,
+    isFocused,
     focus,
     onKeyDown,
     registerElement,

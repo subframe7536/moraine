@@ -1,5 +1,3 @@
-import { createMemo } from 'solid-js'
-
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import type { BaseSelectT } from '../../../base-select/base-select.types'
 type SharedBaseSelectForwardProp = keyof Pick<
@@ -139,29 +137,27 @@ export const BASE_SELECT_SHARED_SLOTS = [
   >
 >
 
-/** Maps resolved Select-family popup slots to reactive BaseSelect style props. */
+/** Maps resolved Select-family popup slots to lazy reactive BaseSelect style props. */
 export function createBaseSelectStyleProps(
   slots: Partial<Record<(typeof BASE_SELECT_SHARED_SLOTS)[number], SlotBinding>>,
 ) {
-  const classes = createMemo<BaseSelectT.Classes>(() => {
-    const result: BaseSelectT.Classes = {}
-    for (const name of BASE_SELECT_SHARED_SLOTS) {
-      const slot = slots[name]
-      if (slot) {
-        result[name] = slot.class
-      }
+  const classesObj: BaseSelectT.Classes = {}
+  const stylesObj: BaseSelectT.Styles = {}
+  for (const name of BASE_SELECT_SHARED_SLOTS) {
+    const slot = slots[name]
+    if (slot) {
+      Object.defineProperty(classesObj, name, {
+        enumerable: true,
+        get: () => slot.class,
+      })
+      Object.defineProperty(stylesObj, name, {
+        enumerable: true,
+        get: () => slot.style,
+      })
     }
-    return result
-  })
-  const styles = createMemo<BaseSelectT.Styles>(() => {
-    const result: BaseSelectT.Styles = {}
-    for (const name of BASE_SELECT_SHARED_SLOTS) {
-      const slot = slots[name]
-      if (slot) {
-        result[name] = slot.style
-      }
-    }
-    return result
-  })
-  return { classes, styles }
+  }
+  return {
+    classes: () => classesObj,
+    styles: () => stylesObj,
+  }
 }

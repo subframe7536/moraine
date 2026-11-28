@@ -300,7 +300,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         tabindex={
           props.item.disabled
             ? undefined
-            : context.state.navigation.tabStopKey() === props.item.key
+            : context.state.navigation.isTabStop(props.item.key)
               ? 0
               : -1
         }

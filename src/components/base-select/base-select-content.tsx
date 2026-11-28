@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { Portal } from '@solidjs/web'
-import { createEffect, createSignal, Show, omit, createRenderEffect } from 'solid-js'
+import { createEffect, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createTransitionPresence } from '../../shared/transition-presence'
@@ -63,7 +63,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
   const [content, setContent] = createSignal<HTMLDivElement>()
   const [positioner, setPositioner] = createSignal<HTMLDivElement>()
   const [side, setSide] = createSignal('bottom')
-  createRenderEffect(content, (node) => {
+  createEffect(content, (node) => {
     if (!node) {
       return
     }

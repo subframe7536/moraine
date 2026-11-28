@@ -86,7 +86,7 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
     return this.state.isLoading(this.key)
   }
   get focused(): boolean {
-    return this.state.navigation.focusedKey() === this.key
+    return this.state.navigation.isFocused(this.key)
   }
   get checkedState(): TreeT.CheckedState {
     return this.state.getCheckedState(this.key)
@@ -155,7 +155,21 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   })
 
   const isDisabled = (key: string): boolean => Boolean(state.registry().nodes.get(key)?.disabled)
-  const loadingSet = createMemo(() => new Set(loadingKeys()))
+  let previousLoadingKeys = new Set<string>()
+  const loadingMap = createProjection<Record<string, boolean>>((draft) => {
+    const nextKeys = new Set(loadingKeys())
+    for (const key of nextKeys) {
+      if (!previousLoadingKeys.has(key)) {
+        draft[key] = true
+      }
+    }
+    for (const key of previousLoadingKeys) {
+      if (!nextKeys.has(key)) {
+        delete draft[key]
+      }
+    }
+    previousLoadingKeys = nextKeys
+  }, {})
 
   async function runLoad(
     key: string,
@@ -564,7 +578,10 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     }
   }
 
-  const rootItems = createMemo(() => registry().rootKeys.flatMap((key) => getItem(key) ?? []))
+  const rootItems = createMemo(() => registry().rootKeys.flatMap((key) => getItem(key) ?? []), {
+    equals: (prev, next) =>
+      prev.length === next.length && prev.every((item, index) => item === next[index]),
+  })
   const flattenedItems = createMemo(() => flattenedKeys().flatMap((key) => getItem(key) ?? []))
 
   const state: TreeState<T> = {
@@ -619,7 +636,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       }
     },
     getItem,
-    isLoading: (key) => loadingSet().has(key),
+    isLoading: (key) => loadingMap[key] === true,
   }
 
   return state

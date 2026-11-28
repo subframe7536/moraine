@@ -135,7 +135,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     },
     defaultValue: () => initial,
   })
-  const value = createMemo(() => normalize(selection()))
+  const value = createMemo(() => normalize(selection()), { equals: selectionEqual })
   const selectedValues = createMemo(() => new Set(value()))
   const itemDisabled = (item: T) => {
     const canonical = getCanonicalItem(item.value) ?? item
@@ -146,7 +146,6 @@ export function createSelectState<T extends BaseSelectT.Item>(
     defaultValue: () => props.defaultOpen ?? false,
     onChange: (next) => props.onOpenChange?.(next),
   })
-  const [highlightedValue, setHighlightedValue] = createSignal<T['value']>()
   const [anchor, setAnchor] = createSignal<HTMLElement>()
   const [focusOwner, setFocusOwner] = createSignal<HTMLElement>()
   createEffect(focusOwner, (element) => {
@@ -237,6 +236,18 @@ export function createSelectState<T extends BaseSelectT.Item>(
     })
     return { items: enabledItems, indexByValue }
   })
+  const [highlightedValue, setHighlightedValue] = createSignal<T['value'] | undefined>(
+    (previous) => {
+      const isOpen = open()
+      const nav = navigation()
+      const selected = selectedValues()
+      if (!isOpen || (previous !== undefined && nav.indexByValue.has(previous))) {
+        return previous
+      }
+      const next = nav.items.find((item) => selected.has(item.value)) ?? nav.items[0]
+      return next?.value
+    },
+  )
   const highlightedIndex = () => {
     const current = highlightedValue()
     return current === undefined ? -1 : (navigation().indexByValue.get(current) ?? -1)
@@ -275,17 +286,6 @@ export function createSelectState<T extends BaseSelectT.Item>(
     previousSelectedKeys = nextKeys
   }, {})
   const isSelected = (value: T['value']): boolean => selectedMap[toValueKey(value)] === true
-  createEffect(
-    () => [open(), navigation(), selectedValues()] as const,
-    ([isOpen, nav, selected]) => {
-      const current = untrack(highlightedValue)
-      if (!isOpen || (current !== undefined && nav.indexByValue.has(current))) {
-        return
-      }
-      const next = nav.items.find((item) => selected.has(item.value)) ?? nav.items[0]
-      setHighlightedValue(next?.value)
-    },
-  )
   const typeahead = createTypeahead({
     getItems: items,
     getStartIndex: () =>
@@ -435,11 +435,15 @@ export function createSelectState<T extends BaseSelectT.Item>(
   function discardComposition() {
     compositionDiscarder?.()
   }
-  createEffect(value, (current, previous) => {
-    if (previous !== undefined && !selectionEqual(current, previous)) {
-      discardComposition()
-    }
-  })
+  createEffect(
+    value,
+    (current, previous) => {
+      if (previous !== undefined && !selectionEqual(current, previous)) {
+        discardComposition()
+      }
+    },
+    { defer: true },
+  )
   /** Form string of a value; `undefined` omits it from the submission. */
   function serialize(selected: T['value']): string | undefined {
     if (props.serializeValue) {
@@ -459,7 +463,10 @@ export function createSelectState<T extends BaseSelectT.Item>(
   }
   const hasSelection = () => value().length > 0
   const primarySerializedValue = () => serialized()[0] ?? ''
-  const secondarySerializedValues = createMemo(() => serialized().slice(1))
+  const secondarySerializedValues = createMemo(() => serialized().slice(1), {
+    equals: (prev, next) =>
+      prev.length === next.length && prev.every((item, index) => item === next[index]),
+  })
 
   useFormReset(
     () => formInput?.form,

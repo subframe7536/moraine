@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup, untrack, omit, createRenderEffect } from 'solid-js'
+import { createEffect, createSignal, untrack, omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -60,16 +60,16 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
             }
           : undefined,
       )
+      return () => {
+        state.navigation.registerScroller(undefined)
+      }
     },
   )
-  createRenderEffect(scrollElement, (element) => {
+  createEffect(scrollElement, (element) => {
     if (!element) {
       return
     }
     return state.navigation.registerRoot(element)
-  })
-  onCleanup(() => {
-    state.navigation.registerScroller(undefined)
   })
 
   function RenderItem(itemProps: TreeItemContext): JSX.Element {

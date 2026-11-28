@@ -6,7 +6,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
+  onSettled,
   omit,
   createProjection,
 } from 'solid-js'
@@ -296,7 +296,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     applySearchValue(value)
   }
 
-  onCleanup(() => {
+  onSettled(() => () => {
     composition.dispose()
   })
 

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup, createRenderEffect } from 'solid-js'
+import { createEffect, createSignal, onSettled } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { createKeyDownHandler } from '../../shared/keyboard'
@@ -45,9 +45,9 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
   const isComposing = () => compositionDraft() !== undefined
   const displayValue = () => options.displayValue?.() ?? options.searchValue()
   const enabled = () => options.enabled?.() ?? true
-  onCleanup(() => composition.dispose())
+  onSettled(() => () => composition.dispose())
   const [input, setInput] = createSignal<HTMLInputElement>()
-  createRenderEffect(input, (node) => {
+  createEffect(input, (node) => {
     if (!node) {
       return
     }
@@ -67,11 +67,15 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
   }
 
   state.registerCompositionDiscarder(discardComposition)
-  createEffect(options.searchValue, (current, previous) => {
-    if (previous !== undefined && current !== previous) {
-      discardComposition()
-    }
-  })
+  createEffect(
+    options.searchValue,
+    (current, previous) => {
+      if (previous !== undefined && current !== previous) {
+        discardComposition()
+      }
+    },
+    { defer: true },
+  )
 
   const inputProps = {
     get id() {
