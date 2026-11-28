@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Show, merge, onCleanup, omit } from 'solid-js'
+import { Show, merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
@@ -31,7 +31,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   const rest = omit(props, 'children', 'class', 'style')
   let hasPreventedPointerAttempt = false
   let resetTimeout: ReturnType<typeof setTimeout> | undefined
-  onCleanup(() => clearTimeout(resetTimeout))
+  onSettled(() => () => clearTimeout(resetTimeout))
   const behavior = usePopoverContext()
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
     onFocus: () => {

@@ -1,6 +1,6 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
+import { createEffect, createSignal, onSettled, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { attachEventListener } from '../../shared/event-listener'
@@ -151,7 +151,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   let dismissedByPress = false
   let ignoreNextFocusAfterWindowBlur = false
 
-  onCleanup(() => {
+  onSettled(() => () => {
     ownerAlive = false
     invalidateTimers()
     if (activeDocument) {

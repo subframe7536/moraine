@@ -8,7 +8,6 @@ import {
   createMemo,
   createSignal,
   merge,
-  createRenderEffect,
   untrack,
 } from 'solid-js'
 
@@ -114,7 +113,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     },
   )
 
-  createRenderEffect(positionerElement, (positioner) => {
+  createEffect(positionerElement, (positioner) => {
     if (!positioner) {
       return
     }
@@ -139,7 +138,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     },
   )
 
-  createRenderEffect(layer.contentElement, (content) => {
+  createEffect(layer.contentElement, (content) => {
     if (!content) {
       return
     }

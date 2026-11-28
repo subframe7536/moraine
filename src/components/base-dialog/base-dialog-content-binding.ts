@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createSignal, createRenderEffect } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { callRef, publishElement } from '../../shared/utils'
@@ -21,7 +21,7 @@ export function createBaseDialogContentBinding(
   options: BaseDialogContentBindingOptions = {},
 ) {
   const [element, setElement] = createSignal<HTMLDivElement>()
-  createRenderEffect(element, (current) => {
+  createEffect(element, (current) => {
     if (!current) {
       return
     }

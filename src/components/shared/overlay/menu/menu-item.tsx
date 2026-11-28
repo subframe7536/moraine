@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import type { ClassValue } from 'cn'
 import type { Accessor, Component } from 'solid-js'
-import { Show, createSignal, onFlush, onSettled, createRenderEffect } from 'solid-js'
+import { Show, createEffect, createSignal, onFlush, onSettled } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
@@ -147,7 +147,7 @@ export function bindSelectableItemHandlers(
   element: Accessor<HTMLDivElement | undefined>,
   handlers: ReturnType<typeof createSelectableItemHandlers>,
 ): void {
-  createRenderEffect(element, (current) => {
+  createEffect(element, (current) => {
     if (!current) {
       return
     }

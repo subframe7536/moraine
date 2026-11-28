@@ -2,15 +2,7 @@ import type { Placement } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import { Portal, dynamic } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  untrack,
-  omit,
-  createRenderEffect,
-} from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, untrack, omit } from 'solid-js'
 
 import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
@@ -268,8 +260,14 @@ export function PopperContent(
   )
   const { contentId, contentElement, setContentElement, triggerElement, contentPresence, setOpen } =
     context
-  const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
-  const [positionerPositioned, setPositionerPositioned] = createSignal(false)
+  const contentMounted = () =>
+    contentPresence.present() || (options.forceMount && !context.options.disabled)
+  const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
+    (previous) => (contentMounted() ? previous : undefined),
+  )
+  const [positionerPositioned, setPositionerPositioned] = createSignal<boolean>((previous) =>
+    contentMounted() ? (previous ?? false) : false,
+  )
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>(() =>
     resolveFloatingPlacement(options.placement, options.align),
   )
@@ -278,8 +276,6 @@ export function PopperContent(
   createEffect(triggerElement, (trigger) => {
     setPortalMount(trigger?.ownerDocument.body)
   })
-  const contentMounted = () =>
-    contentPresence.present() || (options.forceMount && !context.options.disabled)
   let restoreFocusAfterClose = true
 
   createEffect(context.isOpen, (open) => {
@@ -288,8 +284,10 @@ export function PopperContent(
     }
   })
 
-  const [content, setContent] = createSignal<HTMLDivElement>()
-  createRenderEffect(content, (element) => {
+  const [content, setContent] = createSignal<HTMLDivElement | undefined>((previous) =>
+    contentMounted() ? previous : undefined,
+  )
+  createEffect(content, (element) => {
     if (!element) {
       return
     }
@@ -298,14 +296,6 @@ export function PopperContent(
     return () => {
       release()
       unpublish()
-    }
-  })
-
-  createEffect(contentMounted, (mounted) => {
-    if (!mounted) {
-      setContent(undefined)
-      setPositionerElement(undefined)
-      setPositionerPositioned(false)
     }
   })
 

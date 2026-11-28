@@ -1,14 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  merge,
-  omit,
-  createRenderEffect,
-} from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -116,7 +108,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   function RenderDialogOverlay(): JSX.Element {
     const [overlay, setOverlay] = createSignal<HTMLDivElement>()
     // Only the backdrop element animates as part of the presence; a plain wrapper does not.
-    createRenderEffect(
+    createEffect(
       () => (isOverlay() ? overlay() : undefined),
       (node) => {
         if (!node) {

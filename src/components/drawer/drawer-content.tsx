@@ -1,15 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  merge,
-  onCleanup,
-  omit,
-  createRenderEffect,
-} from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -141,7 +132,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
   function RenderDrawerOverlay(): JSX.Element {
     const [overlay, setOverlay] = createSignal<HTMLDivElement>()
     // The backdrop must be a sibling: its swipe opacity would fade the content too.
-    createRenderEffect(
+    createEffect(
       () => (isOverlay() ? overlay() : undefined),
       (node) => {
         if (!node) {
@@ -161,7 +152,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
     // The gesture binds in this owner and releases with the content.
-    createRenderEffect(family.contentElement, (element) => {
+    createEffect(family.contentElement, (element) => {
       if (!element) {
         return
       }
@@ -199,7 +190,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
           parent.reportSwipe(isOpen && swiping, isOpen ? progress : 0)
         },
       )
-      onCleanup(() => {
+      onSettled(() => () => {
         parent.release(drawer.nested)
         parent.reportSwipe(false, 0)
       })

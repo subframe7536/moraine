@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, merge, onCleanup, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, merge, onSettled, untrack } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { attachEventListenerMap } from '../../shared/event-listener'
@@ -202,7 +202,7 @@ export function createContextMenu(props: ContextMenuProps) {
     }, CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY)
   }
 
-  onCleanup(() => {
+  onSettled(() => () => {
     clearLongPressTimeout()
     pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
     suppressionWindow?.clearTimeout(suppressionTimeoutId)
@@ -434,8 +434,14 @@ export function createContextMenu(props: ContextMenuProps) {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
-  const triggerAccessibility = createMemo(() =>
-    getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)),
+  const triggerAccessibility = createMemo(
+    () => getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)),
+    {
+      equals: (prev, next) =>
+        prev.ariaDisabled === next.ariaDisabled &&
+        prev.disabled === next.disabled &&
+        prev.tabIndex === next.tabIndex,
+    },
   )
 
   const triggerDataAttrs = contextMenuDataAttributes.trigger({

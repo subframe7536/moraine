@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, omit, createRenderEffect } from 'solid-js'
+import { createEffect, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { callRef } from '../../shared/utils'
@@ -45,7 +45,7 @@ export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element 
   })
 
   const [element, setElement] = createSignal<HTMLDivElement>()
-  createRenderEffect(element, (node) => {
+  createEffect(element, (node) => {
     if (!node) {
       return
     }
