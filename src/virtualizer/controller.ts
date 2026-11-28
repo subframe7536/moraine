@@ -7,11 +7,10 @@ import {
 import type { Range as VirtualRange, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
 import type { Accessor } from 'solid-js'
 import {
-  createRenderEffect,
+  createEffect,
   createSignal,
   createStore,
   flush,
-  getOwner,
   onCleanup,
   onSettled,
   reconcile,
@@ -173,17 +172,8 @@ export function createVirtualizerController<
         setTotalSize(source.getTotalSize())
       }
       const sync = (source: Virtualizer<TScrollElement, TItemElement>): void => {
-        // Store writes throw inside owned scopes; defer those to an unowned
-        // microtask. Unowned callers (scroll listeners, microtasks) flush
-        // their staged writes immediately.
-        if (getOwner() !== null) {
-          queueMicrotask(() => {
-            if (attachedActive) {
-              flush(() => publish(source))
-            }
-          })
-        } else {
-          flush(() => publish(source))
+        if (attachedActive) {
+          publish(source)
         }
       }
       let currentKeys: Array<VirtualItem['key']> = []
@@ -234,7 +224,7 @@ export function createVirtualizerController<
         }
       }
 
-      createRenderEffect(
+      createEffect(
         () => {
           const entries = adapterProps.entries()
           const getItemKey = options.getItemKey
@@ -297,13 +287,7 @@ export function createVirtualizerController<
           } finally {
             applyingOptions = false
           }
-          // The first run executes during creation (an owned scope, where `sync` defers); later
-          // runs are effect callbacks whose writes join the running flush.
-          if (getOwner() === null) {
-            publish(virtualizer)
-          } else {
-            sync(virtualizer)
-          }
+          publish(virtualizer)
         },
       )
 
@@ -315,7 +299,6 @@ export function createVirtualizerController<
           if (!active) {
             return
           }
-          // Signal writes outside an owned scope need an explicit flush.
           flush(() => {
             setInstance(virtualizer)
             setMounted(true)
@@ -326,9 +309,7 @@ export function createVirtualizerController<
           if (request) {
             virtualizer.scrollToIndex(...request)
           }
-          // The mount flush re-attached the virtualizer; publish its items
-          // from this unowned frame instead of deferring another microtask.
-          sync(virtualizer)
+          flush(() => publish(virtualizer))
         })
 
         return () => {

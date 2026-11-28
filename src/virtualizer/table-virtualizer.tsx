@@ -6,7 +6,6 @@ import {
   createMemo,
   createSignal,
   flush,
-  getOwner,
   merge,
   onCleanup,
   onSettled,
@@ -378,9 +377,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
             ? undefined
             : new ResizeObserver(() => {
                 measureSections(table, scroll)
-                if (getOwner() === null) {
-                  flush()
-                }
               })
         // Sections can be replaced, so re-observe them whenever the table's children change.
         const observeSections = (mutationObserver: MutationObserver) => {
@@ -396,12 +392,8 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
           if (records.some((record) => record.target === table)) {
             observeSections(observer)
           }
-          // Observer callbacks run unowned; commit the measured sections
-          // before `syncAria` reads them.
           measureSections(table, scroll)
-          if (getOwner() === null) {
-            flush()
-          }
+          flush()
           syncAria(table, ariaCounts())
         })
         mutationObserver.observe(table, { childList: true })

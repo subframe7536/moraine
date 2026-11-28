@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import type { VirtualItem, Virtualizer } from '@tanstack/virtual-core'
 import type { Accessor } from 'solid-js'
-import { For, Show, createMemo, onCleanup } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal } from 'solid-js'
 export interface VirtualRowEntry<TItem> {
   readonly index: number
   readonly item: TItem
@@ -34,23 +34,28 @@ export function createVirtualRow<TItem>(
   return row
 }
 
-/** Registers row unmeasurement on cleanup and returns a deferred measurement ref. */
+/** Registers row measurement and unmeasurement tied to the row's reactive lifecycle. */
 export function attachRowMeasurement<
   TScrollElement extends HTMLElement,
   TItemElement extends HTMLElement,
 >(virtualizer: Virtualizer<TScrollElement, TItemElement>): (element: TItemElement) => void {
-  onCleanup(() => {
-    queueMicrotask(() => virtualizer.measureElement(null))
-  })
-  return (element: TItemElement) => {
-    // Solid invokes spread refs before all following attributes are applied.
-    // Defer measurement so data attributes, styles, and children affect its size.
+  const [element, setElement] = createSignal<TItemElement>()
+  createEffect(element, (node) => {
+    if (!node) {
+      return
+    }
+    let active = true
     queueMicrotask(() => {
-      if (element.isConnected) {
-        virtualizer.measureElement(element)
+      if (active && node.isConnected) {
+        virtualizer.measureElement(node)
       }
     })
-  }
+    return () => {
+      active = false
+      queueMicrotask(() => virtualizer.measureElement(null))
+    }
+  })
+  return setElement
 }
 
 /**
@@ -69,8 +74,6 @@ export function VirtualRows<TItem, TItemElement extends HTMLElement, TRowProps>(
     measure: (element: TItemElement) => void,
   ) => TRowProps
 }): JSX.Element {
-  const renderRow = createMemo(() => props.render)
-
   return (
     <For each={props.virtualItems}>
       {(virtualItem) => {
@@ -82,7 +85,7 @@ export function VirtualRows<TItem, TItemElement extends HTMLElement, TRowProps>(
               const measure = attachRowMeasurement(props.virtualizer)
               const rowProps = props.rowProps(current, virtualItem, measure)
               // Rendered in a tracked expression so a new `render` function re-renders the row.
-              return <>{renderRow()(current.item, current.index, rowProps)}</>
+              return <>{props.render(current.item, current.index, rowProps)}</>
             }}
           </Show>
         )
