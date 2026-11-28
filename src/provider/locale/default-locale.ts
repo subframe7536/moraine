@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onSettled } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { attachEventListener } from '../../shared/event-listener'
@@ -24,7 +24,7 @@ function readBrowserLocale(): string {
  * follows `navigator.language` and `languagechange` while `enabled` is true.
  */
 export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<string> {
-  const [detected, setDetected] = createSignal(FALLBACK_LOCALE)
+  const [browserLocale, setBrowserLocale] = createSignal(FALLBACK_LOCALE)
   const [ready, setReady] = createSignal(false)
 
   onSettled(() => {
@@ -40,17 +40,13 @@ export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<strin
   })
 
   const apply = (): void => {
-    setDetected(readBrowserLocale())
+    setBrowserLocale(readBrowserLocale())
   }
 
   createEffect(
-    () => (enabled() ? (ready() ? 2 : 1) : 0),
-    (state) => {
-      if (state === 0) {
-        setDetected(FALLBACK_LOCALE)
-        return
-      }
-      if (state === 1 || typeof window === 'undefined') {
+    () => enabled() && ready(),
+    (active) => {
+      if (!active || typeof window === 'undefined') {
         return
       }
 
@@ -59,5 +55,5 @@ export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<strin
     },
   )
 
-  return detected
+  return createMemo(() => (enabled() && ready() ? browserLocale() : FALLBACK_LOCALE))
 }

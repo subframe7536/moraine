@@ -271,7 +271,7 @@ describe('avatar', () => {
     expect(firstCallback.mock.calls.map(([status]) => status)).toEqual(['loading'])
 
     flush(() => setCallback(() => secondCallback))
-    image.dispatchEvent(new Event('load'))
+    flush(() => image.dispatchEvent(new Event('load')))
 
     expect(image.getAttribute('src')).toBe('/pending.png')
     expect(firstCallback.mock.calls.map(([status]) => status)).toEqual(['loading'])

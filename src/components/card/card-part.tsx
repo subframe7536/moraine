@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { untrack, omit } from 'solid-js'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -49,24 +49,4 @@ export function createCardPart<S extends CardPartSlot>(slot: S, fallback: ValidC
 
     return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
   }
-}
-
-export function CardPart(
-  props: CardPartProps & { slot: CardPartSlot; fallback: ValidComponent },
-): JSX.Element {
-  const rest = omit(props, 'slot', 'fallback', 'as', 'class', 'style')
-  const context = useCardContext()
-  const slot = untrack(() => props.slot)
-  const {
-    slots: { [slot]: partSlot },
-  } = useRecipe(cardRecipe, props, {
-    slot,
-    context: () => ({
-      variants: { variant: context.variant, size: context.size },
-      ...context.slotOverrides,
-    }),
-  })
-  const Root = dynamic<ValidComponent>(() => props.as ?? props.fallback)
-
-  return <Root data-slot={`card-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
 }

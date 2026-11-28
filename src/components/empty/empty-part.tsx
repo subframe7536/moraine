@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { untrack, omit } from 'solid-js'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -49,21 +49,4 @@ export function createEmptyPart<S extends EmptyPartSlot>(
 
     return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
   }
-}
-
-export function EmptyPart(
-  props: EmptyPartProps & { slot: EmptyPartSlot; fallback: ValidComponent },
-): JSX.Element {
-  const rest = omit(props, 'slot', 'fallback', 'as', 'class', 'style')
-  const context = useEmptyContext()
-  const slot = untrack(() => props.slot)
-  const {
-    slots: { [slot]: partSlot },
-  } = useRecipe(emptyRecipe, props, {
-    slot,
-    context: () => ({ variants: { size: context.size }, ...context.slotOverrides }),
-  })
-  const Root = dynamic<ValidComponent>(() => props.as ?? props.fallback)
-
-  return <Root data-slot={`empty-${slot}`} {...partSlot} {...(rest as Record<string, unknown>)} />
 }

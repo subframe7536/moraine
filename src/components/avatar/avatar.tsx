@@ -77,63 +77,29 @@ export function Avatar(props: AvatarProps): JSX.Element {
   })
 
   const source = createMemo(() => props.src?.trim() || undefined)
-  const icon = createMemo(() => props.icon)
-  const badge = createMemo(() => props.badge)
   const fallbackText = createMemo(() => resolveFallbackText(props.text, props.alt))
   const fallbackAccessibleLabel = createMemo(
     () => props.alt?.trim() || props.text?.trim() || undefined,
   )
-  const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
-  const [status, setStatusSignal] = createSignal<AvatarT.Status>(() =>
-    source() ? 'loading' : 'error',
-  )
+  const rootAriaLabel = () => (rest as JSX.AriaAttributes)['aria-label']
+  const [status, setStatus] = createSignal<AvatarT.Status>(() => (source() ? 'loading' : 'error'))
   let imageElement: HTMLImageElement | undefined
   let disposed = false
   onSettled(() => () => {
     disposed = true
   })
 
-  let currentStatus: AvatarT.Status | undefined
-
-  function updateStatus(nextStatus: AvatarT.Status): void {
-    if (currentStatus === nextStatus) {
-      return
-    }
-
-    currentStatus = nextStatus
-    setStatusSignal(nextStatus)
+  createEffect(status, (nextStatus) => {
     untrack(() => props.onStatusChange)?.(nextStatus)
-  }
-
-  // Image load/error listeners and microtasks run unowned; settle the write.
-  function setStatus(nextStatus: AvatarT.Status): void {
-    updateStatus(nextStatus)
-  }
+  })
 
   createEffect(source, (currentSource) => {
-    let cancelled = false
-
-    const cancel = () => {
-      cancelled = true
-    }
-
-    const nextStatus: AvatarT.Status = currentSource ? 'loading' : 'error'
-    if (currentStatus !== nextStatus) {
-      currentStatus = nextStatus
-      untrack(() => props.onStatusChange)?.(nextStatus)
-    }
-
     if (!currentSource) {
-      return cancel
+      return
     }
-
-    queueMicrotask(() => {
-      if (cancelled || !imageElement?.complete) {
-        return
-      }
+    if (imageElement?.complete) {
       setStatus(imageElement.naturalWidth > 0 ? 'loaded' : 'error')
-    })
-    return cancel
+    }
   })
 
   return (
@@ -179,14 +145,14 @@ export function Avatar(props: AvatarProps): JSX.Element {
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
       >
-        <Show when={icon()} fallback={fallbackText()}>
+        <Show when={props.icon} fallback={fallbackText()}>
           {(fallbackIcon) => (
             <Icon name={fallbackIcon()} data-slot="avatar-fallback-icon" {...fallbackIconSlot} />
           )}
         </Show>
       </span>
 
-      <Show when={badge()}>
+      <Show when={props.badge}>
         {(badge) => (
           <span data-slot="avatar-badge" {...badgeSlot}>
             <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />
