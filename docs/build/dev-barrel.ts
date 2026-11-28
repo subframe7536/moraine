@@ -108,6 +108,11 @@ function isBarrelSource(
   return resolved === srcDir || resolved === path.join(srcDir, 'index') || resolved === srcIndexFile
 }
 
+const DEV_BARREL_ID_INCLUDE =
+  /[\\/]docs[\\/](?:routes|pages)[\\/].*\.(?:js|jsx|ts|tsx|mdx|md)(?:\?|$)/
+const DEV_BARREL_ID_EXCLUDE = [/\.test\.[jt]sx?(?:\?|$)/, /\?preview-source(?:&|$)/]
+const DEV_BARREL_CODE_FILTER = /moraine|[\\/]src/
+
 export function docsDevBarrelPlugin(options: DocsDevBarrelPluginOptions): Plugin {
   const docsRoutesDir = path.normalize(path.join(options.projectRoot, 'docs/routes'))
   const docsPagesDir = path.normalize(path.join(options.projectRoot, 'docs/pages'))
@@ -123,101 +128,112 @@ export function docsDevBarrelPlugin(options: DocsDevBarrelPluginOptions): Plugin
   return {
     name: 'moraine-docs-dev-barrel',
     apply: 'serve',
-    transform(code, id) {
-      const cleanId = id.split('?')[0]
-      if (
-        !cleanId ||
-        (!cleanId.startsWith(`${docsRoutesDir}/`) && !cleanId.startsWith(`${docsPagesDir}/`))
-      ) {
-        return null
-      }
-      if (
-        cleanId.endsWith('.test.ts') ||
-        cleanId.endsWith('.test.tsx') ||
-        id.includes('?preview-source')
-      ) {
-        return null
-      }
-      if (!code.includes('moraine') && !code.includes('/src')) {
-        return null
-      }
-      const ext = path.extname(cleanId)
-      if (!['.js', '.jsx', '.ts', '.tsx', '.mdx', '.md'].includes(ext)) {
-        return null
-      }
-
-      const parsed = parseSync(cleanId, code, {
-        lang: ext === '.tsx' || ext === '.jsx' || ext === '.mdx' ? 'tsx' : 'ts',
-      })
-      const exportMap = getBindings()
-      let ms: MagicString | null = null
-
-      for (const node of parsed.program.body) {
-        if (node.type !== 'ImportDeclaration' || node.importKind === 'type') {
-          continue
-        }
-        const sourceValue = node.source.value
-        if (!isBarrelSource(sourceValue, cleanId, srcDir, srcIndexFile)) {
-          continue
+    transform: {
+      filter: {
+        id: {
+          include: DEV_BARREL_ID_INCLUDE,
+          exclude: DEV_BARREL_ID_EXCLUDE,
+        },
+        code: DEV_BARREL_CODE_FILTER,
+      },
+      handler(code, id) {
+        const cleanId = id.split('?')[0]
+        if (
+          !cleanId ||
+          (!cleanId.startsWith(`${docsRoutesDir}/`) && !cleanId.startsWith(`${docsPagesDir}/`))
+        ) {
+          return null
         }
         if (
-          node.specifiers.length === 0 ||
-          node.specifiers.some((spec) => spec.type !== 'ImportSpecifier')
+          cleanId.endsWith('.test.ts') ||
+          cleanId.endsWith('.test.tsx') ||
+          id.includes('?preview-source')
         ) {
-          continue
+          return null
+        }
+        if (!code.includes('moraine') && !code.includes('/src')) {
+          return null
+        }
+        const ext = path.extname(cleanId)
+        if (!['.js', '.jsx', '.ts', '.tsx', '.mdx', '.md'].includes(ext)) {
+          return null
         }
 
-        const byTarget = new Map<string, Array<string>>()
-        const fallbackSpecs: Array<string> = []
+        const parsed = parseSync(cleanId, code, {
+          lang: ext === '.tsx' || ext === '.jsx' || ext === '.mdx' ? 'tsx' : 'ts',
+        })
+        const exportMap = getBindings()
+        let ms: MagicString | null = null
 
-        for (const spec of node.specifiers) {
-          if (spec.type !== 'ImportSpecifier' || spec.importKind === 'type') {
+        for (const node of parsed.program.body) {
+          if (node.type !== 'ImportDeclaration' || node.importKind === 'type') {
             continue
           }
-          const importedName =
-            spec.imported.type === 'Identifier' ? spec.imported.name : spec.imported.value
-          const localName = spec.local.name
-          const binding = exportMap.get(importedName)
-          if (!binding) {
-            const alias =
-              importedName === localName ? importedName : `${importedName} as ${localName}`
-            fallbackSpecs.push(alias)
+          const sourceValue = node.source.value
+          if (!isBarrelSource(sourceValue, cleanId, srcDir, srcIndexFile)) {
+            continue
+          }
+          if (
+            node.specifiers.length === 0 ||
+            node.specifiers.some((spec) => spec.type !== 'ImportSpecifier')
+          ) {
             continue
           }
 
-          const specText =
-            binding.exportedName === localName
-              ? localName
-              : `${binding.exportedName} as ${localName}`
-          const list = byTarget.get(binding.target) ?? []
-          list.push(specText)
-          byTarget.set(binding.target, list)
+          const byTarget = new Map<string, Array<string>>()
+          const fallbackSpecs: Array<string> = []
+
+          for (const spec of node.specifiers) {
+            if (spec.type !== 'ImportSpecifier' || spec.importKind === 'type') {
+              continue
+            }
+            const importedName =
+              spec.imported.type === 'Identifier' ? spec.imported.name : spec.imported.value
+            const localName = spec.local.name
+            const binding = exportMap.get(importedName)
+            if (!binding) {
+              const alias =
+                importedName === localName ? importedName : `${importedName} as ${localName}`
+              fallbackSpecs.push(alias)
+              continue
+            }
+
+            const specText =
+              binding.exportedName === localName
+                ? localName
+                : `${binding.exportedName} as ${localName}`
+            const list = byTarget.get(binding.target) ?? []
+            list.push(specText)
+            byTarget.set(binding.target, list)
+          }
+
+          if (byTarget.size === 0) {
+            continue
+          }
+
+          const lines: Array<string> = []
+          for (const [target, specs] of byTarget) {
+            lines.push(`import { ${specs.join(', ')} } from ${JSON.stringify(target)};`)
+          }
+          if (fallbackSpecs.length > 0) {
+            lines.push(
+              `import { ${fallbackSpecs.join(', ')} } from ${JSON.stringify(sourceValue)};`,
+            )
+          }
+
+          ms ??= new MagicString(code)
+          ms.overwrite(node.start, node.end, lines.join('\n'))
         }
 
-        if (byTarget.size === 0) {
-          continue
+        if (!ms) {
+          return null
         }
 
-        const lines: Array<string> = []
-        for (const [target, specs] of byTarget) {
-          lines.push(`import { ${specs.join(', ')} } from ${JSON.stringify(target)};`)
+        return {
+          code: ms.toString(),
+          map: ms.generateMap({ hires: true }),
         }
-        if (fallbackSpecs.length > 0) {
-          lines.push(`import { ${fallbackSpecs.join(', ')} } from ${JSON.stringify(sourceValue)};`)
-        }
-
-        ms ??= new MagicString(code)
-        ms.overwrite(node.start, node.end, lines.join('\n'))
-      }
-
-      if (!ms) {
-        return null
-      }
-
-      return {
-        code: ms.toString(),
-        map: ms.generateMap({ hires: true }),
-      }
+      },
     },
   }
 }
