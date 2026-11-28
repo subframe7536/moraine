@@ -1,19 +1,18 @@
 import { Button, Select } from '@src'
 import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
-
 interface FrameworkItem extends SelectT.Item {
   badge: string
 }
 
-const FRAMEWORKS: FrameworkItem[] = [
+const FRAMEWORKS: Array<FrameworkItem> = [
   { label: 'SolidJS', value: 'solid', badge: 'Reactive' },
   { label: 'Vue.js', value: 'vue', badge: 'Template' },
   { label: 'React', value: 'react', badge: 'Virtual DOM' },
 ]
 
 export function CustomRender() {
-  const [items, setItems] = createSignal<FrameworkItem[]>(FRAMEWORKS)
+  const [items, setItems] = createSignal<Array<FrameworkItem>>(FRAMEWORKS)
 
   return (
     <div class="max-w-xs w-full space-y-3">

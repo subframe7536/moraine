@@ -1,20 +1,19 @@
 import { render } from '@solidjs/testing-library'
-import { createComponent, createSignal, onCleanup } from 'solid-js'
-import { Portal } from 'solid-js/web'
-import { describe, expect, test } from 'vitest'
+import { Portal } from '@solidjs/web'
+import { createComponent, createSignal, flush, onCleanup } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { BaseDialog } from '../components/base-dialog/base-dialog'
 import { Button } from '../components/button/button'
 import { Input } from '../components/input/input'
 import { Sidebar } from '../components/sidebar/sidebar'
+import { cn, createCn } from '../theme/cn'
 import type { Cn, CnConfig } from '../theme/cn'
-import * as cnModule from '../theme/cn'
 import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 
 import { useCn } from './cn-context'
 import { MoraineProvider } from './moraine-provider'
-
 const densityConfig: CnConfig = {
   extend: { classGroups: { density: ['density-roomy', 'density-compact'] } },
 }
@@ -27,7 +26,7 @@ function Probe(props: { id: string }) {
 }
 
 describe('scoped cn', () => {
-  test('uses defaults without a Provider and replaces or restores nested inheritance', () => {
+  it('uses defaults without a Provider and replaces or restores nested inheritance', () => {
     const [outer, setOuter] = createSignal(densityConfig)
     const [inner, setInner] = createSignal<CnConfig>()
     const screen = render(() => (
@@ -49,24 +48,24 @@ describe('scoped cn', () => {
       </>
     ))
     const nested = screen.getByTestId('nested')
-    expect(screen.getByTestId('default').className).toBe(cnModule.cn(classes))
+    expect(screen.getByTestId('default').className).toBe(cn(classes))
     expect(nested.className).toBe('p-4 density-compact')
-    setInner(keepPadding)
+    flush(() => setInner(keepPadding))
     expect(nested.className).toBe(classes)
-    setOuter({})
+    flush(() => setOuter({}))
     expect(nested.className).toBe(classes)
-    setInner(undefined)
-    expect(nested.className).toBe(cnModule.cn(classes))
-    setOuter(densityConfig)
+    flush(() => setInner(undefined))
+    expect(nested.className).toBe(cn(classes))
+    flush(() => setOuter(densityConfig))
     expect(nested.className).toBe('p-4 density-compact')
-    expect(screen.getByTestId('reset').className).toBe(cnModule.cn(classes))
+    expect(screen.getByTestId('reset').className).toBe(cn(classes))
     expect(screen.getByTestId('sibling').className).toBe(classes)
-    expect(cnModule.cn(classes)).toBe('p-4 density-roomy density-compact')
+    expect(cn(classes)).toBe('p-4 density-roomy density-compact')
     screen.unmount()
-    expect(cnModule.cn(classes)).toBe('p-4 density-roomy density-compact')
+    expect(cn(classes)).toBe('p-4 density-roomy density-compact')
   })
 
-  test('keeps captured handles current in events and async continuations', async () => {
+  it('keeps captured handles current in events and async continuations', async () => {
     const [config, setConfig] = createSignal<CnConfig>({})
     let handle!: Cn
     let result: string | undefined
@@ -93,14 +92,14 @@ describe('scoped cn', () => {
     ))
     const original = handle
     screen.getByRole('button').click()
-    setConfig(densityConfig)
+    flush(() => setConfig(densityConfig))
     await pending
     expect(handle).toBe(original)
     expect(result).toBe('p-4 density-compact')
     expect(handle(classes)).toBe(result)
   })
 
-  test('applies live cnConfig and theme changes to nested buttons independently', () => {
+  it('applies live cnConfig and theme changes to nested buttons independently', () => {
     const theme = defineTheme({
       button: {
         base: { root: 'p-2 density-roomy' },
@@ -127,16 +126,16 @@ describe('scoped cn', () => {
     const sibling = screen.getByRole('button', { name: 'Sibling' })
     expect(live.className).toContain('density-roomy density-compact p-6')
     expect(sibling.className).toContain('p-2 density-roomy p-4 density-compact p-6')
-    setConfig({ ...keepPadding, ...densityConfig })
+    flush(() => setConfig({ ...keepPadding, ...densityConfig }))
     expect(live.className).toContain('p-2 p-4 density-compact p-6')
-    setTheme(null)
+    flush(() => setTheme(null))
     expect(live.className).not.toContain('p-6')
-    setTheme(theme)
+    flush(() => setTheme(theme))
     expect(live.className).toContain('p-2 p-4 density-compact p-6')
     expect(screen.getByRole('button', { name: 'Live' })).toBe(live)
   })
 
-  test('preserves JSX ownership, input edits, focus, selection, and open Portal content', () => {
+  it('preserves JSX ownership, input edits, focus, selection, and open Portal content', () => {
     const [config, setConfig] = createSignal<CnConfig>({})
     let cleanups = 0
     function Content() {
@@ -172,7 +171,7 @@ describe('scoped cn', () => {
     input.focus()
     input.value = 'draft'
     input.setSelectionRange(1, 3)
-    setConfig({ ...keepPadding, ...densityConfig })
+    flush(() => setConfig({ ...keepPadding, ...densityConfig }))
     expect(screen.getByRole('textbox')).toBe(input)
     expect(document.querySelector<HTMLElement>('[role=dialog]')!).toBe(surface)
     expect(surface.className).toContain('p-2 p-4')
@@ -189,7 +188,7 @@ describe('scoped cn', () => {
   })
 })
 
-test('keeps independent part merging bound to its own Provider', () => {
+it('keeps independent part merging bound to its own Provider', () => {
   const screen = render(() => (
     <MoraineProvider cnConfig={densityConfig}>
       <Sidebar>
@@ -202,7 +201,7 @@ test('keeps independent part merging bound to its own Provider', () => {
   expect(screen.getByText('Main').className).toContain(classes)
 })
 
-test('preserves recipe merge boundaries with non-transitive conflicts', () => {
+it('preserves recipe merge boundaries with non-transitive conflicts', () => {
   const config: CnConfig = {
     extend: {
       classGroups: { a: ['app-a'], b: ['app-b'], c: ['app-c'] },
@@ -217,5 +216,5 @@ test('preserves recipe merge boundaries with non-transitive conflicts', () => {
     </MoraineProvider>
   ))
   expect(screen.getByRole('button').className).toContain('app-a')
-  expect(cnModule.createCn(config)('app-c app-b app-a')).toBe('app-c app-a')
+  expect(createCn(config)('app-c app-b app-a')).toBe('app-c app-a')
 })

@@ -1,24 +1,17 @@
 import type { Coords } from '@floating-ui/dom'
-import type { Accessor, JSX } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  onMount,
-  mergeProps,
-} from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createEffect, createMemo, createSignal, onFlush, onSettled, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createEventListenerMap } from '../../shared/event-listener'
+import { attachEventListenerMap } from '../../shared/event-listener'
 import type { KeyBindingOptions } from '../../shared/keyboard'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import { createId } from '../../shared/utils'
+import { createId, mergeDefinedProps } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { resolveDirection } from '../shared/overlay/direction'
 import { focusWithoutScrolling, getFocusableElements } from '../shared/overlay/focus'
@@ -34,8 +27,7 @@ import {
   NAVIGATION_MENU_CONTROL_ATTR,
   NAVIGATION_MENU_FOCUS_GUARD_ATTR,
 } from './navigation-menu.recipe'
-import type { NavigationMenuProps, NavigationMenuT } from './navigation-menu.types'
-
+import type { NavigationMenuProps } from './navigation-menu.types'
 export interface NavigationMenuItemContextValue {
   value: Accessor<string>
   disabled: Accessor<boolean>
@@ -43,9 +35,9 @@ export interface NavigationMenuItemContextValue {
   setTrigger: (element: HTMLButtonElement | undefined) => void
   content: Accessor<HTMLDivElement | undefined>
   setContent: (element: HTMLDivElement | undefined) => void
-  contentTrees: Accessor<JSX.Element[]>
+  contentTrees: Accessor<Array<JSX.Element>>
   registerContent: (tree: JSX.Element) => VoidFunction
-  setTriggerOptions: (options: NavigationMenuT.TriggerProps<any> | undefined) => void
+  setTriggerOptions: (options: { disabled?: boolean } | undefined) => void
 }
 
 export const [NavigationMenuItemProvider, useNavigationMenuItemContext] =
@@ -59,7 +51,7 @@ export function createNavigationMenuState(
   orientation: Accessor<Orientation>,
 ) {
   const direction = useLocale().dir
-  const options = mergeProps(
+  const options = mergeDefinedProps(
     {
       openDelay: 50,
       closeDelay: 50,
@@ -73,19 +65,18 @@ export function createNavigationMenuState(
     },
     props,
   )
-  const id = createId(() => options.id, 'navigation-menu')
+  const id = createId(() => options.id as string | undefined, 'navigation-menu')
   const [value, setValue] = createControllableValue<string | null>({
     value: () => options.value,
     defaultValue: () => options.defaultValue ?? null,
     onChange: (next) => options.onValueChange?.(next),
   })
-  const [items, setItems] = createSignal<NavigationMenuItemContextValue[]>([])
-  const [rootElement, setRootElement] = createSignal<HTMLElement>()
-  const [panelElement, setPanelElement] = createSignal<HTMLDivElement>()
-  const [floating, setFloating] =
-    createSignal<
-      Pick<PopperContentContext, 'positionerElement' | 'positioned' | 'currentPlacement'>
-    >()
+  const [items, setItems] = createSignal<Array<NavigationMenuItemContextValue>>([])
+  const [rootElement, setRootElement] = createSignal<HTMLElement | undefined>(undefined)
+  const [panelElement, setPanelElement] = createSignal<HTMLDivElement | undefined>(undefined)
+  const [floating, setFloating] = createSignal<
+    Pick<PopperContentContext, 'positionerElement' | 'positioned' | 'currentPlacement'> | undefined
+  >(undefined)
   const positionerElement = () => floating()?.positionerElement()
   const [mounted, setMounted] = createSignal(false)
   const positioned = () => floating()?.positioned() ?? false
@@ -93,9 +84,11 @@ export function createNavigationMenuState(
   const open = createMemo(() => mounted() && activeItem() !== undefined)
   const activeTrigger = createMemo(() => activeItem()?.trigger())
   const activeContent = createMemo(() => activeItem()?.content())
-  const [reference, setReference] = createSignal<HTMLButtonElement>()
-  const [initialPosition, setInitialPosition] = createSignal<Coords>()
-  const [focusRequest, setFocusRequest] = createSignal<string>()
+  const reference = createMemo<HTMLButtonElement | undefined>(
+    (previous) => activeTrigger() ?? previous,
+  )
+  const [initialPosition, setInitialPosition] = createSignal<Coords | undefined>(undefined)
+  const [focusRequest, setFocusRequest] = createSignal<string | undefined>(undefined)
   const presence = createTransitionPresence({ open })
   const displayedItem = createMemo<NavigationMenuItemContextValue | undefined>(
     (previous) => activeItem() ?? (presence.present() ? previous : undefined),
@@ -134,9 +127,11 @@ export function createNavigationMenuState(
   }
 
   function close(restoreFocus = false): void {
+    // Read the trigger before staging the close: staged writes are invisible to
+    // `open()`, and a missing trigger already makes the focus call a no-op.
     const trigger = activeTrigger()
     changeValue(null)
-    if (restoreFocus && !open()) {
+    if (restoreFocus) {
       focusWithoutScrolling(trigger)
     }
   }
@@ -229,7 +224,7 @@ export function createNavigationMenuState(
       return
     }
     const focusable = getFocusableElements(content)
-    const target = last ? focusable[focusable.length - 1] : focusable[0]
+    const target = last ? focusable.at(-1) : focusable[0]
     focusWithoutScrolling(target ?? content)
     if (target) {
       scrollIntoViewWithin(target, content)
@@ -255,28 +250,31 @@ export function createNavigationMenuState(
     return true
   }
 
-  onMount(() =>
+  onSettled(() => {
     queueMicrotask(() => {
       if (alive) {
         setMounted(true)
       }
-    }),
-  )
-  onCleanup(() => {
-    alive = false
-    cancelTimers()
+    })
+    return () => {
+      alive = false
+      cancelTimers()
+    }
   })
 
+  // The last trigger the panel was anchored to, so switching triggers can start from its position.
+  let anchoredTrigger: HTMLButtonElement | undefined
   createEffect(
-    on(activeTrigger, (trigger, previous) => {
-      if (!trigger) {
+    () => [activeTrigger(), positionerElement(), presence.present()] as const,
+    ([trigger, positioner, present], previous) => {
+      if (!trigger || trigger === previous?.[0]) {
         return
       }
-      const positioner = positionerElement()
-      const previousTrigger = previous ?? reference()
+      const previousTrigger = anchoredTrigger
+      anchoredTrigger = trigger
       if (
         positioner?.style.visibility === 'visible' &&
-        presence.present() &&
+        present &&
         previousTrigger &&
         previousTrigger !== trigger
       ) {
@@ -285,8 +283,7 @@ export function createNavigationMenuState(
       } else {
         setInitialPosition(undefined)
       }
-      setReference(trigger)
-    }),
+    },
   )
 
   const itemSnapshot = () =>
@@ -295,45 +292,48 @@ export function createNavigationMenuState(
       disabled: item.disabled(),
       contentCount: item.contentTrees().length,
     }))
-  // Item changes can invalidate a controlled value; value updates alone do not request a change.
+  // Item changes can invalidate a controlled value; value updates alone do not request a change,
+  // so the value is sampled untracked when the items change instead of being a dependency.
   createEffect(
-    on([mounted, () => options.disabled, itemSnapshot], ([ready, disabled]) => {
+    () => [mounted(), options.disabled, itemSnapshot()],
+    ([ready, disabled]) => {
       if (!ready) {
         return
       }
-      if (value() !== null && !activeItem()) {
+      if (untrack(() => value() !== null && !activeItem())) {
         changeValue(null)
       }
       if (disabled) {
         cancelTimers()
       }
-    }),
+    },
   )
   createEffect(
-    on([focusRequest, activeContent, positioned], ([requested, content, ready]) => {
+    () => [focusRequest(), activeContent(), positioned()],
+    ([requested, content, ready]) => {
       if (requested === undefined || !content || !ready) {
         return
       }
       let cancelled = false
-      // oxlint-disable-next-line subf/solid-reactivity -- Check the latest item after content is committed.
-      queueMicrotask(() => {
+      onFlush(() => {
         if (cancelled || activeItem()?.value() !== requested) {
           return
         }
         focusPanel()
         setFocusRequest(undefined)
       })
-      onCleanup(() => {
+      return () => {
         cancelled = true
-      })
-    }),
+      }
+    },
   )
   createEffect(
-    on([open, rootElement], ([isOpen, root]) => {
+    () => [open(), rootElement()],
+    ([isOpen, root]) => {
       if (!isOpen || !root) {
         return
       }
-      createEventListenerMap(root.ownerDocument, {
+      const detach = attachEventListenerMap(root.ownerDocument, {
         keydown: (event) => {
           if (event.key === 'Tab') {
             backwardsTab = event.shiftKey
@@ -349,8 +349,11 @@ export function createNavigationMenuState(
           scheduleClose()
         },
       })
-      onCleanup(cancelTimers)
-    }),
+      return () => {
+        detach()
+        cancelTimers()
+      }
+    },
   )
 
   return {
@@ -387,14 +390,14 @@ export function createNavigationMenuState(
     },
     setFloating,
     registerItem: (item: NavigationMenuItemContextValue) => {
-      setItems((current) => [...current, item])
-      onCleanup(() =>
-        queueMicrotask(() => {
+      onSettled(() => {
+        setItems((current) => [...current, item])
+        return () => {
           if (alive) {
             setItems((current) => current.filter((candidate) => candidate !== item))
           }
-        }),
-      )
+        }
+      })
     },
   }
 }

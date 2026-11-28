@@ -1,25 +1,24 @@
 import { Button, Stepper } from '@src'
 import { createSignal } from 'solid-js'
+const RELEASE_STEPS = () => [
+  {
+    label: 'Draft',
+    value: 'draft',
+    content: <p class="text-sm text-foreground">Prepare release notes.</p>,
+  },
+  {
+    label: 'Review',
+    value: 'review',
+    content: <p class="text-sm text-foreground">Collect team approvals.</p>,
+  },
+  {
+    label: 'Ship',
+    value: 'ship',
+    content: <p class="text-sm text-foreground">Deploy to production.</p>,
+  },
+]
 
 export function ControlledNonLinear() {
-  const RELEASE_STEPS = () => [
-    {
-      label: 'Draft',
-      value: 'draft',
-      content: <p class="text-sm text-foreground">Prepare release notes.</p>,
-    },
-    {
-      label: 'Review',
-      value: 'review',
-      content: <p class="text-sm text-foreground">Collect team approvals.</p>,
-    },
-    {
-      label: 'Ship',
-      value: 'ship',
-      content: <p class="text-sm text-foreground">Deploy to production.</p>,
-    },
-  ]
-
   const [releaseStep, setReleaseStep] = createSignal('review')
 
   return (

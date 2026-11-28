@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createEffect, createMemo, onFlush, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { PEER_CLASS, VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { Icon } from '../icon'
@@ -15,7 +15,6 @@ import { useFormReset } from '../shared/form/use-form-reset'
 
 import { CHECKBOX_ICON_CLASS, checkboxDataAttributes, checkboxRecipe } from './checkbox.recipe'
 import type { CheckboxProps } from './checkbox.types'
-
 /**
  * Single checkbox control for an independent boolean or mapped choice, with optional `label` and
  * `description`. Use `Switch` for an immediate on/off setting and `CheckboxGroup` when several
@@ -25,7 +24,7 @@ import type { CheckboxProps } from './checkbox.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, omit } from 'solid-js'
  * import { Checkbox } from 'moraine'
  *
  * const [subscribed, setSubscribed] = createSignal(false)
@@ -53,7 +52,8 @@ type CheckboxCoreProps<TTrue, TFalse> = CheckboxProps<TTrue, TFalse> & {
 export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
   props: CheckboxCoreProps<TTrue, TFalse>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'name',
     'disabled',
@@ -82,10 +82,10 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     'onClick',
     'onFocus',
     'onBlur',
-    'tabIndex',
-  ])
+    'tabindex',
+  )
   const themeField = useFieldContext()
-  let indicatorPosition!: () => string | undefined
+  const indicatorPositionRef: { current?: () => string | undefined } = {}
   const {
     slots: {
       root: rootSlot,
@@ -97,7 +97,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
       description: descriptionSlot,
     },
     variants,
-  } = useRecipe(checkboxRecipe, local, {
+  } = useRecipe(checkboxRecipe, props, {
     data: {
       root: checkboxDataAttributes.root(() => ({
         checked: resolvedChecked,
@@ -127,13 +127,13 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     context: () => ({ variants: { size: themeField?.size } }),
     enforced: {
       control: () => ({
-        class: indicatorPosition() === 'hidden' ? VISUALLY_HIDDEN_CLASS : undefined,
+        class: indicatorPositionRef.current?.() === 'hidden' ? VISUALLY_HIDDEN_CLASS : undefined,
       }),
     },
   })
-  indicatorPosition = () => variants.indicatorPosition
+  indicatorPositionRef.current = () => variants.indicatorPosition
 
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       checkedIcon: 'icon-check' as const,
       indeterminateIcon: 'icon-minus' as const,
@@ -141,7 +141,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
     },
 
-    local,
+    props,
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
@@ -154,13 +154,13 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
   const generatedId = createId(() => merged.id, 'checkbox')
   const field = useFormField(merged, {
     get bind() {
-      return local.bound
+      return props.bound
     },
     get defaultId() {
       return generatedId()
     },
     get initialValue() {
-      return local.bound
+      return props.bound
         ? (normalizeFieldValue(
             merged.checked !== undefined ? merged.checked : merged.defaultChecked,
           ) ?? merged.falseValue)
@@ -217,7 +217,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
         return toCheckedState(merged.checked)
       }
 
-      if (local.bound && field.value() !== undefined) {
+      if (props.bound && field.value() !== undefined) {
         return toCheckedState(field.value())
       }
 
@@ -235,14 +235,12 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
   const indeterminate = createMemo<boolean>(() => checked() === 'indeterminate')
 
   createEffect(
-    on(
-      [field.path, () => merged.checked, () => merged.trueValue, () => merged.falseValue],
-      ([, value, trueValue, falseValue]) => {
-        if (local.bound && value !== undefined) {
-          field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))
-        }
-      },
-    ),
+    () => [field.path(), merged.checked, merged.trueValue, merged.falseValue, props.bound] as const,
+    ([, value, trueValue, falseValue, bound]) => {
+      if (bound && value !== undefined) {
+        field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))
+      }
+    },
   )
 
   function handleCheckedChange(nextChecked: boolean): void {
@@ -250,7 +248,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
 
     setChecked(nextChecked)
 
-    if (!local.bound) {
+    if (!props.bound) {
       merged.onCheckedChange?.(nextValue)
       return
     }
@@ -279,14 +277,11 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     return attrs
   }
 
-  createEffect(
-    on([resolvedChecked, indeterminate], ([checked, isIndeterminate]) => {
-      if (inputEl) {
-        inputEl.checked = checked
-        inputEl.indeterminate = isIndeterminate
-      }
-    }),
-  )
+  createEffect(indeterminate, (isIndeterminate) => {
+    if (inputEl) {
+      inputEl.indeterminate = isIndeterminate
+    }
+  })
 
   useFormReset(
     () => inputEl?.form,
@@ -297,7 +292,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
       if (!explicitlyControlled) {
         setChecked(nextChecked)
 
-        if (local.bound) {
+        if (props.bound) {
           field.setFormValue(
             nextChecked === 'indeterminate'
               ? undefined
@@ -308,10 +303,14 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
         }
       }
 
-      if (inputEl) {
-        inputEl.checked = nextChecked === true
-        inputEl.indeterminate = nextChecked === 'indeterminate'
-      }
+      // A form-level restore may round `checked()` back to its current value, in which case
+      // the `checked` property binding never re-applies; sync the DOM after the reset flush.
+      onFlush(() => {
+        if (inputEl) {
+          inputEl.checked = checked() === true
+          inputEl.indeterminate = checked() === 'indeterminate'
+        }
+      })
     },
   )
 
@@ -347,16 +346,16 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
   }
 
   function onControlFocus(event: FocusEvent): void {
-    callHandler(event, local.onFocus)
-    if (local.bound) {
+    callHandler(event, props.onFocus)
+    if (props.bound) {
       field.emit('focus', event)
     }
   }
 
   function onControlBlur(event: FocusEvent): void {
     enterPressed = false
-    callHandler(event, local.onBlur)
-    if (local.bound) {
+    callHandler(event, props.onBlur)
+    if (props.bound) {
       field.emit('blur', event)
     }
   }
@@ -369,7 +368,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
   }
 
   const onRootClick: JSX.EventHandler<HTMLDivElement, MouseEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, local.onClick)
+    const { defaultPrevented } = callHandler(event, props.onClick)
     if (defaultPrevented) {
       return
     }
@@ -398,10 +397,17 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     <div data-slot="checkbox" {...rootSlot} {...rest} onClick={onRootClick}>
       <div data-slot="checkbox-container" {...containerSlot}>
         <HiddenInput
-          ref={(element) => {
-            inputEl = element
-            callRef(local.inputRef, element)
-          }}
+          ref={[
+            (element) => {
+              inputEl = element
+            },
+            (element) => {
+              const ref = untrack(() => props.inputRef)
+              if (typeof ref === 'function') {
+                ref(element)
+              }
+            },
+          ]}
           id={`${field.id()}-input`}
           type="checkbox"
           name={field.name()}
@@ -411,7 +417,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
           required={field.required()}
           disabled={field.disabled()}
           readonly={field.readOnly()}
-          tabIndex={-1}
+          tabindex={-1}
           aria-hidden="true"
           class={PEER_CLASS}
           data-slot="checkbox-input"
@@ -425,8 +431,12 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
             }
 
             handleCheckedChange(event.currentTarget.checked)
-            event.currentTarget.checked = resolvedChecked()
-            event.currentTarget.indeterminate = indeterminate()
+            onFlush(() => {
+              if (inputEl) {
+                inputEl.checked = resolvedChecked()
+                inputEl.indeterminate = indeterminate()
+              }
+            })
           }}
         />
 
@@ -438,9 +448,9 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
           {...controlSlot}
           ref={field.setControlRef}
           id={field.id()}
-          tabIndex={local.tabIndex}
+          tabindex={props.tabindex}
           disabled={field.disabled()}
-          aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
+          aria-checked={indeterminate() ? 'mixed' : resolvedChecked() ? 'true' : 'false'}
           onPointerDown={onPointerDown}
           onClick={onControlClick}
           onKeyDown={onControlKeyDown}

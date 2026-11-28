@@ -37,7 +37,7 @@ interface TransitionPresenceState {
 ## Usage Example
 
 ```tsx title="src/AnimatedDialog.tsx"
-import { Show, createEffect, createSignal, on, onCleanup } from 'solid-js'
+import { Show, createEffect, createSignal } from 'solid-js'
 import { createTransitionPresence } from 'moraine/utils'
 
 export function AnimatedDialog() {
@@ -45,13 +45,11 @@ export function AnimatedDialog() {
   const presence = createTransitionPresence({ open })
   const [panel, setPanel] = createSignal<HTMLDivElement>()
 
-  createEffect(
-    on(panel, (element) => {
-      if (element) {
-        onCleanup(presence.registerElement(element))
-      }
-    }),
-  )
+  createEffect(panel, (element) => {
+    if (element) {
+      return presence.registerElement(element)
+    }
+  })
 
   return (
     <>

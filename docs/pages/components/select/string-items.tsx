@@ -1,7 +1,6 @@
 import { Select } from '@src'
 import type { SelectT } from '@src'
-
-const MIXED_REGIONS: SelectT.Entry[] = [
+const MIXED_REGIONS: Array<SelectT.Entry> = [
   'us-east-1',
   { value: 'eu-west-1', label: 'eu-west-1', description: 'Ireland' },
   {

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal, onCleanup } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush, onCleanup } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-util/overlay-test'
@@ -11,7 +11,6 @@ import { CommandPalette } from '../command-palette'
 import { Sheet } from '../sheet/sheet'
 
 import { Dialog } from './dialog'
-
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
     const value = content.getAttribute(attribute)
@@ -22,8 +21,8 @@ function expectAriaReferencesToResolve(content: Element): void {
   }
 }
 
-describe('Dialog', () => {
-  test('keeps nested Sheet configuration and ARIA registration isolated', () => {
+describe('dialog', () => {
+  it('keeps nested Sheet configuration and ARIA registration isolated', () => {
     const [showSheet, setShowSheet] = createSignal(true)
     render(() => (
       <Dialog open closable={false}>
@@ -50,14 +49,14 @@ describe('Dialog', () => {
       document.body.querySelector('[data-slot="sheet-title"]')?.id,
     )
 
-    setShowSheet(false)
+    flush(() => setShowSheet(false))
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     expect(outer.getAttribute('aria-labelledby')).toBe(
       document.body.querySelector('[data-slot="dialog-title"]')?.id,
     )
   })
 
-  test('releases body slot content when closed and recreates it when reopened', async () => {
+  it('releases body slot content when closed and recreates it when reopened', async () => {
     const [open, setOpen] = createSignal(false)
     let mounts = 0
     let cleanups = 0
@@ -80,26 +79,26 @@ describe('Dialog', () => {
     ))
 
     expect(mounts).toBe(0)
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(mounts).toBe(1)
     })
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     await waitFor(() => {
       expect(cleanups).toBe(1)
       expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
     })
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(mounts).toBe(2)
     })
     screen.unmount()
   })
 
-  test('unmounts content and overlay without waiting for an animation when transition is false', async () => {
+  it('unmounts content and overlay without waiting for an animation when transition is false', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Dialog open={open()} transition={false}>
@@ -115,7 +114,7 @@ describe('Dialog', () => {
       document.body.querySelector('[data-slot="dialog-overlay"]')?.hasAttribute('data-transition'),
     ).toBe(false)
 
-    setOpen(false)
+    flush(() => setOpen(false))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
@@ -124,7 +123,7 @@ describe('Dialog', () => {
     screen.unmount()
   })
 
-  test('keeps content mounted through the exit animation when transition is enabled', async () => {
+  it('keeps content mounted through the exit animation when transition is enabled', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Dialog open={open()}>
@@ -137,7 +136,7 @@ describe('Dialog', () => {
     const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expect(content.hasAttribute('data-transition')).toBe(true)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
     expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
 
@@ -148,7 +147,7 @@ describe('Dialog', () => {
     screen.unmount()
   })
 
-  test('renders a named dialog with title, description, body, footer and close button', () => {
+  it('renders a named dialog with title, description, body, footer and close button', () => {
     render(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
@@ -169,7 +168,7 @@ describe('Dialog', () => {
     expect(screen.getByRole('button', { name: 'Close' })).not.toBeNull()
   })
 
-  test('labels the automatic close button with the translations override', () => {
+  it('labels the automatic close button with the translations override', () => {
     render(() => (
       <Dialog open translations={{ close: 'Fermer' }}>
         <Dialog.Content title="Titre">
@@ -182,7 +181,7 @@ describe('Dialog', () => {
     expect(screen.queryByRole('button', { name: 'Close' })).toBeNull()
   })
 
-  test('renders the trigger content as a native button root', () => {
+  it('renders the trigger content as a native button root', () => {
     render(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
@@ -201,7 +200,7 @@ describe('Dialog', () => {
     expect(trigger?.textContent).toBe('Trigger')
   })
 
-  test('renders a polymorphic trigger root without nesting another button', () => {
+  it('renders a polymorphic trigger root without nesting another button', () => {
     render(() => (
       <Dialog>
         <Dialog.Trigger as="a" href="/details">
@@ -219,7 +218,7 @@ describe('Dialog', () => {
     expect(trigger.querySelector('button')).toBeNull()
   })
 
-  test('renders an existing polymorphic component as the trigger root', () => {
+  it('renders an existing polymorphic component as the trigger root', () => {
     render(() => (
       <Dialog>
         <Dialog.Trigger as={Button} variant="outline">
@@ -237,7 +236,7 @@ describe('Dialog', () => {
     expect(trigger.querySelector('button')).toBeNull()
   })
 
-  test('inherits BaseDialog trigger dialog semantics through exit presence', async () => {
+  it('inherits BaseDialog trigger dialog semantics through exit presence', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Dialog open={open()}>
@@ -255,7 +254,7 @@ describe('Dialog', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
@@ -264,7 +263,7 @@ describe('Dialog', () => {
     screen.unmount()
   })
 
-  test('renders custom header slot and overrides default title/description section', () => {
+  it('renders custom header slot and overrides default title/description section', () => {
     render(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
@@ -285,7 +284,7 @@ describe('Dialog', () => {
     expect(document.body.textContent).not.toContain('Default description')
   })
 
-  test('only references mounted default title and description nodes', () => {
+  it('only references mounted default title and description nodes', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content title="Dialog title" description="Dialog description">
@@ -304,7 +303,7 @@ describe('Dialog', () => {
     )
   })
 
-  test('uses aria-label for a custom header without dangling generated IDs', () => {
+  it('uses aria-label for a custom header without dangling generated IDs', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content
@@ -327,7 +326,7 @@ describe('Dialog', () => {
     expectAriaReferencesToResolve(content)
   })
 
-  test('preserves native ARIA naming attributes over generated Dialog relationships', () => {
+  it('preserves native ARIA naming attributes over generated Dialog relationships', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content
@@ -354,7 +353,7 @@ describe('Dialog', () => {
     expectAriaReferencesToResolve(content)
   })
 
-  test('inherits non-modal modal false behavior', async () => {
+  it('inherits non-modal modal false behavior', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
@@ -381,7 +380,7 @@ describe('Dialog', () => {
     screen.unmount()
   })
 
-  test('preserves numeric zero title and description content', () => {
+  it('preserves numeric zero title and description content', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content title={0} description={0}>
@@ -399,7 +398,7 @@ describe('Dialog', () => {
     expectAriaReferencesToResolve(content)
   })
 
-  test.each([
+  it.each([
     ['title only', 'Title', undefined, undefined, true, false],
     ['description only', undefined, 'Description', 'Description dialog', false, true],
     ['no title or description', undefined, undefined, 'Unnamed dialog', false, false],
@@ -422,7 +421,7 @@ describe('Dialog', () => {
     },
   )
 
-  test('treats empty content and false presence as absent content', () => {
+  it('treats empty content and false presence as absent content', () => {
     const empty = render(() => (
       <Dialog open closable={false}>
         <Dialog.Content title="" description="">
@@ -450,7 +449,7 @@ describe('Dialog', () => {
     ).toBeNull()
   })
 
-  test('composes explicit header, reactive ARIA IDs, and body presence', () => {
+  it('composes explicit header, reactive ARIA IDs, and body presence', () => {
     const [showHeader, setShowHeader] = createSignal(true)
     const [showTitle, setShowTitle] = createSignal(true)
     const [showDescription, setShowDescription] = createSignal(true)
@@ -500,21 +499,21 @@ describe('Dialog', () => {
     expect(header.style.color).toBe('red')
     expect(body.className).toContain('family-body')
     expect(body.className).toContain('local-body')
-    setTitleId('renamed-title')
+    flush(() => setTitleId('renamed-title'))
     expect(content.getAttribute('aria-labelledby')).toBe('renamed-title')
-    setShowTitle(false)
-    setShowDescription(false)
+    flush(() => setShowTitle(false))
+    flush(() => setShowDescription(false))
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
-    setShowHeader(false)
+    flush(() => setShowHeader(false))
     expect(body.hasAttribute('data-header')).toBe(true)
     expect(content.textContent).toContain('Fallback')
-    setShowFooter(false)
+    flush(() => setShowFooter(false))
     expect(body.hasAttribute('data-footer')).toBe(false)
   })
 
-  test('opens by trigger click and closes through close button', async () => {
-    const onOpenChange = vi.fn()
+  it('opens by trigger click and closes through close button', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Dialog onOpenChange={onOpenChange}>
@@ -550,17 +549,17 @@ describe('Dialog', () => {
     })
   })
 
-  test('keeps a CommandPalette input value until the Dialog exits', async () => {
+  it('keeps a CommandPalette input value until the Dialog exits', async () => {
     const [open, setOpen] = createSignal(false)
     const [searchValue, setSearchValue] = createSignal('')
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Dialog
         open={open()}
         onOpenChange={setOpen}
         onExitComplete={() => {
-          setSearchValue('')
+          flush(() => setSearchValue(''))
           onExitComplete()
         }}
         closable={false}
@@ -618,7 +617,7 @@ describe('Dialog', () => {
     ).toBe('')
   })
 
-  test('renders into portal by default', () => {
+  it('renders into portal by default', () => {
     const screen = render(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
@@ -634,7 +633,7 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
   })
 
-  test('supports overlay=false', () => {
+  it('supports overlay=false', () => {
     render(() => (
       <Dialog open overlay={false}>
         <Dialog.Trigger as="button" type="button">
@@ -649,7 +648,7 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-overlay"]')).toBeNull()
   })
 
-  test.each([
+  it.each([
     [
       'an instance slot override',
       (children: () => JSX.Element) => (
@@ -687,7 +686,7 @@ describe('Dialog', () => {
     },
   )
 
-  test('locks body scroll while a dialog with long content is open', () => {
+  it('locks body scroll while a dialog with long content is open', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content title="Long content">
@@ -702,7 +701,7 @@ describe('Dialog', () => {
     expect(document.body.style.overflow).toBe('hidden')
   })
 
-  test('moves long dialog scrolling to the overlay when scrollable is true', () => {
+  it('moves long dialog scrolling to the overlay when scrollable is true', () => {
     // Model the recipe's overflow utility in jsdom so scroll locking detects the overlay.
     render(() => (
       <Dialog open scrollable styles={{ overlay: { 'overflow-y': 'auto' } }}>
@@ -724,7 +723,7 @@ describe('Dialog', () => {
     expect(body?.hasAttribute('data-scroll')).toBe(false)
   })
 
-  test('reacts to root fullscreen and scrollable changes', () => {
+  it('reacts to root fullscreen and scrollable changes', () => {
     const [scrollable, setScrollable] = createSignal(false)
     const [fullscreen, setFullscreen] = createSignal(false)
     const [overlayVisible, setOverlayVisible] = createSignal(true)
@@ -739,20 +738,20 @@ describe('Dialog', () => {
     const originalContent = content()
     expect(overlay()?.contains(content())).toBe(true)
 
-    setScrollable(true)
+    flush(() => setScrollable(true))
     expect(content()).toBe(originalContent)
     expect(overlay()?.contains(content())).toBe(true)
 
-    setFullscreen(true)
+    flush(() => setFullscreen(true))
     expect(content()).toBe(originalContent)
     expect(overlay()?.contains(content())).toBe(true)
 
-    setOverlayVisible(false)
+    flush(() => setOverlayVisible(false))
     expect(overlay()).toBeNull()
     expect(content()).toBe(originalContent)
   })
 
-  test('keeps content, focus, and uncontrolled input state across layout changes', async () => {
+  it('keeps content, focus, and uncontrolled input state across layout changes', async () => {
     const [scrollable, setScrollable] = createSignal(false)
     const [fullscreen, setFullscreen] = createSignal(false)
     const [overlay, setOverlay] = createSignal(true)
@@ -769,9 +768,9 @@ describe('Dialog', () => {
     input.focus()
     input.value = 'edited'
 
-    setScrollable(true)
-    setFullscreen(true)
-    setOverlay(false)
+    flush(() => setScrollable(true))
+    flush(() => setFullscreen(true))
+    flush(() => setOverlay(false))
     expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
     expect(document.body.querySelector('[data-testid="stable-input"]')).toBe(input)
     expect(document.activeElement).toBe(input)
@@ -779,7 +778,7 @@ describe('Dialog', () => {
     screen.unmount()
   })
 
-  test('keeps body scroll locked when scrolling moves to the overlay', () => {
+  it('keeps body scroll locked when scrolling moves to the overlay', () => {
     const [scrollable, setScrollable] = createSignal(false)
     const screen = render(() => (
       <Dialog open scrollable={scrollable()} styles={{ overlay: { 'overflow-y': 'auto' } }}>
@@ -787,7 +786,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
     expect(document.body.style.overflow).toBe('hidden')
-    setScrollable(true)
+    flush(() => setScrollable(true))
     expect(document.body.style.overflow).toBe('hidden')
     expect(
       document.body.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')?.style.overflowY,
@@ -796,7 +795,7 @@ describe('Dialog', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
-  test('keeps shorthand JSX title and description mounted across scroll layout changes', () => {
+  it('keeps shorthand JSX title and description mounted across scroll layout changes', () => {
     const [scrollable, setScrollable] = createSignal(false)
     render(() => (
       <Dialog open scrollable={scrollable()}>
@@ -811,8 +810,8 @@ describe('Dialog', () => {
     const title = document.body.querySelector('[data-testid="shorthand-title"]')
     const description = document.body.querySelector('[data-testid="shorthand-description"]')
 
-    setScrollable(true)
-    setScrollable(false)
+    flush(() => setScrollable(true))
+    flush(() => setScrollable(false))
 
     expect(document.body.querySelectorAll('[data-testid="shorthand-title"]')).toHaveLength(1)
     expect(document.body.querySelector('[data-testid="shorthand-title"]')).toBe(title)
@@ -820,7 +819,7 @@ describe('Dialog', () => {
     expectAriaReferencesToResolve(document.body.querySelector('[data-slot="dialog-content"]')!)
   })
 
-  test('supports custom close content', () => {
+  it('supports custom close content', () => {
     render(() => (
       <Dialog open closeIcon={<span data-testid="custom-close">X</span>}>
         <Dialog.Trigger as="button" type="button">
@@ -835,8 +834,8 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-testid="custom-close"]')?.textContent).toBe('X')
   })
 
-  test('keeps automatic Content close and explicit Close styling separate', () => {
-    const onOpenChange = vi.fn()
+  it('keeps automatic Content close and explicit Close styling separate', () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Dialog open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
         <Dialog.Content>
@@ -863,7 +862,7 @@ describe('Dialog', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('hides close button when closable=false', () => {
+  it('hides close button when closable=false', () => {
     render(() => (
       <Dialog open closable={false}>
         <Dialog.Trigger as="button" type="button">
@@ -878,8 +877,8 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
   })
 
-  test('prevents close when closeOnEscape is false and emits onClosePrevented', async () => {
-    const onClosePrevented = vi.fn()
+  it('prevents close when closeOnEscape is false and emits onClosePrevented', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Dialog defaultOpen closeOnEscape={false} onClosePrevented={onClosePrevented}>
@@ -902,8 +901,8 @@ describe('Dialog', () => {
     })
   })
 
-  test('emits onClosePrevented once for blocked outside pointer interaction', async () => {
-    const onClosePrevented = vi.fn()
+  it('emits onClosePrevented once for blocked outside pointer interaction', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -921,7 +920,9 @@ describe('Dialog', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
@@ -930,8 +931,8 @@ describe('Dialog', () => {
     })
   })
 
-  test('clears text selection when dismissed by outside pointer interaction', async () => {
-    const onOpenChange = vi.fn()
+  it('clears text selection when dismissed by outside pointer interaction', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -954,7 +955,9 @@ describe('Dialog', () => {
 
     expect(window.getSelection()?.toString()).toContain('Dialog title')
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await finishExitMotion()
@@ -966,9 +969,9 @@ describe('Dialog', () => {
     })
   })
 
-  test('blocks outside pointer dismissal without blocking Escape', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+  it('blocks outside pointer dismissal without blocking Escape', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -991,7 +994,9 @@ describe('Dialog', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
@@ -1011,9 +1016,9 @@ describe('Dialog', () => {
     })
   })
 
-  test('blocks Escape without blocking outside pointer dismissal', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+  it('blocks Escape without blocking outside pointer dismissal', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -1045,7 +1050,9 @@ describe('Dialog', () => {
       expect(onOpenChange).not.toHaveBeenCalled()
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
     await finishExitMotion()
 
@@ -1055,9 +1062,9 @@ describe('Dialog', () => {
     })
   })
 
-  test('closes on Escape by default', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+  it('closes on Escape by default', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Dialog defaultOpen onClosePrevented={onClosePrevented} onOpenChange={onOpenChange}>
@@ -1083,7 +1090,7 @@ describe('Dialog', () => {
     })
   })
 
-  test('forwards custom classes and styles to dialog slots', () => {
+  it('forwards custom classes and styles to dialog slots', () => {
     render(() => (
       <Dialog
         open
@@ -1141,7 +1148,7 @@ describe('Dialog', () => {
     expect(close.style.opacity).toBe('0.8')
   })
 
-  test('marks the body with the header and footer that are present', () => {
+  it('marks the body with the header and footer that are present', () => {
     const { unmount } = render(() => (
       <Dialog open closable={false}>
         <Dialog.Content title={false} description={false}>
@@ -1171,9 +1178,9 @@ describe('Dialog', () => {
     expect(bodyWithBoth.hasAttribute('data-footer')).toBe(true)
   })
 
-  test('escape only closes the topmost overlay when dialogs are nested', async () => {
-    const onOuterChange = vi.fn()
-    const onInnerChange = vi.fn()
+  it('escape only closes the topmost overlay when dialogs are nested', async () => {
+    const onOuterChange = vi.fn<(...args: Array<any>) => void>()
+    const onInnerChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <>
@@ -1203,7 +1210,7 @@ describe('Dialog', () => {
     const contents = document.body.querySelectorAll('[data-slot="dialog-content"]')
     expect(contents.length).toBe(2)
 
-    const innerContent = contents[contents.length - 1] as HTMLElement
+    const innerContent = [...contents].at(-1) as HTMLElement
     innerContent.focus()
     fireEvent.keyDown(innerContent, { key: 'Escape' })
 
@@ -1216,9 +1223,9 @@ describe('Dialog', () => {
     })
   })
 
-  test('outer dialog ignores pointerdown that lands inside a nested dialog', async () => {
-    const onOuterChange = vi.fn()
-    const onInnerChange = vi.fn()
+  it('outer dialog ignores pointerdown that lands inside a nested dialog', async () => {
+    const onOuterChange = vi.fn<(...args: Array<any>) => void>()
+    const onInnerChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <>
@@ -1247,7 +1254,9 @@ describe('Dialog', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
 
     const innerButton = document.body.querySelector('[data-testid="inner-button"]')!
     fireEvent.pointerDown(innerButton)
@@ -1257,7 +1266,7 @@ describe('Dialog', () => {
     expect(document.body.querySelectorAll('[data-slot="dialog-content"]').length).toBe(2)
   })
 
-  test('preserves custom id on Dialog.Content and updates trigger aria-controls', () => {
+  it('preserves custom id on Dialog.Content and updates trigger aria-controls', () => {
     render(() => (
       <Dialog open>
         <Dialog.Trigger>Open</Dialog.Trigger>
@@ -1273,7 +1282,7 @@ describe('Dialog', () => {
     expect(trigger.getAttribute('aria-controls')).toBe('custom-dialog-id')
   })
 
-  test('preserves locale direction when dir is undefined and allows explicit dir override', () => {
+  it('preserves locale direction when dir is undefined and allows explicit dir override', () => {
     render(() => (
       <MoraineProvider dir="rtl">
         <Dialog open>
@@ -1295,8 +1304,8 @@ describe('Dialog', () => {
     expect(explicitDir.getAttribute('dir')).toBe('ltr')
   })
 
-  test('supports render function children receiving close action', () => {
-    const onOpenChange = vi.fn()
+  it('supports render function children receiving close action', () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Dialog defaultOpen onOpenChange={onOpenChange}>
         <Dialog.Content>
@@ -1317,7 +1326,7 @@ describe('Dialog', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('reacts to Show control flow and zero-argument accessors inside Dialog.Content', () => {
+  it('reacts to Show control flow and zero-argument accessors inside Dialog.Content', () => {
     const [visible, setVisible] = createSignal(true)
     const screen = render(() => (
       <Dialog defaultOpen>
@@ -1332,14 +1341,14 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-testid="visible"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="fallback"]')).toBeNull()
 
-    setVisible(false)
+    flush(() => setVisible(false))
 
     expect(document.body.querySelector('[data-testid="visible"]')).toBeNull()
     expect(document.body.querySelector('[data-testid="fallback"]')).not.toBeNull()
     screen.unmount()
   })
 
-  test('forwards ref to Dialog.Content DOM element', () => {
+  it('forwards ref to Dialog.Content DOM element', () => {
     let captured: HTMLDivElement | undefined
     render(() => (
       <Dialog open>
@@ -1353,8 +1362,8 @@ describe('Dialog', () => {
     expect(captured?.getAttribute('data-slot')).toBe('dialog-content')
   })
 
-  test('runs the consumer onKeyDown handler and honors its preventDefault', () => {
-    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+  it('runs the consumer onKeyDown handler and honors its preventDefault', () => {
+    const onKeyDown = vi.fn<(event: KeyboardEvent) => any>((event) => {
       event.preventDefault()
     })
     render(() => (
@@ -1371,7 +1380,7 @@ describe('Dialog', () => {
     expect(notCancelled).toBe(false)
   })
 
-  test('supports polymorphic rendering via as prop on Content', () => {
+  it('supports polymorphic rendering via as prop on Content', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content as="form" data-testid="form-dialog">

@@ -1,7 +1,6 @@
 import { Button, Field, Input, Sheet } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function SheetPlayground() {
   return (
     <DocsPlayground

@@ -1,9 +1,10 @@
-import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import { createKeyDownHandler } from '../../shared/keyboard'
+import { resolvePropsChildren } from '../../shared/utils'
 import { getFocusableElements } from '../shared/overlay/focus'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
@@ -11,7 +12,6 @@ import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper
 import { usePopoverContext } from './popover-context'
 import { popoverContentDataAttributes, popoverRecipe } from './popover.recipe'
 import type { PopoverT } from './popover.types'
-
 /**
  * Floating panel of the surrounding `Popover`, shown next to its `Popover.Trigger` while the
  * popover is open. It must be placed inside `Popover`. Renders a `div` with `role="dialog"`
@@ -28,10 +28,10 @@ import type { PopoverT } from './popover.types'
  * ```
  */
 export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const rest = omit(props, 'children', 'class', 'style')
   let hasPreventedPointerAttempt = false
   let resetTimeout: ReturnType<typeof setTimeout> | undefined
-  onCleanup(() => clearTimeout(resetTimeout))
+  onSettled(() => () => clearTimeout(resetTimeout))
   const behavior = usePopoverContext()
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
     onFocus: () => {
@@ -103,7 +103,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   const {
     slots: { body: bodySlot },
     slotWith,
-  } = useRecipe(popoverRecipe, local, {
+  } = useRecipe(popoverRecipe, props, {
     slot: 'content',
     context: () => behavior.slotOverrides,
   })
@@ -150,8 +150,8 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       }}
     >
       {(context) => {
-        const contentProps = mergeProps(context.contentProps, contentEvents)
-        const content = resolveChildren(() => local.children)
+        const contentProps = merge(context.contentProps, contentEvents)
+        const content = resolvePropsChildren(props)
         const contentSlot = slotWith('content', {
           data: popoverContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

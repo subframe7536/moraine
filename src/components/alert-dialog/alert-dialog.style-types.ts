@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface AlertDialogStyleSlot<T = unknown> {
   /** Dialog panel. */
   content?: T

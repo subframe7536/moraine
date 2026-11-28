@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
 import type { ButtonStyleSlot, ButtonStyleVariants } from './button.style-types'
-
 export namespace ButtonT {
   export type Kind = 'single'
 
@@ -83,7 +83,7 @@ export namespace ButtonT {
      * import { Button } from 'moraine'
      *
      * <Button autoLoading onClick={() => fetch('/api/save')}>
-     *   {(state) => (state.loading ? 'Saving...' : 'Save')}
+     *   {(state) => <>{state.loading ? 'Saving...' : 'Save'}</>}
      * </Button>
      * ```
      */

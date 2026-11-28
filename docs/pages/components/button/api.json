@@ -48,7 +48,7 @@
           "type": "JSX.Element | Component<ChildrenRenderProps>",
           "description": "Label content, or a render function receiving `{ loading }`.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component. Empty content renders no\nlabel element, which suits icon-only buttons (add an `aria-label`).",
           "examples": [
-            "import { Button } from 'moraine'\n\n<Button autoLoading onClick={() => fetch('/api/save')}>\n  {(state) => (state.loading ? 'Saving...' : 'Save')}\n</Button>"
+            "import { Button } from 'moraine'\n\n<Button autoLoading onClick={() => fetch('/api/save')}>\n  {(state) => <>{state.loading ? 'Saving...' : 'Save'}</>}\n</Button>"
           ]
         },
         {

@@ -1,5 +1,4 @@
 import type { FeedbackCloseReason, FeedbackHandle, FeedbackId } from './feedback.types'
-
 export interface CloseResult {
   result: () => Promise<FeedbackCloseReason>
   /** Resolves `result()` once. Later calls do nothing and return false. */
@@ -8,7 +7,7 @@ export interface CloseResult {
 
 export function createCloseResult(): CloseResult {
   let settled = false
-  let resolveResult: (reason: FeedbackCloseReason) => void = () => undefined
+  let resolveResult: ((reason: FeedbackCloseReason) => void) | undefined
   const promise = new Promise<FeedbackCloseReason>((resolve) => {
     resolveResult = resolve
   })
@@ -19,7 +18,7 @@ export function createCloseResult(): CloseResult {
         return false
       }
       settled = true
-      resolveResult(reason)
+      resolveResult?.(reason)
       return true
     },
   }

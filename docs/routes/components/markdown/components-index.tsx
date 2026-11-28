@@ -4,13 +4,12 @@ import { Badge } from '../../../../src'
 import { DOCS_FOCUS_RING_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 import { getDocsPages } from '../../docs-route'
-
 export function ComponentsIndex() {
   const sections = createMemo(() => {
     const pages = getDocsPages().filter(
       (page) => page.surface === 'components' && page.path !== '/components',
     )
-    const map = new Map<string, DocsPageEntry[]>()
+    const map = new Map<string, Array<DocsPageEntry>>()
     for (const page of pages) {
       const list = map.get(page.section)
       if (list) {

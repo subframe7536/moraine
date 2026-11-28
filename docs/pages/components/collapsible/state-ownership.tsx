@@ -1,6 +1,5 @@
 import { Button, Collapsible } from '@src'
 import { createSignal } from 'solid-js'
-
 export function StateOwnership() {
   const [open, setOpen] = createSignal(false)
 

@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field'
@@ -11,12 +11,11 @@ import { createForm } from '../form'
 
 import { createSlider } from './hook'
 import { Slider } from './slider'
-
-function getThumbs(container: HTMLElement): HTMLElement[] {
+function getThumbs(container: HTMLElement): Array<HTMLElement> {
   return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="slider-thumb"]'))
 }
 
-test('formats aria-valuetext with formatOptions', () => {
+it('formats aria-valuetext with formatOptions', () => {
   const screen = render(() => (
     <Slider defaultValue={50} formatOptions={{ style: 'unit', unit: 'percent' }} />
   ))
@@ -24,7 +23,7 @@ test('formats aria-valuetext with formatOptions', () => {
   expect(getThumbs(screen.container)[0]?.getAttribute('aria-valuetext')).toBe('50%')
 })
 
-function getInputs(container: HTMLElement): HTMLInputElement[] {
+function getInputs(container: HTMLElement): Array<HTMLInputElement> {
   return Array.from(container.querySelectorAll<HTMLInputElement>('input[type="range"]'))
 }
 
@@ -96,8 +95,8 @@ function mockThumbRect(
   })
 }
 
-describe('Slider', () => {
-  test('forwards root ref and inner inputRef', () => {
+describe('slider', () => {
+  it('forwards root ref and inner inputRef', () => {
     let rootEl: HTMLDivElement | undefined
     let inputEl: HTMLInputElement | undefined
 
@@ -108,7 +107,7 @@ describe('Slider', () => {
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
   })
 
-  test('associates the hidden inputs with an external form through the form prop', () => {
+  it('associates the hidden inputs with an external form through the form prop', () => {
     const screen = render(() => (
       <>
         <form id="external-form" />
@@ -126,7 +125,7 @@ describe('Slider', () => {
     }
   })
 
-  test('renders base attributes and orientation without tooltip', () => {
+  it('renders base attributes and orientation without tooltip', () => {
     const screen = render(() => (
       <Slider
         id="volume"
@@ -171,7 +170,7 @@ describe('Slider', () => {
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
-  test('marks the range empty only when a single value is at the minimum', () => {
+  it('marks the range empty only when a single value is at the minimum', () => {
     const [negativeValue, setNegativeValue] = createSignal(0)
     const negative = render(() => (
       <Slider min={-10} max={10} value={negativeValue()} onValueChange={setNegativeValue} />
@@ -181,9 +180,9 @@ describe('Slider', () => {
     ) as HTMLElement
 
     expect(negativeRange.hasAttribute('data-empty')).toBe(false)
-    setNegativeValue(-10)
+    flush(() => setNegativeValue(-10))
     expect(negativeRange.hasAttribute('data-empty')).toBe(true)
-    setNegativeValue(10)
+    flush(() => setNegativeValue(10))
     expect(negativeRange.hasAttribute('data-empty')).toBe(false)
     negative.unmount()
 
@@ -203,8 +202,8 @@ describe('Slider', () => {
     ).toBe(false)
   })
 
-  test('vertical arrow keys follow the visual direction', async () => {
-    const verticalChange = vi.fn()
+  it('vertical arrow keys follow the visual direction', async () => {
+    const verticalChange = vi.fn<(...args: Array<any>) => void>()
     const verticalScreen = render(() => (
       <Slider orientation="vertical" defaultValue={45} onValueChange={verticalChange} />
     ))
@@ -215,7 +214,7 @@ describe('Slider', () => {
 
     expect(verticalChange).toHaveBeenLastCalledWith(44)
 
-    const reversedChange = vi.fn()
+    const reversedChange = vi.fn<(...args: Array<any>) => void>()
     const reversedScreen = render(() => (
       <Slider orientation="vertical" reversed defaultValue={45} onValueChange={reversedChange} />
     ))
@@ -227,14 +226,14 @@ describe('Slider', () => {
     expect(reversedChange).toHaveBeenLastCalledWith(46)
   })
 
-  test('vertical max thumb stays centered on the top edge', () => {
+  it('vertical max thumb stays centered on the top edge', () => {
     const screen = render(() => <Slider orientation="vertical" defaultValue={100} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
 
     expect(thumb.style.bottom).toBe('100%')
   })
 
-  test('thumbAlignment="contain" insets the thumb toward the track bounds', () => {
+  it('thumbAlignment="contain" insets the thumb toward the track bounds', () => {
     const minScreen = render(() => <Slider defaultValue={0} thumbAlignment="contain" />)
     expect((getThumbs(minScreen.container)[0] as HTMLElement).style.left).toBe(
       'calc(0% + var(--s-thumb-size, 0px) * 0.5)',
@@ -251,7 +250,7 @@ describe('Slider', () => {
     )
   })
 
-  test('thumbAlignment="contain" positions vertical thumbs on the bottom edge', () => {
+  it('thumbAlignment="contain" positions vertical thumbs on the bottom edge', () => {
     const screen = render(() => (
       <Slider orientation="vertical" defaultValue={100} thumbAlignment="contain" />
     ))
@@ -261,8 +260,8 @@ describe('Slider', () => {
     )
   })
 
-  test('thumbAlignment="contain" keeps value updates on the step', () => {
-    const onValueChange = vi.fn()
+  it('thumbAlignment="contain" keeps value updates on the step', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={30} thumbAlignment="contain" onValueChange={onValueChange} />
     ))
@@ -275,8 +274,8 @@ describe('Slider', () => {
     expect(thumb.style.left).toBe('calc(31% + var(--s-thumb-size, 0px) * 0.19)')
   })
 
-  test('vertical pointer values increase from bottom to top by default', async () => {
-    const verticalChange = vi.fn()
+  it('vertical pointer values increase from bottom to top by default', async () => {
+    const verticalChange = vi.fn<(...args: Array<any>) => void>()
     const verticalScreen = render(() => (
       <Slider orientation="vertical" defaultValue={45} onValueChange={verticalChange} />
     ))
@@ -294,7 +293,7 @@ describe('Slider', () => {
 
     expect(verticalChange).toHaveBeenLastCalledWith(100)
 
-    const reversedChange = vi.fn()
+    const reversedChange = vi.fn<(...args: Array<any>) => void>()
     const reversedScreen = render(() => (
       <Slider orientation="vertical" reversed defaultValue={45} onValueChange={reversedChange} />
     ))
@@ -313,12 +312,12 @@ describe('Slider', () => {
     expect(reversedChange).toHaveBeenLastCalledWith(0)
   })
 
-  test('horizontal arrow keys follow RTL direction', async () => {
+  it('horizontal arrow keys follow RTL direction', async () => {
     const previousDir = document.documentElement.dir
     document.documentElement.dir = 'rtl'
 
     try {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={45} onValueChange={onValueChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -335,8 +334,8 @@ describe('Slider', () => {
     }
   })
 
-  test('uses inherited RTL direction for visual placement, pointer, and keyboard movement', () => {
-    const onValueChange = vi.fn()
+  it('uses inherited RTL direction for visual placement, pointer, and keyboard movement', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <div dir="rtl">
         <Slider defaultValue={45} onValueChange={onValueChange} />
@@ -360,8 +359,8 @@ describe('Slider', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(100)
   })
 
-  test('lets a root LTR direction override an inherited RTL direction', () => {
-    const onValueChange = vi.fn()
+  it('lets a root LTR direction override an inherited RTL direction', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <div dir="rtl">
         <Slider dir="ltr" defaultValue={45} onValueChange={onValueChange} />
@@ -375,8 +374,8 @@ describe('Slider', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(46)
   })
 
-  test('uses an RTL direction set on the Slider root', () => {
-    const onValueChange = vi.fn()
+  it('uses an RTL direction set on the Slider root', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider dir="rtl" defaultValue={45} onValueChange={onValueChange} />
     ))
@@ -388,8 +387,8 @@ describe('Slider', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(44)
   })
 
-  test('PageUp and PageDown move by one tenth of the range snapped to step', async () => {
-    const onValueChange = vi.fn()
+  it('pageUp and PageDown move by one tenth of the range snapped to step', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider min={0} max={100} step={5} defaultValue={50} onValueChange={onValueChange} />
     ))
@@ -405,8 +404,8 @@ describe('Slider', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(50)
   })
 
-  test('readOnly prevents keyboard and pointer value changes', async () => {
-    const onValueChange = vi.fn()
+  it('readOnly prevents keyboard and pointer value changes', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider readOnly defaultValue={50} onValueChange={onValueChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -436,9 +435,9 @@ describe('Slider', () => {
     expect(thumb.getAttribute('aria-valuenow')).toBe('50')
   })
 
-  test('single uncontrolled emits number for input and commit phases', async () => {
-    const onValueChange = vi.fn()
-    const onChange = vi.fn()
+  it('single uncontrolled emits number for input and commit phases', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={10} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
@@ -457,8 +456,8 @@ describe('Slider', () => {
     expect(typeof onChange.mock.calls[0]?.[0]).toBe('number')
   })
 
-  test('snaps pointer values to the default step of 1', async () => {
-    const onValueChange = vi.fn()
+  it('snaps pointer values to the default step of 1', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider defaultValue={0} onValueChange={onValueChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const input = getInputs(screen.container)[0]
@@ -483,9 +482,9 @@ describe('Slider', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(25)
   })
 
-  test('uses continuous pointer values when step is 0', async () => {
-    const onValueChange = vi.fn()
-    const onChange = vi.fn()
+  it('uses continuous pointer values when step is 0', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={0} step={0} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
@@ -523,8 +522,8 @@ describe('Slider', () => {
     expect(onChange).toHaveBeenLastCalledWith(25)
   })
 
-  test('keeps the grab offset when dragging from the thumb edge', async () => {
-    const onValueChange = vi.fn()
+  it('keeps the grab offset when dragging from the thumb edge', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider defaultValue={50} onValueChange={onValueChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -554,9 +553,9 @@ describe('Slider', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(75)
   })
 
-  test('range uncontrolled emits number[] for input and commit phases', async () => {
-    const onValueChange = vi.fn()
-    const onChange = vi.fn()
+  it('range uncontrolled emits number[] for input and commit phases', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={[20, 80]} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
@@ -578,7 +577,7 @@ describe('Slider', () => {
     expect(Array.isArray(onChange.mock.calls[0]?.[0])).toBe(true)
   })
 
-  test('describes each range thumb with its value and position in the range', () => {
+  it('describes each range thumb with its value and position in the range', () => {
     const range = render(() => <Slider defaultValue={[20, 80]} />)
     const labelledRange = render(() => (
       <Field label="Price">
@@ -605,12 +604,12 @@ describe('Slider', () => {
     ).toEqual(['20 thumb 1 of 3', '50 thumb 2 of 3', '80 thumb 3 of 3'])
   })
 
-  test('emits Field boundaries and commits range values only when focus leaves the slider', () => {
-    const emit = vi.fn()
-    const onChange = vi.fn()
+  it('emits Field boundaries and commits range values only when focus leaves the slider', () => {
+    const emit = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
@@ -639,9 +638,9 @@ describe('Slider', () => {
     expect(onChange).toHaveBeenLastCalledWith([21, 80])
   })
 
-  test('calls user onFocus once when focus enters the slider and onBlur when it leaves', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+  it('calls user onFocus once when focus enters the slider and onBlur when it leaves', () => {
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={[20, 80]} onFocus={onFocus} onBlur={onBlur} />
     ))
@@ -660,14 +659,14 @@ describe('Slider', () => {
     expect(onBlur).toHaveBeenCalledTimes(1)
   })
 
-  test('keeps Formisch blur validation dormant while range focus moves between thumbs', async () => {
+  it('keeps Formisch blur validation dormant while range focus moves between thumbs', async () => {
     const schema = v.object({
       range: v.pipe(
         v.array(v.number()),
         v.check((values) => (values[1] ?? 0) - (values[0] ?? 0) >= 70, 'Range is too narrow.'),
       ),
     })
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () => createForm({ schema, initialInput: { range: [20, 80] }, validate: 'blur' }),
       (form) => (
@@ -697,8 +696,8 @@ describe('Slider', () => {
     expect(onChange).toHaveBeenLastCalledWith([21, 80])
   })
 
-  test('moves overlapping thumbs in both directions', async () => {
-    const rightChange = vi.fn()
+  it('moves overlapping thumbs in both directions', async () => {
+    const rightChange = vi.fn<(...args: Array<any>) => void>()
     const rightScreen = render(() => <Slider defaultValue={[20, 20]} onValueChange={rightChange} />)
     const rightThumbs = getThumbs(rightScreen.container)
 
@@ -707,7 +706,7 @@ describe('Slider', () => {
 
     expect(rightChange).toHaveBeenLastCalledWith([20, 21])
 
-    const leftChange = vi.fn()
+    const leftChange = vi.fn<(...args: Array<any>) => void>()
     const leftScreen = render(() => <Slider defaultValue={[20, 20]} onValueChange={leftChange} />)
     const leftThumbs = getThumbs(leftScreen.container)
 
@@ -717,7 +716,7 @@ describe('Slider', () => {
     expect(leftChange).toHaveBeenLastCalledWith([19, 20])
   })
 
-  test('dragging past another thumb moves the dragged value across the range when minStepsBetweenThumbs is 0', async () => {
+  it('dragging past another thumb moves the dragged value across the range when minStepsBetweenThumbs is 0', async () => {
     const screen = render(() => <Slider defaultValue={[20, 50]} />)
     const thumbs = getThumbs(screen.container)
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -753,8 +752,8 @@ describe('Slider', () => {
     })
   })
 
-  test('dragging the left thumb across the right thumb keeps updating when reversing direction', async () => {
-    const onValueChange = vi.fn()
+  it('dragging the left thumb across the right thumb keeps updating when reversing direction', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider defaultValue={[20, 50]} onValueChange={onValueChange} />)
     const thumbs = getThumbs(screen.container)
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -799,8 +798,8 @@ describe('Slider', () => {
     })
   })
 
-  test('can disable thumb crossing while dragging', async () => {
-    const onValueChange = vi.fn()
+  it('can disable thumb crossing while dragging', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onValueChange={onValueChange} />
     ))
@@ -840,7 +839,7 @@ describe('Slider', () => {
     })
   })
 
-  test('dragging overlapping thumbs respects minStepsBetweenThumbs without moving the sibling', async () => {
+  it('dragging overlapping thumbs respects minStepsBetweenThumbs without moving the sibling', async () => {
     const screen = render(() => <Slider defaultValue={[20, 20]} minStepsBetweenThumbs={10} />)
     const thumbs = getThumbs(screen.container)
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -870,7 +869,7 @@ describe('Slider', () => {
     })
   })
 
-  test('single thumb uses default aria label', () => {
+  it('single thumb uses default aria label', () => {
     const screen = render(() => <Slider defaultValue={10} />)
     const thumbs = getThumbs(screen.container)
 
@@ -878,8 +877,8 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-label')).toBe('Thumb')
   })
 
-  test('controlled single keeps rendered value while emitting updates', async () => {
-    const onValueChange = vi.fn()
+  it('controlled single keeps rendered value while emitting updates', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider value={10} onValueChange={onValueChange} />)
     const thumbs = getThumbs(screen.container)
 
@@ -892,8 +891,8 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('10')
   })
 
-  test('controlled range keeps rendered value while emitting updates', async () => {
-    const onValueChange = vi.fn()
+  it('controlled range keeps rendered value while emitting updates', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Slider value={[20, 80]} onValueChange={onValueChange} />)
     const thumbs = getThumbs(screen.container)
 
@@ -908,7 +907,7 @@ describe('Slider', () => {
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('80')
   })
 
-  test('controlled single keeps keyboard focus on the thumb after value updates', async () => {
+  it('controlled single keeps keyboard focus on the thumb after value updates', async () => {
     const screen = render(() => {
       const [value, setValue] = createSignal(10)
 
@@ -917,7 +916,7 @@ describe('Slider', () => {
           value={value()}
           onValueChange={(nextValue) => {
             if (!Array.isArray(nextValue)) {
-              setValue(nextValue)
+              flush(() => setValue(nextValue))
             }
           }}
         />
@@ -936,9 +935,9 @@ describe('Slider', () => {
     expect(document.activeElement).toBe(thumb)
   })
 
-  test('controlled range keeps the moved thumb focused and styled after value updates', async () => {
+  it('controlled range keeps the moved thumb focused and styled after value updates', async () => {
     const screen = render(() => {
-      const [value, setValue] = createSignal<number[]>([20, 80])
+      const [value, setValue] = createSignal<Array<number>>([20, 80])
 
       return (
         <Slider
@@ -946,7 +945,7 @@ describe('Slider', () => {
           styles={{ thumb: { width: '20px' } }}
           onValueChange={(nextValue) => {
             if (Array.isArray(nextValue)) {
-              setValue(nextValue)
+              flush(() => setValue(nextValue))
             }
           }}
         />
@@ -968,7 +967,7 @@ describe('Slider', () => {
     expect(document.activeElement).toBe(firstThumb)
   })
 
-  test('applies class overrides for root and thumb slots', () => {
+  it('applies class overrides for root and thumb slots', () => {
     const screen = render(() => (
       <Slider classes={{ root: 'root-override', thumb: 'thumb-override' }} />
     ))
@@ -980,7 +979,7 @@ describe('Slider', () => {
     expect(thumb?.classList.contains('thumb-override')).toBe(true)
   })
 
-  test('applies style overrides for root and thumb slots', () => {
+  it('applies style overrides for root and thumb slots', () => {
     const screen = render(() => (
       <Slider styles={{ root: { width: '200px' }, thumb: { width: '200px' } }} />
     ))
@@ -992,7 +991,7 @@ describe('Slider', () => {
     expect(thumb?.style.width).toBe('200px')
   })
 
-  test('renders step markers when enabled', () => {
+  it('renders step markers when enabled', () => {
     const screen = render(() => <Slider markers min={0} max={10} step={2} />)
 
     const markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
@@ -1001,7 +1000,7 @@ describe('Slider', () => {
     expect((markers[0] as HTMLElement).style.left).toBe('20%')
   })
 
-  test('markerIndexes is reactive when step, marker, or bounds change', async () => {
+  it('markerIndexes is reactive when step, marker, or bounds change', async () => {
     const [step, setStep] = createSignal<number | undefined>(2)
     const [marker, setMarker] = createSignal(true)
     const [max, setMax] = createSignal(10)
@@ -1011,28 +1010,28 @@ describe('Slider', () => {
     let markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
     expect(markers).toHaveLength(4)
 
-    setStep(5)
+    flush(() => setStep(5))
     await waitFor(() => {
       markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
       expect(markers).toHaveLength(1)
       expect((markers[0] as HTMLElement).style.left).toBe('50%')
     })
 
-    setMax(20)
+    flush(() => setMax(20))
     await waitFor(() => {
       markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
       expect(markers).toHaveLength(3)
       expect((markers[0] as HTMLElement).style.left).toBe('25%')
     })
 
-    setMarker(false)
+    flush(() => setMarker(false))
     await waitFor(() => {
       markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
       expect(markers).toHaveLength(0)
     })
   })
 
-  test('createSlider.markerIndexes reacts when step increases', async () => {
+  it('createSlider.markerIndexes reacts when step increases', async () => {
     const [step, setStep] = createSignal<number | undefined>(0)
     let sliderResult!: ReturnType<typeof createSlider>
 
@@ -1053,23 +1052,23 @@ describe('Slider', () => {
 
     expect(sliderResult.markerIndexes()).toEqual([])
 
-    setStep(25)
+    flush(() => setStep(25))
     await waitFor(() => {
       expect(sliderResult.markerIndexes()).toEqual([1, 2, 3])
     })
 
-    setStep(50)
+    flush(() => setStep(50))
     await waitFor(() => {
       expect(sliderResult.markerIndexes()).toEqual([1])
     })
 
-    setStep(10)
+    flush(() => setStep(10))
     await waitFor(() => {
       expect(sliderResult.markerIndexes()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
     })
   })
 
-  test('keeps dragging state on the root and active thumb', () => {
+  it('keeps dragging state on the root and active thumb', () => {
     const screen = render(() => <Slider defaultValue={20} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -1105,9 +1104,9 @@ describe('Slider', () => {
   })
 
   describe('commit semantics', () => {
-    test('keyboard changes commit on keyup without requiring blur', async () => {
-      const onValueChange = vi.fn()
-      const onChange = vi.fn()
+    it('keyboard changes commit on keyup without requiring blur', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={50} onValueChange={onValueChange} onValueCommit={onChange} />
       ))
@@ -1125,8 +1124,8 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenCalledTimes(1)
     })
 
-    test('Home key commits on keyup', async () => {
-      const onChange = vi.fn()
+    it('home key commits on keyup', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1138,8 +1137,8 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenLastCalledWith(0)
     })
 
-    test('End key commits on keyup', async () => {
-      const onChange = vi.fn()
+    it('end key commits on keyup', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1151,8 +1150,8 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenLastCalledWith(100)
     })
 
-    test('PageUp key commits on keyup', async () => {
-      const onChange = vi.fn()
+    it('pageUp key commits on keyup', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1164,8 +1163,8 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenCalledWith(60)
     })
 
-    test('multiple keydown events only commit once on final keyup', async () => {
-      const onChange = vi.fn()
+    it('multiple keydown events only commit once on final keyup', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1180,8 +1179,8 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenNthCalledWith(2, 52)
     })
 
-    test('blur still commits if keyup was missed', async () => {
-      const onChange = vi.fn()
+    it('blur still commits if keyup was missed', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1195,8 +1194,8 @@ describe('Slider', () => {
   })
 
   describe('multi-thumb keyboard edge cases', () => {
-    test('Home moves current thumb to its minimum boundary, not global min', async () => {
-      const onChange = vi.fn()
+    it('home moves current thumb to its minimum boundary, not global min', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider
           defaultValue={[20, 80]}
@@ -1216,8 +1215,8 @@ describe('Slider', () => {
       })
     })
 
-    test('End moves current thumb to its maximum boundary, not global max', async () => {
-      const onChange = vi.fn()
+    it('end moves current thumb to its maximum boundary, not global max', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider
           defaultValue={[20, 80]}
@@ -1237,8 +1236,8 @@ describe('Slider', () => {
       })
     })
 
-    test('arrow key at boundary switches focus to adjacent thumb when blocked', async () => {
-      const onValueChange = vi.fn()
+    it('arrow key at boundary switches focus to adjacent thumb when blocked', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider
           defaultValue={[20, 50]}
@@ -1263,8 +1262,8 @@ describe('Slider', () => {
       expect(document.activeElement).toBe(thumbs[1])
     })
 
-    test('arrow key switches to previous thumb when blocked going left', async () => {
-      const onValueChange = vi.fn()
+    it('arrow key switches to previous thumb when blocked going left', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onValueChange={onValueChange} />
       ))
@@ -1284,8 +1283,8 @@ describe('Slider', () => {
       expect(document.activeElement).toBe(thumbs[0])
     })
 
-    test('arrow key does not switch thumb when allowThumbCrossing is true', async () => {
-      const onValueChange = vi.fn()
+    it('arrow key does not switch thumb when allowThumbCrossing is true', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[20, 50]} allowThumbCrossing={true} onValueChange={onValueChange} />
       ))
@@ -1301,8 +1300,8 @@ describe('Slider', () => {
       expect(document.activeElement).toBe(thumbs[0])
     })
 
-    test('arrow key does not switch thumb at global boundaries', async () => {
-      const onValueChange = vi.fn()
+    it('arrow key does not switch thumb at global boundaries', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[0, 50]} allowThumbCrossing={false} onValueChange={onValueChange} />
       ))
@@ -1316,8 +1315,8 @@ describe('Slider', () => {
       expect(document.activeElement).toBe(thumbs[0])
     })
 
-    test('PageUp and PageDown do not switch thumbs, only move current thumb', async () => {
-      const onValueChange = vi.fn()
+    it('pageUp and PageDown do not switch thumbs, only move current thumb', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[40, 60]} allowThumbCrossing={false} onValueChange={onValueChange} />
       ))
@@ -1331,7 +1330,7 @@ describe('Slider', () => {
       expect(document.activeElement).toBe(thumbs[0])
     })
 
-    test('PageUp switches focus to adjacent thumb when blocked at thumb boundary', async () => {
+    it('pageUp switches focus to adjacent thumb when blocked at thumb boundary', async () => {
       const screen = render(() => <Slider defaultValue={[40, 50]} allowThumbCrossing={false} />)
       const thumbs = getThumbs(screen.container)
 
@@ -1347,7 +1346,7 @@ describe('Slider', () => {
       expect(document.activeElement).toBe(thumbs[1])
     })
 
-    test('PageDown switches focus to previous thumb when blocked at thumb boundary', async () => {
+    it('pageDown switches focus to previous thumb when blocked at thumb boundary', async () => {
       const screen = render(() => <Slider defaultValue={[40, 50]} allowThumbCrossing={false} />)
       const thumbs = getThumbs(screen.container)
 
@@ -1363,8 +1362,8 @@ describe('Slider', () => {
       expect(document.activeElement).toBe(thumbs[0])
     })
 
-    test('blur during programmatic focus shift does not double-commit', async () => {
-      const onChange = vi.fn()
+    it('blur during programmatic focus shift does not double-commit', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onValueCommit={onChange} />
       ))
@@ -1385,7 +1384,7 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenCalledTimes(commitsBefore)
     })
 
-    test('minStepsBetweenThumbs prevents move and switches focus', async () => {
+    it('minStepsBetweenThumbs prevents move and switches focus', async () => {
       const screen = render(() => (
         <Slider defaultValue={[20, 30]} minStepsBetweenThumbs={10} allowThumbCrossing={false} />
       ))
@@ -1401,9 +1400,9 @@ describe('Slider', () => {
   })
 
   describe('pointer commit semantics', () => {
-    test('pointer drag emits live updates but commits only on release', async () => {
-      const onValueChange = vi.fn()
-      const onChange = vi.fn()
+    it('pointer drag emits live updates but commits only on release', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Slider defaultValue={20} onValueChange={onValueChange} onValueCommit={onChange} />
       ))
@@ -1443,7 +1442,7 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenLastCalledWith(60)
     })
 
-    test('track press reuses the last focused overlapping thumb', async () => {
+    it('track press reuses the last focused overlapping thumb', async () => {
       const screen = render(() => <Slider defaultValue={[20, 20]} />)
       const thumbs = getThumbs(screen.container)
       const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -1462,8 +1461,8 @@ describe('Slider', () => {
       expect(document.activeElement).toBe(thumbs[0])
     })
 
-    test('pointer cancel commits pending drag values', async () => {
-      const onChange = vi.fn()
+    it('pointer cancel commits pending drag values', async () => {
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <Slider defaultValue={20} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
       const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -1495,7 +1494,7 @@ describe('Slider', () => {
     })
   })
 
-  test('normalizes initial scalar and range values before rendering', () => {
+  it('normalizes initial scalar and range values before rendering', () => {
     const scalar = render(() => <Slider min={20} max={40} defaultValue={5} />)
     const range = render(() => <Slider min={20} max={40} defaultValue={[41, Number.NaN, 19]} />)
 
@@ -1509,7 +1508,7 @@ describe('Slider', () => {
     ])
   })
 
-  test.each([
+  it.each([
     ['equal bounds', 10, 10],
     ['reversed bounds', 10, 0],
     ['non-finite minimum', Number.NaN, 10],
@@ -1520,9 +1519,9 @@ describe('Slider', () => {
     )
   })
 
-  test('drops stale keyboard pending values after a controlled update', async () => {
-    const onChange = vi.fn()
-    const onValueChange = vi.fn()
+  it('drops stale keyboard pending values after a controlled update', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const [value, setValue] = createSignal(20)
     const screen = render(() => (
       <Slider value={value()} onValueCommit={onChange} onValueChange={onValueChange} />
@@ -1532,15 +1531,15 @@ describe('Slider', () => {
     fireEvent.keyDown(thumb, { key: 'ArrowRight' })
     expect(onValueChange).toHaveBeenCalledWith(21)
 
-    setValue(60)
+    flush(() => setValue(60))
     await waitFor(() => expect(thumb.getAttribute('aria-valuenow')).toBe('60'))
     fireEvent.keyUp(thumb, { key: 'ArrowRight' })
 
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('drops stale pointer pending values after a controlled update', async () => {
-    const onChange = vi.fn()
+  it('drops stale pointer pending values after a controlled update', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const [value, setValue] = createSignal(20)
     const screen = render(() => <Slider value={value()} onValueCommit={onChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
@@ -1550,16 +1549,16 @@ describe('Slider', () => {
 
     fireEvent.pointerDown(thumb, { button: 0, clientX: 20, pointerId: 1 })
     fireEvent.pointerMove(thumb, { clientX: 40, pointerId: 1 })
-    setValue(60)
+    flush(() => setValue(60))
     await waitFor(() => expect(thumb.getAttribute('aria-valuenow')).toBe('60'))
     fireEvent.pointerUp(thumb, { clientX: 40, pointerId: 1 })
 
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('does not emit input or commit callbacks for boundary no-ops', async () => {
-    const onChange = vi.fn()
-    const onValueChange = vi.fn()
+  it('does not emit input or commit callbacks for boundary no-ops', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Slider defaultValue={100} onValueCommit={onChange} onValueChange={onValueChange} />
     ))
@@ -1572,7 +1571,7 @@ describe('Slider', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('restores uncontrolled values and repeated-name form data on reset', async () => {
+  it('restores uncontrolled values and repeated-name form data on reset', async () => {
     const screen = render(() => (
       <form>
         <Slider name="range" defaultValue={[20, 80]} />
@@ -1593,7 +1592,7 @@ describe('Slider', () => {
     )
   })
 
-  test('preserves the current value when native reset is canceled', async () => {
+  it('preserves the current value when native reset is canceled', async () => {
     const screen = render(() => (
       <form onReset={(event) => event.preventDefault()}>
         <Slider name="volume" defaultValue={20} />
@@ -1611,7 +1610,7 @@ describe('Slider', () => {
     expect(new FormData(form).get('volume')).toBe('21')
   })
 
-  test('releases an owned pointer capture when unmounted', async () => {
+  it('releases an owned pointer capture when unmounted', async () => {
     const screen = render(() => <Slider defaultValue={20} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     mockPointerCapture(thumb)
@@ -1624,7 +1623,7 @@ describe('Slider', () => {
     expect(thumb.hasPointerCapture(7)).toBe(false)
   })
 
-  test('renders children inside slider root', () => {
+  it('renders children inside slider root', () => {
     const screen = render(() => (
       <Slider defaultValue={20}>
         <span data-testid="slider-child">Custom Child</span>
@@ -1634,7 +1633,7 @@ describe('Slider', () => {
     expect(screen.getByTestId('slider-child')).not.toBeNull()
   })
 
-  test('reflects data-dragging on root during pointer interaction', () => {
+  it('reflects data-dragging on root during pointer interaction', () => {
     const screen = render(() => <Slider defaultValue={20} />)
     const root = screen.container.querySelector('[data-slot="slider"]') as HTMLElement
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -1648,7 +1647,7 @@ describe('Slider', () => {
   })
 })
 
-test.each([
+it.each([
   ['sm', '4px', '12px'],
   ['md', '5px', '15px'],
   ['lg', '6px', '18px'],
@@ -1661,7 +1660,7 @@ test.each([
   expect(track.style.getPropertyValue('--s-size')).toBe('')
 })
 
-test('updates thumb dimensions with size and accepts an independent override', () => {
+it('updates thumb dimensions with size and accepts an independent override', () => {
   const [size, setSize] = createSignal<'sm' | 'md' | 'lg'>('sm')
   const [thumbSize, setThumbSize] = createSignal<string>()
   const screen = render(() => (
@@ -1672,18 +1671,18 @@ test('updates thumb dimensions with size and accepts an independent override', (
   ))
   const root = screen.container.querySelector<HTMLElement>('[data-slot="slider"]')!
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('12px')
-  setSize('md')
+  flush(() => setSize('md'))
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('15px')
-  setSize('lg')
+  flush(() => setSize('lg'))
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
-  setThumbSize('22px')
+  flush(() => setThumbSize('22px'))
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('22px')
   expect(root.style.getPropertyValue('--s-size')).toBe('8px')
-  setThumbSize(undefined)
+  flush(() => setThumbSize(undefined))
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
 })
 
-test('createSlider works standalone with minimal options', () => {
+it('createSlider works standalone with minimal options', () => {
   createRoot((dispose) => {
     const slider = createSlider({ value: 40 })
 
@@ -1695,7 +1694,7 @@ test('createSlider works standalone with minimal options', () => {
   })
 })
 
-test('renders static children and live state children inside the root', () => {
+it('renders static children and live state children inside the root', () => {
   const screen = render(() => (
     <>
       <Slider defaultValue={30}>
@@ -1723,7 +1722,7 @@ test('renders static children and live state children inside the root', () => {
   expect(output.textContent).toBe('150-150|150,150|0.75,0.75|false')
 })
 
-test('marks step markers inside the selected range as active', () => {
+it('marks step markers inside the selected range as active', () => {
   const [value, setValue] = createSignal(0.6)
   const screen = render(() => (
     <>
@@ -1740,11 +1739,11 @@ test('marks step markers inside the selected range as active', () => {
   expect(activeOf('single')).toEqual([true, true, true, true, true, true, false, false, false])
   expect(activeOf('range')).toEqual([true, true, true, false])
 
-  setValue(0.15)
+  flush(() => setValue(0.15))
   expect(activeOf('single')).toEqual([true, false, false, false, false, false, false, false, false])
 })
 
-test('moves focus to the thumb nearest a pointer press', () => {
+it('moves focus to the thumb nearest a pointer press', () => {
   const screen = render(() => <Slider defaultValue={[20, 80]} step={10} />)
   const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
   const thumbs = getThumbs(screen.container)
@@ -1763,7 +1762,7 @@ test('moves focus to the thumb nearest a pointer press', () => {
   expect(document.activeElement).toBe(thumbs[1])
 })
 
-test('draws markers at a numeric interval without changing snapping', () => {
+it('draws markers at a numeric interval without changing snapping', () => {
   const screen = render(() => (
     <>
       <Slider data-testid="no-step" defaultValue={40} markers={25} />
@@ -1788,8 +1787,8 @@ test('draws markers at a numeric interval without changing snapping', () => {
   expect(thumb.getAttribute('aria-valuenow')).toBe('50')
 })
 
-test('maps pointer positions onto the track padding box', () => {
-  const onValueChange = vi.fn()
+it('maps pointer positions onto the track padding box', () => {
+  const onValueChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <Slider
       defaultValue={0}

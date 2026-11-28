@@ -1,5 +1,4 @@
 import { Button, Sheet } from '@src'
-
 export function Sides() {
   return (
     <div class="flex flex-wrap gap-3 items-center">

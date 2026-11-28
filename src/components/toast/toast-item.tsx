@@ -1,14 +1,6 @@
-import type { Component, JSX } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  onMount,
-  Show,
-  untrack,
-} from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled, Show, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -28,7 +20,6 @@ import { createToastTimer } from './toast-timer'
 import { defaultToastMessages } from './toast.messages'
 import { toastDataAttributes, toastRecipe, TOAST_PROGRESS_CLASS } from './toast.recipe'
 import type { ToastT } from './toast.types'
-
 /** Matches recipe `duration-400`. Swipe-out uses `duration-200`. */
 const TOAST_EXIT_MS = 400
 
@@ -184,17 +175,15 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   }
 
   createEffect(
-    on(
-      () => props.toast.closed,
-      (closed) => {
-        if (closed && !untrack(removed)) {
-          deleteToast()
-        }
-      },
-    ),
+    () => props.toast.closed,
+    (closed) => {
+      if (closed && !untrack(removed)) {
+        untrack(deleteToast)
+      }
+    },
   )
 
-  onCleanup(() => {
+  onSettled(() => () => {
     if (exitTimerId) {
       clearTimeout(exitTimerId)
     }
@@ -326,29 +315,36 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }
   }
 
-  onMount(() => {
+  onSettled(() => {
     measureHeight()
-    requestAnimationFrame(() => setMounted(true))
-    onCleanup(() => {
+    const rafId = requestAnimationFrame(() => setMounted(true))
+    return () => {
+      cancelAnimationFrame(rafId)
       props.onHeight(props.toast.id, 0)
-    })
+    }
   })
 
   createEffect(
-    on(
-      [
-        () => options().title,
-        () => options().description,
-        () => options().action,
-        () => options().cancel,
-        () => options().size,
-        () => props.toast.render,
-      ],
-      () => {
-        queueMicrotask(measureHeight)
-      },
-      { defer: true },
-    ),
+    () => [
+      options().title,
+      options().description,
+      options().action,
+      options().cancel,
+      options().size,
+      props.toast.render,
+    ],
+    () => {
+      let cancelled = false
+      queueMicrotask(() => {
+        if (!cancelled) {
+          measureHeight()
+        }
+      })
+      return () => {
+        cancelled = true
+      }
+    },
+    { defer: true },
   )
 
   const title = createMemo(() => options().title)
@@ -375,8 +371,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       }}
       data-slot="toast-item"
       role={options().type === 'error' ? 'alert' : 'status'}
-      tabIndex={0}
-      inert={!isVisible() ? true : undefined}
+      tabindex={0}
+      {...{ 'prop:inert': !isVisible() ? true : undefined }}
       {...itemSlot}
       onPointerDown={swipe.handlePointerDown}
       onPointerMove={swipe.handlePointerMove}

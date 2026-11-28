@@ -1,7 +1,6 @@
 import { Button, createForm, Input } from '@src'
 import { createSignal, Show } from 'solid-js'
 import * as v from 'valibot'
-
 const schema = v.object({
   username: v.pipe(v.string(), v.nonEmpty('Username is required')),
 })

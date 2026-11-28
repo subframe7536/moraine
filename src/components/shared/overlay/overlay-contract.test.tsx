@@ -1,13 +1,12 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { BaseSelect } from '../../base-select'
 import { Combobox } from '../../combobox'
 import { ContextMenu } from '../../context-menu'
 import { DropdownMenu } from '../../dropdown-menu'
 import { Popover } from '../../popover'
-
 async function finishExit(selector: string, root: ParentNode = document.body): Promise<void> {
   await Promise.resolve()
   const element = root.querySelector<HTMLElement>(selector)
@@ -17,11 +16,11 @@ async function finishExit(selector: string, root: ParentNode = document.body): P
   await Promise.resolve()
 }
 
-describe('Unified overlay contract', () => {
-  test('Popover supports custom mount and onExitComplete', async () => {
+describe('unified overlay contract', () => {
+  it('popover supports custom mount and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Popover
@@ -40,7 +39,7 @@ describe('Unified overlay contract', () => {
       expect(portalHost.querySelector('[data-slot="popover-content"]')).not.toBeNull()
       expect(onExitComplete).not.toHaveBeenCalled()
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExit('[data-slot="popover-content"]', portalHost)
       await waitFor(() => {
         expect(portalHost.querySelector('[data-slot="popover-content"]')).toBeNull()
@@ -52,10 +51,10 @@ describe('Unified overlay contract', () => {
     }
   })
 
-  test('ContextMenu supports preventScroll={false}, custom mount, and onExitComplete', async () => {
+  it('contextMenu supports preventScroll={false}, custom mount, and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <ContextMenu
@@ -76,7 +75,7 @@ describe('Unified overlay contract', () => {
       expect(document.body.style.overflow).toBe('')
       expect(onExitComplete).not.toHaveBeenCalled()
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExit('[data-slot="context-menu-content"]', portalHost)
       await waitFor(() => {
         expect(portalHost.querySelector('[data-slot="context-menu-content"]')).toBeNull()
@@ -88,10 +87,10 @@ describe('Unified overlay contract', () => {
     }
   })
 
-  test('DropdownMenu supports custom mount and onExitComplete', async () => {
+  it('dropdownMenu supports custom mount and onExitComplete', async () => {
     const portalHost = document.createElement('div')
     document.body.append(portalHost)
-    const onExitComplete = vi.fn()
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <DropdownMenu
@@ -110,7 +109,7 @@ describe('Unified overlay contract', () => {
       })
       expect(onExitComplete).not.toHaveBeenCalled()
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExit('[data-slot="dropdown-menu-content"]', portalHost)
       await waitFor(() => {
         expect(portalHost.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull()
@@ -122,8 +121,8 @@ describe('Unified overlay contract', () => {
     }
   })
 
-  test('BaseSelect and Combobox support preventScroll={false} and onExitComplete', async () => {
-    const onExitComplete = vi.fn()
+  it('baseSelect and Combobox support preventScroll={false} and onExitComplete', async () => {
+    const onExitComplete = vi.fn<(...args: Array<any>) => void>()
     const [open, setOpen] = createSignal(true)
     const items = [{ label: 'Apple', value: 'apple' }]
     const baseScreen = render(() => (
@@ -160,7 +159,7 @@ describe('Unified overlay contract', () => {
       })
       expect(document.body.style.overflow).toBe('')
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExit('[data-slot="combobox-content"]')
       await waitFor(() => {
         expect(document.body.querySelector('[data-slot="combobox-content"]')).toBeNull()

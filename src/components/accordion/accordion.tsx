@@ -1,34 +1,20 @@
-import type { JSX } from 'solid-js'
-import {
-  DEV,
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  splitProps,
-  untrack,
-} from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { DEV, For, Show, createEffect, createMemo, createSignal, onFlush, omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import type { SlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import { bindElement } from '../../shared/element-binding'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, createId } from '../../shared/utils'
+import { createId, mergeDefinedProps } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
 import type { AccordionStyleSlot } from './accordion.style-types'
 import type { AccordionProps } from './accordion.types'
-
 function AccordionItemPanel(props: {
   disclosure: DisclosureState
   contentId: string
@@ -69,7 +55,12 @@ function AccordionItemPanel(props: {
   )
 
   const [element, setElement] = createSignal<HTMLDivElement>()
-  bindElement(element, (node) => props.disclosure.registerContentElement(node))
+  createEffect(element, (node) => {
+    if (!node) {
+      return
+    }
+    return props.disclosure.registerContentElement(node)
+  })
 
   return (
     <div
@@ -79,7 +70,7 @@ function AccordionItemPanel(props: {
       aria-labelledby={props.triggerId}
       aria-hidden={props.disclosure.ariaHidden()}
       hidden={props.disclosure.hidden()}
-      inert={props.disclosure.inert()}
+      {...{ 'prop:inert': props.disclosure.inert() }}
       data-slot="accordion-content"
       {...contentSlot}
     >
@@ -96,7 +87,7 @@ function AccordionItemPanel(props: {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Accordion } from 'moraine'
  *
  * const [open, setOpen] = createSignal<string[]>(['shipping'])
@@ -112,7 +103,8 @@ function AccordionItemPanel(props: {
  * ```
  */
 export function Accordion(props: AccordionProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'value',
     'defaultValue',
@@ -131,7 +123,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'class',
     'style',
     'ref',
-  ])
+  )
   const {
     slots: {
       root: rootSlot,
@@ -141,11 +133,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
       body: bodySlot,
     },
     slotWith,
-  } = useRecipe(accordionRecipe, local, {
+  } = useRecipe(accordionRecipe, props, {
     data: { root: accordionDataAttributes.root(() => ({ disabled: () => merged.disabled })) },
   })
 
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       multiple: false,
       collapsible: true,
@@ -154,13 +146,14 @@ export function Accordion(props: AccordionProps): JSX.Element {
       expandIcon: 'icon-chevron-down',
       headingLevel: 3 as const,
     },
-    local,
+    props,
   )
 
   const rootId = createId(() => merged.id, 'accordion')
-  const expandIcon = createMemo(() => merged.expandIcon)
+  const expandIcon = () => merged.expandIcon
   const headingTag = () => `h${merged.headingLevel}` as const
-  const [selectedValues, setSelectedValues] = createControllableValue<string[]>({
+  const Heading = dynamic(headingTag)
+  const [selectedValues, setSelectedValues] = createControllableValue<Array<string>>({
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? [],
   })
@@ -181,13 +174,12 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const triggerRefs = new Map<string, HTMLButtonElement>()
   let lastFocusedIndex = -1
   let lastFocusedValue: string | undefined
-  let focusRecoveryVersion = 0
 
-  function getEnabledItems(): string[] {
+  function getEnabledItems(): Array<string> {
     if (merged.disabled) {
       return []
     }
-    const result: string[] = []
+    const result: Array<string> = []
     for (const item of items()) {
       if (!item.disabled && triggerRefs.has(item.value)) {
         result.push(item.value)
@@ -196,7 +188,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     return result
   }
 
-  function setValue(nextValue: string[]): void {
+  function setValue(nextValue: Array<string>): void {
     setSelectedValues(nextValue)
     merged.onValueChange?.(nextValue)
   }
@@ -226,7 +218,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
   function focusTriggerByOffset(currentKey: string, offset: number): void {
     const enabled = getEnabledItems()
-    const currentIndex = enabled.findIndex((key) => key === currentKey)
+    const currentIndex = enabled.indexOf(currentKey)
 
     if (currentIndex === -1) {
       return
@@ -255,55 +247,46 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const itemDisabledSnapshot = () => items().map((item) => item.disabled)
 
   createEffect(
-    on([itemDisabledSnapshot, () => merged.disabled], ([disabledItems, disabled]) => {
+    () => [itemDisabledSnapshot(), merged.disabled] as const,
+    ([disabledItems, disabled]) => {
       const enabledItemCount = disabledItems.filter(
         (itemDisabled) => !disabled && !itemDisabled,
       ).length
-      const version = ++focusRecoveryVersion
+      let cancelled = false
 
-      queueMicrotask(() => {
-        untrack(() => {
-          if (version !== focusRecoveryVersion || !lastFocusedValue || enabledItemCount === 0) {
-            return
-          }
+      onFlush(() => {
+        if (cancelled || !lastFocusedValue || enabledItemCount === 0) {
+          return
+        }
 
-          const currentTrigger = triggerRefs.get(lastFocusedValue)
-          const ownerDocument = currentTrigger?.ownerDocument ?? document
-          const activeElement = ownerDocument.activeElement
-          if (activeElement !== ownerDocument.body && activeElement !== currentTrigger) {
-            return
-          }
+        const currentTrigger = triggerRefs.get(lastFocusedValue)
+        const ownerDocument = currentTrigger?.ownerDocument ?? document
+        const activeElement = ownerDocument.activeElement
+        if (activeElement !== ownerDocument.body && activeElement !== currentTrigger) {
+          return
+        }
 
-          if (currentTrigger && !currentTrigger.disabled && currentTrigger.isConnected) {
-            currentTrigger.focus()
-            return
-          }
+        if (currentTrigger && !currentTrigger.disabled && currentTrigger.isConnected) {
+          currentTrigger.focus()
+          return
+        }
 
-          const enabled = getEnabledItems()
-          const targetIndex = Math.min(lastFocusedIndex, enabled.length - 1)
-          const target = enabled[Math.max(0, targetIndex)]
-          if (target !== undefined) {
-            triggerRefs.get(target)?.focus()
-          }
-        })
+        const enabled = getEnabledItems()
+        const targetIndex = Math.min(lastFocusedIndex, enabled.length - 1)
+        const target = enabled[Math.max(0, targetIndex)]
+        if (target !== undefined) {
+          triggerRefs.get(target)?.focus()
+        }
       })
-    }),
+
+      return () => {
+        cancelled = true
+      }
+    },
   )
 
-  onCleanup(() => {
-    focusRecoveryVersion += 1
-  })
-
   return (
-    <div
-      data-slot="accordion"
-      {...rootSlot}
-      {...rest}
-      ref={(element) => {
-        callRef(local.ref, element)
-      }}
-      id={rootId()}
-    >
+    <div data-slot="accordion" {...rootSlot} {...rest} ref={props.ref} id={rootId()}>
       <For each={items()}>
         {(item) => {
           const itemIdSegment = createId(undefined, 'accordion-item')
@@ -353,7 +336,12 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 {(value) => {
                   const [body, setBody] = createSignal<HTMLDivElement>()
                   // Measure natural content, independently of the shell's animated height.
-                  bindElement(body, disclosure.registerMeasureElement)
+                  createEffect(body, (node) => {
+                    if (!node) {
+                      return
+                    }
+                    return disclosure.registerMeasureElement(node)
+                  })
                   return (
                     <div ref={setBody} data-slot="accordion-body" {...bodySlot}>
                       {renderWithProps(value(), {
@@ -414,35 +402,31 @@ export function Accordion(props: AccordionProps): JSX.Element {
           })
 
           const [triggerEl, setTriggerEl] = createSignal<HTMLButtonElement>()
-          bindElement(triggerEl, (element) => {
-            disclosure.setTriggerElement(element)
-            let key = untrack(itemValue)
-            triggerRefs.set(key, element)
-            createEffect(
-              on(
-                itemValue,
-                (nextKey) => {
+          createEffect(
+            () => [triggerEl(), itemValue()] as const,
+            ([element, key]) => {
+              if (!element) {
+                return
+              }
+              disclosure.setTriggerElement(element)
+              triggerRefs.set(key, element)
+              return () => {
+                if (triggerRefs.get(key) === element) {
                   triggerRefs.delete(key)
-                  key = nextKey
-                  triggerRefs.set(key, element)
-                },
-                { defer: true },
-              ),
-            )
-            return () => {
-              triggerRefs.delete(key)
-            }
-          })
+                }
+              }
+            },
+          )
 
           return (
             <div data-slot="accordion-item" {...itemSlot}>
-              <Dynamic component={headingTag()} data-slot="accordion-header" {...headerSlot}>
+              <Heading data-slot="accordion-header" {...headerSlot}>
                 <button
                   ref={setTriggerEl}
                   id={triggerId()}
                   type="button"
                   aria-controls={contentId()}
-                  aria-expanded={expanded()}
+                  aria-expanded={expanded() ? 'true' : 'false'}
                   aria-label={item.ariaLabel ?? (label() === undefined ? item.value : undefined)}
                   disabled={disabled()}
                   data-slot="accordion-trigger"
@@ -473,16 +457,18 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   </Show>
 
                   <Show when={expandIcon()}>
-                    <Icon name={expandIcon()} data-slot="accordion-trailing" {...trailingSlot} />
+                    {(name) => (
+                      <Icon name={name()} data-slot="accordion-trailing" {...trailingSlot} />
+                    )}
                   </Show>
                 </button>
-              </Dynamic>
+              </Heading>
 
               <AccordionItemPanel
                 disclosure={disclosure}
                 contentId={contentId()}
                 triggerId={triggerId()}
-                slotOverrides={pickSlotOverrides(local)}
+                slotOverrides={pickSlotOverrides(props)}
               >
                 <Show when={disclosure.shouldMount()}>
                   <Content />

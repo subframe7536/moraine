@@ -1,12 +1,11 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
-import type { PresetWind4Theme } from '@subf/unocss'
 import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from '@subf/unocss'
+import type { PresetWind4Theme } from '@subf/unocss'
 
 import { presetMoraine } from '../src/theme/unocss.ts'
 
 import { getDocsShikiCss } from './build/core/shiki.ts'
 import { DOCS_MOBILE_QUERY } from './shared/docs-layout.ts'
-
 const markdownShortCuts = {
   'docs-h1': 'text-3xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
   'docs-h2':
@@ -100,6 +99,12 @@ export default defineConfig<PresetWind4Theme>({
     },
     {
       getCSS: () => `
+html,
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 /* The server renders the desktop rail before Sidebar resolves the viewport. */
 @media ${DOCS_MOBILE_QUERY} {
   [data-docs-sidebar]:not([data-mobile]) {
@@ -111,6 +116,77 @@ export default defineConfig<PresetWind4Theme>({
 ::view-transition-new(root) {
   animation-duration: 180ms;
 }
+
+.shiki {
+  color: var(--shiki-light);
+  background-color: transparent !important;
+}
+
+.shiki span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style, inherit);
+  font-weight: var(--shiki-light-font-weight, inherit);
+  text-decoration: var(--shiki-light-text-decoration, inherit);
+}
+
+.dark .shiki {
+  color: var(--shiki-dark);
+  background-color: transparent !important;
+}
+
+.dark .shiki span {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style, inherit);
+  font-weight: var(--shiki-dark-font-weight, inherit);
+  text-decoration: var(--shiki-dark-text-decoration, inherit);
+}
+
+.shiki code {
+  display: grid;
+  min-width: 100%;
+}
+
+.shiki .line {
+  position: relative;
+}
+
+.shiki .line:empty {
+  min-height: 1.625em;
+}
+
+.shiki .line.highlighted {
+  position: relative;
+  isolation: isolate;
+}
+
+.shiki .line.highlighted::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline: -1rem;
+  background-color: var(--muted);
+  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-inline-start: 2px solid var(--primary);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.shiki.line-numbers code {
+  counter-reset: line;
+}
+
+.shiki.line-numbers .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.5rem;
+  margin-inline-end: 1.25rem;
+  text-align: right;
+  color: var(--muted-foreground);
+  opacity: 0.5;
+  user-select: none;
+}
+
       `,
     },
   ],

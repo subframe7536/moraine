@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, on, onCleanup, splitProps } from 'solid-js'
-import { createStore, produce } from 'solid-js/store'
-import { Portal, isServer } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Portal, isServer } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, omit, createStore } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
-import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
+import { attachEventListener, attachEventListenerMap } from '../../shared/event-listener'
 import { inertFeedbackHandle } from '../shared/overlay/feedback/handle'
 
 import { ToastList } from './toast-list'
@@ -15,7 +15,6 @@ import { defaultToastMessages } from './toast.messages'
 import { toastRecipe } from './toast.recipe'
 import { DEFAULT_TOAST_GAP } from './toast.types'
 import type { ToastProps, ToastT } from './toast.types'
-
 function showToast(
   options: ToastT.Options,
   render?: JSX.Element | Component<ToastT.ItemRenderProps>,
@@ -35,7 +34,8 @@ function withType(type: ToastT.Variants['type'], options: ToastT.Options): Toast
  * methods.
  */
 function ToastRoot(props: ToastProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'placement',
     'align',
@@ -56,29 +56,29 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'class',
     'style',
     'translations',
-  ])
-  const messages = useMessages('toast', defaultToastMessages, () => local.translations)
+  )
+  const messages = useMessages('toast', defaultToastMessages, () => props.translations)
   const store = getDefaultToastStore()
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
   const [heights, setHeights] = createStore<Record<string | number, number>>({})
 
   const hostDefaults = createMemo<ToastHostDefaults>(() => ({
-    type: local.type,
-    size: local.size,
-    variant: local.variant,
-    placement: local.placement,
-    align: local.align,
-    duration: local.duration,
-    closable: local.closable,
-    progress: local.progress,
-    preventDuplicate: local.preventDuplicate,
-    classes: local.classes,
-    styles: local.styles,
-    translations: local.translations,
+    type: props.type,
+    size: props.size,
+    variant: props.variant,
+    placement: props.placement,
+    align: props.align,
+    duration: props.duration,
+    closable: props.closable,
+    progress: props.progress,
+    preventDuplicate: props.preventDuplicate,
+    classes: props.classes,
+    styles: props.styles,
+    translations: props.translations,
   }))
   const controller: ToastHost = {
-    id: () => local.id,
+    id: () => props.id,
     get defaults() {
       return hostDefaults()
     },
@@ -86,61 +86,71 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const {
     slots: { root: rootSlot },
-  } = useRecipe(toastRecipe, local)
+  } = useRecipe(toastRecipe, props)
 
   createEffect(
-    on(
-      () => local.id,
-      (id) => {
-        const unregister = store.registry.register(controller)
-        onCleanup(() => {
-          unregister()
-          store.abandonHost(id)
-        })
-      },
-    ),
-  )
-
-  const filteredToasts = createMemo(() => store.toasts.filter((toast) => toast.hostId === local.id))
-  const hasToasts = () => filteredToasts().some((toast) => !toast.closed)
-
-  createEffect(
-    on(hasToasts, (active) => {
-      if (!active) {
-        return
+    () => props.id,
+    (id) => {
+      const unregister = store.registry.register(controller)
+      return () => {
+        unregister()
+        store.abandonHost(id)
       }
-      setIsWindowFocused(document.hasFocus())
-      setIsDocumentHidden(document.hidden)
-      onCleanup(() => {
-        setIsWindowFocused(true)
-        setIsDocumentHidden(false)
-      })
-      createEventListenerMap(window, {
-        focus: () => setIsWindowFocused(true),
-        blur: () => setIsWindowFocused(false),
-      })
-      createEventListener(document, 'visibilitychange', () => setIsDocumentHidden(document.hidden))
-    }),
+    },
   )
 
-  const possiblePositions = createMemo(() => {
-    const defaultKey = `${local.placement ?? 'bottom'}-${local.align ?? 'end'}`
-    const activePositions = filteredToasts().map((toast) => {
-      const options = resolveToastOptions(toast.options, hostDefaults())
-      return `${options.placement}-${options.align}`
+  const filteredToasts = createMemo(() => store.toasts.filter((toast) => toast.hostId === props.id))
+  const hasToasts = createMemo(() => filteredToasts().some((toast) => !toast.closed))
+
+  createEffect(hasToasts, (active) => {
+    if (!active) {
+      return
+    }
+    setIsWindowFocused(document.hasFocus())
+    setIsDocumentHidden(document.hidden)
+    const detachWindow = attachEventListenerMap(window, {
+      focus: () => setIsWindowFocused(true),
+      blur: () => setIsWindowFocused(false),
     })
-    return Array.from(new Set([defaultKey, ...activePositions]))
+    const detachVisibility = attachEventListener(document, 'visibilitychange', () =>
+      setIsDocumentHidden(document.hidden),
+    )
+    return () => {
+      setIsWindowFocused(true)
+      setIsDocumentHidden(false)
+      detachWindow()
+      detachVisibility()
+    }
   })
+
+  const possiblePositions = createMemo(
+    () => {
+      const defaultKey = `${props.placement ?? 'bottom'}-${props.align ?? 'end'}`
+      const activePositions = filteredToasts().map((toast) => {
+        const options = resolveToastOptions(toast.options, hostDefaults())
+        return `${options.placement}-${options.align}`
+      })
+      return Array.from(new Set([defaultKey, ...activePositions]))
+    },
+    {
+      equals: (prev, next) =>
+        prev.length === next.length && prev.every((value, index) => value === next[index]),
+    },
+  )
 
   const updateHeight = (id: string | number, height: number) => {
     if (height <= 0) {
       if (heights[id] !== undefined) {
-        setHeights(produce((draft) => delete draft[id]))
+        setHeights((draft) => {
+          delete draft[id]
+        })
       }
       return
     }
     if (heights[id] !== height) {
-      setHeights(produce((draft) => (draft[id] = height)))
+      setHeights((draft) => {
+        draft[id] = height
+      })
     }
   }
 
@@ -149,13 +159,13 @@ function ToastRoot(props: ToastProps): JSX.Element {
       <section
         data-slot="toast"
         role="region"
-        tabIndex={-1}
+        tabindex={-1}
         {...rootSlot}
         {...rest}
         aria-live="polite"
         aria-relevant="additions text"
         aria-atomic="false"
-        aria-label={local['aria-label'] ?? messages().label}
+        aria-label={props['aria-label'] ?? messages().label}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (
@@ -164,12 +174,12 @@ function ToastRoot(props: ToastProps): JSX.Element {
               filteredToasts={filteredToasts()}
               host={hostDefaults()}
               store={store}
-              expanded={local.expanded}
+              expanded={props.expanded}
               hostPaused={isDocumentHidden() || !isWindowFocused()}
               heights={heights}
-              gap={local.gap ?? DEFAULT_TOAST_GAP}
-              maxVisible={local.maxVisible ?? 3}
-              itemRender={local.itemRender}
+              gap={props.gap ?? DEFAULT_TOAST_GAP}
+              maxVisible={props.maxVisible ?? 3}
+              itemRender={props.itemRender}
               onHeight={updateHeight}
             />
           )}
@@ -239,7 +249,9 @@ Toast.error = (options) => showToast(withType('error', options))
 Toast.loading = (options) => showToast(withType('loading', options))
 Toast.promise = <T,>(value: Promise<T> | (() => Promise<T>), options: ToastT.PromiseOptions<T>) => {
   const handle = Toast.loading(options.loading ?? {})
-  const task = new Promise<T>((resolve) => resolve(typeof value === 'function' ? value() : value))
+  const task = new Promise<T>((resolve) => {
+    resolve(typeof value === 'function' ? value() : value)
+  })
   void task.then(
     (data) => {
       const next = typeof options.success === 'function' ? options.success(data) : options.success

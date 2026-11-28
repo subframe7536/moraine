@@ -1,5 +1,4 @@
 import type { Accessor } from 'solid-js'
-
 export type DataAttributeValue = string | number | boolean | null | undefined
 type MaybeAccessor<T> = T | Accessor<T>
 
@@ -10,11 +9,11 @@ type CamelCase<Name extends string> = Name extends `${infer Head}-${infer Tail}`
   ? `${Head}${Capitalize<CamelCase<Tail>>}`
   : Name
 
-type DataAttributeState<Names extends readonly string[]> = {
+type DataAttributeState<Names extends ReadonlyArray<string>> = {
   [Name in Names[number] as CamelCase<Name>]: MaybeAccessor<DataAttributeValue>
 }
 
-type DataAttributeResult<Names extends readonly string[]> = {
+type DataAttributeResult<Names extends ReadonlyArray<string>> = {
   readonly [Name in Names[number] as `data-${Name}`]: string | number | undefined
 }
 
@@ -28,7 +27,7 @@ interface DataAttributeResolverMarker {
  * Resolves a fixed set of `data-*` getters. Pass the state as an accessor when it is defined
  * after the call site (for example, in `useRecipe({ data })`); it is read only on attribute reads.
  */
-export type DataAttributeResolver<Names extends readonly string[]> = ((
+export type DataAttributeResolver<Names extends ReadonlyArray<string>> = ((
   state: DataAttributeState<Names> | (() => DataAttributeState<Names>),
 ) => DataAttributeResult<Names>) &
   DataAttributeResolverMarker
@@ -55,12 +54,12 @@ function normalizeStyleContractValue(value: DataAttributeValue): string | number
 }
 
 function stateKey(attributeName: string): string {
-  return attributeName.replace(/-([a-z0-9])/gu, (_match, character: string) =>
+  return attributeName.replaceAll(/-([a-z0-9])/gu, (_match, character: string) =>
     character.toUpperCase(),
   )
 }
 
-export function createDataAttributes<const Names extends readonly string[]>(
+export function createDataAttributes<const Names extends ReadonlyArray<string>>(
   ...names: Names & {
     [Index in keyof Names]: Names[Index] extends string
       ? AttributeNameWithoutDataPrefix<Names[Index]>

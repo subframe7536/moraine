@@ -1,6 +1,5 @@
 import { Badge } from '@src'
 import { createMemo, createSignal, For } from 'solid-js'
-
 const FILTERS = [
   { value: 'all', label: 'All' },
   { value: 'open', label: 'Open' },
@@ -27,7 +26,7 @@ export function FilterIssues() {
             <Badge
               as="button"
               type="button"
-              aria-pressed={filter() === item.value}
+              aria-pressed={filter() === item.value ? 'true' : 'false'}
               variant={filter() === item.value ? 'solid' : 'outline'}
               onClick={() => setFilter(item.value)}
             >

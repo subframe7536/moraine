@@ -2,7 +2,6 @@ import { ScrollArea } from '@src'
 import { For } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function ScrollAreaPlayground() {
   return (
     <DocsPlayground
@@ -76,7 +75,11 @@ export default function ScrollAreaPlayground() {
           <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
             {(entry) => (
               <div
-                class={`py-1.5 shrink-0 ${props.orientation === 'vertical' ? '' : 'w-40'}  ${props.orientation === 'both' ? 'h-64' : ''}`}
+                class={[
+                  'py-1.5 shrink-0',
+                  props.orientation !== 'vertical' && 'w-40',
+                  props.orientation === 'both' && 'h-64',
+                ]}
               >
                 <p class="text-sm font-medium">Activity entry {entry}</p>
                 <p class="text-xs text-muted-foreground">Project updates and decisions.</p>

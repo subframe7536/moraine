@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Portal } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { Portal } from 'solid-js/web'
 
 import { useBaseDialogContext } from './base-dialog-context'
 import type { BaseDialogT } from './base-dialog.types'
-
 /**
  * Portals the `BaseDialog` overlay and content together while the modal is open and keeps them mounted
  * through exit animations. Place `BaseDialog.Overlay` and `BaseDialog.Content` inside it. It renders no
@@ -31,7 +30,11 @@ export function BaseDialogPortal(props: BaseDialogT.PortalProps): JSX.Element {
     <Show when={context.presence.present()}>
       {(_present) => (
         <Portal
-          mount={props.mount ?? context.mount() ?? context.triggerElement()?.ownerDocument.body}
+          mount={
+            (props.mount ??
+              context.mount() ??
+              context.triggerElement()?.ownerDocument.body) as Element
+          }
         >
           {props.children}
         </Portal>

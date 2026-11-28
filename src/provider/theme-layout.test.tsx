@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { expect, test } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { expect, it } from 'vitest'
 
 import { RadioGroup } from '../components/radio-group/radio-group'
 import { Resizable } from '../components/resizable/resizable'
@@ -15,8 +15,7 @@ import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineProvider } from './moraine-provider'
-
-test('resolves layout defaults reactively for styles, semantics, and keyboard navigation', () => {
+it('resolves layout defaults reactively for styles, semantics, and keyboard navigation', () => {
   const verticalTheme = defineTheme({
     separator: { defaultVariants: { orientation: 'vertical' } },
     slider: { defaultVariants: { orientation: 'vertical' } },
@@ -71,7 +70,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
   fireEvent.keyDown(alpha, { key: 'ArrowDown' })
   expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Beta' }))
 
-  setTheme(null)
+  flush(() => setTheme(null))
   expect(screen.getByTestId('separator').getAttribute('aria-orientation')).toBe('horizontal')
   expect(screen.getByRole('slider', { name: 'Thumb' }).getAttribute('aria-orientation')).toBe(
     'horizontal',
@@ -83,7 +82,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
   expect(screen.getByTestId('sidebar').className).not.toContain('sidebar-right')
 })
 
-test('uses the theme side for Sheet and lets explicit props override it', () => {
+it('uses the theme side for Sheet and lets explicit props override it', () => {
   const [side, setSide] = createSignal<'right' | undefined>()
   render(() => (
     <MoraineProvider
@@ -108,12 +107,12 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
   ))
   const content = document.body.querySelector('[data-slot="sheet-content"]')!
   expect(content.classList.contains('sheet-left')).toBe(true)
-  setSide('right')
+  flush(() => setSide('right'))
   expect(content.classList.contains('sheet-right')).toBe(true)
   expect(content.classList.contains('sheet-left')).toBe(false)
 })
 
-test('inherits built-in defaultVariants on theme layers unless explicitly overridden', async () => {
+it('inherits built-in defaultVariants on theme layers unless explicitly overridden', async () => {
   const customBaseTheme = defineTheme({
     sidebar: {
       base: {
@@ -165,22 +164,24 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
   })
 
   // Theme can explicitly override defaultVariants
-  setTheme(
-    defineTheme({
-      sidebar: {
-        base: {
-          root: 'custom-frame-root',
-          panel: 'custom-sidebar',
+  flush(() =>
+    setTheme(
+      defineTheme({
+        sidebar: {
+          base: {
+            root: 'custom-frame-root',
+            panel: 'custom-sidebar',
+          },
+          defaultVariants: { side: 'end' },
         },
-        defaultVariants: { side: 'end' },
-      },
-      slider: {
-        base: {
-          root: 'custom-slider-root',
+        slider: {
+          base: {
+            root: 'custom-slider-root',
+          },
+          defaultVariants: { orientation: 'vertical' },
         },
-        defaultVariants: { orientation: 'vertical' },
-      },
-    }),
+      }),
+    ),
   )
 
   expect(

@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -8,12 +8,11 @@ import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, mergeDefinedProps, resolvePropsChildren } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Primary focus owner and activator of the surrounding `BaseSelect`: it opens and closes the
  * popup and handles keyboard navigation, with `role="combobox"` and the related ARIA attributes.
@@ -28,7 +27,7 @@ import type { BaseSelectT } from './base-select.types'
  * <BaseSelect items={[{ label: 'Option A', value: 'a' }]}>
  *   <BaseSelect.Control>
  *     <BaseSelect.Trigger>
- *       {(state) => (state.value.length > 0 ? 'Selected' : 'Choose')}
+ *       {(state) => <>{state.value.length > 0 ? 'Selected' : 'Choose'}</>}
  *     </BaseSelect.Trigger>
  *   </BaseSelect.Control>
  *   <BaseSelect.Content>
@@ -44,7 +43,15 @@ export function BaseSelectTrigger<
   TItem extends BaseSelectT.Item = BaseSelectT.Item,
 >(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
   const state = useSelectContext<TItem>()
-  const [local, rest] = splitProps(props, [
+  const typedProps = props as BaseSelectT.TriggerProps<T, TItem> & {
+    onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
+    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
+    onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    ref?: HTMLElement | ((el: HTMLElement) => void)
+  }
+  const rest = omit(
+    typedProps,
     'as',
     'children',
     'class',
@@ -54,18 +61,18 @@ export function BaseSelectTrigger<
     'onKeyDown',
     'onFocus',
     'onBlur',
-    'ref' as any,
-  ])
+    'ref',
+  )
   const {
     slots: { trigger: triggerSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, typedProps, {
     slot: 'trigger',
     data: {
       trigger: baseSelectDataAttributes.trigger({
         invalid: state.invalid,
         expanded: state.open,
         closed: () => !state.open(),
-        disabled: () => Boolean(state.disabled() || local.disabled),
+        disabled: () => Boolean(state.disabled() || typedProps.disabled),
       }),
     },
     context: state.recipeContext,
@@ -84,20 +91,20 @@ export function BaseSelectTrigger<
       return state.readOnly()
     },
   }
-  const child = resolveChildren(() => local.children)
+  const child = resolvePropsChildren(typedProps as { children?: JSX.Element })
   const resolvedChildren = createMemo(() => renderWithProps(child(), presentation))
-  const tag = () => local.as ?? 'button'
+  const tag = () => typedProps.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
-    ref: () => local.ref,
+    ref: () => typedProps.ref,
     registration: {
       element: state.focusOwner,
       setElement: state.setFocusOwner,
     },
   })
-  const eventProps = mergeProps({ role: 'combobox' as const }, rest, {
+  const eventProps = mergeDefinedProps({ role: 'combobox' as const }, rest, {
     onPointerDown(event: PointerEvent) {
-      callHandler(event, local.onPointerDown)
+      callHandler(event, typedProps.onPointerDown)
       if (
         !event.defaultPrevented &&
         !state.disabled() &&
@@ -109,17 +116,17 @@ export function BaseSelectTrigger<
       }
     },
     onKeyDown: createKeyDownHandler({
-      onKeyDown: () => local.onKeyDown,
+      onKeyDown: () => typedProps.onKeyDown,
       onUnhandled: (event) => state.keyDown(event),
     }),
     onFocus(event: FocusEvent) {
-      callHandler(event, local.onFocus)
+      callHandler(event, typedProps.onFocus)
       if (!event.defaultPrevented) {
         state.focus(event)
       }
     },
     onBlur(event: FocusEvent) {
-      callHandler(event, local.onBlur)
+      callHandler(event, typedProps.onBlur)
       if (!event.defaultPrevented) {
         state.blur(event)
       }
@@ -129,7 +136,7 @@ export function BaseSelectTrigger<
     {
       tag,
       disabledForComponent: true,
-      disabled: () => state.disabled() || Boolean(local.disabled),
+      disabled: () => state.disabled() || Boolean(typedProps.disabled),
       element: root.element,
       onPress: () => {
         state.focusOwner()?.focus()
@@ -139,9 +146,16 @@ export function BaseSelectTrigger<
     eventProps,
   )
   const rootBinding = root.bind(binding)
+  const activeDescendant = () => {
+    if (!state.open()) {
+      return undefined
+    }
+    const highlighted = state.highlightedValue()
+    return highlighted !== undefined ? state.itemId(highlighted) : undefined
+  }
+  const Root = dynamic<ValidComponent>(tag)
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot={state.slotName('trigger')}
       aria-haspopup="listbox"
       {...triggerSlot}
@@ -150,13 +164,9 @@ export function BaseSelectTrigger<
       id={state.id()}
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
-      aria-activedescendant={
-        state.open() && state.highlightedValue() !== undefined
-          ? state.itemId(state.highlightedValue()!)
-          : undefined
-      }
+      aria-activedescendant={activeDescendant()}
     >
       {resolvedChildren()}
-    </Dynamic>
+    </Root>
   )
 }

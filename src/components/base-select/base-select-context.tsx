@@ -1,16 +1,16 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 import {
   DEV,
-  Index,
-  batch,
   createEffect,
   createMemo,
-  createSelector,
   createSignal,
-  on,
   onCleanup,
-  onMount,
+  onFlush,
+  onSettled,
   untrack,
+  For,
+  createProjection,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -35,12 +35,11 @@ import { useHiddenInputValidation } from '../shared/form/use-hidden-input-valida
 
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectProps, BaseSelectT, BaseSelectValue } from './base-select.types'
-
 /** Projects the selection onto the native form value: an array, or a scalar (`null` when empty). */
 function toFormValue<T extends BaseSelectValue>(
-  values: readonly T[],
+  values: ReadonlyArray<T>,
   multiple: boolean,
-): T[] | T | null {
+): Array<T> | T | null {
   return multiple ? [...values] : (values[0] ?? null)
 }
 
@@ -49,7 +48,7 @@ function fromFormValue<T extends BaseSelectValue>(
   formValue: unknown,
   multiple: boolean,
   emptyIsValue: boolean,
-): T[] {
+): Array<T> {
   if (multiple) {
     return Array.isArray(formValue) ? formValue : []
   }
@@ -60,7 +59,7 @@ function fromFormValue<T extends BaseSelectValue>(
 }
 
 function formValueMatches(
-  values: readonly BaseSelectValue[],
+  values: ReadonlyArray<BaseSelectValue>,
   formValue: unknown,
   multiple: boolean,
 ) {
@@ -74,8 +73,8 @@ export function createSelectState<T extends BaseSelectT.Item>(
   slotOwner: Accessor<string>,
 ) {
   const slotName = (slot: string) => dataSlotName(slotOwner(), slot)
-  type Value = readonly T['value'][]
-  const normalize = (values: Value): T['value'][] =>
+  type Value = ReadonlyArray<T['value']>
+  const normalize = (values: Value): Array<T['value']> =>
     normalizeSelection(values, props.multiple === true)
   const id = createId(() => props.id, 'select')
   const initial = untrack(() => normalize(props.defaultValue ?? []))
@@ -89,7 +88,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
     },
   })
   const [mounted, setMounted] = createSignal(false)
-  onMount(() => setMounted(true))
+  onSettled(() => {
+    setMounted(true)
+  })
   const items = () => props.items ?? []
   const itemByValue = createMemo(() => {
     const byValue = new Map<T['value'], T>()
@@ -100,7 +101,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     }
     return byValue
   })
-  createEffect(on(items, diagnoseDuplicateItems))
+  createEffect(items, diagnoseDuplicateItems)
   /**
    * Resolves a selection value to its canonical item representation.
    * Uses caller-provided `getItemByValue` if supplied (e.g. Combobox),
@@ -135,7 +136,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     },
     defaultValue: () => initial,
   })
-  const value = createMemo(() => normalize(selection()))
+  const value = createMemo(() => normalize(selection()), { equals: selectionEqual })
   const selectedValues = createMemo(() => new Set(value()))
   const itemDisabled = (item: T) => {
     const canonical = getCanonicalItem(item.value) ?? item
@@ -146,14 +147,11 @@ export function createSelectState<T extends BaseSelectT.Item>(
     defaultValue: () => props.defaultOpen ?? false,
     onChange: (next) => props.onOpenChange?.(next),
   })
-  const [highlightedValue, setHighlightedValue] = createSignal<T['value']>()
   const [anchor, setAnchor] = createSignal<HTMLElement>()
   const [focusOwner, setFocusOwner] = createSignal<HTMLElement>()
-  createEffect(
-    on(focusOwner, (element) => {
-      field.setControlRef(element)
-    }),
-  )
+  createEffect(focusOwner, (element) => {
+    field.setControlRef(element)
+  })
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectValue) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
@@ -177,6 +175,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
   let formInput: HTMLInputElement | undefined
 
   function setOpen(next: boolean) {
+    // Open writes arrive from unowned delegated handlers; settle them.
     if (!next || !field.disabled()) {
       setOpenValue(next)
     }
@@ -208,22 +207,19 @@ export function createSelectState<T extends BaseSelectT.Item>(
     }
     discardComposition()
     const shouldClose = props.closeOnSelect ?? !props.multiple
-    batch(() => {
-      if (shouldClose) {
-        setOpen(false)
-      }
-      change(
-        props.multiple
-          ? selectedValues().has(item.value)
-            ? value().filter((value) => !sameValue(value, item.value))
-            : [...value(), item.value]
-          : [item.value],
-      )
-    })
+    if (shouldClose) {
+      setOpen(false)
+    }
+    change(
+      props.multiple
+        ? selectedValues().has(item.value)
+          ? value().filter((value) => !sameValue(value, item.value))
+          : [...value(), item.value]
+        : [item.value],
+    )
     if (shouldClose) {
       const target = focusOwner()
-      // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus validates the current control and open state.
-      queueMicrotask(() => {
+      onFlush(() => {
         if (!open() && target === focusOwner() && target?.isConnected) {
           target.focus()
         }
@@ -241,27 +237,56 @@ export function createSelectState<T extends BaseSelectT.Item>(
     })
     return { items: enabledItems, indexByValue }
   })
+  const [highlightedValue, setHighlightedValue] = createSignal<T['value'] | undefined>(
+    (previous) => {
+      const isOpen = open()
+      const nav = navigation()
+      const selected = selectedValues()
+      if (!isOpen || (previous !== undefined && nav.indexByValue.has(previous))) {
+        return previous
+      }
+      const next = nav.items.find((item) => selected.has(item.value)) ?? nav.items[0]
+      return next?.value
+    },
+  )
   const highlightedIndex = () => {
     const current = highlightedValue()
     return current === undefined ? -1 : (navigation().indexByValue.get(current) ?? -1)
   }
-  const isHighlighted = createSelector<T['value'] | undefined, T['value']>(
-    highlightedValue,
-    sameValue,
-  )
-  const isSelected = createSelector<ReadonlySet<T['value']>, T['value']>(
-    selectedValues,
-    (item, selected) => selected.has(item),
-  )
-  createEffect(
-    on([open, navigation, highlightedValue, selectedValues], ([isOpen, nav, current, selected]) => {
-      if (!isOpen || (current !== undefined && nav.indexByValue.has(current))) {
-        return
+  const toValueKey = (value: T['value']): string =>
+    typeof value === 'number' ? `n:${value}` : `s:${value}`
+  let previousHighlightedKey: string | undefined
+  const highlightedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = highlightedValue()
+    const nextKey = next === undefined ? undefined : toValueKey(next)
+    if (previousHighlightedKey !== undefined && previousHighlightedKey !== nextKey) {
+      delete draft[previousHighlightedKey]
+    }
+    if (nextKey !== undefined) {
+      draft[nextKey] = true
+    }
+    previousHighlightedKey = nextKey
+  }, {})
+  const isHighlighted = (value: T['value']): boolean => highlightedMap[toValueKey(value)] === true
+
+  let previousSelectedKeys = new Set<string>()
+  const selectedMap = createProjection<Record<string, boolean>>((draft) => {
+    const nextKeys = new Set<string>()
+    for (const value of selectedValues()) {
+      const key = toValueKey(value)
+      nextKeys.add(key)
+      if (!previousSelectedKeys.has(key)) {
+        draft[key] = true
       }
-      const next = nav.items.find((item) => selected.has(item.value)) ?? nav.items[0]
-      setHighlightedValue(next?.value)
-    }),
-  )
+    }
+    for (const key of previousSelectedKeys) {
+      if (!nextKeys.has(key)) {
+        delete draft[key]
+      }
+    }
+    previousSelectedKeys = nextKeys
+  }, {})
+  const isSelected = (value: T['value']): boolean => selectedMap[toValueKey(value)] === true
   const typeahead = createTypeahead({
     getItems: items,
     getStartIndex: () =>
@@ -383,18 +408,16 @@ export function createSelectState<T extends BaseSelectT.Item>(
   })
 
   createEffect(
-    on(
-      [value, field.value, () => props.value !== undefined],
-      ([current, formValue, controlled]) => {
-        if (!controlled) {
-          return
-        }
-        const multiple = props.multiple === true
-        if (!formValueMatches(current, formValue, multiple)) {
-          field.setFormValue(toFormValue(current, multiple))
-        }
-      },
-    ),
+    () => [value(), props.value !== undefined, props.multiple === true] as const,
+    ([current, controlled, multiple]) => {
+      if (!controlled) {
+        return
+      }
+      const formValue = untrack(field.value)
+      if (!formValueMatches(current, formValue, multiple)) {
+        field.setFormValue(toFormValue(current, multiple))
+      }
+    },
   )
   let compositionDiscarder: (() => void) | undefined
   function registerCompositionDiscarder(discard: () => void) {
@@ -414,11 +437,13 @@ export function createSelectState<T extends BaseSelectT.Item>(
     compositionDiscarder?.()
   }
   createEffect(
-    on(value, (current, previous) => {
+    value,
+    (current, previous) => {
       if (previous !== undefined && !selectionEqual(current, previous)) {
         discardComposition()
       }
-    }),
+    },
+    { defer: true },
   )
   /** Form string of a value; `undefined` omits it from the submission. */
   function serialize(selected: T['value']): string | undefined {
@@ -439,7 +464,10 @@ export function createSelectState<T extends BaseSelectT.Item>(
   }
   const hasSelection = () => value().length > 0
   const primarySerializedValue = () => serialized()[0] ?? ''
-  const secondarySerializedValues = createMemo(() => serialized().slice(1))
+  const secondarySerializedValues = createMemo(() => serialized().slice(1), {
+    equals: (prev, next) =>
+      prev.length === next.length && prev.every((item, index) => item === next[index]),
+  })
 
   useFormReset(
     () => formInput?.form,
@@ -450,7 +478,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
       const next = props.value !== undefined ? normalize(props.value) : initial
       field.setFormValue(toFormValue(next, props.multiple === true))
       if (formInput) {
-        formInput.value = primarySerializedValue()
+        formInput.value = next.flatMap((selected) => serialize(selected) ?? [])[0] ?? ''
       }
       props.onReset?.()
     },
@@ -500,7 +528,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
           aria-hidden="true"
           disabled={field.disabled()}
           required={field.required() && !hasSelection()}
-          tabIndex={-1}
+          tabindex={-1}
           form={props.form}
           name={serialized().length > 0 ? field.name() : undefined}
           value={primarySerializedValue()}
@@ -518,7 +546,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
           }}
           onInvalid={onInvalid}
         />
-        <Index each={secondarySerializedValues()}>
+        <For each={secondarySerializedValues()} keyed={false}>
           {(value) => (
             <HiddenInput
               type="hidden"
@@ -529,7 +557,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
               disabled={field.disabled()}
             />
           )}
-        </Index>
+        </For>
       </>
     ),
   }

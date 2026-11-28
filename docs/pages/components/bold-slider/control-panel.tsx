@@ -1,6 +1,5 @@
 import { BoldSlider } from '@src'
 import { createSignal } from 'solid-js'
-
 export function ControlPanel() {
   const [bounce, setBounce] = createSignal(0.5)
   const [stiffness, setStiffness] = createSignal(120)

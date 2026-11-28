@@ -1,6 +1,5 @@
 import { Button, Icon, Tooltip } from '@src'
 import { createSignal } from 'solid-js'
-
 export function IconButtons() {
   const [bookmarked, setBookmarked] = createSignal(false)
 

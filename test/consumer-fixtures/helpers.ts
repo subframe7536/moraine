@@ -11,7 +11,6 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-
 export const PROJECT_ROOT = resolve(import.meta.dirname, '../..')
 const CLASS_TOKENS_PATH = join(PROJECT_ROOT, 'node_modules/.cache/moraine/class-tokens.json')
 
@@ -40,8 +39,9 @@ export function createIsolatedConsumer(options: { virtualizer?: boolean } = {}):
   const packageDir = join(root, 'node_modules', 'moraine')
   mkdirSync(packageDir, { recursive: true })
   mkdirSync(join(root, 'node_modules', '@subf'), { recursive: true })
+  mkdirSync(join(root, 'node_modules', '@solidjs'), { recursive: true })
   mkdirSync(join(root, 'node_modules', '@tanstack'), { recursive: true })
-  for (const name of ['@formisch/solid', '@floating-ui/dom']) {
+  for (const name of ['@formisch/solid/v2', '@floating-ui/dom']) {
     const destination = join(root, 'node_modules', name)
     mkdirSync(dirname(destination), { recursive: true })
     symlinkSync(join(PROJECT_ROOT, 'node_modules', name), destination, 'junction')
@@ -59,6 +59,11 @@ export function createIsolatedConsumer(options: { virtualizer?: boolean } = {}):
   symlinkSync(
     join(PROJECT_ROOT, 'node_modules', 'solid-js'),
     join(root, 'node_modules', 'solid-js'),
+    'junction',
+  )
+  symlinkSync(
+    join(PROJECT_ROOT, 'node_modules', '@solidjs', 'web'),
+    join(root, 'node_modules', '@solidjs', 'web'),
     'junction',
   )
   symlinkSync(
@@ -89,8 +94,8 @@ export function removeIsolatedConsumer(consumer: IsolatedConsumer): void {
 }
 
 /** Reads distribution classes collected by the consumer test setup. */
-export function readBuiltClassTokens(): string[] {
-  return JSON.parse(readFileSync(CLASS_TOKENS_PATH, 'utf8')) as string[]
+export function readBuiltClassTokens(): Array<string> {
+  return JSON.parse(readFileSync(CLASS_TOKENS_PATH, 'utf8')) as Array<string>
 }
 
 export function verifyConsumerPackageExports(consumer: IsolatedConsumer): void {

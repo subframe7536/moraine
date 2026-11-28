@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { createEmptyPart } from './empty-part'
 import type { EmptyT } from './empty.types'
-
 /**
  * Supporting text that explains an `Empty` state, grouped with `Empty.Title`; place it inside
  * `Empty`. It renders a `p` by default and can be changed with `as`.

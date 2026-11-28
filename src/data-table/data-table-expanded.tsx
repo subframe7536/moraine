@@ -1,13 +1,12 @@
+import type { JSX } from '@solidjs/web'
 import type { RowData } from '@tanstack/table-core'
-import type { Component, JSX } from 'solid-js'
-import { Show, createSignal } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { Component } from 'solid-js'
+import { Show, createEffect, createSignal, dynamicComponent } from 'solid-js'
 
 import { useRecipe } from '../provider'
 import type { SlotOverrides } from '../provider'
 import type { DisclosureState } from '../shared/disclosure-state'
 import { createDisclosureState } from '../shared/disclosure-state'
-import { bindElement } from '../shared/element-binding'
 
 import {
   DATA_TABLE_EXPANDED_BODY_CLASS,
@@ -17,7 +16,6 @@ import {
   dataTableRecipe,
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
-
 export function createDataTableRowDisclosure(open: () => boolean): DisclosureState {
   return createDisclosureState({
     open,
@@ -33,6 +31,7 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
   render: Component<DataTableT.ExpandedRowRenderProps<TData>>
   slotOverrides: SlotOverrides
 }): JSX.Element {
+  const ExpandedContent = dynamicComponent(() => props.render)
   const {
     slots: { expandedRow: expandedRowSlot, expandedCell: expandedCellSlot },
   } = useRecipe(
@@ -66,16 +65,32 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
       {(_mounted) => {
         const [content, setContent] = createSignal<HTMLDivElement>()
         const [body, setBody] = createSignal<HTMLDivElement>()
-        bindElement(content, props.disclosure.registerContentElement)
-        bindElement(body, props.disclosure.registerMeasureElement)
+        createEffect(
+          () => [content(), props.disclosure] as const,
+          ([node, disclosure]) => {
+            if (!node) {
+              return
+            }
+            return disclosure.registerContentElement(node)
+          },
+        )
+        createEffect(
+          () => [body(), props.disclosure] as const,
+          ([node, disclosure]) => {
+            if (!node) {
+              return
+            }
+            return disclosure.registerMeasureElement(node)
+          },
+        )
         return (
           <tr data-slot="data-table-expanded-row" {...expandedRowSlot}>
-            <td data-slot="data-table-expanded-cell" colSpan={props.colSpan} {...expandedCellSlot}>
+            <td data-slot="data-table-expanded-cell" colspan={props.colSpan} {...expandedCellSlot}>
               <div
                 ref={setContent}
                 data-slot="data-table-expanded-content"
                 hidden={props.disclosure.hidden()}
-                inert={props.disclosure.inert()}
+                {...{ 'prop:inert': props.disclosure.inert() }}
                 aria-hidden={props.disclosure.ariaHidden()}
                 class={DATA_TABLE_EXPANDED_WRAPPER_CLASS}
                 style={{
@@ -92,7 +107,7 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
                 })}
               >
                 <div ref={setBody} class={DATA_TABLE_EXPANDED_BODY_CLASS}>
-                  <Dynamic component={props.render} row={props.row} />
+                  <ExpandedContent row={props.row} />
                 </div>
               </div>
             </td>

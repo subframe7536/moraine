@@ -1,6 +1,5 @@
 import { containsComposed, getComposedElementAncestors, getComposedElementChildren } from './dom'
 import { containsOverlayContentAbove } from './overlay-stack'
-
 interface AriaHiddenState {
   count: number
   previousValue: string | null
@@ -16,7 +15,7 @@ interface AriaHideLayer {
 }
 
 const ariaHiddenStates = new WeakMap<Element, AriaHiddenState>()
-const ariaHideLayers = new WeakMap<Document, AriaHideLayer[]>()
+const ariaHideLayers = new WeakMap<Document, Array<AriaHideLayer>>()
 
 /** Hides every body branch outside the target from assistive technology. */
 export function acquireAriaHideOutside(
@@ -75,7 +74,7 @@ export function acquireAriaHideOutside(
     hide(element)
   }
 
-  layers[layers.length - 1]?.observer.disconnect()
+  layers.at(-1)?.observer.disconnect()
 
   for (const child of root.children) {
     walk(child)
@@ -152,7 +151,7 @@ export function acquireAriaHideOutside(
     }
 
     if (wasTopLayer) {
-      const previousLayer = layers[layers.length - 1]
+      const previousLayer = layers.at(-1)
       if (previousLayer) {
         for (const child of previousLayer.root.children) {
           previousLayer.walk(child)

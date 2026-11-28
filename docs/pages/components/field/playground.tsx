@@ -2,7 +2,6 @@ import { Field, Input } from '@src'
 import { createSignal } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function FieldPlayground() {
   return (
     <DocsPlayground

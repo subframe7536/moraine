@@ -1,7 +1,6 @@
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, on, onCleanup } from 'solid-js'
-import { isServer } from 'solid-js/web'
-
+import { createEffect, onSettled, untrack } from 'solid-js'
 const STORAGE_PREFIX = 'mo-docs-scroll:'
 
 export interface UseScrollRetentionOptions {
@@ -14,13 +13,6 @@ export interface UseScrollRetentionOptions {
  * across browser refreshes and Vite HMR reloads during development.
  */
 export function useScrollRetention(options: UseScrollRetentionOptions) {
-  if (isServer) {
-    return {
-      saveScroll: () => {},
-      restoreScroll: () => {},
-    }
-  }
-
   let saveTimer: ReturnType<typeof setTimeout> | undefined
   let restoreFrame: number | undefined
   let restoreObserver: MutationObserver | undefined
@@ -62,14 +54,14 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
   }
 
   const saveScroll = () => {
-    if (restoring) {
+    if (isServer || restoring) {
       return
     }
-    const el = options.element()
+    const el = untrack(options.element)
     if (!el) {
       return
     }
-    const path = options.path()
+    const path = untrack(options.path)
     if (!path) {
       return
     }
@@ -86,7 +78,10 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
   }
 
   const restoreScroll = () => {
-    const el = options.element()
+    if (isServer) {
+      return
+    }
+    const el = untrack(options.element)
     if (!el) {
       return
     }
@@ -96,7 +91,7 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
       return
     }
 
-    const path = options.path()
+    const path = untrack(options.path)
     try {
       let saved: number | undefined
       if (import.meta.hot?.data?.[`scroll:${path}`] !== undefined) {
@@ -122,60 +117,61 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
     }
   }
 
-  createEffect(
-    on(options.element, (el) => {
-      if (!el) {
-        return
-      }
-
-      restoreScroll()
-
-      const handleScroll = () => {
-        if (restoring) {
-          return
-        }
-        if (saveTimer !== undefined) {
-          clearTimeout(saveTimer)
-        }
-        saveTimer = setTimeout(saveScroll, 100)
-      }
-
-      el.addEventListener('scroll', handleScroll, { passive: true })
-      el.addEventListener('wheel', stopRestoring, { passive: true })
-      el.addEventListener('touchstart', stopRestoring, { passive: true })
-
-      onCleanup(() => {
-        if (saveTimer !== undefined) {
-          clearTimeout(saveTimer)
-        }
-        saveScroll()
-        stopRestoring()
-        el.removeEventListener('scroll', handleScroll)
-        el.removeEventListener('wheel', stopRestoring)
-        el.removeEventListener('touchstart', stopRestoring)
-      })
-    }),
-  )
-
-  window.addEventListener('beforeunload', saveScroll)
-  const handleHotUpdate = () => {
-    hotUpdating = true
-    if (!restoring) {
-      saveScroll()
-      restoreScroll()
+  const handleScroll = () => {
+    if (restoring) {
+      return
     }
+    if (saveTimer !== undefined) {
+      clearTimeout(saveTimer)
+    }
+    saveTimer = setTimeout(saveScroll, 100)
   }
+
+  createEffect(options.element, (el) => {
+    if (!el) {
+      return
+    }
+
+    restoreScroll()
+
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    el.addEventListener('wheel', stopRestoring, { passive: true })
+    el.addEventListener('touchstart', stopRestoring, { passive: true })
+
+    return () => {
+      if (saveTimer !== undefined) {
+        clearTimeout(saveTimer)
+      }
+      saveScroll()
+      stopRestoring()
+      el.removeEventListener('scroll', handleScroll)
+      el.removeEventListener('wheel', stopRestoring)
+      el.removeEventListener('touchstart', stopRestoring)
+    }
+  })
+
   const handleHotUpdateComplete = () => {
     hotUpdating = false
     scheduleRestore()
   }
-  import.meta.hot?.on('vite:beforeUpdate', handleHotUpdate)
-  import.meta.hot?.on('vite:afterUpdate', handleHotUpdateComplete)
-  onCleanup(() => {
-    window.removeEventListener('beforeunload', saveScroll)
-    import.meta.hot?.off('vite:beforeUpdate', handleHotUpdate)
-    import.meta.hot?.off('vite:afterUpdate', handleHotUpdateComplete)
-    stopRestoring()
+
+  onSettled(() => {
+    window.addEventListener('beforeunload', saveScroll)
+    const handleHotUpdate = () => {
+      hotUpdating = true
+      if (!restoring) {
+        saveScroll()
+        restoreScroll()
+      }
+    }
+    import.meta.hot?.on('vite:beforeUpdate', handleHotUpdate)
+    import.meta.hot?.on('vite:afterUpdate', handleHotUpdateComplete)
+    return () => {
+      window.removeEventListener('beforeunload', saveScroll)
+      import.meta.hot?.off('vite:beforeUpdate', handleHotUpdate)
+      import.meta.hot?.off('vite:afterUpdate', handleHotUpdateComplete)
+      stopRestoring()
+    }
   })
 
   return {

@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential staging and renaming keeps rollback behavior deterministic.
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { rename, unlink, writeFile } from 'node:fs/promises'
 
@@ -8,7 +9,6 @@ import type { DocsPageSource } from '../routes.ts'
 
 import type { ComponentApi, GenerationResult } from './types.ts'
 import { validateAllComponentApis } from './validate.ts'
-
 export const COMPONENT_API_SCHEMA_URL = 'https://moraine.subf.dev/component-api.schema.json'
 
 function sortComponentApi(component: ComponentApi): ComponentApi {
@@ -34,7 +34,7 @@ function sortComponentApi(component: ComponentApi): ComponentApi {
 
 export async function writeJsonFiles(
   pagesRoot: string,
-  pages: readonly DocsPageSource[],
+  pages: ReadonlyArray<DocsPageSource>,
   result: GenerationResult,
 ): Promise<void> {
   const allComponents = [...result.componentDocs.values()].map(sortComponentApi)
@@ -112,7 +112,7 @@ export async function writeJsonFiles(
     }
   }
 
-  console.log(
-    `[api-doc] Generated ${filesToWrite.length - 1} colocated component api docs to ${pagesRoot}`,
+  process.stdout.write(
+    `[api-doc] Generated ${filesToWrite.length - 1} colocated component api docs to ${pagesRoot}\n`,
   )
 }

@@ -1,12 +1,11 @@
 import { waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { expect, test } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { ListHydrationFixture, VirtualListHydrationFixture } from './list.ssr.fixture'
-
-test('hydrates keyed list items and moves the same rows on reorder', () => {
+it('hydrates keyed list items and moves the same rows on reorder', () => {
   const [items, setItems] = createSignal(['Alpha', 'Beta'])
   const { container } = hydrateFixture(
     '/src/components/list/list.ssr.fixture.tsx',
@@ -15,16 +14,16 @@ test('hydrates keyed list items and moves the same rows on reorder', () => {
   )
   const root = container.querySelector('[role="list"]')!
   const rows = Array.from(root.children)
-  setItems(['Beta', 'Alpha', 'Gamma'])
+  flush(() => setItems(['Beta', 'Alpha', 'Gamma']))
   expect(root.children[0]).toBe(rows[1])
   expect(root.children[1]).toBe(rows[0])
   expect(root.children[1]?.textContent).toBe('1: Alpha')
-  setItems([])
+  flush(() => setItems([]))
   expect(root.children).toHaveLength(0)
   expect(container.querySelector('[role="list"]')).toBe(root)
 })
 
-test('hydrates an empty virtual shell before attaching measured client rows', async () => {
+it('hydrates an empty virtual shell before attaching measured client rows', async () => {
   const { container } = hydrateFixture(
     '/src/components/list/list.ssr.fixture.tsx',
     'renderVirtualListFixture',

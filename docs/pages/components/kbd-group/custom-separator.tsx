@@ -1,5 +1,4 @@
 import { Icon, KbdGroup } from '@src'
-
 export function CustomSeparator() {
   return (
     <div class="flex gap-2 items-center">

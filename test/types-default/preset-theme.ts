@@ -1,6 +1,5 @@
 import { presetMoraine } from 'moraine/unocss'
 import type { MorainePresetTheme, PresetMoraineOptions } from 'moraine/unocss'
-
 const theme = {
   colorScheme: 'light',
   colors: {

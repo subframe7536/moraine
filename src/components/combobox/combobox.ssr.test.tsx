@@ -1,12 +1,11 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Combobox } from './combobox'
-
-test('hydrates Combobox with one input focus owner', () => {
+it('hydrates Combobox with one input focus owner', () => {
   const { container } = hydrateFixture(
     '/src/components/combobox/combobox.ssr.fixture.tsx',
     'renderComboboxFixture',
@@ -33,7 +32,7 @@ test('hydrates Combobox with one input focus owner', () => {
   expect(input.getAttribute('aria-expanded')).toBe('true')
 })
 
-test('hydrates a read-only Combobox without list autocomplete', () => {
+it('hydrates a read-only Combobox without list autocomplete', () => {
   const { container } = hydrateFixture(
     '/src/components/combobox/combobox.ssr.fixture.tsx',
     'renderReadOnlyComboboxFixture',
@@ -62,7 +61,7 @@ test('hydrates a read-only Combobox without list autocomplete', () => {
   )
 })
 
-test('hydrates string and grouped shorthand without replacing server elements', () => {
+it('hydrates string and grouped shorthand without replacing server elements', () => {
   const { container } = hydrateFixture(
     '/src/components/combobox/combobox.ssr.fixture.tsx',
     'renderStringItemsFixture',

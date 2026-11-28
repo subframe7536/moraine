@@ -1,6 +1,5 @@
 import { Button, Icon, InputGroup, Textarea } from '@src'
 import { createSignal } from 'solid-js'
-
 export function HeaderFooter() {
   const [value, setValue] = createSignal('Hello Moraine!')
 

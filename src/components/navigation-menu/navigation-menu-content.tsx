@@ -1,13 +1,22 @@
-import type { JSX } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createRenderEffect,
+  createSignal,
+  onCleanup,
+  omit,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
-import { bindElement, publishElement } from '../../shared/element-binding'
 import type { KeyBindingOptions } from '../../shared/keyboard'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
+import { publishElement } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 import { focusWithoutScrolling, getFocusableElements } from '../shared/overlay/focus'
 import { mergePopperElementProps } from '../shared/overlay/popper'
@@ -16,7 +25,6 @@ import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 import { useNavigationMenuContext, useNavigationMenuItemContext } from './navigation-menu-context'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
-
 /**
  * Panel of links that opens when the sibling `NavigationMenu.Trigger` of the same
  * `NavigationMenu.Item` is active. It must be placed inside `NavigationMenu.Item`; its content is
@@ -51,10 +59,10 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   if (!item) {
     throw new Error('NavigationMenu.Content must be used within NavigationMenu.Item')
   }
-  const [local, rest] = splitProps(props, ['class', 'style'])
+  const rest = omit(props, 'class', 'style')
   const {
     slots: { content: contentSlot },
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     slot: 'content',
     varsSlot: 'content',
     data: {
@@ -158,7 +166,10 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
     >
       {(_present) => {
         const [element, setElement] = createSignal<HTMLDivElement>()
-        bindElement(element, (current) => {
+        createEffect(element, (current) => {
+          if (!current) {
+            return
+          }
           const unpublish = publishElement(item.content, item.setContent)(current)
           const release = switchPresence.registerElement(current)
           return () => {
@@ -181,14 +192,21 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
             id={`${context.id()}-${item.value()}-content`}
             role={rest.role ?? 'region'}
             aria-labelledby={item.trigger()?.id}
-            aria-hidden={!expanded() ? true : undefined}
-            inert={!expanded() ? true : undefined}
-            tabIndex={-1}
+            aria-hidden={!expanded() ? 'true' : undefined}
+            {...{ 'prop:inert': !expanded() ? true : undefined }}
+            tabindex={-1}
           />
         )
       }}
     </Show>
   )
   onCleanup(item.registerContent(contentTree))
+  // Pin the region: while the shared panel's render prop re-renders, the For's
+  // insert is briefly the only subscriber — without a stable read Solid 2
+  // disposes the Show's lazy memo and freezes the retained tree's reactivity.
+  createRenderEffect(
+    () => (contentTree as unknown as Accessor<unknown>)(),
+    () => {},
+  )
   return null
 }

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, vi, it } from 'vitest'
 
 import type {
   SplitterHandleRegistration,
@@ -21,8 +21,8 @@ interface DragCall {
 interface TestHandle {
   registration: SplitterHandleRegistration
   element: HTMLButtonElement
-  draggingEvents: boolean[]
-  dragCalls: DragCall[]
+  draggingEvents: Array<boolean>
+  dragCalls: Array<DragCall>
   getDragEndCount: () => number
   getStartIntersection: () => SplitterHandleRegistration | null
   getEndIntersection: () => SplitterHandleRegistration | null
@@ -50,7 +50,7 @@ function createTestHandle(input: {
   rect: RectInput
 }): TestHandle {
   const element = input.rootElement.ownerDocument.createElement('button')
-  input.rootElement.appendChild(element)
+  input.rootElement.append(element)
 
   Object.defineProperty(element, 'getBoundingClientRect', {
     value: () => createRect(input.rect),
@@ -59,8 +59,8 @@ function createTestHandle(input: {
 
   let startIntersection: SplitterHandleRegistration | null = null
   let endIntersection: SplitterHandleRegistration | null = null
-  const draggingEvents: boolean[] = []
-  const dragCalls: DragCall[] = []
+  const draggingEvents: Array<boolean> = []
+  const dragCalls: Array<DragCall> = []
   let dragEndCount = 0
 
   const registration: SplitterHandleRegistration = {
@@ -120,15 +120,15 @@ describe('splitter-manager', () => {
     document.head.innerHTML = ''
   })
 
-  test('keeps intersection results stable with many handles in one root', async () => {
+  it('keeps intersection results stable with many handles in one root', async () => {
     const { refreshSplitterIntersections, registerSplitterHandle } = await import('./manager')
 
     const root = createRootElement()
     const isolatedRoot = createRootElement()
     document.body.append(root, isolatedRoot)
 
-    const horizontals: TestHandle[] = []
-    const verticals: TestHandle[] = []
+    const horizontals: Array<TestHandle> = []
+    const verticals: Array<TestHandle> = []
     const unregisterList: Array<() => void> = []
     const pairCount = 12
 
@@ -150,8 +150,10 @@ describe('splitter-manager', () => {
 
       horizontals.push(horizontal)
       verticals.push(vertical)
-      unregisterList.push(registerSplitterHandle(horizontal.registration))
-      unregisterList.push(registerSplitterHandle(vertical.registration))
+      unregisterList.push(
+        registerSplitterHandle(horizontal.registration),
+        registerSplitterHandle(vertical.registration),
+      )
     }
 
     const isolated = createTestHandle({
@@ -181,13 +183,13 @@ describe('splitter-manager', () => {
     }
   })
 
-  test('drags both crossed handles and passes the event altKey to each', async () => {
+  it('drags both crossed handles and passes the event altKey to each', async () => {
     const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
       await import('./manager')
 
     const parentRoot = createRootElement()
     const childRoot = createRootElement()
-    parentRoot.appendChild(childRoot)
+    parentRoot.append(childRoot)
     document.body.append(parentRoot)
 
     const outerHorizontal = createTestHandle({
@@ -239,7 +241,7 @@ describe('splitter-manager', () => {
     unregisterInner()
   })
 
-  test('keeps drag target resolution consistent for handle/start/end intersections', async () => {
+  it('keeps drag target resolution consistent for handle/start/end intersections', async () => {
     const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
       await import('./manager')
 
@@ -319,7 +321,7 @@ describe('splitter-manager', () => {
     unregisterEnd()
   })
 
-  test('keeps drag listeners, selection locks, and handles scoped to each owner document', async () => {
+  it('keeps drag listeners, selection locks, and handles scoped to each owner document', async () => {
     const { registerSplitterHandle, startSplitterDrag } = await import('./manager')
     const iframe = document.createElement('iframe')
     const hostRoot = createRootElement()

@@ -1,13 +1,12 @@
 import { render } from '@solidjs/testing-library'
-import { ErrorBoundary, createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { Errored, createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
 import { Progress } from './progress'
-
-describe('Progress', () => {
-  test('accepts a style override for thickness', () => {
+describe('progress', () => {
+  it('accepts a style override for thickness', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Progress value={20} size="sm" style={{ '--p-size': '10px' }} />
@@ -18,7 +17,7 @@ describe('Progress', () => {
     expect(root.style.getPropertyValue('--p-size')).toBe('10px')
   })
 
-  test('formats the raw value with formatOptions', () => {
+  it('formats the raw value with formatOptions', () => {
     const fraction = render(() => (
       <Progress value={0.25} max={1} formatOptions={{ style: 'percent' }} valueLabel />
     ))
@@ -38,7 +37,7 @@ describe('Progress', () => {
     expect(currency.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('$5.00')
   })
 
-  test('renders determinate progress with default aria values', () => {
+  it('renders determinate progress with default aria values', () => {
     const screen = render(() => <Progress value={50} />)
     const progress = screen.getByRole('progressbar')
 
@@ -50,13 +49,13 @@ describe('Progress', () => {
     expect(screen.container.querySelector('[data-slot="progress-value"]')).toBeNull()
   })
 
-  test('supports an accessible name', () => {
+  it('supports an accessible name', () => {
     const screen = render(() => <Progress aria-label="Loading page" />)
 
     expect(screen.getByRole('progressbar', { name: 'Loading page' })).not.toBeNull()
   })
 
-  test('renders label and value before the track in document order', () => {
+  it('renders label and value before the track in document order', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Progress value={40} label="Upload" valueLabel />
@@ -76,7 +75,7 @@ describe('Progress', () => {
     expect(root.style.getPropertyValue('--p-value')).toBe('0.4')
   })
 
-  test('formats the displayed value and aria-valuetext with a valueLabel formatter', () => {
+  it('formats the displayed value and aria-valuetext with a valueLabel formatter', () => {
     const screen = render(() => (
       <Progress
         value={3}
@@ -92,23 +91,23 @@ describe('Progress', () => {
     )
   })
 
-  test('updates the value text and formatter output when value changes', () => {
+  it('updates the value text and formatter output when value changes', () => {
     const [value, setValue] = createSignal(25)
     const screen = render(() => (
       <Progress value={value()} valueLabel={({ percent }) => `Done ${percent}%`} />
     ))
 
     expect(screen.getByText('Done 25%')).not.toBeNull()
-    setValue(50)
+    flush(() => setValue(50))
     expect(screen.getByText('Done 50%')).not.toBeNull()
 
     const shown = render(() => <Progress value={value()} valueLabel />)
     expect(shown.container.querySelector('[data-slot="progress-value"]')?.textContent).toBe('50%')
-    setValue(80)
+    flush(() => setValue(80))
     expect(shown.container.querySelector('[data-slot="progress-value"]')?.textContent).toBe('80%')
   })
 
-  test('clamps value using numeric max', () => {
+  it('clamps value using numeric max', () => {
     const maxClamp = render(() => <Progress value={12} max={4} valueLabel />)
     const maxProgress = maxClamp.getByRole('progressbar')
 
@@ -124,7 +123,7 @@ describe('Progress', () => {
     expect(minProgress.getAttribute('aria-valuenow')).toBe('0')
   })
 
-  test('indeterminate mode hides the value and keeps the label', () => {
+  it('indeterminate mode hides the value and keeps the label', () => {
     const screen = render(() => <Progress value={undefined} label="Scanning" valueLabel />)
     const progress = screen.getByRole('progressbar')
     const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')
@@ -140,7 +139,7 @@ describe('Progress', () => {
     expect(indicator?.hasAttribute('data-indeterminate')).toBe(true)
   })
 
-  test.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
     'treats non-finite value %s as indeterminate',
     (value) => {
       const screen = render(() => <Progress value={value} label="Waiting" valueLabel />)
@@ -154,7 +153,7 @@ describe('Progress', () => {
     },
   )
 
-  test('preserves a zero maximum and reports zero-range completion consistently', () => {
+  it('preserves a zero maximum and reports zero-range completion consistently', () => {
     const screen = render(() => <Progress value={12} max={0} valueLabel />)
     const progress = screen.getByRole('progressbar')
 
@@ -166,7 +165,7 @@ describe('Progress', () => {
     expect(progress.style.getPropertyValue('--p-value')).toBe('0')
   })
 
-  test('keeps fractional percentages synchronized without integer rounding', () => {
+  it('keeps fractional percentages synchronized without integer rounding', () => {
     const screen = render(() => <Progress value={1} max={3} valueLabel />)
     const progress = screen.getByRole('progressbar')
     const value = screen.container.querySelector('[data-slot="progress-value"]') as HTMLElement
@@ -176,7 +175,7 @@ describe('Progress', () => {
     expect(progress.style.getPropertyValue('--p-value')).toBe('0.3333')
   })
 
-  test('keeps overall progress on root and indicator', () => {
+  it('keeps overall progress on root and indicator', () => {
     const [value, setValue] = createSignal<number | undefined>(25)
     const screen = render(() => <Progress value={value()} label="Working" valueLabel />)
     const root = screen.container.querySelector('[data-slot="progress"]')!
@@ -192,55 +191,59 @@ describe('Progress', () => {
       expect(part.hasAttribute('data-indeterminate')).toBe(false)
     }
 
-    setValue(100)
+    flush(() => setValue(100))
     expect(root.getAttribute('data-progress')).toBe('complete')
     expect(indicator.getAttribute('data-progress')).toBe('complete')
 
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(root.getAttribute('data-indeterminate')).toBe('')
     expect(indicator.getAttribute('data-indeterminate')).toBe('')
     expect(root.hasAttribute('data-progress')).toBe(false)
     expect(indicator.hasAttribute('data-progress')).toBe(false)
   })
 
-  test('shows the value slot only while progress is determinate', () => {
+  it('shows the value slot only while progress is determinate', () => {
     const [value, setValue] = createSignal<number | undefined>(undefined)
     const screen = render(() => <Progress value={value()} valueLabel />)
     const valueSlot = () => screen.container.querySelector('[data-slot="progress-value"]')
 
     expect(valueSlot()).toBeNull()
 
-    setValue(25)
+    flush(() => setValue(25))
     expect(valueSlot()?.textContent).toBe('25%')
 
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(valueSlot()).toBeNull()
 
-    setValue(1)
+    flush(() => setValue(1))
     expect(valueSlot()?.textContent).toBe('1%')
   })
 
-  test('updates to the latest valueLabel formatter and contains thrown label errors', () => {
-    const [formatter, setFormatter] = createSignal<(value: number) => string>((value) => `${value}`)
+  it('updates to the latest valueLabel formatter and contains thrown label errors', () => {
+    const [formatter, setFormatter] = createSignal<(value: number) => string>(
+      () => (value: number) => `${value}`,
+    )
     const screen = render(() => (
-      <ErrorBoundary fallback={(error) => <span data-testid="error">{String(error)}</span>}>
+      <Errored fallback={(error) => <span data-testid="error">{String(error())}</span>}>
         <Progress value={2} max={4} valueLabel={({ value }) => formatter()(value)} />
-      </ErrorBoundary>
+      </Errored>
     ))
     const progress = screen.getByRole('progressbar')
 
     expect(progress.getAttribute('aria-valuetext')).toBe('2')
-    setFormatter(() => (value: number) => `${value} items`)
+    flush(() => setFormatter(() => (value: number) => `${value} items`))
     expect(progress.getAttribute('aria-valuetext')).toBe('2 items')
 
-    setFormatter(() => () => {
-      throw new Error('label failure')
-    })
+    flush(() =>
+      setFormatter(() => () => {
+        throw new Error('label failure')
+      }),
+    )
     expect(screen.getByTestId('error').textContent).toContain('label failure')
   })
 
-  test('remains passive and non-tabbable while forwarding caller pointer events', () => {
-    const onPointerDown = vi.fn()
+  it('remains passive and non-tabbable while forwarding caller pointer events', () => {
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Progress value={25} onPointerDown={onPointerDown} />)
     const progress = screen.getByRole('progressbar')
     const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
@@ -252,7 +255,7 @@ describe('Progress', () => {
     expect(onPointerDown).toHaveBeenCalledTimes(1)
   })
 
-  test('merges the progress value variable with user root style', () => {
+  it('merges the progress value variable with user root style', () => {
     const screen = render(() => <Progress value={50} style={{ color: 'red' }} />)
     const root = screen.getByRole('progressbar')
 
@@ -260,7 +263,7 @@ describe('Progress', () => {
     expect(root.style.getPropertyValue('--p-value')).toBe('0.5')
   })
 
-  test('merges classes overrides into all slots', () => {
+  it('merges classes overrides into all slots', () => {
     const screen = render(() => (
       <Progress
         value={60}
@@ -293,7 +296,7 @@ describe('Progress', () => {
     )
   })
 
-  test('merges styles overrides into all slots', () => {
+  it('merges styles overrides into all slots', () => {
     const screen = render(() => (
       <Progress
         value={60}
@@ -327,7 +330,7 @@ describe('Progress', () => {
     ).toBe('200px')
   })
 
-  test('hides an empty label', () => {
+  it('hides an empty label', () => {
     const screen = render(() => <Progress value={10} label="" valueLabel />)
 
     expect(screen.container.querySelector('[data-slot="progress-label"]')).toBeNull()

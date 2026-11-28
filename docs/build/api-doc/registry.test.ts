@@ -1,12 +1,11 @@
 // @vitest-environment node
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { scanDocsPages } from '../routes.ts'
 import { createFileFixture } from '../test-util/file-fixture.ts'
 
 import { loadApiRegistry } from './registry.ts'
-
 function page(path: string, parts?: string) {
   return `---
 title: Demo
@@ -37,7 +36,7 @@ function loadRegistry(root: string) {
 }
 
 describe('loadApiRegistry', () => {
-  test('loads single and composite registrations from frontmatter', async () => {
+  it('loads single and composite registrations from frontmatter', async () => {
     const root = await createFileFixture({
       'docs/pages/components/demo/index.mdx': page('src/components/demo/demo'),
       'src/components/demo/demo.types.ts': types('Demo', 'single'),
@@ -63,7 +62,7 @@ describe('loadApiRegistry', () => {
     ])
   })
 
-  test('supports the explicit Form factory exception', async () => {
+  it('supports the explicit Form factory exception', async () => {
     const root = await createFileFixture({
       'docs/pages/components/form/index.mdx': page('src/components/form/form'),
       'src/components/form/form.types.ts': types(
@@ -82,7 +81,7 @@ describe('loadApiRegistry', () => {
     })
   })
 
-  test('registers factory members declared in frontmatter for createTree', async () => {
+  it('registers factory members declared in frontmatter for createTree', async () => {
     const root = await createFileFixture({
       'docs/pages/components/tree/index.mdx': page(
         'src/components/tree/tree',
@@ -108,7 +107,7 @@ describe('loadApiRegistry', () => {
     ])
   })
 
-  test('requires declared parts for the createTree composite', async () => {
+  it('requires declared parts for the createTree composite', async () => {
     const root = await createFileFixture({
       'docs/pages/components/tree/index.mdx': page('src/components/tree/tree'),
       'src/components/tree/tree.types.ts': types('Tree', 'composite'),
@@ -117,7 +116,7 @@ describe('loadApiRegistry', () => {
     await expect(loadRegistry(root)).rejects.toThrow('must declare frontmatter.api.parts')
   })
 
-  test.each([
+  it.each<{ name: string; files: Record<string, string>; error: string }>([
     {
       name: 'missing types',
       files: { 'docs/pages/components/demo/index.mdx': page('src/components/demo/demo') },
@@ -141,11 +140,11 @@ describe('loadApiRegistry', () => {
       error: 'Unknown part "Trigger"',
     },
   ])('rejects $name', async ({ files, error }) => {
-    const root = await createFileFixture(files as unknown as Record<string, string>)
+    const root = await createFileFixture(files)
     await expect(loadRegistry(root)).rejects.toThrow(error)
   })
 
-  test('rejects duplicate keys and duplicate component registrations', async () => {
+  it('rejects duplicate keys and duplicate component registrations', async () => {
     const shared = {
       'src/components/demo/demo.types.ts': types('Demo', 'single'),
       'src/components/demo/demo.recipe.ts': `export const demoRecipe = defineRecipe('demo', { base: { root: '' } })`,

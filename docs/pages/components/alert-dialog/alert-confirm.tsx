@@ -1,6 +1,5 @@
 import { AlertDialog, Badge, Button } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function AlertConfirm() {
   const [revoked, setRevoked] = createSignal(false)
 
@@ -13,7 +12,9 @@ export function AlertConfirm() {
         tone: 'danger',
         label: 'Revoke key',
         onClick: async () => {
-          await new Promise((resolve) => setTimeout(resolve, 600))
+          await new Promise<void>((resolve) => {
+            setTimeout(resolve, 600)
+          })
         },
       },
       cancel: { label: 'Keep key' },

@@ -1,7 +1,6 @@
 import { Button, Checkbox, createForm } from '@src'
 import { Show, createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 // Consent Mode expects 'granted' | 'denied' rather than booleans.
 const ConsentState = v.picklist(['granted', 'denied'])
 

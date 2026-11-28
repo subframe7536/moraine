@@ -1,35 +1,51 @@
 import path from 'node:path'
 
-import solid from 'vite-plugin-solid'
+import solid from '@solidjs/vite-plugin'
 import { configDefaults, defineConfig } from 'vitest/config'
 
 import { variantGroupPlugin } from './build/vite-plugin-variant-group.ts'
 
 // These tests rely on Node or window behavior that differs inside a VM context.
 const VM_INCOMPATIBLE_TESTS = [
+  'docs/build/api-doc/highlight.test.ts',
   'docs/build/plugin.test.ts',
   'src/components/textarea/textarea.test.tsx',
   'src/components/shared/overlay/menu/menu.utils.test.tsx',
 ]
+
+const diagnosticsEnabled = process.env.SOLID_DIAGNOSTICS === '1'
 
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify('test'),
   },
   resolve: {
-    alias: {
-      '@src': path.resolve('src'),
-      '#binding': path.resolve('docs/node_modules/satteri/dist/binding.js'),
-      [path.resolve('docs/node_modules/satteri/dist/binding.browser.js')]: path.resolve(
-        'docs/node_modules/satteri/dist/binding.js',
-      ),
-      [path.resolve('docs/node_modules/satteri/satteri_napi.wasi-browser.js')]: path.resolve(
-        'docs/node_modules/satteri/satteri_napi.wasi.cjs',
-      ),
-    },
+    alias: [
+      // `fireEvent` does not flush Solid 2's microtask queue; route it through the
+      // test-util wrapper that flushes after every dispatch.
+      {
+        find: /^@solidjs\/testing-library$/,
+        replacement: path.resolve('src/test-util/testing-library.ts'),
+      },
+      {
+        find: '#tl',
+        replacement: path.resolve('node_modules/@solidjs/testing-library/dist/index.js'),
+      },
+      { find: '@src', replacement: path.resolve('src') },
+      { find: '#binding', replacement: path.resolve('docs/node_modules/satteri/dist/binding.js') },
+      {
+        find: path.resolve('docs/node_modules/satteri/dist/binding.browser.js'),
+        replacement: path.resolve('docs/node_modules/satteri/dist/binding.js'),
+      },
+      {
+        find: path.resolve('docs/node_modules/satteri/satteri_napi.wasi-browser.js'),
+        replacement: path.resolve('docs/node_modules/satteri/satteri_napi.wasi.cjs'),
+      },
+    ],
     dedupe: ['solid-js'],
+    ...(diagnosticsEnabled ? { conditions: ['development', 'browser'] } : {}),
   },
-  plugins: [variantGroupPlugin(), solid({ hot: false, solid: { hydratable: true } })],
+  plugins: [variantGroupPlugin(), solid({ dev: diagnosticsEnabled, solid: { hydratable: true } })],
   test: {
     globalSetup: ['./src/test-util/ssr-global-setup.ts'],
     exclude: [...configDefaults.exclude, 'test/acceptance/docs-preview.test.ts'],
@@ -80,7 +96,7 @@ export default defineConfig({
     ],
     server: {
       deps: {
-        inline: ['@solidjs/router', 'satteri'],
+        inline: ['@solidjs/router', 'satteri', 'solid-file-router'],
       },
     },
   },

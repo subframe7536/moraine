@@ -1,20 +1,21 @@
-import { createSignal } from 'solid-js'
-import { expect, test } from 'vitest'
+import { render } from '@solidjs/testing-library'
+import { createComponent, createSignal, flush } from 'solid-js'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
+import { Alert } from './alert'
 import { AlertHydrationFixture } from './alert.ssr.fixture'
 import type { AlertT } from './alert.types'
-
-test('hydrates alert fixture and updates reactive props', () => {
+it('hydrates alert fixture and updates reactive props', () => {
   const [tone, setTone] = createSignal<AlertT.Variants['tone']>('info')
   const [title, setTitle] = createSignal('Alert title')
-  const [description] = createSignal<string | undefined>('Detailed alert description')
+  const description = 'Detailed alert description'
   const { container } = hydrateFixture(
     '/src/components/alert/alert.ssr.fixture.tsx',
     'renderAlertFixture',
     () => (
-      <AlertHydrationFixture tone={tone()} title={title()} description={description()} closable />
+      <AlertHydrationFixture tone={tone()} title={title()} description={description} closable />
     ),
   )
   const root = container.firstElementChild
@@ -26,14 +27,14 @@ test('hydrates alert fixture and updates reactive props', () => {
   )
   expect(container.querySelector('[data-slot="alert-close"]')).not.toBeNull()
 
-  setTitle('Updated title')
-  setTone('success')
+  flush(() => setTitle('Updated title'))
+  flush(() => setTone('success'))
   expect(container.firstElementChild).toBe(root)
   expect(container.querySelector('[data-slot="alert-title"]')?.textContent).toBe('Updated title')
   expect(root?.getAttribute('data-tone')).toBe('success')
 })
 
-test('hydrates minimal alert fixture without description or close', () => {
+it('hydrates minimal alert fixture without description or close', () => {
   const [title, setTitle] = createSignal('Minimal alert')
   const { container } = hydrateFixture(
     '/src/components/alert/alert.ssr.fixture.tsx',
@@ -46,6 +47,43 @@ test('hydrates minimal alert fixture without description or close', () => {
   expect(container.querySelector('[data-slot="alert-icon"]')).toBeNull()
   expect(container.querySelector('[data-slot="alert-close"]')).toBeNull()
 
-  setTitle('Updated minimal')
+  flush(() => setTitle('Updated minimal'))
   expect(container.querySelector('[data-slot="alert-title"]')?.textContent).toBe('Updated minimal')
+})
+
+it('does not instantiate title, description, or actions while closed', () => {
+  const [open, setOpen] = createSignal(false)
+  let titleReads = 0
+  let descriptionReads = 0
+  let actionsReads = 0
+
+  const view = render(() =>
+    createComponent(Alert, {
+      get open() {
+        return open()
+      },
+      get title() {
+        titleReads += 1
+        return <span>Alert title</span>
+      },
+      get description() {
+        descriptionReads += 1
+        return <span>Alert description</span>
+      },
+      get actions() {
+        actionsReads += 1
+        return <button type="button">Undo</button>
+      },
+    }),
+  )
+
+  expect(titleReads).toBe(0)
+  expect(descriptionReads).toBe(0)
+  expect(actionsReads).toBe(0)
+
+  flush(() => setOpen(true))
+  expect(titleReads).toBe(1)
+  expect(descriptionReads).toBe(1)
+  expect(actionsReads).toBe(1)
+  view.unmount()
 })

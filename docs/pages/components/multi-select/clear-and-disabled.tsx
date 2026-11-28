@@ -1,7 +1,6 @@
 import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
-
-const MODULES: MultiSelectT.Item[] = [
+const MODULES: Array<MultiSelectT.Item> = [
   { label: 'Core Runtime (Locked)', value: 'core', disabled: true },
   { label: 'Analytics Engine', value: 'analytics' },
   { label: 'Push Notifications', value: 'notifications' },

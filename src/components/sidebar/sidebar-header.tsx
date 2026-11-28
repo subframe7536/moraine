@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { createRegion } from './sidebar-region'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * Header region at the top of `Sidebar.Panel`, suited to a brand or a workspace switcher. Renders a
  * `div` by default; pass `as` to render another element.

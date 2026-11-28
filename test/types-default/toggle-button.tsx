@@ -1,7 +1,6 @@
 import { ToggleButton } from 'moraine'
 import type { ToggleButtonT } from 'moraine'
 import { defineTheme } from 'moraine/theme'
-
 const variants: ToggleButtonT.Variants = {
   variant: 'outline',
   activeVariant: 'solid',
@@ -23,7 +22,7 @@ defineTheme({
 ;<ToggleButton pressEffect="none" />
 ;<ToggleButton as="a" href="/docs" />
 // @ts-expect-error ToggleButton<'a'> exposes anchor props and rejects button-only props.
-;<ToggleButton as="a" formAction="/submit" />
+;<ToggleButton as="a" formaction="/submit" />
 // @ts-expect-error Pressed semantics are owned by the component.
 const unsupportedAria: ToggleButtonT.Props = { 'aria-pressed': 'mixed' }
 void unsupportedAria

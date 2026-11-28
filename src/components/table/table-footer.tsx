@@ -2,7 +2,6 @@ import type { FlowComponent } from 'solid-js'
 
 import { createTablePart } from './table-part'
 import type { TableT } from './table.types'
-
 /**
  * Footer section of the surrounding `Table`; renders a `tfoot`, typically holding a totals row.
  * Place `Table.Row` elements with `Table.Cell` children inside it, after `Table.Body`.

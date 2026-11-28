@@ -1,6 +1,5 @@
 import { Field, PinInput } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function Alphanumeric() {
   const [code, setCode] = createSignal('')
 

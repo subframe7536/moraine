@@ -1,9 +1,8 @@
 import type { Accessor } from 'solid-js'
-import { createComputed, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { areCharArraysEqual, normalizeChars } from './pin-input-value'
 import type { PinInputT } from './pin-input.types'
-
 export interface CreatePinInputOptions {
   length: Accessor<number>
   validationType: Accessor<PinInputT.ValidationType>
@@ -19,7 +18,7 @@ export interface CreatePinInputOptions {
   resetNativeInvalid?: () => void
   emitChange?: () => void
   emitInput?: () => void
-  inputEls: (HTMLInputElement | null)[]
+  inputEls: Array<HTMLInputElement | null>
 }
 
 export function createPinInput(options: CreatePinInputOptions) {
@@ -47,14 +46,14 @@ export function createPinInput(options: CreatePinInputOptions) {
     )
   })
 
-  const [uncontrolledChars, setUncontrolledChars] = createSignal<string[]>(initialChars)
+  const [uncontrolledChars, setUncontrolledChars] = createSignal<Array<string>>(initialChars)
 
   // The last slot array `setChars` produced. The joined string keeps no hole positions, so a
   // controlled parent echoing it must not re-pack the slots; only a different string derives them.
-  let emittedChars: string[] | undefined
+  let emittedChars: Array<string> | undefined
 
-  const chars = createMemo<string[]>(
-    (prev) => {
+  const chars = createMemo<Array<string>>(
+    (prev = []) => {
       const controlled = options.value?.()
       const emitted = emittedChars
       emittedChars = undefined
@@ -67,40 +66,31 @@ export function createPinInput(options: CreatePinInputOptions) {
         }
         return normalizeChars(controlled, options.length(), options.validationType(), normalize())
       }
+      const formVal = options.fieldValue()
+      if (formVal !== undefined) {
+        const formStr = formVal as string
+        const local = uncontrolledChars()
+        if (local.length === options.length() && local.join('') === formStr) {
+          return local
+        }
+        if (prev.length === options.length() && prev.join('') === formStr) {
+          return prev
+        }
+        return normalizeChars(formStr, options.length(), options.validationType(), normalize())
+      }
       return uncontrolledChars()
     },
-    initialChars,
     { equals: areCharArraysEqual },
-  )
-
-  // Field writes flow back into uncontrolled slots; hole positions survive round trip
-  createEffect(
-    on(options.fieldValue, (formVal) => {
-      if (formVal === undefined) {
-        return
-      }
-      const next = normalizeChars(
-        formVal as string,
-        options.length(),
-        options.validationType(),
-        normalize(),
-      )
-      if (next.join('') !== untrack(uncontrolledChars).join('')) {
-        setUncontrolledChars(() => next)
-      }
-    }),
   )
 
   // Controlled prop updates mirror into Field
   createEffect(
-    on(
-      () => options.value?.(),
-      (val) => {
-        if (val !== undefined && options.fieldValue() !== val) {
-          options.setFormFieldValue(val)
-        }
-      },
-    ),
+    () => options.value?.(),
+    (val) => {
+      if (val !== undefined && untrack(options.fieldValue) !== val) {
+        options.setFormFieldValue(val)
+      }
+    },
   )
 
   const joinedValue = createMemo(() => chars().join(''))
@@ -142,31 +132,41 @@ export function createPinInput(options: CreatePinInputOptions) {
         options.completeValue(completeStr)
       }
     } else {
-      pendingAction = { index: focusIndex, complete: completeStr, joined }
+      const existing = pendingAction && pendingAction.joined === joined ? pendingAction : undefined
+      pendingAction = {
+        index: focusIndex ?? existing?.index,
+        complete: completeStr ?? existing?.complete,
+        joined,
+      }
     }
   }
 
-  createComputed(
-    on(
-      joinedValue,
-      (joined) => {
-        const action = pendingAction
-        pendingAction = undefined
-        if (action && joined === action.joined) {
-          if (action.index !== undefined) {
-            focusInput(action.index)
-          }
-          if (action.complete !== undefined) {
-            options.completeValue(action.complete)
-          }
+  createEffect(
+    joinedValue,
+    (joined) => {
+      const action = pendingAction
+      pendingAction = undefined
+      if (action && joined === action.joined) {
+        if (action.index !== undefined) {
+          focusInput(action.index)
         }
-      },
-      { defer: true },
-    ),
+        if (action.complete !== undefined) {
+          options.completeValue(action.complete)
+        }
+      }
+    },
+    { defer: true },
   )
 
   function setChars(
-    update: string[] | ((prev: string[]) => string[]),
+    update: Array<string> | ((prev: Array<string>) => Array<string>),
+    completeOnUnchanged = false,
+  ): void {
+    setCharsInner(update, completeOnUnchanged)
+  }
+
+  function setCharsInner(
+    update: Array<string> | ((prev: Array<string>) => Array<string>),
     completeOnUnchanged = false,
   ): void {
     options.resetNativeInvalid?.()
@@ -183,17 +183,18 @@ export function createPinInput(options: CreatePinInputOptions) {
     }
 
     emittedChars = next
-    if (options.value?.() === undefined) {
+    const controlledValue = options.value?.()
+    if (controlledValue === undefined) {
       setUncontrolledChars(() => next)
       options.setFormFieldValue(nextJoined)
     } else {
-      options.setFormFieldValue(options.value()!)
+      options.setFormFieldValue(controlledValue)
     }
 
     options.onValueChange?.()?.(nextJoined)
 
     if (nextComplete) {
-      if (chars().join('') === nextJoined) {
+      if (controlledValue === undefined) {
         options.completeValue(nextJoined)
       } else {
         queueAction(nextJoined, undefined, nextJoined)
@@ -206,24 +207,21 @@ export function createPinInput(options: CreatePinInputOptions) {
 
   function resetChars(): void {
     options.resetNativeInvalid?.()
-    if (options.value?.() === undefined) {
-      const resetValue = normalizeChars(
-        options.defaultValue,
-        options.length(),
-        options.validationType(),
-        normalize(),
-      )
-      setUncontrolledChars(() => resetValue)
-      options.setFormFieldValue(resetValue.join(''))
-    } else {
-      options.setFormFieldValue(options.value()!)
-    }
-    const current = chars()
+    const controlledValue = options.value?.()
     const len = options.length()
+    let nextChars: Array<string>
+    if (controlledValue === undefined) {
+      nextChars = normalizeChars(options.defaultValue, len, options.validationType(), normalize())
+      setUncontrolledChars(() => nextChars)
+      options.setFormFieldValue(nextChars.join(''))
+    } else {
+      options.setFormFieldValue(controlledValue)
+      nextChars = normalizeChars(controlledValue, len, options.validationType(), normalize())
+    }
     for (let i = 0; i < len; i++) {
       const el = options.inputEls[i]
       if (el) {
-        el.value = current[i] ?? ''
+        el.value = nextChars[i] ?? ''
       }
     }
   }

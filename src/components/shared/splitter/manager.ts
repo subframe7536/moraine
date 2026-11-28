@@ -1,5 +1,4 @@
 import { attachEventListenerMap } from '../../../shared/event-listener'
-
 export const SPLITTER_ROOT_ATTRIBUTE = 'splitter-root'
 export const SPLITTER_START_TARGET_ATTRIBUTE = 'splitter-start-target'
 export const SPLITTER_END_TARGET_ATTRIBUTE = 'splitter-end-target'
@@ -34,6 +33,8 @@ export interface SplitterHandleRegistration {
 interface RegisteredHandleEntry {
   handle: SplitterHandleRegistration
   rootElement: HTMLElement | undefined
+  startIntersection: SplitterHandleRegistration | null
+  endIntersection: SplitterHandleRegistration | null
 }
 
 interface DragHandleSnapshot {
@@ -43,7 +44,7 @@ interface DragHandleSnapshot {
 
 interface DragSession {
   ownerDocument: Document
-  handles: DragHandleSnapshot[]
+  handles: Array<DragHandleSnapshot>
   startX: number
   startY: number
   lastX: number
@@ -255,6 +256,10 @@ function getHandleIntersection(
   handle: SplitterHandleRegistration,
   edge: SplitterIntersectionEdge,
 ): SplitterHandleRegistration | null {
+  const entry = registeredHandles.get(handle.id)
+  if (entry) {
+    return edge === 'start' ? entry.startIntersection : entry.endIntersection
+  }
   return edge === 'start' ? handle.getStartIntersection() : handle.getEndIntersection()
 }
 
@@ -272,7 +277,7 @@ function resolveDragHandles(
   baseHandle: SplitterHandleRegistration,
   target: SplitterIntersectionTarget,
   event: PointerEvent,
-): SplitterHandleRegistration[] {
+): Array<SplitterHandleRegistration> {
   const ownerDocument = resolveHandleOwnerDocument(baseHandle)
   const secondaryHandle = resolveSecondaryDragHandle(baseHandle, target, event)
   if (
@@ -301,8 +306,12 @@ function setIntersection(
   edge: SplitterIntersectionEdge,
   intersection: SplitterHandleRegistration,
 ): void {
+  const entry = registeredHandles.get(handle.id)
   if (edge === 'start') {
     if (handle.getStartIntersectionEnabled()) {
+      if (entry) {
+        entry.startIntersection = intersection
+      }
       handle.setStartIntersection(intersection)
     }
 
@@ -310,11 +319,14 @@ function setIntersection(
   }
 
   if (handle.getEndIntersectionEnabled()) {
+    if (entry) {
+      entry.endIntersection = intersection
+    }
     handle.setEndIntersection(intersection)
   }
 }
 
-function assignIntersections(snapshots: HandleSnapshot[]): void {
+function assignIntersections(snapshots: Array<HandleSnapshot>): void {
   for (const primary of snapshots) {
     for (const secondary of snapshots) {
       if (primary.orientation === secondary.orientation) {
@@ -366,11 +378,13 @@ function assignIntersections(snapshots: HandleSnapshot[]): void {
 
 export function refreshSplitterIntersections(): void {
   for (const entry of registeredHandles.values()) {
+    entry.startIntersection = null
+    entry.endIntersection = null
     entry.handle.setStartIntersection(null)
     entry.handle.setEndIntersection(null)
   }
 
-  const snapshotsByDocument = new Map<Document, Map<HTMLElement, HandleSnapshot[]>>()
+  const snapshotsByDocument = new Map<Document, Map<HTMLElement, Array<HandleSnapshot>>>()
 
   for (const entry of registeredHandles.values()) {
     const element = entry.handle.getElement()
@@ -405,6 +419,8 @@ export function registerSplitterHandle(handle: SplitterHandleRegistration): () =
   registeredHandles.set(handle.id, {
     handle,
     rootElement: resolveTopMostRootElement(handle),
+    startIntersection: null,
+    endIntersection: null,
   })
   scheduleSplitterIntersectionsRefresh()
 
@@ -469,7 +485,7 @@ export function startSplitterDrag(
     clearDragSession(ownerDocument, event)
   }
 
-  const dragHandles: DragHandleSnapshot[] = handles.map((dragHandle) => ({
+  const dragHandles: Array<DragHandleSnapshot> = handles.map((dragHandle) => ({
     handle: dragHandle,
     orientation: dragHandle.getOrientation(),
   }))

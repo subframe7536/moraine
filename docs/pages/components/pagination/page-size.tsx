@@ -1,7 +1,6 @@
 import { Field, Pagination, Select } from '@src'
 import type { SelectT } from '@src'
 import { createMemo, createSignal, For } from 'solid-js'
-
 const RESULTS = [
   'Account settings',
   'Billing history',
@@ -17,7 +16,7 @@ const RESULTS = [
   'Workspace details',
 ]
 
-const PAGE_SIZES: SelectT.Item<number>[] = [
+const PAGE_SIZES: Array<SelectT.Item<number>> = [
   { value: 3, label: '3 results' },
   { value: 6, label: '6 results' },
   { value: 12, label: '12 results' },

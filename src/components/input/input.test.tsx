@@ -1,16 +1,15 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { createForm } from '../form'
 
 import { Input } from './input'
-
-describe('Input', () => {
-  test('forwards ref to its only native element', () => {
+describe('input', () => {
+  it('forwards ref to its only native element', () => {
     let control: HTMLInputElement | undefined
     const screen = render(() => <Input ref={(el) => (control = el)} placeholder="ref test" />)
     expect(control).toBeInstanceOf(HTMLInputElement)
@@ -19,7 +18,7 @@ describe('Input', () => {
     expect(control?.placeholder).toBe('ref test')
   })
 
-  test('renders base attributes', () => {
+  it('renders base attributes', () => {
     const screen = render(() => (
       <Input
         id="email-input"
@@ -50,7 +49,7 @@ describe('Input', () => {
     expect(input.getAttribute('data-disabled')).toBe('')
   })
 
-  test('exposes readonly state through aria and data attributes', () => {
+  it('exposes readonly state through aria and data attributes', () => {
     const screen = render(() => <Input readOnly />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
     const root = screen.container.querySelector('[data-slot="input"]')
@@ -61,8 +60,8 @@ describe('Input', () => {
     expect(input.getAttribute('data-readonly')).toBe('')
   })
 
-  test('applies trim modifier', async () => {
-    const onValueChange = vi.fn()
+  it('applies trim modifier', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input onValueChange={onValueChange} modifiers={{ trim: true }} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -74,10 +73,10 @@ describe('Input', () => {
     expect(onValueChange).toHaveBeenLastCalledWith('test')
   })
 
-  test('supports lazy and empty value strategy modifiers', async () => {
-    const lazyChange = vi.fn()
-    const preserveChange = vi.fn()
-    const nullableChange = vi.fn()
+  it('supports lazy and empty value strategy modifiers', async () => {
+    const lazyChange = vi.fn<(...args: Array<any>) => void>()
+    const preserveChange = vi.fn<(...args: Array<any>) => void>()
+    const nullableChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -112,20 +111,20 @@ describe('Input', () => {
     expect(nullableChange).toHaveBeenLastCalledWith(null)
   })
 
-  test('clears the displayed text when a controlled value becomes null', () => {
+  it('clears the displayed text when a controlled value becomes null', () => {
     const [value, setValue] = createSignal<string | number | null>(5)
     const screen = render(() => <Input value={value()} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
     expect(input.value).toBe('5')
 
-    setValue(null)
+    flush(() => setValue(null))
     expect(input.value).toBe('')
   })
 
-  test('emits null and stays controlled through a number modifier round trip', () => {
+  it('emits null and stays controlled through a number modifier round trip', () => {
     const [value, setValue] = createSignal<number | null>(5)
-    const onValueChange = vi.fn((next: number | null) => setValue(next))
+    const onValueChange = vi.fn<(next: number | null) => any>((next) => setValue(next))
     const screen = render(() => (
       <Input value={value()} onValueChange={onValueChange} modifiers={{ number: true }} />
     ))
@@ -150,7 +149,7 @@ describe('Input', () => {
     expect(input.value).toBe('42')
   })
 
-  test('restores an empty input on form reset with a null defaultValue', async () => {
+  it('restores an empty input on form reset with a null defaultValue', async () => {
     const screen = render(() => (
       <form>
         <Input name="value" defaultValue={null} />
@@ -173,7 +172,7 @@ describe('Input', () => {
     expect(input.value).toBe('')
   })
 
-  test('syncs trimmed DOM value on change', async () => {
+  it('syncs trimmed DOM value on change', async () => {
     const screen = render(() => <Input modifiers={{ trim: true, lazy: true }} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -185,9 +184,9 @@ describe('Input', () => {
     expect(input.value).toBe('value')
   })
 
-  test('forwards onChange and onBlur handlers', async () => {
-    const onChange = vi.fn()
-    const onBlur = vi.fn()
+  it('forwards onChange and onBlur handlers', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input onChange={onChange} onBlur={onBlur} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -198,8 +197,8 @@ describe('Input', () => {
     expect(onBlur).toHaveBeenCalledTimes(1)
   })
 
-  test('preserves native input ordering during IME and change commits', async () => {
-    const calls: string[] = []
+  it('preserves native input ordering during IME and change commits', async () => {
+    const calls: Array<string> = []
     const screen = render(() => (
       <Input
         onInput={() => calls.push('input')}
@@ -222,8 +221,8 @@ describe('Input', () => {
     expect(calls).toEqual(['value:拼', 'input', 'change:拼音'])
   })
 
-  test('defers rejected controlled rollback until composition commits', async () => {
-    const onValueChange = vi.fn()
+  it('defers rejected controlled rollback until composition commits', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input value="Locked" onValueChange={onValueChange} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -243,11 +242,12 @@ describe('Input', () => {
 
     expect(input.value).toBe('拼音')
     await Promise.resolve()
+    await Promise.resolve()
     expect(onValueChange).toHaveBeenLastCalledWith('拼音')
     expect(input.value).toBe('Locked')
   })
 
-  test('applies the latest controlled value after composition ends', async () => {
+  it('applies the latest controlled value after composition ends', async () => {
     const [value, setValue] = createSignal('Initial')
     const screen = render(() => (
       <Input value={value()} onValueChange={(nextValue) => setValue(`${nextValue}!`)} />
@@ -273,8 +273,8 @@ describe('Input', () => {
     expect(input.value).toBe('拼音!')
   })
 
-  test('does not publish programmatic value property changes without a native event', () => {
-    const onValueChange = vi.fn()
+  it('does not publish programmatic value property changes without a native event', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input onValueChange={onValueChange} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -284,8 +284,8 @@ describe('Input', () => {
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('rolls explicit controlled values back after input and caller cancellation', async () => {
-    const onValueChange = vi.fn()
+  it('rolls explicit controlled values back after input and caller cancellation', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Input value="Locked" onValueChange={onValueChange} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -298,7 +298,7 @@ describe('Input', () => {
     expect(input.value).toBe('Locked')
     screen.unmount()
 
-    const cancelledChange = vi.fn()
+    const cancelledChange = vi.fn<(...args: Array<any>) => void>()
     const cancelled = render(() => (
       <Input
         value="Locked"
@@ -317,8 +317,8 @@ describe('Input', () => {
     expect(cancelledInput.value).toBe('Locked')
   })
 
-  test('allows lazy controlled edits until change then restores the authoritative value', async () => {
-    const onValueChange = vi.fn()
+  it('allows lazy controlled edits until change then restores the authoritative value', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Input value="Locked" modifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
@@ -339,9 +339,9 @@ describe('Input', () => {
     expect(input.value).toBe('Locked')
   })
 
-  test('keeps a lazy controlled composition draft until change commits it once', async () => {
+  it('keeps a lazy controlled composition draft until change commits it once', async () => {
     const [value, setValue] = createSignal('')
-    const onValueChange = vi.fn((nextValue: string) => setValue(nextValue))
+    const onValueChange = vi.fn<(nextValue: string) => any>((nextValue) => setValue(nextValue))
     const screen = render(() => (
       <Input value={value()} modifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
@@ -362,8 +362,8 @@ describe('Input', () => {
     expect(input.value).toBe('拼音')
   })
 
-  test('keeps a lazy Formisch composition draft until change commits it once', async () => {
-    const onValueChange = vi.fn()
+  it('keeps a lazy Formisch composition draft until change commits it once', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -395,7 +395,7 @@ describe('Input', () => {
     expect(getInput(form)).toEqual({ value: '拼音' })
   })
 
-  test('applies real external updates over a retained lazy composition draft', async () => {
+  it('applies real external updates over a retained lazy composition draft', async () => {
     const [value, setValue] = createSignal('Initial')
     const controlled = render(() => <Input value={value()} modifiers={{ lazy: true }} />)
     const controlledInput = controlled.getByRole<HTMLInputElement>('textbox')
@@ -406,7 +406,7 @@ describe('Input', () => {
     await Promise.resolve()
     expect(controlledInput.value).toBe('草稿')
 
-    setValue('External')
+    flush(() => setValue('External'))
     expect(controlledInput.value).toBe('External')
     controlled.unmount()
 
@@ -432,11 +432,11 @@ describe('Input', () => {
     await Promise.resolve()
     expect(formInput.value).toBe('草稿')
 
-    setInput(form, { path: ['value'], input: 'External' })
+    flush(() => setInput(form, { path: ['value'], input: 'External' }))
     expect(formInput.value).toBe('External')
   })
 
-  test('accepts synchronous controlled updates from onValueChange', async () => {
+  it('accepts synchronous controlled updates from onValueChange', async () => {
     const [value, setValue] = createSignal('Initial')
     const screen = render(() => <Input value={value()} onValueChange={setValue} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
@@ -449,7 +449,7 @@ describe('Input', () => {
     expect(input.value).toBe('Accepted')
   })
 
-  test('accepts controlled updates from native onInput', () => {
+  it('accepts controlled updates from native onInput', () => {
     const [value, setValue] = createSignal('abc')
     const screen = render(() => (
       <Input value={value()} onInput={(event) => setValue(event.currentTarget.value)} />
@@ -461,7 +461,7 @@ describe('Input', () => {
     expect(input.value).toBe('abcd')
   })
 
-  test('cancels delayed autoFocus on unmount and rechecks disabled state', () => {
+  it('cancels delayed autoFocus on unmount and rechecks disabled state', () => {
     vi.useFakeTimers()
 
     try {
@@ -478,7 +478,7 @@ describe('Input', () => {
       const delayedInput = delayed.getByRole<HTMLInputElement>('textbox')
       const delayedFocus = vi.spyOn(delayedInput, 'focus')
 
-      setDisabled(true)
+      flush(() => setDisabled(true))
       vi.advanceTimersByTime(20)
       expect(delayedFocus).not.toHaveBeenCalled()
 
@@ -493,7 +493,7 @@ describe('Input', () => {
     }
   })
 
-  test('keeps readonly values serializable and omits disabled values', () => {
+  it('keeps readonly values serializable and omits disabled values', () => {
     const screen = render(() => (
       <form>
         <Input name="readonly" value="Included" readOnly />
@@ -507,9 +507,9 @@ describe('Input', () => {
     expect(data.has('disabled')).toBe(false)
   })
 
-  test('uses native required validity and resets uncontrolled values without callbacks', async () => {
+  it('uses native required validity and resets uncontrolled values without callbacks', async () => {
     const [defaultValue, setDefaultValue] = createSignal('Initial')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <Input name="value" defaultValue={defaultValue()} required onValueChange={onValueChange} />
@@ -519,7 +519,7 @@ describe('Input', () => {
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
     expect(form.checkValidity()).toBe(true)
-    setDefaultValue('Changed default')
+    flush(() => setDefaultValue('Changed default'))
     fireEvent.input(input, {
       target: { value: '' },
       currentTarget: { value: '' },
@@ -535,9 +535,9 @@ describe('Input', () => {
     expect(onValueChange).toHaveBeenCalledTimes(1)
   })
 
-  test('restores explicit controlled values after native reset without callbacks', async () => {
+  it('restores explicit controlled values after native reset without callbacks', async () => {
     const [value, setValue] = createSignal('Controlled')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <Input value={value()} defaultValue="Default" onValueChange={onValueChange} />
@@ -552,11 +552,11 @@ describe('Input', () => {
     expect(input.value).toBe('Controlled')
     expect(onValueChange).not.toHaveBeenCalled()
 
-    setValue('Accepted')
+    flush(() => setValue('Accepted'))
     expect(input.value).toBe('Accepted')
   })
 
-  test('keeps Field aligned when a controlled request is rejected or replaced externally', async () => {
+  it('keeps Field aligned when a controlled request is rejected or replaced externally', async () => {
     const [value, setValue] = createSignal('Locked')
     const { screen, value: form } = renderWithOwner(
       () =>
@@ -582,13 +582,13 @@ describe('Input', () => {
     expect(input.value).toBe('Locked')
     expect(getInput(form)).toEqual({ value: 'Locked' })
 
-    setValue('External')
+    flush(() => setValue('External'))
     expect(input.value).toBe('External')
     expect(getInput(form)).toEqual({ value: 'External' })
   })
 
-  test('reacts to external Formisch input without publishing user callbacks', () => {
-    const onValueChange = vi.fn()
+  it('reacts to external Formisch input without publishing user callbacks', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -605,15 +605,15 @@ describe('Input', () => {
     )
     const input = screen.getByLabelText<HTMLInputElement>('Value')
 
-    setInput(form, { path: ['value'], input: 'External' })
+    flush(() => setInput(form, { path: ['value'], input: 'External' }))
 
     expect(input.value).toBe('External')
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('uses the latest reactive modifier configuration', async () => {
+  it('uses the latest reactive modifier configuration', async () => {
     const [number, setNumber] = createSignal(false)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Input modifiers={{ number: number() }} onValueChange={onValueChange} />
     ))
@@ -625,7 +625,7 @@ describe('Input', () => {
     })
     expect(onValueChange).toHaveBeenLastCalledWith('12')
 
-    setNumber(true)
+    flush(() => setNumber(true))
     fireEvent.input(input, {
       target: { value: '12' },
       currentTarget: { value: '12' },
@@ -633,14 +633,14 @@ describe('Input', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(12)
   })
 
-  test('applies classes.root to the root element', () => {
+  it('applies classes.root to the root element', () => {
     const screen = render(() => <Input classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="input"]')
 
     expect(root?.className).toContain('root-override')
   })
 
-  test('applies styles.root override', () => {
+  it('applies styles.root override', () => {
     const screen = render(() => <Input styles={{ root: { width: '200px' } }} />)
     const root = screen.container.querySelector<HTMLElement>('[data-slot="input"]')
 

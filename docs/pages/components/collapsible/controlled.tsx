@@ -1,6 +1,5 @@
 import { Button, Collapsible, Icon, Switch } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Controlled() {
   const [open, setOpen] = createSignal(true)
   const [locked, setLocked] = createSignal(false)

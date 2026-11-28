@@ -2,14 +2,13 @@ import { Button, createForm, Combobox } from '@src'
 import type { ComboboxT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const FRAMEWORKS = [
   { label: 'SolidJS', value: 'solid' },
   { label: 'Vue.js', value: 'vue' },
   { label: 'React', value: 'react' },
   { label: 'Svelte', value: 'svelte' },
   { label: 'Astro', value: 'astro' },
-] satisfies ComboboxT.Item[]
+] satisfies Array<ComboboxT.Item>
 
 export function FormIntegration() {
   const [submitted, setSubmitted] = createSignal<string | null>(null)

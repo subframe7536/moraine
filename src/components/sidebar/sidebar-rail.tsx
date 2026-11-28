@@ -1,19 +1,18 @@
-import type { JSX } from 'solid-js'
-import { Show, createSignal, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { createSplitterHandle } from '../shared/splitter'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
 import { defaultSidebarMessages } from './sidebar.messages'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
-
 const KEYBOARD_STEP = 16
 const KEYBOARD_STEP_SHIFT = 1
 
@@ -37,6 +36,8 @@ interface RailDragSession {
   total: number
   startWidth: number
   baselineWidth: number | undefined
+  lastWidth: number | undefined
+  isOpen: boolean
 }
 
 /**
@@ -62,7 +63,17 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
   props: SidebarT.RailProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(
+  const local = props as SidebarT.RailProps<T> & {
+    'aria-label'?: string
+    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
+    onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
+    onMouseEnter?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    onMouseLeave?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+  }
+  const rest = omit(
     props as SidebarT.RailProps<T> & {
       'aria-label'?: string
       onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
@@ -73,21 +84,19 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
       onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
       onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
     },
-    [
-      'as',
-      'disabled',
-      'aria-label',
-      'class',
-      'style',
-      'ref',
-      'onClick',
-      'onKeyDown',
-      'onPointerDown',
-      'onMouseEnter',
-      'onMouseLeave',
-      'onFocus',
-      'onBlur',
-    ],
+    'as',
+    'disabled',
+    'aria-label',
+    'class',
+    'style',
+    'ref',
+    'onClick',
+    'onKeyDown',
+    'onPointerDown',
+    'onMouseEnter',
+    'onMouseLeave',
+    'onFocus',
+    'onBlur',
   )
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
 
@@ -112,12 +121,16 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
 
   function applyDrag(deltaPx: number): void {
     if (!session) {
-      const startWidth = context.open() ? (context.width() ?? measuredPanelWidth()) : 0
+      const isOpen = context.open()
+      const currentWidth = context.width()
+      const startWidth = isOpen ? (currentWidth ?? measuredPanelWidth()) : 0
       session = {
         sign: measureSign(),
         total: 0,
         startWidth,
-        baselineWidth: context.width(),
+        baselineWidth: currentWidth,
+        lastWidth: currentWidth,
+        isOpen,
       }
       context.setResizing(true)
     }
@@ -129,17 +142,20 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
 
     const candidate = session.startWidth + session.sign * session.total
     if (candidate < context.minWidth() / 2) {
-      if (context.open()) {
+      if (session.isOpen) {
+        session.isOpen = false
         context.setOpen(false)
       }
       return
     }
 
-    if (!context.open()) {
+    if (!session.isOpen) {
+      session.isOpen = true
       context.setOpen(true)
     }
     const next = clamp(candidate, context.minWidth(), context.maxWidth())
-    if (next !== context.width()) {
+    if (next !== session.lastWidth) {
+      session.lastWidth = next
       context.setWidth(next)
     }
   }
@@ -148,7 +164,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
     context.setResizing(false)
     const finished = session
     session = null
-    const finalWidth = context.width()
+    const finalWidth = finished?.lastWidth ?? context.width()
     if (
       finished &&
       finalWidth !== undefined &&
@@ -234,10 +250,11 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
     context.toggle()
   }
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'button')
+
   return (
     <Show when={!context.mobile()}>
-      <Dynamic
-        component={(local.as ?? 'button') as ValidComponent}
+      <Root
         type={isButton() ? 'button' : undefined}
         data-slot="sidebar-rail"
         {...railSlot}
@@ -251,12 +268,8 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
         aria-label={local['aria-label'] ?? messages().resize}
         disabled={isButton() ? disabled() : undefined}
         aria-disabled={disabled() ? 'true' : undefined}
-        tabIndex={disabled() ? -1 : 0}
-        ref={(node: HTMLElement) => {
-          setElement(node)
-          bindings.setElement(node)
-          callRef(local.ref, node)
-        }}
+        tabindex={disabled() ? -1 : 0}
+        ref={[setElement, bindings.setElement, local.ref]}
         onClick={(event: MouseEvent) => callRailEvent(event, local.onClick, onClick)}
         onKeyDown={(event: KeyboardEvent) =>
           callRailEvent(event, local.onKeyDown, bindings.onKeyDown)

@@ -1,12 +1,11 @@
 import type { DocsPageEntry } from '../../../docs-route'
-
 export interface AdjacentDocsPages {
   previous?: DocsPageEntry
   next?: DocsPageEntry
 }
 
 export function getAdjacentDocsPages(
-  pages: DocsPageEntry[],
+  pages: Array<DocsPageEntry>,
   currentPageKey: string,
 ): AdjacentDocsPages {
   const currentIndex = pages.findIndex((page) => page.path === currentPageKey)

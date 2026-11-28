@@ -1,12 +1,11 @@
-import { createSignal } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Textarea } from './textarea'
-
-describe('Textarea SSR Hydration', () => {
-  test('reuses its only native element and initial value', () => {
+describe('textarea SSR Hydration', () => {
+  it('reuses its only native element and initial value', () => {
     const { container } = hydrateFixture(
       '/src/components/textarea/textarea.ssr.fixture.tsx',
       'renderTextareaFixture',
@@ -18,7 +17,7 @@ describe('Textarea SSR Hydration', () => {
     expect(textarea.value).toBe('Server value')
   })
 
-  test('keeps the server textarea node when its controlled value changes after hydration', () => {
+  it('keeps the server textarea node when its controlled value changes after hydration', () => {
     const [value, setValue] = createSignal('Server value')
     const { container } = hydrateFixture(
       '/src/components/textarea/textarea.ssr.fixture.tsx',
@@ -27,7 +26,7 @@ describe('Textarea SSR Hydration', () => {
     )
     const textarea = container.querySelector('textarea')!
 
-    setValue('Client value')
+    flush(() => setValue('Client value'))
 
     expect(container.querySelector('textarea')).toBe(textarea)
     expect(textarea.value).toBe('Client value')

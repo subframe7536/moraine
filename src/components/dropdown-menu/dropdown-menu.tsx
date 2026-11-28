@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import { DropdownMenuContent } from './dropdown-menu-content'
 import { DropdownMenuProvider, createDropdownMenu } from './dropdown-menu-context'
 import { DropdownMenuTrigger } from './dropdown-menu-trigger'
 import type { DropdownMenuProps } from './dropdown-menu.types'
-
 /**
  * Menu state and interaction context for a compact set of actions opened from a visible trigger;
  * it renders no DOM element of its own. Compose it from `DropdownMenu.Trigger` and

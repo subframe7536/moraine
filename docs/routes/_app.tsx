@@ -1,21 +1,19 @@
 import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
-import { createRoute } from 'solid-file-router'
-import { MDXProvider } from 'solid-file-router/mdx'
-import type { JSX } from 'solid-js'
-import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { defineRoute } from 'solid-file-router'
+import { Show, createEffect, createMemo, createSignal, untrack, Loading } from 'solid-js'
 
 import { Button, MoraineProvider, Progress, Sidebar } from '../../src'
 import { createMediaQuery } from '../../src/utils'
+import { DOCS_SITE } from '../build/site-meta'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.recipe'
 import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
 
 import { DocsHeader, DocsSidebar, DocsSidebarHeader } from './components/layout'
-import { DOCS_MDX_COMPONENTS } from './components/markdown'
 import { getDocsPages } from './docs-route'
 import { revealHashTarget, useHashScrolling } from './hooks/use-hash-scrolling'
 import { useScrollRetention } from './hooks/use-scroll-retention'
 import { useTheme } from './hooks/use-theme'
-
 function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const pages = getDocsPages()
   const location = useLocation()
@@ -27,7 +25,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const [mainEl, setMainEl] = createSignal<HTMLElement>()
 
   const activePage = createMemo(() => {
-    const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/$/g, '')
+    const normalizedPath =
+      location.pathname === '/' ? '/' : location.pathname.replaceAll(/\/$/g, '')
     return pages.find((page) => page.path === normalizedPath)?.path ?? ''
   })
 
@@ -38,7 +37,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   let renderedPage = untrack(committedPage)
 
   createEffect(
-    on([activePage, isRouting], ([page, routing]) => {
+    () => [activePage(), isRouting(), mainEl()] as const,
+    ([page, routing, main]) => {
       if (routing) {
         return
       }
@@ -48,21 +48,19 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
       }
 
       renderedPage = page
-      mainEl()?.scrollTo({ top: 0 })
+      main?.scrollTo({ top: 0 })
       setCommittedPage(page)
-    }),
+    },
   )
 
-  createEffect(
-    on(isRouting, (routing) => {
-      if (!routing) {
-        setRoutingFromPath(undefined)
-        return
-      }
+  createEffect(isRouting, (routing) => {
+    if (!routing) {
+      setRoutingFromPath(undefined)
+      return
+    }
 
-      setRoutingFromPath((path) => path ?? untrack(() => location.pathname))
-    }),
-  )
+    setRoutingFromPath((path) => path ?? untrack(() => location.pathname))
+  })
 
   const navigateToPage = (pagePath: string) => {
     const path = pages.find((page) => page.path === pagePath)?.path
@@ -136,6 +134,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           <Sidebar.Inset
             id="main-content"
             data-docs-main
+            class="overscroll-contain"
             ref={(element) => setMainEl(element)}
             onClick={(event) => {
               if (
@@ -162,9 +161,9 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
               })
             }}
           >
-            <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
+            <Loading fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
               {props.children}
-            </Suspense>
+            </Loading>
           </Sidebar.Inset>
         </div>
       </>
@@ -191,12 +190,27 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   )
 }
 
-export default createRoute({
-  component: (props) => (
-    <MoraineProvider>
-      <MDXProvider components={DOCS_MDX_COMPONENTS}>
-        <DocsAppLayout>{props.children}</DocsAppLayout>
-      </MDXProvider>
-    </MoraineProvider>
-  ),
+const DEFAULT_TITLE = 'Moraine Docs'
+
+export const route = defineRoute({
+  metadata: {
+    title: DEFAULT_TITLE,
+    description: DOCS_SITE.description,
+    canonical: DOCS_SITE.siteUrl,
+    meta: [
+      { property: 'og:title', content: DEFAULT_TITLE },
+      { property: 'og:description', content: DOCS_SITE.description },
+      { property: 'og:url', content: DOCS_SITE.siteUrl },
+      { name: 'twitter:title', content: DEFAULT_TITLE },
+      { name: 'twitter:description', content: DOCS_SITE.description },
+    ],
+  },
 })
+
+export default function DocsApp(props: { children?: JSX.Element }): JSX.Element {
+  return (
+    <MoraineProvider>
+      <DocsAppLayout>{props.children}</DocsAppLayout>
+    </MoraineProvider>
+  )
+}

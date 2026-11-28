@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -9,7 +9,7 @@ import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 
@@ -18,7 +18,6 @@ import { copyButtonDataAttributes, copyButtonRecipe } from './copy-button.recipe
 import type { CopyButtonStyleVariants } from './copy-button.style-types'
 import type { CopyButtonProps, CopyButtonT } from './copy-button.types'
 import { createCopy } from './create-copy'
-
 /** Message used as the default `aria-label` of an icon-only button in each copy status. */
 const STATUS_MESSAGE_KEYS = {
   idle: 'copy',
@@ -45,36 +44,39 @@ export function CopyButton<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   const group = useButtonGroupContext()
 
-  const [local, rest] = splitProps(
+  const local = props as CopyButtonProps<T> & {
+    ref?: unknown
+    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    'aria-label'?: string
+  }
+  const rest = omit(
     props as CopyButtonProps<T> & {
       ref?: unknown
       onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
       'aria-label'?: string
     },
-    [
-      'ref',
-      'as',
-      'value',
-      'resetDelay',
-      'disabled',
-      'icon',
-      'copiedIcon',
-      'iconPosition',
-      'onCopySuccess',
-      'onCopyError',
-      'onStatusChange',
-      'variant',
-      'tone',
-      'classes',
-      'styles',
-      'class',
-      'style',
-      'onClick',
-      'children',
-      'aria-label',
-      'translations',
-      'size',
-    ],
+    'ref',
+    'as',
+    'value',
+    'resetDelay',
+    'disabled',
+    'icon',
+    'copiedIcon',
+    'iconPosition',
+    'onCopySuccess',
+    'onCopyError',
+    'onStatusChange',
+    'variant',
+    'tone',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onClick',
+    'children',
+    'aria-label',
+    'translations',
+    'size',
   )
 
   const messages = useMessages('copyButton', defaultCopyButtonMessages, () => local.translations)
@@ -91,7 +93,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
 
-  const child = resolveChildren(() => local.children)
+  const child = resolvePropsChildren(local as { children?: JSX.Element })
   const resolvedChildren = createMemo(() => {
     const value = child() as CopyButtonT.Base['children']
     if (typeof value !== 'function') {
@@ -119,15 +121,33 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const hasIcon = () => local.icon !== false && local.icon !== null
   const hasLabel = () => hasContent(resolvedChildren())
   const size = (): CopyButtonStyleVariants['size'] => {
-    const base = String(local.size ?? group?.size ?? 'md').replace(/^icon-/, '')
+    const base = (local.size ?? group?.size ?? 'md').replace(/^icon-/, '')
     return (hasIcon() && !hasLabel() ? `icon-${base}` : base) as CopyButtonStyleVariants['size']
   }
 
-  const recipeProps = mergeProps(local, {
+  const recipeProps = {
+    get variant() {
+      return local.variant
+    },
+    get tone() {
+      return local.tone
+    },
     get size() {
       return size()
     },
-  })
+    get class() {
+      return local.class
+    },
+    get style() {
+      return local.style
+    },
+    get classes() {
+      return local.classes
+    },
+    get styles() {
+      return local.styles
+    },
+  }
   const {
     slots: { root: rootSlot, icon: iconSlot, label: labelSlot },
   } = useRecipe(copyButtonRecipe, recipeProps, {
@@ -181,13 +201,14 @@ export function CopyButton<T extends ValidComponent = 'button'>(
     return <Icon name={icon()} data-slot="copy-button-icon" {...iconSlot} />
   }
 
+  const Root = dynamic(tag)
+
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="copy-button"
       {...rootSlot}
       {...binding}
-      aria-invalid={clipboard.isError() ? true : undefined}
+      aria-invalid={clipboard.isError() ? 'true' : undefined}
       aria-label={
         local['aria-label'] ??
         (hasLabel() ? undefined : messages()[STATUS_MESSAGE_KEYS[clipboard.status()]])
@@ -206,6 +227,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       <Show when={hasIcon() && local.iconPosition === 'trailing'}>
         <Indicator />
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

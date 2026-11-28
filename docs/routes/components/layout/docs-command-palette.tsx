@@ -1,34 +1,37 @@
-import { useNavigate } from '@solidjs/router'
-import type { Accessor, JSX } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { Loading, Show, createEffect, createSignal, lazy, onSettled, omit } from 'solid-js'
 
-import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src'
+import { Button, KbdGroup } from '../../../../src'
 import type { CommandPaletteT, DialogT } from '../../../../src'
 
 import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.recipe'
 import type { SidebarPage } from './sidebar'
 
-export type DocsCommandPaletteVariant = 'desktop' | 'mobile'
+export type DocsCommandPaletteVariant = 'responsive' | 'mobile' | 'desktop'
 
 export interface DocsCommandPaletteProps {
-  pages: SidebarPage[]
+  pages: Array<SidebarPage>
   onNavigate: (path: string) => void
   open: Accessor<boolean>
   setOpen: (open: boolean) => void
   variant?: DocsCommandPaletteVariant
 }
 
-interface DocsCommandItem extends CommandPaletteT.Item {
+export interface DocsCommandItem extends CommandPaletteT.Item {
   href: string
   icon?: string
 }
 
+const loadCommandPaletteDialog = () => import('./docs-command-palette-dialog')
+const LazyCommandPaletteDialog = lazy(loadCommandPaletteDialog)
+
 export function buildDocsCommandItems(
-  pages: SidebarPage[],
+  pages: Array<SidebarPage>,
   includeSections = true,
-): CommandPaletteT.Group<DocsCommandItem>[] {
-  const pageItems: DocsCommandItem[] = []
-  const sectionItems: DocsCommandItem[] = []
+): Array<CommandPaletteT.Group<DocsCommandItem>> {
+  const pageItems: Array<DocsCommandItem> = []
+  const sectionItems: Array<DocsCommandItem> = []
   const destinations = new Set<string>()
 
   for (const page of pages) {
@@ -71,7 +74,7 @@ export function buildDocsCommandItems(
     }
   }
 
-  const groups: CommandPaletteT.Group<DocsCommandItem>[] = [
+  const groups: Array<CommandPaletteT.Group<DocsCommandItem>> = [
     {
       type: 'group',
       label: 'Pages',
@@ -88,75 +91,31 @@ export function buildDocsCommandItems(
   return groups
 }
 
-function isModifiedActivation(event: MouseEvent): boolean {
-  return event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
-}
-
-function createDocsCommandItem(
-  context: CommandPaletteT.ItemRenderProps<DocsCommandItem>,
-  onNavigate: (path: string) => void,
-  close: () => void,
-): JSX.Element {
-  return (
-    <a
-      href={context.item.href}
-      tabIndex={-1}
-      aria-label={`${context.item.description}: ${context.item.label}`}
-      class="flex flex-1 gap-2.5 min-w-0 items-center"
-      onClick={(event) => {
-        event.stopPropagation()
-        if (isModifiedActivation(event)) {
-          return
-        }
-
-        event.preventDefault()
-        onNavigate(context.item.href)
-        close()
-      }}
-    >
-      <Show when={context.item.icon}>
-        {(icon) => (
-          <span class="text-muted-foreground rounded bg-muted/60 flex shrink-0 size-6 items-center justify-center group-data-[highlighted]:(text-accent-foreground bg-accent)">
-            <Icon name={icon()} class="text-xs" />
-          </span>
-        )}
-      </Show>
-      <span class="flex flex-1 flex-col min-w-0">
-        <span class="text-sm leading-snug font-medium truncate">{context.item.label}</span>
-        <span class="text-xs text-muted-foreground leading-tight truncate group-data-[highlighted]:text-accent-foreground/80">
-          {context.item.description}
-        </span>
-      </span>
-      <span class="text-xs text-muted-foreground pe-1 opacity-0 flex shrink-0 transition-opacity items-center group-data-[highlighted]:opacity-100">
-        <Icon name="i-lucide:corner-down-left" class="size-3.5" />
-      </span>
-    </a>
-  )
-}
-
 export function DocsSearchTrigger(
   props: DialogT.TriggerProps & { variant?: DocsCommandPaletteVariant },
 ): JSX.Element {
-  const [local, triggerProps] = splitProps(props, ['variant'])
-  const variant = () => local.variant ?? 'desktop'
+  const triggerProps = omit(props, 'variant')
+  const variant = () => props.variant ?? 'responsive'
 
   return (
     <Button
       {...triggerProps}
       aria-label="Open search"
       aria-keyshortcuts="Meta+K Control+K"
-      variant={variant() === 'mobile' ? 'ghost' : 'outline'}
-      size={variant() === 'mobile' ? 'icon-sm' : 'sm'}
+      variant={variant() === 'desktop' ? 'outline' : 'ghost'}
+      size={variant() === 'desktop' ? 'sm' : 'icon-sm'}
       leading="i-lucide-search"
       class={[
         DOCS_HEADER_CONTROL_CLASS,
         variant() === 'mobile'
           ? 'size-11'
-          : 'ms-1 me-2 h-9 w-52 justify-start border-border bg-muted/40 hover:bg-muted/70',
+          : variant() === 'desktop'
+            ? 'ms-1 me-2 h-9 w-52 justify-start border-border bg-muted/40 hover:bg-muted/70'
+            : 'size-11 lg:ms-1 lg:me-2 lg:px-2 lg:h-9 lg:w-52 lg:text-xs lg:justify-start lg:border-border lg:bg-muted/40 lg:hover:bg-muted/70',
       ]}
-      classes={{ label: 'flex-1' }}
+      classes={{ label: variant() === 'responsive' ? 'hidden lg:block lg:flex-1' : 'flex-1' }}
     >
-      <Show when={variant() === 'desktop'}>
+      <Show when={variant() !== 'mobile'}>
         <span class="text-sm flex gap-3 w-full items-center justify-between">
           <span>Search docs</span>
           <KbdGroup items={['⌘', 'K']} separator="" size="sm" variant="outline" />
@@ -167,117 +126,71 @@ export function DocsSearchTrigger(
 }
 
 export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element {
-  const [searchValue, setSearchValue] = createSignal('')
-  const navigate = useNavigate()
+  const [hasOpened, setHasOpened] = createSignal(false)
 
-  const onSelect = (item: DocsCommandItem) => {
-    navigate(item.href, { scroll: false })
-    props.onNavigate(item.href)
-  }
-
-  const onClose = () => {
-    props.setOpen(false)
-  }
-
-  const items = createMemo(() => buildDocsCommandItems(props.pages, Boolean(searchValue().trim())))
-
-  onMount(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null
-      const isEditable =
-        target?.tagName === 'INPUT' ||
-        target?.tagName === 'TEXTAREA' ||
-        target?.isContentEditable === true
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        props.setOpen(!props.open())
-        return
+  createEffect(
+    () => props.open(),
+    (isOpen) => {
+      if (isOpen) {
+        setHasOpened(true)
       }
+    },
+  )
 
-      if (event.key === '/' && !isEditable && !props.open()) {
-        event.preventDefault()
-        props.setOpen(true)
-      }
+  const handleKeyDown = (event: KeyboardEvent) => {
+    const target = event.target as HTMLElement | null
+    const isEditable =
+      target?.tagName === 'INPUT' ||
+      target?.tagName === 'TEXTAREA' ||
+      target?.isContentEditable === true
+
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      props.setOpen(!props.open())
+      return
     }
+
+    if (event.key === '/' && !isEditable && !props.open()) {
+      event.preventDefault()
+      props.setOpen(true)
+    }
+  }
+
+  onSettled(() => {
     window.addEventListener('keydown', handleKeyDown, true)
-    onCleanup(() => window.removeEventListener('keydown', handleKeyDown, true))
+    return () => window.removeEventListener('keydown', handleKeyDown, true)
   })
 
-  return (
-    <Dialog
-      open={props.open()}
-      onOpenChange={(next) => {
-        props.setOpen(next)
+  const renderFallbackTrigger = () => (
+    <DocsSearchTrigger
+      type="button"
+      variant={props.variant}
+      aria-haspopup="dialog"
+      aria-expanded={props.open() ? 'true' : 'false'}
+      onPointerEnter={() => {
+        void loadCommandPaletteDialog()
       }}
-      onExitComplete={() => setSearchValue('')}
-      closable={false}
-    >
-      <Dialog.Trigger as={DocsSearchTrigger} variant={props.variant} />
-      <Dialog.Content class="p-0 overflow-hidden sm:max-w-xl">
-        <Dialog.Body class="mb-0 p-0">
-          <CommandPalette<DocsCommandItem>
-            class="border-0 rounded-none bg-transparent shadow-none"
-            items={items()}
-            placeholder="Search components, hooks, and pages..."
-            searchValue={searchValue()}
-            onSearchValueChange={setSearchValue}
-            onSelect={onSelect}
-            itemRender={(context) =>
-              createDocsCommandItem(
-                context,
-                (href) => {
-                  navigate(href, { scroll: false })
-                  props.onNavigate(href)
-                },
-                onClose,
-              )
-            }
-            closable
-            onCloseRequest={onClose}
-            emptyRender={(ctx) => (
-              <div class="py-6 flex flex-col gap-2 items-center">
-                <Icon name="i-lucide:search-x" class="text-2xl text-muted-foreground/60" />
-                <span class="text-sm text-muted-foreground">
-                  No pages found for{' '}
-                  <span class="text-foreground font-medium">“{ctx.searchValue}”</span>
-                </span>
-              </div>
-            )}
-            footerRender={(ctx) => (
-              <div class="flex w-full items-center justify-between">
-                <span>
-                  {ctx.visibleGroups.reduce(
-                    (count, group) => count + (group.children?.length ?? 0),
-                    0,
-                  )}{' '}
-                  matches
-                </span>
-                <div class="gap-3 hidden items-center sm:flex" aria-label="Keyboard shortcuts">
-                  <span class="flex gap-1.5 items-center">
-                    <KbdGroup
-                      items={['arrowup', 'arrowdown']}
-                      size="sm"
-                      variant="outline"
-                      separator="/"
-                    />
-                    Navigate
-                  </span>
-                  <span class="flex gap-1.5 items-center">
-                    <KbdGroup items={['enter']} size="sm" variant="outline" />
-                    Open
-                  </span>
-                  <span class="flex gap-1.5 items-center">
-                    <KbdGroup items={['escape']} size="sm" variant="outline" />
-                    Close
-                  </span>
-                </div>
-              </div>
-            )}
-          />
-        </Dialog.Body>
-      </Dialog.Content>
-    </Dialog>
+      onFocus={() => {
+        void loadCommandPaletteDialog()
+      }}
+      onClick={() => {
+        props.setOpen(true)
+      }}
+    />
+  )
+
+  return (
+    <Show when={hasOpened()} fallback={renderFallbackTrigger()}>
+      <Loading fallback={renderFallbackTrigger()}>
+        <LazyCommandPaletteDialog
+          pages={props.pages}
+          onNavigate={props.onNavigate}
+          open={props.open}
+          setOpen={props.setOpen}
+          variant={props.variant}
+        />
+      </Loading>
+    </Show>
   )
 }

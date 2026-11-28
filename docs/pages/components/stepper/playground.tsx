@@ -2,8 +2,7 @@ import { Stepper } from '@src'
 import type { StepperT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
-const ONBOARDING_STEPS: StepperT.Item[] = [
+const ONBOARDING_STEPS: Array<StepperT.Item> = [
   {
     value: 'account',
     label: 'Account',

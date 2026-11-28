@@ -1,12 +1,12 @@
-import type { JSX } from 'solid-js'
-import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, createSignal, For, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { collatorEquals, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
@@ -51,7 +51,7 @@ import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, For, omit } from 'solid-js'
  * import { Field, MultiSelect } from 'moraine'
  *
  * const [skills, setSkills] = createSignal<string[]>(['design'])
@@ -77,13 +77,9 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
 ): JSX.Element {
   type Item = MultiSelectT.NormalizedItem<T>
   type Value = Item['value']
-  const [local, baseSelectProps, rootProps] = splitProps(
-    props,
-    MULTI_SELECT_LOCAL_PROP_KEYS,
-    BASE_SELECT_FORWARD_PROP_KEYS,
-  )
+  const rootProps = omit(props, ...MULTI_SELECT_LOCAL_PROP_KEYS, ...BASE_SELECT_FORWARD_PROP_KEYS)
   const field = useFieldContext()
-  const messages = useMessages('multiSelect', defaultMultiSelectMessages, () => local.translations)
+  const messages = useMessages('multiSelect', defaultMultiSelectMessages, () => props.translations)
   const locale = useLocale().locale
   const {
     slots,
@@ -104,88 +100,116 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
         disabled: undefined,
         expanded: undefined,
         invalid: undefined,
-        loading: () => local.loading,
+        loading: () => props.loading,
       }),
     },
     context: () => ({ variants: { size: field?.size } }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(slots)
-  const [created, setCreated] = createSignal<Item[]>([])
+  const [created, setCreated] = createSignal<Array<Item>>([])
   const source = createMemo((prev: ReturnType<typeof createSource<Item>> | undefined) =>
-    createSource(normalizeSelectEntries<T>(local.items ?? []), created(), prev),
+    createSource(normalizeSelectEntries<T>(props.items ?? []), created(), prev),
   )
-  const editable = () => local.searchable === true || local.createItem !== undefined
+  const editable = () => props.searchable === true || props.createItem !== undefined
   const search = useComboboxSearch(
-    local,
+    props,
     editable,
     () => source(),
-    () => baseSelectProps.getItemLabel,
+    () => props.getItemLabel,
   )
+
+  function resolveInputItem(input: string): Item | undefined {
+    const normalized = input.trim()
+    if (!normalized) {
+      return undefined
+    }
+    const collator = createSearchCollator(locale())
+    return source().items.find((candidate) => {
+      const label = labelString(candidate, props.getItemLabel)
+      return (
+        collatorEquals(collator, label, normalized) ||
+        collatorEquals(collator, String(candidate.value), normalized)
+      )
+    })
+  }
 
   function Control(): JSX.Element {
     const state = useSelectContext<Item>()
-    const atMax = () => local.maxValues !== undefined && state.value().length >= local.maxValues
+    const atMax = () => props.maxValues !== undefined && state.value().length >= props.maxValues
 
-    function resolveInputItem(input: string): Item | undefined {
-      const normalized = input.trim()
-      if (!normalized) {
-        return undefined
-      }
-      const collator = createSearchCollator(locale())
-      return source().items.find((candidate) => {
-        const label = labelString(candidate, baseSelectProps.getItemLabel)
-        return (
-          collatorEquals(collator, label, normalized) ||
-          collatorEquals(collator, String(candidate.value), normalized)
-        )
-      })
-    }
-
-    function commitInput(input: string): boolean {
+    function commitInputs(inputs: ReadonlyArray<string>): boolean {
       if (state.locked()) {
         return false
       }
-      const normalized = input.trim()
-      if (!normalized) {
+      const nextValues = [...state.value()]
+      const newlyCreated: Array<Item> = []
+      const createdByValue = new Map<Value, Item>()
+      let committedAny = false
+
+      for (const input of inputs) {
+        const normalized = input.trim()
+        if (!normalized) {
+          continue
+        }
+        if (props.maxValues !== undefined && nextValues.length >= props.maxValues) {
+          break
+        }
+        const resolved = resolveInputItem(normalized)
+        if (resolved && nextValues.some((value) => sameValue(value, resolved.value))) {
+          continue
+        }
+        if (resolved && state.itemDisabled(resolved)) {
+          continue
+        }
+        let item = resolved
+        if (!item) {
+          if (!props.createItem) {
+            continue
+          }
+          const candidate = props.createItem(normalized)
+          if (
+            !candidate ||
+            (typeof candidate.value !== 'string' && typeof candidate.value !== 'number')
+          ) {
+            continue
+          }
+          const createdItem =
+            source().byValue.get(candidate.value) ??
+            createdByValue.get(candidate.value) ??
+            candidate
+          if (state.itemDisabled(createdItem)) {
+            continue
+          }
+          if (nextValues.some((value) => sameValue(value, createdItem.value))) {
+            continue
+          }
+          if (!source().byValue.has(createdItem.value) && !createdByValue.has(createdItem.value)) {
+            createdByValue.set(createdItem.value, createdItem)
+            newlyCreated.push(createdItem)
+          }
+          item = createdItem
+        }
+        nextValues.push(item.value)
+        committedAny = true
+      }
+
+      if (!committedAny) {
         return false
       }
-      const resolved = resolveInputItem(normalized)
-      if (resolved && state.value().some((value) => sameValue(value, resolved.value))) {
-        return false
-      }
-      if (atMax() || (resolved && state.itemDisabled(resolved))) {
-        return false
-      }
-      let item = resolved
-      if (!item) {
-        if (!local.createItem) {
-          return false
-        }
-        const candidate = local.createItem(normalized)
-        if (
-          !candidate ||
-          (typeof candidate.value !== 'string' && typeof candidate.value !== 'number')
-        ) {
-          return false
-        }
-        const createdItem = source().byValue.get(candidate.value) ?? candidate
-        if (state.itemDisabled(createdItem)) {
-          return false
-        }
-        if (state.value().some((value) => sameValue(value, createdItem.value))) {
-          return false
-        }
-        if (!source().byValue.has(createdItem.value)) {
-          setCreated((previous) =>
-            previous.some((entry) => sameValue(entry.value, createdItem.value))
-              ? previous
-              : [...previous, createdItem],
+      if (newlyCreated.length > 0) {
+        setCreated((previous) => {
+          const added = newlyCreated.filter(
+            (entry) => !previous.some((existing) => sameValue(existing.value, entry.value)),
           )
-        }
-        item = createdItem
+          return added.length > 0 ? [...previous, ...added] : previous
+        })
       }
-      state.change([...state.value(), item.value])
+      state.change(nextValues)
       return true
+    }
+
+    function commitInput(input: string): boolean {
+      return commitInputs([input])
     }
 
     function create(input = search.value()): boolean {
@@ -200,17 +224,18 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       values: state.value,
       change: state.change,
       getFocusOwner: state.focusOwner,
-      maxVisible: () => local.maxVisible,
+      maxVisible: () => props.maxVisible,
       query: search.value,
       setQuery: search.setValue,
       commitInput,
-      tokenSeparators: () => local.tokenSeparators,
+      commitInputs,
+      tokenSeparators: () => props.tokenSeparators,
       locked: state.locked,
       slot: (slot) => slots[slot],
       slotName: state.slotName,
-      removeIcon: () => local.removeIcon,
+      removeIcon: () => props.removeIcon,
       translations: () =>
-        local.translations?.remove ? { remove: local.translations.remove } : undefined,
+        props.translations?.remove ? { remove: props.translations.remove } : undefined,
       resolve: (value) => {
         const item = source().byValue.get(value)
         const label = item?.label ?? String(value)
@@ -219,7 +244,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           item,
           label,
           title: item
-            ? labelString(item, baseSelectProps.getItemLabel)
+            ? labelString(item, props.getItemLabel)
             : typeof label === 'string'
               ? label
               : String(value),
@@ -235,14 +260,14 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       displayValue: () => (editable() ? search.value() : ''),
       transformInput: tags.tokenize,
       get maxLength() {
-        return local.searchMaxLength
+        return props.searchMaxLength
       },
       get autoComplete() {
-        return local.autoComplete
+        return props.autoComplete
       },
     })
     const overflowTags = () => tags.tags().slice(tags.visible().length)
-    const overflowRenderTags = (): readonly MultiSelectT.TagOverflowEntry<T>[] =>
+    const overflowRenderTags = (): ReadonlyArray<MultiSelectT.TagOverflowEntry<T>> =>
       overflowTags().map((tag) => ({
         item: source().byValue.get(tag.value),
         value: tag.value,
@@ -260,7 +285,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       return state.value().some((value) => sameValue(value, query))
     }
 
-    const placeholder = () => local.placeholder ?? messages().placeholder
+    const placeholder = () => props.placeholder ?? messages().placeholder
 
     function focusControl(): void {
       state.focusOwner()?.focus()
@@ -277,7 +302,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
         }),
       )
       search.setValue('')
-      local.onClear?.()
+      props.onClear?.()
       focusControl()
     }
 
@@ -377,34 +402,35 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       focusOwner: state.focusOwner,
       focus: focusControl,
       disabled: state.locked,
-      openOnControlClick: () => local.openOnControlClick ?? !editable(),
+      openOnControlClick: () => props.openOnControlClick ?? !editable(),
       setOpen: state.setOpen,
-      onPointerDown: rootProps.onPointerDown,
-      onClick: rootProps.onClick,
+      get onPointerDown() {
+        return rootProps.onPointerDown
+      },
+      get onClick() {
+        return rootProps.onClick
+      },
     })
 
     return (
       <>
-        <BaseSelect.Control
-          {...controlSlot}
-          {...rootProps}
-          {...controlPress}
-          ref={(element) => callRef(local.ref, element)}
-        >
-          <Show when={local.leading}>
+        <BaseSelect.Control {...controlSlot} {...rootProps} {...controlPress} ref={props.ref}>
+          <Show when={props.leading}>
             {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...leadingSlot} />}
           </Show>
           <div data-slot="multi-select-tags-container" {...tagsContainerSlot}>
             <For each={tags.visible()}>
               {(tag, index) => (
                 <Show
-                  when={local.tagRender}
+                  when={props.tagRender}
                   fallback={<tags.DefaultTag tag={tag} index={index()} />}
                   keyed
                 >
                   {(tagRender) =>
                     renderWithProps(tagRender, {
-                      item: source().byValue.get(tag.value),
+                      get item() {
+                        return source().byValue.get(tag.value)
+                      },
                       value: tag.value,
                       label: tag.label,
                       remove: () => tags.remove(index()),
@@ -414,27 +440,32 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
               )}
             </For>
             <Show when={tags.overflow() > 0}>
-              <Show
-                when={local.tagOverflowRender !== undefined}
-                fallback={
-                  <span
-                    data-slot="multi-select-tag-overflow"
-                    aria-label={messages().overflow({ count: tags.overflow() })}
-                    {...tagOverflowSlot}
+              {(_overflow) => {
+                const tagOverflowRender = createLazyMemo(() => props.tagOverflowRender)
+                return (
+                  <Show
+                    when={tagOverflowRender() !== undefined}
+                    fallback={
+                      <span
+                        data-slot="multi-select-tag-overflow"
+                        aria-label={messages().overflow({ count: tags.overflow() })}
+                        {...tagOverflowSlot}
+                      >
+                        +{tags.overflow()}
+                      </span>
+                    }
                   >
-                    +{tags.overflow()}
-                  </span>
-                }
-              >
-                {renderWithProps(local.tagOverflowRender, {
-                  get count() {
-                    return tags.overflow()
-                  },
-                  get tags() {
-                    return overflowRenderTags()
-                  },
-                } satisfies MultiSelectT.TagOverflowRenderProps<T>)}
-              </Show>
+                    {renderWithProps(tagOverflowRender(), {
+                      get count() {
+                        return tags.overflow()
+                      },
+                      get tags() {
+                        return overflowRenderTags()
+                      },
+                    } satisfies MultiSelectT.TagOverflowRenderProps<T>)}
+                  </Show>
+                )
+              }}
             </Show>
             <Show
               when={editable()}
@@ -457,10 +488,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                 data-slot="multi-select-input"
                 {...inputSlot}
                 placeholder={tags.tags().length ? '' : placeholder()}
-                ref={(element) => {
-                  inputBinding.inputProps.ref(element)
-                  callRef(local.inputRef, element)
-                }}
+                ref={[inputBinding.inputProps.ref, props.inputRef]}
                 onPaste={(event) => tags.onPaste(event, inputBinding.isComposing())}
                 onKeyDown={onEditableInputKeyDown}
               />
@@ -468,8 +496,8 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           </div>
           <Show
             when={
-              !local.loading &&
-              local.clearable &&
+              !props.loading &&
+              props.clearable &&
               (tags.tags().length > 0 || Boolean(search.value()))
             }
           >
@@ -478,7 +506,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
               ariaLabel={messages().clear}
               slot={clearSlot}
               disabled={state.locked()}
-              clearIcon={local.clearIcon}
+              clearIcon={props.clearIcon}
               onFocusOwner={focusControl}
               onClear={clear}
             />
@@ -487,7 +515,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
             when={editable()}
             fallback={
               <BaseSelect.Trigger<'button', Item>
-                aria-busy={local.loading ? 'true' : undefined}
+                aria-busy={props.loading ? 'true' : undefined}
                 {...triggerSlot}
                 onKeyDown={onNonEditableTriggerKeyDown}
                 onClick={(event) => event.stopPropagation()}
@@ -502,11 +530,11 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                 </span>
                 <Icon
                   name={
-                    local.loading
-                      ? (local.loadingIcon ?? 'icon-loading')
-                      : (local.trailing ?? 'icon-chevron-down')
+                    props.loading
+                      ? (props.loadingIcon ?? 'icon-loading')
+                      : (props.trailing ?? 'icon-chevron-down')
                   }
-                  {...selectLoadingData(local.loading)}
+                  {...selectLoadingData(props.loading)}
                   class={SELECT_LOADING_ICON_CLASS}
                 />
               </BaseSelect.Trigger>
@@ -514,13 +542,13 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           >
             <ToggleTrigger
               dataSlot="multi-select-trigger"
-              ariaLabel={local.loading ? messages().loading : messages().toggle}
+              ariaLabel={props.loading ? messages().loading : messages().toggle}
               ariaControls={state.listboxId()}
               expanded={state.open()}
-              loading={local.loading}
-              loadingIcon={local.loadingIcon}
+              loading={props.loading}
+              loadingIcon={props.loadingIcon}
               slot={triggerSlot}
-              trailing={local.trailing}
+              trailing={props.trailing}
               disabled={state.disabled()}
               onFocusOwner={focusControl}
               onClick={() => state.setOpen(!state.open())}
@@ -528,33 +556,36 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           </Show>
         </BaseSelect.Control>
         <DefaultSelectContent
-          {...local}
+          {...props}
           view={search.view()}
           slot={(slot) => slots[slot]}
-          emptyRender={(emptyProps) => (
-            <Show
-              when={local.emptyRender !== undefined}
-              fallback={
-                <Show when={local.createItem && search.value()} fallback={messages().empty}>
-                  {(value) => messages().create({ value: value() })}
-                </Show>
-              }
-            >
-              {renderWithProps(local.emptyRender, {
-                get searchValue() {
-                  return search.value()
-                },
-                get selectedValues() {
-                  return state.value()
-                },
-                get atMaxValues() {
-                  return atMax()
-                },
-                create,
-                close: emptyProps.close,
-              })}
-            </Show>
-          )}
+          emptyRender={(emptyProps) => {
+            const emptyRender = createLazyMemo(() => props.emptyRender)
+            return (
+              <Show
+                when={emptyRender() !== undefined}
+                fallback={
+                  <Show when={props.createItem && search.value()} fallback={messages().empty}>
+                    {(value) => <>{messages().create({ value: value() })}</>}
+                  </Show>
+                }
+              >
+                {renderWithProps(emptyRender(), {
+                  get searchValue() {
+                    return search.value()
+                  },
+                  get selectedValues() {
+                    return state.value()
+                  },
+                  get atMaxValues() {
+                    return atMax()
+                  },
+                  create,
+                  close: emptyProps.close,
+                })}
+              </Show>
+            )
+          }}
         />
       </>
     )
@@ -563,29 +594,49 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
   return (
     <BaseSelectRoot<Item>
       slotOwner="multi-select"
-      {...baseSelectProps}
+      getItemLabel={props.getItemLabel}
+      id={props.id}
+      name={props.name}
+      form={props.form}
+      required={props.required}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      open={props.open}
+      defaultOpen={props.defaultOpen}
+      onOpenChange={props.onOpenChange}
+      preventScroll={props.preventScroll}
+      placement={props.placement}
+      align={props.align}
+      gutter={props.gutter}
+      shift={props.shift}
+      flip={props.flip}
+      slide={props.slide}
+      overflowPadding={props.overflowPadding}
+      closeOnEscape={props.closeOnEscape}
+      closeOnOutsideClick={props.closeOnOutsideClick}
+      onClosePrevented={props.onClosePrevented}
       onExitComplete={() => {
         search.setValue('')
-        baseSelectProps.onExitComplete?.()
+        props.onExitComplete?.()
       }}
       closeOnSelect={false}
       items={search.view().items}
       serializeValue={(value) => serializeSourceValue(source(), value)}
-      value={local.value}
-      defaultValue={local.defaultValue}
+      value={props.value}
+      defaultValue={props.defaultValue}
       onValueChange={(values) => {
         search.setValue('')
-        local.onValueChange?.(values)
+        props.onValueChange?.(values)
       }}
       onReset={() => {
         search.setValue('')
         setCreated([])
-        local.onReset?.()
+        props.onReset?.()
       }}
       isItemDisabled={(item, values) =>
-        baseSelectProps.isItemDisabled?.(item, values) === true ||
-        (local.maxValues !== undefined &&
-          values.length >= local.maxValues &&
+        props.isItemDisabled?.(item, values) === true ||
+        (props.maxValues !== undefined &&
+          values.length >= props.maxValues &&
           !values.some((value) => sameValue(value, item.value)))
       }
       multiple

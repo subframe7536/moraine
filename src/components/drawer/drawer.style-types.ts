@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface DrawerStyleSlot<T = unknown> {
   /** Element that opens the drawer. */
   trigger?: T

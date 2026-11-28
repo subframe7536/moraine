@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -8,12 +8,11 @@ import type { ValidComponent } from '../../shared/types'
 import { useInputGroupContext } from './input-group-context'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
 import type { InputGroupT } from './input-group.types'
-
 export function createInputGroupPart(part: 'leading' | 'trailing') {
   return function InputGroupPart<T extends ValidComponent = 'div'>(
     props: InputGroupT.LeadingProps<T> | InputGroupT.TrailingProps<T>,
   ): JSX.Element {
-    const [local, rest] = splitProps(props, ['as', 'compact', 'class', 'style'])
+    const rest = omit(props, 'as', 'compact', 'class', 'style')
     const group = useInputGroupContext()
     if (!group.grouped) {
       const name = part === 'leading' ? 'Leading' : 'Trailing'
@@ -22,7 +21,7 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
     const {
       slots: { [part]: partSlot },
       variants,
-    } = useRecipe(inputGroupRecipe, local, {
+    } = useRecipe(inputGroupRecipe, props, {
       slot: part,
       data: {
         [part]: inputGroupDataAttributes[part](() => ({
@@ -39,12 +38,13 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
         ...group.slotOverrides,
       }),
     })
+    const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
+
     return (
-      <Dynamic
-        component={local.as ?? 'div'}
+      <Root
         data-slot={`input-group-${part}`}
         {...partSlot}
-        {...rest}
+        {...(rest as Record<string, unknown>)}
       />
     )
   }

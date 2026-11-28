@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type {
@@ -22,7 +23,6 @@ import type {
 } from '../shared/overlay/types'
 
 import type { ContextMenuStyleSlot, ContextMenuStyleVariants } from './context-menu.style-types'
-
 export namespace ContextMenuT {
   export type Kind = 'composite'
 
@@ -115,7 +115,7 @@ export namespace ContextMenuT {
      * </ContextMenu>
      * ```
      */
-    items?: (Item | Item[])[]
+    items?: Array<Item | Array<Item>>
     /**
      * Replaces the inner content of every item row (icon, label, shortcut keys, submenu
      * indicator and checkmark); the row keeps its role, keyboard handling and selection. It is

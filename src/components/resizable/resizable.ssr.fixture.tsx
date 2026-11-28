@@ -1,8 +1,7 @@
+import { renderToString } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { Resizable } from './resizable'
-
 export function renderResizableFixture(): string {
   return renderToString(() => (
     <Resizable defaultValue={{ a: 30 }}>
@@ -13,12 +12,15 @@ export function renderResizableFixture(): string {
   ))
 }
 
+// A dynamic `when` keeps the `<!--$-->` boundary markers a client `Show` needs to hydrate.
+const shown = () => true
+
 export function renderResizableShowHandleFixture(): string {
   return renderToString(() => (
     <Resizable>
       <Resizable.Panel>Navigation</Resizable.Panel>
       <Resizable.Handle>
-        <Show when={true}>Resize</Show>
+        <Show when={shown()}>Resize</Show>
       </Resizable.Handle>
       <Resizable.Panel>Main content</Resizable.Panel>
     </Resizable>

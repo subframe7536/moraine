@@ -1,5 +1,4 @@
 import { ContextMenu } from '@src'
-
 export function LongPress() {
   return (
     <ContextMenu>

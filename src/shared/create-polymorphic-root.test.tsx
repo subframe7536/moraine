@@ -1,8 +1,8 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal, splitProps, untrack } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
-import { describe, expect, test, vi } from 'vitest'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, createSignal, flush, omit, untrack } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { Button } from '../components/button'
 import type { ButtonProps } from '../components/button'
@@ -11,7 +11,6 @@ import { createPolymorphicRoot } from './create-polymorphic-root'
 import type { ValidComponent } from './types'
 import { useButtonInteraction } from './use-button-interaction'
 import { callHandler } from './utils'
-
 const NativeButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
 const NativeLink = (props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />
 const NativeSpan = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
@@ -37,37 +36,39 @@ function Root(
     bridgeClick?: boolean
   },
 ) {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'as',
     'disabled',
     'focusableWhenDisabled',
     'ref',
     'onPress',
     'bridgeClick',
-  ])
-  const tag = () => local.as ?? 'button'
+  )
+  const tag = () => props.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
-    bridgeClick: untrack(() => local.bridgeClick),
-    ref: () => local.ref,
+    bridgeClick: untrack(() => props.bridgeClick),
+    ref: () => props.ref,
   })
   const binding = root.bind(
     useButtonInteraction(
       {
         tag,
         element: root.element,
-        disabled: () => Boolean(local.disabled),
-        focusableWhenDisabled: () => Boolean(local.focusableWhenDisabled),
-        onPress: () => local.onPress?.(),
+        disabled: () => Boolean(props.disabled),
+        focusableWhenDisabled: () => Boolean(props.focusableWhenDisabled),
+        onPress: () => props.onPress?.(),
       },
       rest,
     ),
   )
-  return <Dynamic component={tag()} {...binding} />
+  const RootEl = dynamic(tag)
+  return <RootEl {...binding} />
 }
 
 describe('polymorphic root', () => {
-  test.each([
+  it.each([
     ['button', 'BUTTON', undefined],
     ['a', 'A', '/docs'],
     ['div', 'DIV', undefined],
@@ -76,8 +77,8 @@ describe('polymorphic root', () => {
     [NativeLink, 'A', '/docs'],
     [Button, 'BUTTON', undefined],
   ] as const)('resolves %s semantics from its DOM root and clicks once', (as, name, href) => {
-    const press = vi.fn()
-    const click = vi.fn()
+    const press = vi.fn<(...args: Array<any>) => void>()
+    const click = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Root as={as} href={href} onClick={click} onPress={press}>
         Action
@@ -86,24 +87,22 @@ describe('polymorphic root', () => {
     const element = screen.container.firstElementChild as HTMLElement
     expect(element.tagName).toBe(name)
     expect(element.getAttribute('role')).toBe(name === 'DIV' || name === 'SPAN' ? 'button' : null)
-    if (name === 'BUTTON') {
-      expect(element.getAttribute('type')).toBe('button')
-    }
+    expect(element.getAttribute('type')).toBe(name === 'BUTTON' ? 'button' : null)
     fireEvent.click(element)
     expect(click).toHaveBeenCalledOnce()
     expect(press).toHaveBeenCalledOnce()
   })
 
-  test('forwards refs on reactive root replacement and does not set undefined on unmount', () => {
-    const [as, setAs] = createSignal<ValidComponent>(NativeButton)
-    const ref = vi.fn()
+  it('forwards refs on reactive root replacement and does not set undefined on unmount', () => {
+    const [as, setAs] = createSignal<ValidComponent>(() => NativeButton)
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Root as={as()} ref={ref}>
         Action
       </Root>
     ))
     const initial = screen.container.firstElementChild
-    setAs(() => NativeLink)
+    flush(() => setAs(() => NativeLink))
     const replacement = screen.container.firstElementChild
     expect(replacement).not.toBe(initial)
     expect(ref.mock.calls.map(([element]) => element)).toEqual([initial, replacement])
@@ -111,7 +110,7 @@ describe('polymorphic root', () => {
     expect(ref).toHaveBeenCalledTimes(2)
   })
 
-  test('updates native disabled semantics after a custom root resolves', () => {
+  it('updates native disabled semantics after a custom root resolves', () => {
     const [disabled, setDisabled] = createSignal(true)
     const screen = render(() => (
       <Root as={NativeButton} disabled={disabled()}>
@@ -121,13 +120,13 @@ describe('polymorphic root', () => {
     const element = screen.getByRole<HTMLButtonElement>('button')
     expect(element.disabled).toBe(true)
     expect(element.hasAttribute('role')).toBe(false)
-    setDisabled(false)
+    flush(() => setDisabled(false))
     expect(element.disabled).toBe(false)
     expect(screen.getByRole('button')).toBe(element)
   })
 
-  test('keeps focusable disabled roots inert and preserves explicit attributes', () => {
-    const press = vi.fn()
+  it('keeps focusable disabled roots inert and preserves explicit attributes', () => {
+    const press = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Root
         as={NativeButton}
@@ -135,7 +134,7 @@ describe('polymorphic root', () => {
         focusableWhenDisabled
         type="submit"
         role="menuitem"
-        tabIndex={3}
+        tabindex={3}
         onPress={press}
       >
         Action
@@ -151,8 +150,8 @@ describe('polymorphic root', () => {
     expect(press).not.toHaveBeenCalled()
   })
 
-  test('runs consumers before activation and honors custom cancellation', () => {
-    const press = vi.fn()
+  it('runs consumers before activation and honors custom cancellation', () => {
+    const press = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <Root as={CancelingButton} onPress={press}>
@@ -176,8 +175,8 @@ describe('polymorphic root', () => {
     expect(press).not.toHaveBeenCalled()
   })
 
-  test('activates non-native roots with Enter and Space independently', () => {
-    const press = vi.fn()
+  it('activates non-native roots with Enter and Space independently', () => {
+    const press = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Root as="span" onPress={press}>
         Action
@@ -192,7 +191,7 @@ describe('polymorphic root', () => {
     expect(press).toHaveBeenCalledTimes(2)
   })
 
-  test.each(['button', NativeButton] as const)(
+  it.each(['button', NativeButton] as const)(
     'bridges adopted %s roots without duplicate clicks',
     (as) => {
       const iframe = document.createElement('iframe')
@@ -200,7 +199,7 @@ describe('polymorphic root', () => {
       const ownerDocument = iframe.contentDocument!
       const host = ownerDocument.createElement('div')
       ownerDocument.body.append(host)
-      const press = vi.fn()
+      const press = vi.fn<(...args: Array<any>) => void>()
       const screen = render(
         () => (
           <Root as={as} onPress={press}>
@@ -219,9 +218,9 @@ describe('polymorphic root', () => {
     },
   )
 
-  test('ignores clicks on a detached nested root and activates again once it returns', () => {
+  it('ignores clicks on a detached nested root and activates again once it returns', () => {
     const [visible, setVisible] = createSignal(true)
-    const press = vi.fn()
+    const press = vi.fn<(...args: Array<any>) => void>()
     const ConditionalButton = (props: ButtonProps) => (
       <Show when={visible()}>
         <Button {...props} />
@@ -233,24 +232,24 @@ describe('polymorphic root', () => {
       </Root>
     ))
     const element = screen.getByRole('button')
-    setVisible(false)
+    flush(() => setVisible(false))
     expect(element.isConnected).toBe(false)
     fireEvent.click(element)
     expect(press).not.toHaveBeenCalled()
 
-    setVisible(true)
+    flush(() => setVisible(true))
     fireEvent.click(screen.getByRole('button'))
     expect(press).toHaveBeenCalledOnce()
   })
 
-  test.each(['span', NativeSpan] as const)(
+  it.each(['span', NativeSpan] as const)(
     'delegates the first keyboard event after adopting %s into an iframe',
     (as) => {
       const iframe = document.createElement('iframe')
       document.body.append(iframe)
       const ownerDocument = iframe.contentDocument!
-      const press = vi.fn()
-      const keyDown = vi.fn()
+      const press = vi.fn<(...args: Array<any>) => void>()
+      const keyDown = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Root as={as} onPress={press} onKeyDown={keyDown} bridgeClick>
           Action

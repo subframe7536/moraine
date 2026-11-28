@@ -1,7 +1,6 @@
 import { RadioGroup } from '@src'
 import type { RadioGroupT } from '@src'
 import { createSignal } from 'solid-js'
-
 const PLAN_OPTIONS = [
   { label: 'Free tier', value: 'free', description: 'For personal projects with basic features.' },
   {
@@ -10,7 +9,7 @@ const PLAN_OPTIONS = [
     description: 'Advanced collaboration and unlimited bandwidth.',
   },
   { label: 'Enterprise', value: 'enterprise', description: 'Dedicated support and custom SLA.' },
-] satisfies RadioGroupT.Item[]
+] satisfies Array<RadioGroupT.Item>
 
 export function Selection() {
   const [plan, setPlan] = createSignal('pro')

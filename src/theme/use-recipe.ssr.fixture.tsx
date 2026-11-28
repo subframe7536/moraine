@@ -1,4 +1,5 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
+import { untrack } from 'solid-js'
 
 import { MoraineProvider } from '../provider/moraine-provider'
 
@@ -6,7 +7,6 @@ import { defineTheme } from './create-theme'
 import { defineRecipe } from './recipe'
 import { createDataAttributes } from './style-contract'
 import { useRecipe } from './use-recipe'
-
 type Slots = { root: string; label: string }
 type Variants = { size: 'sm' | 'lg' }
 
@@ -33,8 +33,13 @@ export function UseRecipeSsrFixture() {
     },
   )
   // Server bindings recompute on every read; repeated reads must agree.
-  const reads = [slots.root.class, slots.root.class, slots.label.class, slots.label.class]
-  const styles = [slots.root.style, slots.root.style, slots.label.style]
+  const reads = untrack(() => [
+    slots.root.class,
+    slots.root.class,
+    slots.label.class,
+    slots.label.class,
+  ])
+  const styles = untrack(() => [slots.root.style, slots.root.style, slots.label.style])
   return (
     <div
       {...slots.root}
@@ -56,22 +61,23 @@ const bareRecipe = /* @__PURE__ */ defineRecipe<Slots>('useRecipeSsrBare', {
   base: { root: '', label: 'base-label' },
 })
 
+function UseRecipeDataSsrFixture() {
+  const { slots, slotWith } = useRecipe(
+    bareRecipe,
+    {},
+    { data: { root: states(() => ({ expanded: () => isOpen, disabled: false })) } },
+  )
+  const isOpen = true
+  return (
+    <div {...slots.root}>
+      <span {...slotWith('label', { data: states({ expanded: false, disabled: true }) })} />
+    </div>
+  )
+}
+
 /** Root has no class or style; both slots carry data attributes. */
 export function renderUseRecipeDataFixture(): string {
-  function Fixture() {
-    const { slots, slotWith } = useRecipe(
-      bareRecipe,
-      {},
-      { data: { root: states(() => ({ expanded: open, disabled: false })) } },
-    )
-    const open = () => true
-    return (
-      <div {...slots.root}>
-        <span {...slotWith('label', { data: states({ expanded: false, disabled: true }) })} />
-      </div>
-    )
-  }
-  return renderToString(() => <Fixture />)
+  return renderToString(() => <UseRecipeDataSsrFixture />)
 }
 
 export function renderUseRecipeThemedFixture(): string {

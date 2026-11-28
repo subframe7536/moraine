@@ -8,7 +8,6 @@ import type { BaseSelectT } from '../../../base-select/base-select.types'
 import { filterView, labelString } from './collection'
 import { useSearchQuery } from './search-query'
 import type { SearchProps, SelectView } from './types'
-
 export function useComboboxSearch<T extends BaseSelectT.Item>(
   props: SearchProps<T>,
   enabled: Accessor<boolean>,

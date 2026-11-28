@@ -1,7 +1,6 @@
+import type { JSX } from '@solidjs/web'
 import type { Cell, CellData, Header, RowData, TableFeatures } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
-import { Match, Show, Switch, createComponent } from 'solid-js'
-
+import { Match, Show, Switch, untrack } from 'solid-js'
 /**
  * Renders a table template value (component, render function, or static JSX element)
  * with the provided props.
@@ -14,7 +13,12 @@ export function flexRender<TProps>(
     return null
   }
   if (typeof comp === 'function') {
-    return createComponent(comp, props as any)
+    // Render functions are invoked once per cell/header instance; reads they
+    // make in their body are snapshots (table-core re-derives the instance
+    // when its inputs change), while the JSX they return tracks normally.
+    // `createComponent` would re-label the setup scope and re-arm the
+    // strict-read diagnostic, so the function is called directly.
+    return untrack(() => comp(props))
   }
   return comp
 }
@@ -100,7 +104,11 @@ export function FlexRender<
     <Switch>
       <Match keyed when={'cell' in props && props.cell}>
         {(cell) => {
-          const def = cell.column.columnDef
+          // Per-instance reads are snapshots: table-core re-derives the cell
+          // instance when its inputs change, so subscribing here would only
+          // re-run during unrelated writes (and mid-hydration discards the
+          // claimed node). `untrack` marks that as deliberate.
+          const def = untrack(() => cell.column.columnDef)
           // The grouping members only exist when the aggregation feature is registered.
           const groupingCell = cell as typeof cell & {
             getIsAggregated?: () => boolean
@@ -114,28 +122,28 @@ export function FlexRender<
               when={groupingCell.getIsAggregated?.()}
               fallback={
                 <Show when={!groupingCell.getIsPlaceholder?.()}>
-                  {flexRender(def.cell, cell.getContext())}
+                  {untrack(() => flexRender(def.cell, cell.getContext()))}
                 </Show>
               }
             >
-              {flexRender(groupingDef.aggregatedCell ?? def.cell, cell.getContext())}
+              {untrack(() => flexRender(groupingDef.aggregatedCell ?? def.cell, cell.getContext()))}
             </Show>
           )
         }}
       </Match>
       <Match keyed when={'header' in props && props.header}>
-        {(header) =>
-          header.isPlaceholder
-            ? null
-            : flexRender(header.column.columnDef.header, header.getContext())
-        }
+        {(header) => (
+          <Show when={!header.isPlaceholder}>
+            {untrack(() => flexRender(header.column.columnDef.header, header.getContext()))}
+          </Show>
+        )}
       </Match>
       <Match keyed when={'footer' in props && props.footer}>
-        {(footer) =>
-          footer.isPlaceholder
-            ? null
-            : flexRender(footer.column.columnDef.footer, footer.getContext())
-        }
+        {(footer) => (
+          <Show when={!footer.isPlaceholder}>
+            {untrack(() => flexRender(footer.column.columnDef.footer, footer.getContext()))}
+          </Show>
+        )}
       </Match>
     </Switch>
   )

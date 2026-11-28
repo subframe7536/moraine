@@ -1,12 +1,11 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Badge } from './badge'
-
-describe('Badge SSR Hydration', () => {
-  test('hydrates stable slot order', () => {
+describe('badge SSR Hydration', () => {
+  it('hydrates stable slot order', () => {
     const { container } = hydrateFixture(
       '/src/components/badge/badge.ssr.fixture.tsx',
       'renderBadgeFixture',
@@ -25,13 +24,13 @@ describe('Badge SSR Hydration', () => {
     expect(container.querySelector('[data-slot="badge-trailing"]')?.tagName).toBe('SPAN')
   })
 
-  test('hydrates a button root and preserves its activation', () => {
-    const onClick = vi.fn()
+  it('hydrates a button root and preserves its activation', () => {
+    const onClick = vi.fn<(...args: Array<any>) => void>()
     const { container } = hydrateFixture(
       '/src/components/badge/badge.ssr.fixture.tsx',
       'renderButtonBadgeFixture',
       () => (
-        <Badge as="button" type="button" aria-pressed={false} onClick={onClick}>
+        <Badge as="button" type="button" aria-pressed={'false'} onClick={onClick}>
           Slot
         </Badge>
       ),

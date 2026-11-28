@@ -1,6 +1,5 @@
 import { Button, Icon, Resizable } from '@src'
 import { For, createSignal, Show } from 'solid-js'
-
 const FOLDERS = [
   { icon: 'i-lucide:inbox', label: 'Inbox', count: '12', active: true },
   { icon: 'i-lucide:send', label: 'Sent' },
@@ -34,11 +33,11 @@ const MESSAGES = [
     time: '2d ago',
     unread: false,
   },
-]
+] as const
 
 export function Composition() {
   const [activeMessageId, setActiveMessageId] = createSignal(1)
-  const activeMessage = () => MESSAGES.find((m) => m.id === activeMessageId())!
+  const activeMessage = () => MESSAGES.find((m) => m.id === activeMessageId()) ?? MESSAGES[0]
 
   return (
     <div class="border border-border/60 rounded-xl bg-card/30 h-80 w-full shadow-xs overflow-hidden">
@@ -58,11 +57,12 @@ export function Composition() {
             <For each={FOLDERS}>
               {(folder) => (
                 <div
-                  class={`text-xs px-2 py-1.5 rounded-lg flex cursor-pointer transition-colors items-center justify-between ${
+                  class={[
+                    'text-xs px-2 py-1.5 rounded-lg flex cursor-pointer transition-colors items-center justify-between',
                     folder.active
                       ? 'bg-accent text-accent-foreground font-medium'
-                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                  }`}
+                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+                  ]}
                 >
                   <div class="flex gap-2 truncate items-center">
                     <Icon name={folder.icon} class="shrink-0 size-3.5" />
@@ -99,15 +99,19 @@ export function Composition() {
               {(msg) => (
                 <div
                   onClick={() => setActiveMessageId(msg.id)}
-                  class={`text-xs p-3 cursor-pointer transition-colors space-y-1 ${
+                  class={[
+                    'text-xs p-3 cursor-pointer transition-colors space-y-1',
                     activeMessageId() === msg.id
                       ? 'bg-muted/50'
-                      : 'hover:bg-muted/20 text-muted-foreground'
-                  }`}
+                      : 'hover:bg-muted/20 text-muted-foreground',
+                  ]}
                 >
                   <div class="flex items-center justify-between">
                     <span
-                      class={`font-medium truncate ${msg.unread ? 'text-primary' : 'text-foreground'}`}
+                      class={[
+                        'font-medium truncate',
+                        msg.unread ? 'text-primary' : 'text-foreground',
+                      ]}
                     >
                       {msg.sender}
                     </span>

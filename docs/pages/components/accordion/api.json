@@ -40,7 +40,7 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "string[]",
+          "type": "Array<string>",
           "description": "Item values expanded on first render when `value` is not provided. Read once at creation.",
           "default": {
             "kind": "expression",
@@ -96,7 +96,7 @@
         {
           "name": "items",
           "optional": true,
-          "type": "Item[]",
+          "type": "Array<Item>",
           "typeDetails": "({\n  /** Header label rendered inside the trigger button. When omitted and `ariaLabel` is not set,\nthe trigger's accessible name falls back to `value`. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value identifying the item. It is the entry stored in the accordion's `value` array and\npassed to `onValueChange`; duplicates trigger a development warning. */\n  value: string;\n  /** Whether this item's trigger is disabled. A disabled item cannot be toggled and is skipped by\narrow-key, `Home` and `End` navigation. */\n  disabled?: boolean;\n  /** Name of an icon rendered before the label inside the trigger. */\n  icon?: IconT.Name;\n  /** Panel content for the item. Accepts static JSX or a component that receives\n`{ expanded, disabled, value }`. It is mounted while the item is open and unmounted after it\ncloses, unless `forceMount` is set on the accordion. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Extra class applied to this item's root element, merged after the `item` slot class and\n`classes.item`, so it wins on conflicts. */\n  class?: SlotClassValue;\n})[]",
           "description": "Items to render, in order. Each item needs a unique `value`; `label`, `icon`, `content`,\n`disabled`, `ariaLabel` and `class` are optional.",
           "examples": [
@@ -126,7 +126,7 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: string[]) => void",
+          "type": "(value: Array<string>) => void",
           "description": "Called when a user toggles an item (trigger click, `Enter`, `Space`, or browser find-in-page\nrevealing hidden content). Receives the complete next array of expanded values, in both\ncontrolled and uncontrolled mode. It is not called for changes you make to `value`.",
           "examples": [
             "import { Accordion } from 'moraine'\n\n<Accordion\n  multiple\n  items={[\n    { value: 'a', label: 'A', content: 'First' },\n    { value: 'b', label: 'B', content: 'Second' },\n  ]}\n  onValueChange={(value) => console.log(value)}\n/>"
@@ -157,7 +157,7 @@
         {
           "name": "value",
           "optional": true,
-          "type": "string[]",
+          "type": "Array<string>",
           "description": "Controlled list of expanded item values. Always an array, even when `multiple` is `false`.\nLeave it `undefined` for uncontrolled usage; when set, update it from `onValueChange`."
         }
       ]

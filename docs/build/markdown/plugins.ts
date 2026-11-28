@@ -1,11 +1,25 @@
-import { defineHastPlugin, defineMdastPlugin } from 'satteri'
-import type { HastNode, MdastNode, MdastVisitorContext, MdxJsxAttributeUnion } from 'satteri'
+// oxlint-disable eslint/no-await-in-loop -- Sequential traversal preserves AST replacement and removal order.
+import {
+  createMdxMdastHandle,
+  defineHastPlugin,
+  defineMdastPlugin,
+  dropHandle,
+  resolveMdastSubscriptions,
+  visitMdastHandle,
+} from 'satteri'
+import type {
+  HastNode,
+  MdastNode,
+  MdastPluginInstance,
+  MdastVisitorContext,
+  MdxJsxAttributeUnion,
+} from 'satteri'
 
 import { highlightCodeBlock, parseCodeGroupId } from '../core/shiki.ts'
 import { toKebabCase } from '../core/strings.ts'
 
-import { readCodeTabSource } from './mdx.ts'
-import type { MdxNode } from './mdx.ts'
+import { getMdxAttributeValue, readCodeTabSource } from './mdx.ts'
+import type { CodeTabSource, MdxNode } from './mdx.ts'
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   DOCS_INLINE_CODE_CLASS,
@@ -37,6 +51,46 @@ function toAnchorSlug(value: string): string {
   return toKebabCase(value) || 'section'
 }
 
+function createHeadingSlugGenerator() {
+  const headingSlugCounter = new Map<string, number>()
+
+  return (headingText: string): string => {
+    const baseSlug = toAnchorSlug(headingText)
+    const currentCount = headingSlugCounter.get(baseSlug) ?? 0
+    const nextCount = currentCount + 1
+    headingSlugCounter.set(baseSlug, nextCount)
+    return nextCount === 1 ? baseSlug : `${baseSlug}-${nextCount}`
+  }
+}
+
+export function extractOnThisPageEntries(source: string): Array<OnThisPageEntryLiteral> {
+  const entries: Array<OnThisPageEntryLiteral> = []
+  const createHeadingSlug = createHeadingSlugGenerator()
+  const handle = createMdxMdastHandle(source, DOCS_MDX_FEATURES, false)
+
+  try {
+    const plugin: MdastPluginInstance = {
+      heading(node, ctx) {
+        const headingText = ctx.textContent(node).trim()
+        const slug = createHeadingSlug(headingText)
+        if (node.depth >= 2 && node.depth <= 5 && headingText) {
+          entries.push({
+            id: slug,
+            label: headingText,
+            level: node.depth - 1,
+          })
+        }
+      },
+    }
+    const subscriptions = resolveMdastSubscriptions(plugin)
+    void visitMdastHandle(handle, plugin, subscriptions, source, undefined, undefined, 'mdx')
+  } finally {
+    dropHandle(handle)
+  }
+
+  return entries
+}
+
 function getNodeProperties(node: HastNode): Record<string, unknown> {
   if (node.type !== 'element') {
     return {}
@@ -60,15 +114,7 @@ function appendClass(node: HastNode, className: string): string {
 }
 
 export function createDocsHastPlugin() {
-  const headingSlugCounter = new Map<string, number>()
-
-  const createHeadingSlug = (headingText: string) => {
-    const baseSlug = toAnchorSlug(headingText)
-    const currentCount = headingSlugCounter.get(baseSlug) ?? 0
-    const nextCount = currentCount + 1
-    headingSlugCounter.set(baseSlug, nextCount)
-    return nextCount === 1 ? baseSlug : `${baseSlug}-${nextCount}`
-  }
+  const createHeadingSlug = createHeadingSlugGenerator()
 
   return defineHastPlugin({
     name: 'moraine-docs-hast',
@@ -90,7 +136,7 @@ export function createDocsHastPlugin() {
 
           if (level >= 2 && level <= 5 && headingText) {
             const entries = (ctx.data[DOCS_ON_THIS_PAGE_DATA_KEY] ??=
-              []) as OnThisPageEntryLiteral[]
+              []) as Array<OnThisPageEntryLiteral>
             entries.push({
               id: slug,
               label: headingText,
@@ -217,7 +263,7 @@ export function createDocsCodePlugin() {
         meta: node.meta ?? undefined,
       })
 
-      const attributes: MdxJsxAttributeUnion[] = [
+      const attributes: Array<MdxJsxAttributeUnion> = [
         {
           type: 'mdxJsxAttribute',
           name: 'html',
@@ -276,11 +322,23 @@ export function createDocsCodePlugin() {
   })
 }
 
-async function renderCodeTabItem(node: MdxNode, source?: string) {
-  const item = readCodeTabSource(node, source)
-  if (!item) {
-    throw new Error('[docs-mdx] invalid CodeTabs item')
-  }
+const PACKAGE_MANAGER_COMMANDS = [
+  { title: 'pnpm', prefix: 'pnpm add' },
+  { title: 'bun', prefix: 'bun add' },
+  { title: 'npm', prefix: 'npm install' },
+  { title: 'yarn', prefix: 'yarn add' },
+] as const
+
+function createPackageInstallSources(packageName: string): Array<CodeTabSource> {
+  return PACKAGE_MANAGER_COMMANDS.map(({ title, prefix }) => ({
+    lang: 'shell',
+    title,
+    code: `${prefix} ${packageName}`,
+    highlightedLines: [],
+  }))
+}
+
+async function highlightCodeTabItem(item: CodeTabSource) {
   const result = await highlightCodeBlock({
     code: item.code,
     language: item.lang,
@@ -298,11 +356,23 @@ async function renderCodeTabItem(node: MdxNode, source?: string) {
   }
 }
 
+async function renderCodeTabItem(node: MdxNode, source?: string) {
+  const item = readCodeTabSource(node, source)
+  if (!item) {
+    throw new Error('[docs-mdx] invalid CodeTabs item')
+  }
+  return highlightCodeTabItem(item)
+}
+
 async function groupCodeBlocks(node: MdastNode, ctx: MdastVisitorContext): Promise<void> {
   if ('children' in node && Array.isArray(node.children)) {
     let i = 0
     while (i < node.children.length) {
-      const child = node.children[i]!
+      const child = node.children[i]
+      if (!child) {
+        i++
+        continue
+      }
       if (child.type === 'code') {
         const groupId = parseCodeGroupId(child.meta ?? undefined)
         if (groupId) {
@@ -343,9 +413,12 @@ async function groupCodeBlocks(node: MdastNode, ctx: MdastVisitorContext): Promi
             children: [],
           }
 
-          ctx.replaceNode(group[0]!, codeTabsNode)
-          for (let k = 1; k < group.length; k++) {
-            ctx.removeNode(group[k]!)
+          const [first, ...rest] = group
+          if (first) {
+            ctx.replaceNode(first, codeTabsNode)
+          }
+          for (const extra of rest) {
+            ctx.removeNode(extra)
           }
 
           i = j
@@ -375,7 +448,41 @@ export function createDocsCodeTabsPlugin(): ReturnType<typeof defineMdastPlugin>
         (child) => child.name === 'CodeTabs.Item' || child.type === 'code',
       )
       if (itemElements.length === 0) {
-        return
+        const packageAttr = getMdxAttributeValue(codeTabs, 'package')
+        const packageName = typeof packageAttr === 'string' ? packageAttr.trim() : ''
+        if (!packageName) {
+          return
+        }
+
+        const items = await Promise.all(
+          createPackageInstallSources(packageName).map((item) => highlightCodeTabItem(item)),
+        )
+        const attributes = node.attributes.filter(
+          (attr) => attr.type !== 'mdxJsxAttribute' || attr.name !== 'package',
+        )
+        if (
+          !attributes.some((attr) => attr.type === 'mdxJsxAttribute' && attr.name === 'groupId')
+        ) {
+          attributes.push({
+            type: 'mdxJsxAttribute',
+            name: 'groupId',
+            value: 'install',
+          })
+        }
+        attributes.push({
+          type: 'mdxJsxAttribute',
+          name: 'items',
+          value: {
+            type: 'mdxJsxAttributeValueExpression',
+            value: JSON.stringify(items),
+          },
+        })
+
+        return {
+          ...node,
+          attributes,
+          children: [],
+        }
       }
 
       const items = await Promise.all(

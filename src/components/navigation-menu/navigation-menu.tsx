@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { mergePopperElementProps } from '../shared/overlay/popper'
@@ -17,7 +17,6 @@ import { NavigationMenuPanel } from './navigation-menu-panel'
 import { NavigationMenuTrigger } from './navigation-menu-trigger'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
 import type { NavigationMenuProps } from './navigation-menu.types'
-
 /**
  * Website navigation with direct links and expandable link panels that share one animated
  * surface. Use it for site destinations; use `DropdownMenu` for a menu of actions and `Tabs` for
@@ -45,7 +44,8 @@ import type { NavigationMenuProps } from './navigation-menu.types'
  * ```
  */
 export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'value',
     'defaultValue',
@@ -66,19 +66,19 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
+  )
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     data: {
       root: navigationMenuDataAttributes.root(() => ({
-        disabled: () => local.disabled,
+        disabled: () => props.disabled,
         orientation: context.orientation,
       })),
     },
   })
-  const context = createNavigationMenuState(local, () => variants.orientation)
+  const context = createNavigationMenuState(props, () => variants.orientation)
   const attributes = mergePopperElementProps<HTMLElement>(
     {
       ref: context.setRootElement,
@@ -98,7 +98,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
   return (
     <NavigationMenuProvider value={context}>
       <nav data-slot="navigation-menu" {...rootSlot} {...attributes} id={context.id()}>
-        {local.children}
+        {props.children}
         <NavigationMenuPanel />
       </nav>
     </NavigationMenuProvider>

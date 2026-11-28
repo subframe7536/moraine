@@ -1,6 +1,5 @@
 import { Button, Icon, Resizable } from '@src'
 import { For, createSignal } from 'solid-js'
-
 const DATA_ROWS = [
   { id: 'usr_01', name: 'Alice Chen', role: 'Maintainer', queries: '1,420', latency: '12ms' },
   { id: 'usr_02', name: 'Devin Cole', role: 'Contributor', queries: '834', latency: '18ms' },

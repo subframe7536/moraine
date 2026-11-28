@@ -1,5 +1,4 @@
 import { Icon, Input, InputGroup } from '@src'
-
 export function LoadingIndicators() {
   return (
     <div class="gap-4 grid max-w-sm w-full">

@@ -1,15 +1,17 @@
 import { fireEvent } from '@solidjs/testing-library'
+import { dynamic } from '@solidjs/web'
 import { createSignal } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Tabs } from './tabs'
 import { createTabItems } from './tabs.ssr.fixture'
 
-describe('Tabs SSR Hydration', () => {
-  test('hydrates the first panel and shows an inactive panel after keyboard selection', () => {
+const Paragraph = dynamic(() => 'p')
+
+describe('tabs SSR Hydration', () => {
+  it('hydrates the first panel and shows an inactive panel after keyboard selection', () => {
     const { container } = hydrateFixture(
       '/src/components/tabs/tabs.ssr.fixture.tsx',
       'renderLazyTabsFixture',
@@ -21,14 +23,14 @@ describe('Tabs SSR Hydration', () => {
               label: 'First',
               value: 'first',
               get content() {
-                return <Dynamic component="p">First lazy panel</Dynamic>
+                return <Paragraph>First lazy panel</Paragraph>
               },
             },
             {
               label: 'Second',
               value: 'second',
               get content() {
-                return <Dynamic component="p">Second lazy panel</Dynamic>
+                return <Paragraph>Second lazy panel</Paragraph>
               },
             },
           ]}
@@ -39,7 +41,7 @@ describe('Tabs SSR Hydration', () => {
     fireEvent.keyDown(container.querySelector('[role="tab"]')!, { key: 'ArrowRight' })
     expect(container.querySelector('[role="tabpanel"] p')?.textContent).toBe('Second lazy panel')
   })
-  test('renders deterministic vertical SSR relationships and selected panel', () => {
+  it('renders deterministic vertical SSR relationships and selected panel', () => {
     const markup = renderSsrFixture(
       '/src/components/tabs/tabs.ssr.fixture.tsx',
       'renderVerticalTabsFixture',
@@ -55,7 +57,7 @@ describe('Tabs SSR Hydration', () => {
     expect(markup).not.toContain('Empty panel')
   })
 
-  test('hydrates empty-value JSX without replacing nodes and handles first keyboard activation', () => {
+  it('hydrates empty-value JSX without replacing nodes and handles first keyboard activation', () => {
     const [value, setValue] = createSignal('')
     const { container } = hydrateFixture(
       '/src/components/tabs/tabs.ssr.fixture.tsx',
@@ -67,11 +69,14 @@ describe('Tabs SSR Hydration', () => {
 
     const root = container.querySelector('[data-slot="tabs"]')
     const list = container.querySelector('[data-slot="tabs-list"]')
+    const indicator = container.querySelector<HTMLElement>('[data-slot="tabs-indicator"]')
     const firstTrigger = container.querySelector<HTMLElement>('[role="tab"]')
     const panel = container.querySelector('[role="tabpanel"]')
 
     expect(root).not.toBeNull()
     expect(list).not.toBeNull()
+    expect(indicator?.style.transform).toBe('translateX(0px)')
+    expect(indicator?.style.width).toBe('0px')
     expect(firstTrigger).not.toBeNull()
     expect(panel).not.toBeNull()
 

@@ -1,5 +1,4 @@
 import { Accordion } from '@src'
-
 export function Multiple() {
   return (
     <Accordion

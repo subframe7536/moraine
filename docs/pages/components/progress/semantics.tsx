@@ -1,5 +1,4 @@
 import { Progress } from '@src'
-
 export function Semantics() {
   return (
     <div class="max-w-md w-full">

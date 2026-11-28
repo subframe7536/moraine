@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
@@ -9,7 +9,6 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useSidebarContext } from './sidebar-context'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * Button that toggles the surrounding `Sidebar` between expanded and collapsed, or opens and closes
  * the mobile drawer. It can be placed anywhere inside `Sidebar`, and reports through the root
@@ -34,11 +33,11 @@ import type { SidebarT } from './sidebar.types'
 export function SidebarTrigger<T extends ValidComponent = 'button'>(
   props: SidebarT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'disabled', 'ref'])
+  const rest = omit(props, 'as', 'disabled', 'ref')
   const context = useSidebarContext()
-  const tag = () => local.as ?? 'button'
-  const root = createPolymorphicRoot({ tag, ref: () => local.ref })
-  const disabled = () => Boolean(local.disabled)
+  const tag = () => props.as ?? 'button'
+  const root = createPolymorphicRoot({ tag, ref: () => props.ref })
+  const disabled = () => Boolean(props.disabled)
   const defaultAriaControls = () =>
     context.mobile() && !context.open() ? undefined : context.panelId()
 
@@ -61,11 +60,12 @@ export function SidebarTrigger<T extends ValidComponent = 'button'>(
     disabled,
   })
 
+  const Root = dynamic<ValidComponent>(tag)
+
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="sidebar-trigger"
-      aria-expanded={context.open()}
+      aria-expanded={context.open() ? 'true' : 'false'}
       aria-controls={defaultAriaControls()}
       {...triggerData}
       {...binding}

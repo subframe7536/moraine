@@ -1,15 +1,14 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Slider } from './slider'
-
-function getThumbs(root: Element): HTMLElement[] {
+function getThumbs(root: Element): Array<HTMLElement> {
   return Array.from(root.querySelectorAll<HTMLElement>('[data-slot="slider-thumb"]'))
 }
 
-describe('Slider SSR Hydration', () => {
-  test('hydrates normalized scalar and range thumbs without replacing server nodes', () => {
+describe('slider SSR Hydration', () => {
+  it('hydrates normalized scalar and range thumbs without replacing server nodes', () => {
     const { container } = hydrateFixture(
       '/src/components/slider/slider.ssr.fixture.tsx',
       'renderSliderFixture',

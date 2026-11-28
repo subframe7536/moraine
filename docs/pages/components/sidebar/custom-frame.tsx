@@ -1,6 +1,5 @@
 import { Avatar, Badge, Button, Icon, Sidebar } from '@src'
 import { For } from 'solid-js'
-
 export function FrameRender() {
   const cloudNav = [
     { label: 'Kubernetes Clusters', icon: 'i-lucide:server', active: true },

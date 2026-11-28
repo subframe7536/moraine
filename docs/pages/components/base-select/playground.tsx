@@ -2,7 +2,6 @@ import { BaseSelect, Button } from '@src'
 import { For, Show } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const GROUPS = [
   {
     label: 'Client frameworks',
@@ -42,9 +41,9 @@ export default function BaseSelectPlayground() {
         >
           <BaseSelect.Control>
             <BaseSelect.Trigger as={Button} variant="outline" class="min-w-52 justify-between">
-              {(state) =>
-                state.value.length ? `${state.value.length} selected` : 'Select a framework…'
-              }
+              {(state) => (
+                <>{state.value.length ? `${state.value.length} selected` : 'Select a framework…'}</>
+              )}
             </BaseSelect.Trigger>
           </BaseSelect.Control>
           <BaseSelect.Content>

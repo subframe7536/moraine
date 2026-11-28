@@ -1,12 +1,11 @@
 import { BaseSelect, Button } from '@src'
 import type { BaseSelectT } from '@src'
 import { createSignal, For } from 'solid-js'
-
 const FRAMEWORKS = [
   { value: 'solid', label: 'Solid' },
   { value: 'react', label: 'React' },
   { value: 'vue', label: 'Vue' },
-] satisfies BaseSelectT.Item[]
+] satisfies Array<BaseSelectT.Item>
 
 export default function Example() {
   const [submitted, setSubmitted] = createSignal('Not submitted')

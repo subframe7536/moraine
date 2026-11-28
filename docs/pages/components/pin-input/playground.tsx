@@ -1,7 +1,6 @@
 import { PinInput } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function PinInputPlayground() {
   return (
     <DocsPlayground

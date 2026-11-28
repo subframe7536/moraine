@@ -1,6 +1,5 @@
 import { Textarea, InputGroup } from '@src'
 import { createSignal } from 'solid-js'
-
 const MAX_LENGTH = 160
 
 export function CharacterCount() {

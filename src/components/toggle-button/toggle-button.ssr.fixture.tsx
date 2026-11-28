@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { ToggleButton } from './toggle-button'
-
 export function renderToggleButtonFixture(): string {
   return renderToString(() => (
     <>

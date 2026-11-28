@@ -37,8 +37,8 @@ function isSeparator<T extends string | BaseSelectT.Item>(
 
 /** Expand string shorthand without copying object items or resolving their JSX labels. */
 export function normalizeSelectEntries<T extends string | BaseSelectT.Item>(
-  entries: readonly SelectEntry<T>[],
-): SelectEntry<NormalizedSelectItem<T>>[] {
+  entries: ReadonlyArray<SelectEntry<T>>,
+): Array<SelectEntry<NormalizedSelectItem<T>>> {
   const normalize = (item: T): NormalizedSelectItem<T> =>
     (typeof item === 'string' ? { value: item, label: item } : item) as NormalizedSelectItem<T>
   return entries.map((entry) => {
@@ -80,7 +80,7 @@ export function diagnoseDuplicateValue(
   )
 }
 
-export function diagnoseDuplicateItems(items: readonly BaseSelectT.Item[]): void {
+export function diagnoseDuplicateItems(items: ReadonlyArray<BaseSelectT.Item>): void {
   if (!DEV) {
     return
   }
@@ -100,8 +100,8 @@ export function itemRowKey(value: BaseSelectValue): string {
 
 /** Normalize source data once; the same rows serve normal and virtual rendering. */
 export function createSource<T extends BaseSelectT.Item>(
-  entries: readonly SelectEntry<T>[],
-  created: readonly T[] = [],
+  entries: ReadonlyArray<SelectEntry<T>>,
+  created: ReadonlyArray<T> = [],
   previous?: SelectView<T>,
 ): SelectView<T> & { byValue: Map<T['value'], T> } {
   const view: SelectView<T> = { items: [], rows: [] }
@@ -114,8 +114,7 @@ export function createSource<T extends BaseSelectT.Item>(
   }
   function getRow(key: string, item: T): SelectRow<T> {
     const existing = previousRows.get(key)
-    if (existing && existing.type === 'item') {
-      existing.item = item
+    if (existing && existing.type === 'item' && existing.item === item) {
       return existing
     }
     return { type: 'item', key, item }
@@ -140,17 +139,22 @@ export function createSource<T extends BaseSelectT.Item>(
       if (items.length > 0) {
         view.items.push(...items)
         const groupKey = `group:${index}`
+        const values = items.map((item) => item.value)
         const existing = previousRows.get(groupKey)
-        if (existing && existing.type === 'label') {
-          existing.label = entry.label
-          existing.values = items.map((item) => item.value)
+        if (
+          existing &&
+          existing.type === 'label' &&
+          existing.label === entry.label &&
+          existing.values.length === values.length &&
+          existing.values.every((value, i) => value === values[i])
+        ) {
           view.rows.push(existing)
         } else {
           view.rows.push({
             type: 'label',
             key: groupKey,
             label: entry.label,
-            values: items.map((item) => item.value),
+            values,
           })
         }
         view.rows.push(...items.map((item): SelectRow<T> => getRow(itemRowKey(item.value), item)))
@@ -162,7 +166,7 @@ export function createSource<T extends BaseSelectT.Item>(
       append(entry)
     }
   })
-  const additions: T[] = []
+  const additions: Array<T> = []
   for (const item of created) {
     if (accept(item)) {
       additions.push(item)
@@ -183,7 +187,7 @@ export function filterView<T extends BaseSelectT.Item>(
 ): SelectView<T> {
   const items = source.items.filter(matches)
   const values = new Set(items.map((item) => item.value))
-  const rows: SelectRow<T>[] = []
+  const rows: Array<SelectRow<T>> = []
   let separator: SelectRow<T> | undefined
   for (const row of source.rows) {
     if (row.type === 'separator') {
@@ -222,7 +226,7 @@ export function labelString<T extends BaseSelectT.Item>(
 /** Converts a public scalar selection into BaseSelect's internal selection array. */
 export function singleValueToSelection<T extends BaseSelectValue>(
   value: T | null | undefined,
-): T[] | undefined {
+): Array<T> | undefined {
   if (value === undefined) {
     return undefined
   }
@@ -246,13 +250,13 @@ export function sameValue(a: BaseSelectValue | undefined, b: BaseSelectValue | u
 }
 
 export function normalizeSelection<T extends BaseSelectValue>(
-  values: readonly T[],
+  values: ReadonlyArray<T>,
   multiple: boolean,
-): T[] {
+): Array<T> {
   if (!multiple) {
     return values.slice(0, 1)
   }
-  const normalized: T[] = []
+  const normalized: Array<T> = []
   for (const value of values) {
     if (!normalized.some((candidate) => sameValue(candidate, value))) {
       normalized.push(value)
@@ -262,8 +266,8 @@ export function normalizeSelection<T extends BaseSelectValue>(
 }
 
 export function selectionEqual<T extends BaseSelectValue>(
-  left: readonly T[],
-  right: readonly T[],
+  left: ReadonlyArray<T>,
+  right: ReadonlyArray<T>,
 ): boolean {
   return (
     left.length === right.length && left.every((value, index) => sameValue(value, right[index]))

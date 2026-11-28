@@ -8,7 +8,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { BreadcrumbStyleSlot, BreadcrumbStyleVariants } from './breadcrumb.style-types'
-
 export const breadcrumbDataAttributes = {
   link: /* @__PURE__ */ createDataAttributes('disabled'),
   page: /* @__PURE__ */ createDataAttributes('current'),

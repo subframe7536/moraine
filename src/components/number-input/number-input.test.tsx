@@ -1,8 +1,8 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, expectTypeOf, test, vi } from 'vitest'
+import { describe, expect, expectTypeOf, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field'
@@ -10,9 +10,8 @@ import { createForm } from '../form'
 
 import { NumberInput } from './number-input'
 import type { NumberInputT } from './number-input.types'
-
-describe('NumberInput', () => {
-  test('forwards root ref and inner inputRef', () => {
+describe('numberInput', () => {
+  it('forwards root ref and inner inputRef', () => {
     let rootEl: HTMLDivElement | undefined
     let inputEl: HTMLInputElement | undefined
 
@@ -29,7 +28,7 @@ describe('NumberInput', () => {
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
     expect(inputEl?.placeholder).toBe('ref test')
   })
-  test('uses a text keyboard on iOS when negative values are allowed', () => {
+  it('uses a text keyboard on iOS when negative values are allowed', () => {
     const userAgent = vi
       .spyOn(navigator, 'userAgent', 'get')
       .mockReturnValue('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)')
@@ -42,15 +41,15 @@ describe('NumberInput', () => {
       userAgent.mockRestore()
     }
   })
-  test('keeps a decimal keyboard off iOS', () => {
+  it('keeps a decimal keyboard off iOS', () => {
     expect(
       render(() => <NumberInput />)
         .getByRole('spinbutton')
         .getAttribute('inputmode'),
     ).toBe('decimal')
   })
-  test('renders number input with spinbutton semantics and increment/decrement controls', async () => {
-    const onStep = vi.fn()
+  it('renders number input with spinbutton semantics and increment/decrement controls', async () => {
+    const onStep = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <NumberInput defaultValue={1} min={0} max={10} placeholder="Qty" onStep={onStep} />
     ))
@@ -76,9 +75,9 @@ describe('NumberInput', () => {
     })
   })
 
-  test('reports the emitter on keyboard and wheel steps and lets button clicks cancel', () => {
-    const onStep = vi.fn(
-      (details: { type: string; emitter: string; event: Event }) =>
+  it('reports the emitter on keyboard and wheel steps and lets button clicks cancel', () => {
+    const onStep = vi.fn<(details: { type: string; emitter: string; event: Event }) => any>(
+      (details) =>
         details.emitter === 'button' &&
         details.type === 'decrement' &&
         details.event.preventDefault(),
@@ -88,8 +87,10 @@ describe('NumberInput', () => {
 
     spinbutton.focus()
     fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
-    spinbutton.dispatchEvent(
-      new WheelEvent('wheel', { deltaY: -1, bubbles: true, cancelable: true }),
+    flush(() =>
+      spinbutton.dispatchEvent(
+        new WheelEvent('wheel', { deltaY: -1, bubbles: true, cancelable: true }),
+      ),
     )
     expect(spinbutton.value).toBe('7')
     expect(onStep).toHaveBeenCalledWith({
@@ -118,7 +119,7 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('7')
   })
 
-  test('starts empty without a defaultValue and steps from zero', () => {
+  it('starts empty without a defaultValue and steps from zero', () => {
     const screen = render(() => <NumberInput />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -129,7 +130,7 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('1')
   })
 
-  test('omits aria-valuemin and aria-valuemax when explicit bounds are not provided', () => {
+  it('omits aria-valuemin and aria-valuemax when explicit bounds are not provided', () => {
     const screen = render(() => <NumberInput defaultValue={5} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -137,7 +138,7 @@ describe('NumberInput', () => {
     expect(spinbutton.getAttribute('aria-valuemax')).toBeNull()
   })
 
-  test('places caller naming and Field relationships on the spinbutton', () => {
+  it('places caller naming and Field relationships on the spinbutton', () => {
     const screen = render(() => (
       <>
         <span id="caller-description">Caller description</span>
@@ -162,7 +163,7 @@ describe('NumberInput', () => {
     )
   })
 
-  test('associates the native spinbutton with an external form and resets through it', async () => {
+  it('associates the native spinbutton with an external form and resets through it', async () => {
     const externalForm = document.createElement('form')
     externalForm.id = 'external-form'
     document.body.append(externalForm)
@@ -189,7 +190,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test('exposes required, disabled and readonly state through aria and data attributes', () => {
+  it('exposes required, disabled and readonly state through aria and data attributes', () => {
     const disabledScreen = render(() => (
       <NumberInput defaultValue={1} required disabled placeholder="Qty" />
     ))
@@ -217,7 +218,7 @@ describe('NumberInput', () => {
     expect(readOnlySpinbutton.getAttribute('data-readonly')).toBe('')
   })
 
-  test('disables steppers at min and max boundaries', async () => {
+  it('disables steppers at min and max boundaries', async () => {
     const maxScreen = render(() => <NumberInput defaultValue={10} min={0} max={10} />)
     const maxSpinbutton = maxScreen.getByRole<HTMLInputElement>('spinbutton')
     const maxIncrement = maxScreen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
@@ -243,7 +244,7 @@ describe('NumberInput', () => {
     expect(minSpinbutton.value).toBe('0')
   })
 
-  test('reactively disables steppers after reaching a boundary', async () => {
+  it('reactively disables steppers after reaching a boundary', async () => {
     const screen = render(() => <NumberInput defaultValue={9} min={0} max={10} />)
     const incrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
     const decrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
@@ -255,7 +256,7 @@ describe('NumberInput', () => {
     expect(decrementButton.disabled).toBe(false)
   })
 
-  test('supports uncontrolled increment and decrement behavior', async () => {
+  it('supports uncontrolled increment and decrement behavior', async () => {
     const screen = render(() => <NumberInput defaultValue={1} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -270,7 +271,7 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('1')
   })
 
-  test('supports ArrowUp and ArrowDown keyboard controls', async () => {
+  it('supports ArrowUp and ArrowDown keyboard controls', async () => {
     const screen = render(() => <NumberInput defaultValue={5} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -283,13 +284,13 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('5')
   })
 
-  test.each([
+  it.each([
     ['tenths', 0.1, 0.2, '0.2'],
     ['small exponent steps', 0, 1e-7, '0.0000001'],
   ])(
     'steps %s without exposing binary floating-point noise',
     async (_name, value, step, expected) => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={value} step={step} onValueChange={onValueChange} />
       ))
@@ -301,8 +302,8 @@ describe('NumberInput', () => {
     },
   )
 
-  test('steps from parseable dirty text when a controlled value lags', async () => {
-    const onValueChange = vi.fn()
+  it('steps from parseable dirty text when a controlled value lags', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <NumberInput value={0} onValueChange={onValueChange} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -313,8 +314,8 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('7.5')
   })
 
-  test('does not emit changes for keyboard or wheel boundary no-ops', async () => {
-    const onValueChange = vi.fn()
+  it('does not emit changes for keyboard or wheel boundary no-ops', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <NumberInput defaultValue={10} max={10} wheel onValueChange={onValueChange} />
     ))
@@ -334,7 +335,7 @@ describe('NumberInput', () => {
     expect(wheelEvent.defaultPrevented).toBe(true)
   })
 
-  test('supports PageUp and PageDown using largeStep', async () => {
+  it('supports PageUp and PageDown using largeStep', async () => {
     const screen = render(() => <NumberInput defaultValue={0} step={4} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -347,7 +348,7 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('0')
   })
 
-  test('supports Home and End keyboard shortcuts for min and max', async () => {
+  it('supports Home and End keyboard shortcuts for min and max', async () => {
     const screen = render(() => <NumberInput defaultValue={20} min={-100} max={100} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -360,8 +361,8 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('-100')
   })
 
-  test('leaves Home and End native when their corresponding bounds are absent', () => {
-    const onValueChange = vi.fn()
+  it('leaves Home and End native when their corresponding bounds are absent', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <NumberInput defaultValue={20} onValueChange={onValueChange} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const homeEvent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Home' })
@@ -376,8 +377,8 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('20')
   })
 
-  test('commits and formats parseable dirty text on Enter', async () => {
-    const onValueChange = vi.fn()
+  it('commits and formats parseable dirty text on Enter', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -385,14 +386,13 @@ describe('NumberInput', () => {
     fireEvent.keyDown(spinbutton, { key: 'Enter' })
 
     expect(spinbutton.value).toBe('7')
-    expect(onValueChange).toHaveBeenCalledOnce()
-    expect(onValueChange).toHaveBeenCalledWith(7)
+    expect(onValueChange).toHaveBeenCalledExactlyOnceWith(7)
   })
 
-  test.each(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', 'Enter'])(
+  it.each(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', 'Enter'])(
     'does not handle %s while an IME composition is active',
     (key) => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={5} min={0} max={10} onValueChange={onValueChange} />
       ))
@@ -408,8 +408,8 @@ describe('NumberInput', () => {
     },
   )
 
-  test('does not handle composition fallback key events', () => {
-    const onValueChange = vi.fn()
+  it('does not handle composition fallback key events', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const event = new KeyboardEvent('keydown', {
@@ -426,7 +426,7 @@ describe('NumberInput', () => {
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('does not change value with wheel by default', () => {
+  it('does not change value with wheel by default', () => {
     const screen = render(() => <NumberInput defaultValue={5} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -444,7 +444,7 @@ describe('NumberInput', () => {
     expect(wheelEvent.defaultPrevented).toBe(false)
   })
 
-  test('changes value with wheel when enabled and focused', () => {
+  it('changes value with wheel when enabled and focused', () => {
     const screen = render(() => <NumberInput defaultValue={5} step={2} wheel />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -455,7 +455,7 @@ describe('NumberInput', () => {
       cancelable: true,
       deltaY: -100,
     })
-    spinbutton.dispatchEvent(wheelUpEvent)
+    flush(() => spinbutton.dispatchEvent(wheelUpEvent))
 
     expect(spinbutton.value).toBe('6')
     expect(wheelUpEvent.defaultPrevented).toBe(true)
@@ -465,13 +465,13 @@ describe('NumberInput', () => {
       cancelable: true,
       deltaY: 100,
     })
-    spinbutton.dispatchEvent(wheelDownEvent)
+    flush(() => spinbutton.dispatchEvent(wheelDownEvent))
 
     expect(spinbutton.value).toBe('4')
     expect(wheelDownEvent.defaultPrevented).toBe(true)
   })
 
-  test('uses the input owner document for wheel and selection locks', () => {
+  it('uses the input owner document for wheel and selection locks', () => {
     const frame = document.createElement('iframe')
     document.body.append(frame)
     const frameDocument = frame.contentDocument
@@ -509,7 +509,7 @@ describe('NumberInput', () => {
       })
 
       spinbutton.focus()
-      spinbutton.dispatchEvent(wheelEvent)
+      flush(() => spinbutton.dispatchEvent(wheelEvent))
       expect(spinbutton.value).toBe('2')
       expect(wheelEvent.defaultPrevented).toBe(true)
 
@@ -524,7 +524,7 @@ describe('NumberInput', () => {
       expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('none')
       increment.dispatchEvent(createFramePointerEvent('pointerup', 2))
       expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('text')
-      increment.click()
+      flush(() => increment.click())
       expect(spinbutton.value).toBe('3')
 
       increment.dispatchEvent(createFramePointerEvent('pointerdown', 3))
@@ -538,7 +538,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test('does not change value with enabled wheel when disabled or readOnly', () => {
+  it('does not change value with enabled wheel when disabled or readOnly', () => {
     const disabledScreen = render(() => <NumberInput defaultValue={5} disabled wheel />)
     const disabledSpinbutton = disabledScreen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -572,7 +572,7 @@ describe('NumberInput', () => {
     expect(readOnlyWheelEvent.defaultPrevented).toBe(false)
   })
 
-  test('does not cancel wheel events when unfocused or when deltaY is zero', () => {
+  it('does not cancel wheel events when unfocused or when deltaY is zero', () => {
     const screen = render(() => <NumberInput defaultValue={5} wheel />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const unfocusedEvent = new WheelEvent('wheel', {
@@ -596,7 +596,7 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('5')
   })
 
-  test('ignores horizontal wheel noise and uses Shift with the large step', () => {
+  it('ignores horizontal wheel noise and uses Shift with the large step', () => {
     const screen = render(() => <NumberInput defaultValue={5} step={2} largeStep={10} wheel />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     spinbutton.focus()
@@ -619,13 +619,13 @@ describe('NumberInput', () => {
       deltaY: 0,
       shiftKey: true,
     })
-    spinbutton.dispatchEvent(shiftedHorizontalEvent)
+    flush(() => spinbutton.dispatchEvent(shiftedHorizontalEvent))
 
     expect(spinbutton.value).toBe('10')
     expect(shiftedHorizontalEvent.defaultPrevented).toBe(true)
   })
 
-  test('exposes formatted spinbutton text and stepper relationships', () => {
+  it('exposes formatted spinbutton text and stepper relationships', () => {
     const screen = render(() => <NumberInput id="quantity" defaultValue={12.5} locale="de-DE" />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -636,14 +636,14 @@ describe('NumberInput', () => {
     expect(decrementButton.getAttribute('aria-controls')).toBe('quantity')
   })
 
-  test('makes readonly step controls unavailable', () => {
+  it('makes readonly step controls unavailable', () => {
     const screen = render(() => <NumberInput defaultValue={5} readOnly />)
 
     expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' }).disabled).toBe(true)
     expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' }).disabled).toBe(true)
   })
 
-  test('serializes one native form value and honors disabled and readonly states', async () => {
+  it('serializes one native form value and honors disabled and readonly states', async () => {
     const screen = render(() => (
       <form>
         <NumberInput name="quantity" defaultValue={4} />
@@ -683,7 +683,7 @@ describe('NumberInput', () => {
     expect(new FormData(readOnlyForm).getAll('quantity')).toEqual(['4'])
   })
 
-  test('submits canonical numeric value in non-English locale and removes name from visible spinbutton', () => {
+  it('submits canonical numeric value in non-English locale and removes name from visible spinbutton', () => {
     const screen = render(() => (
       <form>
         <NumberInput name="price" value={1.5} locale="de-DE" required />
@@ -707,9 +707,9 @@ describe('NumberInput', () => {
     expect(document.activeElement).toBe(spinbutton)
   })
 
-  test('formats the numeric controlled value with the locale and emits numbers', async () => {
+  it('formats the numeric controlled value with the locale and emits numbers', async () => {
     const [value, setValue] = createSignal(13.5)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <NumberInput value={value()} locale="de-DE" onValueChange={onValueChange} />
     ))
@@ -720,11 +720,11 @@ describe('NumberInput', () => {
 
     expect(onValueChange).toHaveBeenCalledExactlyOnceWith(14)
 
-    setValue(2.25)
+    flush(() => setValue(2.25))
     expect(spinbutton.value).toBe('2,25')
   })
 
-  test('keeps dirty text when a controlled update equals the parsed draft', async () => {
+  it('keeps dirty text when a controlled update equals the parsed draft', async () => {
     const [value, setValue] = createSignal(5)
     const screen = render(() => <NumberInput value={value()} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
@@ -732,28 +732,28 @@ describe('NumberInput', () => {
     fireEvent.input(spinbutton, { target: { value: '1.' } })
     expect(spinbutton.value).toBe('1.')
 
-    setValue(1)
+    flush(() => setValue(1))
     expect(spinbutton.value).toBe('1.')
   })
 
-  test('clears the displayed text when the parent sets a controlled value to null', async () => {
+  it('clears the displayed text when the parent sets a controlled value to null', async () => {
     const [value, setValue] = createSignal<number | null>(null)
     const screen = render(() => <NumberInput value={value()} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     fireEvent.input(spinbutton, { target: { value: '7' } })
-    setValue(5)
+    flush(() => setValue(5))
     expect(spinbutton.value).toBe('5')
 
-    setValue(null)
+    flush(() => setValue(null))
 
     expect(spinbutton.value).toBe('')
     expect(spinbutton.getAttribute('aria-valuenow')).toBeNull()
   })
 
-  test('mirrors a controlled clear back to the parent as null', async () => {
+  it('mirrors a controlled clear back to the parent as null', async () => {
     const [value, setValue] = createSignal<number | null>(5)
-    const onValueChange = vi.fn((next: number | null) => setValue(next))
+    const onValueChange = vi.fn<(next: number | null) => any>((next) => setValue(next))
     const screen = render(() => (
       <form>
         <NumberInput name="quantity" value={value()} onValueChange={onValueChange} />
@@ -770,7 +770,7 @@ describe('NumberInput', () => {
     expect(new FormData(form).get('quantity')).toBe('')
   })
 
-  test('replaces dirty text when the explicit controlled value changes externally', async () => {
+  it('replaces dirty text when the explicit controlled value changes externally', async () => {
     const [value, setValue] = createSignal(5)
     const screen = render(() => <NumberInput value={value()} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
@@ -778,13 +778,13 @@ describe('NumberInput', () => {
     fireEvent.input(spinbutton, { target: { value: '-' } })
     expect(spinbutton.value).toBe('-')
 
-    setValue(8)
+    flush(() => setValue(8))
     expect(spinbutton.value).toBe('8')
   })
 
-  test('keeps Field aligned with explicit controlled and external Formisch values', async () => {
+  it('keeps Field aligned with explicit controlled and external Formisch values', async () => {
     const [value, setValue] = createSignal(5)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -805,16 +805,16 @@ describe('NumberInput', () => {
     expect(onValueChange).toHaveBeenCalledWith(7)
     expect(getInput(form)).toEqual({ quantity: 5 })
 
-    setValue(8)
+    flush(() => setValue(8))
     expect(spinbutton.value).toBe('8')
     expect(getInput(form)).toEqual({ quantity: 8 })
 
-    setInput(form, { path: ['quantity'], input: 9 })
+    flush(() => setInput(form, { path: ['quantity'], input: 9 }))
     expect(spinbutton.value).toBe('8')
     expect(getInput(form)).toEqual({ quantity: 8 })
   })
 
-  test('validates on change inside form.Field with validate change', async () => {
+  it('validates on change inside form.Field with validate change', async () => {
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -838,8 +838,8 @@ describe('NumberInput', () => {
     await waitFor(() => expect(screen.getByText('Too small.')).not.toBeNull())
   })
 
-  test('reacts to external Formisch input without publishing callbacks', () => {
-    const onValueChange = vi.fn()
+  it('reacts to external Formisch input without publishing callbacks', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -856,15 +856,15 @@ describe('NumberInput', () => {
     )
     const spinbutton = screen.getByLabelText<HTMLInputElement>('Quantity')
 
-    setInput(form, { path: ['quantity'], input: 6 })
+    flush(() => setInput(form, { path: ['quantity'], input: 6 }))
 
     expect(spinbutton.value).toBe('6')
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('restores the initial uncontrolled snapshot on reset without reset callbacks', async () => {
+  it('restores the initial uncontrolled snapshot on reset without reset callbacks', async () => {
     const [defaultValue, setDefaultValue] = createSignal(2)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <NumberInput name="quantity" defaultValue={defaultValue()} onValueChange={onValueChange} />
@@ -873,7 +873,7 @@ describe('NumberInput', () => {
     const form = screen.container.querySelector('form') as HTMLFormElement
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-    setDefaultValue(9)
+    flush(() => setDefaultValue(9))
     fireEvent.input(spinbutton, { target: { value: '7' } })
     expect(spinbutton.value).toBe('7')
 
@@ -885,9 +885,9 @@ describe('NumberInput', () => {
     expect(onValueChange).toHaveBeenCalledOnce()
   })
 
-  test('restores the latest explicit controlled value on reset without callbacks', async () => {
+  it('restores the latest explicit controlled value on reset without callbacks', async () => {
     const [value, setValue] = createSignal<number | undefined>(5)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <NumberInput value={value()} defaultValue={1} onValueChange={onValueChange} />
@@ -899,7 +899,7 @@ describe('NumberInput', () => {
     fireEvent.input(spinbutton, { target: { value: '7' } })
     expect(spinbutton.value).toBe('7')
 
-    setValue(6)
+    flush(() => setValue(6))
     expect(spinbutton.value).toBe('6')
     const callCount = onValueChange.mock.calls.length
 
@@ -910,7 +910,7 @@ describe('NumberInput', () => {
     expect(onValueChange).toHaveBeenCalledTimes(callCount)
   })
 
-  test('does not reset state when native reset is canceled', async () => {
+  it('does not reset state when native reset is canceled', async () => {
     const screen = render(() => (
       <form onReset={(event) => event.preventDefault()}>
         <NumberInput defaultValue={2} />
@@ -926,7 +926,7 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('7')
   })
 
-  test('repeats increment while the trigger is held', async () => {
+  it('repeats increment while the trigger is held', async () => {
     vi.useFakeTimers()
 
     try {
@@ -960,12 +960,12 @@ describe('NumberInput', () => {
     }
   })
 
-  test('ends an active hold as soon as its callback disables the control', async () => {
+  it('ends an active hold as soon as its callback disables the control', async () => {
     vi.useFakeTimers()
 
     try {
       const [disabled, setDisabled] = createSignal(false)
-      const onValueChange = vi.fn(() => setDisabled(true))
+      const onValueChange = vi.fn<() => any>(() => setDisabled(true))
       const screen = render(() => (
         <NumberInput defaultValue={0} disabled={disabled()} onValueChange={onValueChange} />
       ))
@@ -983,7 +983,7 @@ describe('NumberInput', () => {
       expect(incrementButton.disabled).toBe(true)
       expect(incrementButton.getAttribute('data-active')).toBeNull()
 
-      await vi.advanceTimersByTimeAsync(1_000)
+      await vi.advanceTimersByTimeAsync(1000)
 
       expect(spinbutton.value).toBe('1')
       expect(onValueChange).toHaveBeenCalledOnce()
@@ -992,14 +992,14 @@ describe('NumberInput', () => {
     }
   })
 
-  test.each(['disabled', 'readOnly'] as const)(
+  it.each(['disabled', 'readOnly'] as const)(
     'releases an active hold immediately when %s changes',
     async (property) => {
       vi.useFakeTimers()
       const previousUserSelect = document.body.style.getPropertyValue('user-select')
       try {
         const [inactive, setInactive] = createSignal(false)
-        const onValueChange = vi.fn()
+        const onValueChange = vi.fn<(...args: Array<any>) => void>()
         const screen = render(() => (
           <NumberInput
             defaultValue={0}
@@ -1013,11 +1013,11 @@ describe('NumberInput', () => {
         expect(increment.getAttribute('data-active')).toBe('')
         expect(document.body.style.getPropertyValue('user-select')).toBe('none')
 
-        setInactive(true)
+        flush(() => setInactive(true))
 
         expect(increment.getAttribute('data-active')).toBeNull()
         expect(document.body.style.getPropertyValue('user-select')).toBe(previousUserSelect)
-        await vi.advanceTimersByTimeAsync(1_000)
+        await vi.advanceTimersByTimeAsync(1000)
         expect(onValueChange).not.toHaveBeenCalled()
         screen.unmount()
       } finally {
@@ -1027,7 +1027,7 @@ describe('NumberInput', () => {
     },
   )
 
-  test('increments once on pointer press and release without hold repeat', async () => {
+  it('increments once on pointer press and release without hold repeat', async () => {
     const screen = render(() => <NumberInput defaultValue={0} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -1047,7 +1047,7 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('1')
   })
 
-  test('does not add extra increment when releasing after hold repeat', async () => {
+  it('does not add extra increment when releasing after hold repeat', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1077,7 +1077,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test.each([
+  it.each([
     ['pointer cancel', 'pointerCancel'],
     ['lost pointer capture', 'lostPointerCapture'],
     ['pointer leave', 'pointerLeave'],
@@ -1107,7 +1107,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test('clears all repeat timers and restores selection styles on unmount', async () => {
+  it('clears all repeat timers and restores selection styles on unmount', async () => {
     vi.useFakeTimers()
     const previousUserSelect = document.body.style.getPropertyValue('user-select')
     const previousWebkitUserSelect = document.body.style.getPropertyValue('-webkit-user-select')
@@ -1115,7 +1115,7 @@ describe('NumberInput', () => {
     try {
       document.body.style.setProperty('user-select', 'text')
       document.body.style.setProperty('-webkit-user-select', 'text')
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={0} onValueChange={onValueChange} />)
 
       fireEvent.pointerDown(screen.getByRole('button', { name: 'Increment' }), {
@@ -1134,7 +1134,7 @@ describe('NumberInput', () => {
       expect(document.body.style.getPropertyValue('user-select')).toBe('none')
 
       screen.unmount()
-      await vi.advanceTimersByTimeAsync(1_000)
+      await vi.advanceTimersByTimeAsync(1000)
 
       expect(onValueChange).not.toHaveBeenCalled()
       expect(document.body.style.getPropertyValue('user-select')).toBe('text')
@@ -1146,7 +1146,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test('uses configurable repeat delay and interval', async () => {
+  it('uses configurable repeat delay and interval', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1178,7 +1178,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test('applies repeat throttle threshold', async () => {
+  it('applies repeat throttle threshold', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1209,7 +1209,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test('respects repeat=false by not repeating while holding', async () => {
+  it('respects repeat=false by not repeating while holding', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1238,11 +1238,11 @@ describe('NumberInput', () => {
     }
   })
 
-  test('calls onStep for repeated press steps without extra release click', async () => {
+  it('calls onStep for repeated press steps without extra release click', async () => {
     vi.useFakeTimers()
 
     try {
-      const onStep = vi.fn()
+      const onStep = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={0} onStep={onStep} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -1274,7 +1274,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test('prevents contextmenu on touch long press', async () => {
+  it('prevents contextmenu on touch long press', async () => {
     const screen = render(() => <NumberInput defaultValue={0} />)
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
@@ -1294,8 +1294,8 @@ describe('NumberInput', () => {
     expect(contextMenuEvent.defaultPrevented).toBe(true)
   })
 
-  test('keeps controlled value while emitting onValueChange', async () => {
-    const onValueChange = vi.fn()
+  it('keeps controlled value while emitting onValueChange', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <NumberInput value={5} onValueChange={onValueChange} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -1310,7 +1310,7 @@ describe('NumberInput', () => {
     })
   })
 
-  test('focuses the input after trigger clicks', async () => {
+  it('focuses the input after trigger clicks', async () => {
     const screen = render(() => <NumberInput defaultValue={0} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -1320,7 +1320,7 @@ describe('NumberInput', () => {
     expect(document.activeElement).toBe(spinbutton)
   })
 
-  test('rechecks disabled state before delayed autoFocus and clears the timer on unmount', async () => {
+  it('rechecks disabled state before delayed autoFocus and clears the timer on unmount', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1330,7 +1330,7 @@ describe('NumberInput', () => {
       ))
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-      setDisabled(true)
+      flush(() => setDisabled(true))
       await vi.advanceTimersByTimeAsync(100)
       expect(document.activeElement).not.toBe(spinbutton)
 
@@ -1342,7 +1342,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test.each(['vertical', 'horizontal'] as const)(
+  it.each(['vertical', 'horizontal'] as const)(
     'steps with both controls in %s orientation',
     (orientation) => {
       const screen = render(() => <NumberInput orientation={orientation} defaultValue={1} />)
@@ -1358,14 +1358,14 @@ describe('NumberInput', () => {
     },
   )
 
-  test('hides both increment and decrement controls when disabled by props', () => {
+  it('hides both increment and decrement controls when disabled by props', () => {
     const screen = render(() => <NumberInput increment={false} decrement={false} />)
 
     expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
   })
 
-  test('updates orientation and conditional controls while preserving the native input', () => {
+  it('updates orientation and conditional controls while preserving the native input', () => {
     const [orientation, setOrientation] = createSignal<'vertical' | 'horizontal'>('vertical')
     const [controls, setControls] = createSignal(true)
     const screen = render(() => (
@@ -1375,15 +1375,15 @@ describe('NumberInput', () => {
     expect(screen.getByRole('button', { name: 'Increment' })).not.toBeNull()
     expect(screen.getByRole('button', { name: 'Decrement' })).not.toBeNull()
     expect(screen.container.querySelector('[data-slot="number-input-controls"]')).not.toBeNull()
-    setOrientation('horizontal')
+    flush(() => setOrientation('horizontal'))
     expect(screen.container.querySelector('[data-slot="number-input-controls"]')).toBeNull()
-    setControls(false)
+    flush(() => setControls(false))
     expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
     expect(screen.getByRole('spinbutton')).toBe(input)
   })
 
-  test('keeps the active state throughout a held press', async () => {
+  it('keeps the active state throughout a held press', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1415,7 +1415,7 @@ describe('NumberInput', () => {
     }
   })
 
-  test('keeps step controls as non-submitting buttons outside the tab order', () => {
+  it('keeps step controls as non-submitting buttons outside the tab order', () => {
     const screen = render(() => <NumberInput />)
     const incrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
     const decrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
@@ -1426,20 +1426,20 @@ describe('NumberInput', () => {
     expect(decrementButton.tabIndex).toBe(-1)
   })
 
-  test('exposes only the supported variants', () => {
+  it('exposes only the supported variants', () => {
     expectTypeOf<NumberInputT.Variants['variant']>().toEqualTypeOf<
       'outline' | 'subtle' | 'ghost' | 'none' | undefined
     >()
   })
 
-  test('applies classes.root to the root element', () => {
+  it('applies classes.root to the root element', () => {
     const screen = render(() => <NumberInput classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="number-input"]')
 
     expect(root?.className).toContain('root-override')
   })
 
-  test('applies styles.root override', () => {
+  it('applies styles.root override', () => {
     const screen = render(() => <NumberInput styles={{ root: { width: '200px' } }} />)
     const root = screen.container.querySelector<HTMLElement>('[data-slot="number-input"]')
 
@@ -1447,8 +1447,8 @@ describe('NumberInput', () => {
   })
 
   describe('partial input support', () => {
-    test('allows typing minus sign without committing', async () => {
-      const onValueChange = vi.fn()
+    it('allows typing minus sign without committing', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1459,8 +1459,8 @@ describe('NumberInput', () => {
       expect(onValueChange).not.toHaveBeenCalled()
     })
 
-    test('allows typing decimal point without committing', async () => {
-      const onValueChange = vi.fn()
+    it('allows typing decimal point without committing', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1471,8 +1471,8 @@ describe('NumberInput', () => {
       expect(onValueChange).not.toHaveBeenCalled()
     })
 
-    test('allows typing minus and decimal point without committing', async () => {
-      const onValueChange = vi.fn()
+    it('allows typing minus and decimal point without committing', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1483,8 +1483,8 @@ describe('NumberInput', () => {
       expect(onValueChange).not.toHaveBeenCalled()
     })
 
-    test('allows typing number with trailing decimal point', async () => {
-      const onValueChange = vi.fn()
+    it('allows typing number with trailing decimal point', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1495,8 +1495,8 @@ describe('NumberInput', () => {
       expect(onValueChange).not.toHaveBeenCalled()
     })
 
-    test('commits complete decimal number', async () => {
-      const onValueChange = vi.fn()
+    it('commits complete decimal number', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1507,8 +1507,8 @@ describe('NumberInput', () => {
       expect(onValueChange).toHaveBeenCalledWith(12.5)
     })
 
-    test('commits negative number', async () => {
-      const onValueChange = vi.fn()
+    it('commits negative number', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1519,7 +1519,7 @@ describe('NumberInput', () => {
       expect(onValueChange).toHaveBeenCalledWith(-42)
     })
 
-    test('formats value on blur after partial input', async () => {
+    it('formats value on blur after partial input', async () => {
       const screen = render(() => <NumberInput defaultValue={5} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1531,8 +1531,8 @@ describe('NumberInput', () => {
       expect(spinbutton.value).toBe('5')
     })
 
-    test('completes partial decimal on blur', async () => {
-      const onValueChange = vi.fn()
+    it('completes partial decimal on blur', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1547,8 +1547,8 @@ describe('NumberInput', () => {
   })
 
   describe('boundary clamping on commit', () => {
-    test('clamps a partial typed value to max on blur', () => {
-      const onValueChange = vi.fn()
+    it('clamps a partial typed value to max on blur', () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={5} max={10} onValueChange={onValueChange} />
       ))
@@ -1566,8 +1566,8 @@ describe('NumberInput', () => {
   })
 
   describe('locale-aware parsing', () => {
-    test('parses comma as decimal separator in de-DE locale', async () => {
-      const onValueChange = vi.fn()
+    it('parses comma as decimal separator in de-DE locale', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={5} locale="de-DE" onValueChange={onValueChange} />
       ))
@@ -1579,8 +1579,8 @@ describe('NumberInput', () => {
       expect(onValueChange).toHaveBeenCalledWith(12.5)
     })
 
-    test('allows typing comma as partial input in de-DE locale', async () => {
-      const onValueChange = vi.fn()
+    it('allows typing comma as partial input in de-DE locale', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={5} locale="de-DE" onValueChange={onValueChange} />
       ))
@@ -1593,8 +1593,8 @@ describe('NumberInput', () => {
       expect(onValueChange).not.toHaveBeenCalled()
     })
 
-    test('allows typing number with trailing comma in de-DE locale', async () => {
-      const onValueChange = vi.fn()
+    it('allows typing number with trailing comma in de-DE locale', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={5} locale="de-DE" onValueChange={onValueChange} />
       ))
@@ -1607,15 +1607,15 @@ describe('NumberInput', () => {
       expect(onValueChange).not.toHaveBeenCalled()
     })
 
-    test('formats numbers with comma in de-DE locale', async () => {
+    it('formats numbers with comma in de-DE locale', async () => {
       const screen = render(() => <NumberInput defaultValue={12.5} locale="de-DE" />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       expect(spinbutton.value).toBe('12,5')
     })
 
-    test('parses dot as decimal separator in en-US locale', async () => {
-      const onValueChange = vi.fn()
+    it('parses dot as decimal separator in en-US locale', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={5} locale="en-US" onValueChange={onValueChange} />
       ))
@@ -1627,15 +1627,15 @@ describe('NumberInput', () => {
       expect(onValueChange).toHaveBeenCalledWith(12.5)
     })
 
-    test('formats numbers with dot in en-US locale', async () => {
+    it('formats numbers with dot in en-US locale', async () => {
       const screen = render(() => <NumberInput defaultValue={12.5} locale="en-US" />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       expect(spinbutton.value).toBe('12.5')
     })
 
-    test('handles fr-FR locale with comma separator', async () => {
-      const onValueChange = vi.fn()
+    it('handles fr-FR locale with comma separator', async () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={5} locale="fr-FR" onValueChange={onValueChange} />
       ))
@@ -1647,7 +1647,7 @@ describe('NumberInput', () => {
       expect(onValueChange).toHaveBeenCalledWith(99.99)
     })
 
-    test('increments and decrements preserve locale formatting', async () => {
+    it('increments and decrements preserve locale formatting', async () => {
       const screen = render(() => <NumberInput defaultValue={10.5} locale="de-DE" />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -1662,12 +1662,12 @@ describe('NumberInput', () => {
       expect(spinbutton.value).toBe('10')
     })
 
-    test.each([
+    it.each([
       ['fa-IR', '۱۲٫۳۴', 12.34],
-      ['ar-EG', '١٢٬٣٤٥٫٦', 12345.6],
-      ['ja-JP-u-nu-fullwide', '１２，３４５．６', 12345.6],
+      ['ar-EG', '١٢٬٣٤٥٫٦', 12_345.6],
+      ['ja-JP-u-nu-fullwide', '１２，３４５．６', 12_345.6],
     ])('commits localized numerals for %s', (locale, localizedValue, expectedValue) => {
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={0} locale={locale} onValueChange={onValueChange} />
       ))
@@ -1685,7 +1685,7 @@ describe('NumberInput', () => {
       expect(spinbutton.getAttribute('aria-valuetext')).toBe(formattedValue)
     })
 
-    test('clamps Persian numeral input and synchronizes the numeric Formisch value', () => {
+    it('clamps Persian numeral input and synchronizes the numeric Formisch value', () => {
       const { screen, value: form } = renderWithOwner(
         () =>
           createForm({
@@ -1710,8 +1710,8 @@ describe('NumberInput', () => {
   })
 
   describe('formatOptions', () => {
-    test('formats and parses currency values', () => {
-      const onValueChange = vi.fn()
+    it('formats and parses currency values', () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput
           defaultValue={12.5}
@@ -1733,8 +1733,8 @@ describe('NumberInput', () => {
       expect(spinbutton.value).toBe('$1,234.56')
     })
 
-    test('scales percent values by the format style', () => {
-      const onValueChange = vi.fn()
+    it('scales percent values by the format style', () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput
           defaultValue={0.25}
@@ -1752,8 +1752,8 @@ describe('NumberInput', () => {
       expect(onValueChange).toHaveBeenLastCalledWith(0.4)
     })
 
-    test('parses localized currency in de-DE', () => {
-      const onValueChange = vi.fn()
+    it('parses localized currency in de-DE', () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput
           defaultValue={0}
@@ -1771,7 +1771,7 @@ describe('NumberInput', () => {
   })
 
   describe('stepSnapping', () => {
-    test('snaps an off-grid value onto the step grid in the direction of travel', () => {
+    it('snaps an off-grid value onto the step grid in the direction of travel', () => {
       const screen = render(() => <NumberInput defaultValue={5} step={2} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1783,7 +1783,7 @@ describe('NumberInput', () => {
       expect(spinbutton.value).toBe('8')
     })
 
-    test('anchors the step grid at min', () => {
+    it('anchors the step grid at min', () => {
       const screen = render(() => <NumberInput defaultValue={4} min={1} step={2} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1795,7 +1795,7 @@ describe('NumberInput', () => {
       expect(spinbutton.value).toBe('3')
     })
 
-    test('adds the step verbatim when stepSnapping is false', () => {
+    it('adds the step verbatim when stepSnapping is false', () => {
       const screen = render(() => <NumberInput defaultValue={5} step={2} stepSnapping={false} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1804,8 +1804,8 @@ describe('NumberInput', () => {
       expect(spinbutton.value).toBe('7')
     })
 
-    test('does not snap typed or externally provided values', () => {
-      const onValueChange = vi.fn()
+    it('does not snap typed or externally provided values', () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <NumberInput defaultValue={0} step={2} onValueChange={onValueChange} />
       ))
@@ -1819,7 +1819,7 @@ describe('NumberInput', () => {
       expect(spinbutton.value).toBe('5')
     })
 
-    test('steps from an empty value onto the min-anchored grid', () => {
+    it('steps from an empty value onto the min-anchored grid', () => {
       const screen = render(() => <NumberInput defaultValue={5} min={1} step={2} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1834,8 +1834,8 @@ describe('NumberInput', () => {
   })
 
   describe('clearing the input', () => {
-    test('keeps an empty display and emits null', () => {
-      const onValueChange = vi.fn()
+    it('keeps an empty display and emits null', () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <form>
           <NumberInput name="quantity" defaultValue={5} onValueChange={onValueChange} />
@@ -1855,8 +1855,8 @@ describe('NumberInput', () => {
       expect(spinbutton.getAttribute('aria-valuenow')).toBeNull()
     })
 
-    test('does not write the form store when a controlled value is cleared', () => {
-      const onValueChange = vi.fn()
+    it('does not write the form store when a controlled value is cleared', () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const { screen, value: form } = renderWithOwner(
         () =>
           createForm({
@@ -1880,8 +1880,8 @@ describe('NumberInput', () => {
       expect(getInput(form)).toEqual({ quantity: 5 })
     })
 
-    test('typing a new value after clearing commits normally', () => {
-      const onValueChange = vi.fn()
+    it('typing a new value after clearing commits normally', () => {
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 

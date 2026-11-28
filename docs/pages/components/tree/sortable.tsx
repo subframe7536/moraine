@@ -1,14 +1,13 @@
 import { Icon, createTree } from '@src'
 import { createTreeSortable, moveTreeNode } from '@src/dnd'
 import { createSignal } from 'solid-js'
-
 interface FileNode {
   id: string
   name: string
-  children?: FileNode[]
+  children?: Array<FileNode>
 }
 
-const FILES: FileNode[] = [
+const FILES: Array<FileNode> = [
   {
     id: 'src',
     name: 'src',
@@ -25,7 +24,7 @@ const FILES: FileNode[] = [
 const ACCESS = {
   getKey: (node: FileNode) => node.id,
   getChildren: (node: FileNode) => node.children,
-  withChildren: (node: FileNode, children: FileNode[]) => ({ ...node, children }),
+  withChildren: (node: FileNode, children: Array<FileNode>) => ({ ...node, children }),
 }
 
 export function Sortable() {

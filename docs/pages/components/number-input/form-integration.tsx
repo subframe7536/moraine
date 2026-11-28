@@ -1,7 +1,6 @@
 import { Button, createForm, NumberInput } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 export function FormIntegration() {
   const [submittedQuantity, setSubmittedQuantity] = createSignal<number | null>(null)
   const form = createForm({

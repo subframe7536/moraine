@@ -1,6 +1,5 @@
 import { BoldSlider } from '@src'
 import { createSignal } from 'solid-js'
-
 const PRESETS = ['Low', 'Medium', 'High', 'Ultra']
 
 export function QualitySlider() {

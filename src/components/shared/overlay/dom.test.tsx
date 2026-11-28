@@ -1,10 +1,9 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { isElement, isHTMLElement, isNode } from './dom'
 import { getContextMenuTriggerAccessibility, validateOverlayTrigger } from './trigger'
-
 describe('overlay DOM realm', () => {
-  test('recognizes foreign HTML roots and native input buttons', () => {
+  it('recognizes foreign HTML roots and native input buttons', () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const foreignDocument = iframe.contentDocument!

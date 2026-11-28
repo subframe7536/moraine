@@ -1,8 +1,8 @@
-import { getInput } from '@formisch/solid'
+import { getInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { createSignal, untrack } from 'solid-js'
+import { createSignal, flush, untrack } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, onTestFinished, test, vi } from 'vitest'
+import { describe, expect, onTestFinished, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { renderWithOwner } from '../../test-util/owner-render'
@@ -13,7 +13,6 @@ import { createForm } from '../index'
 
 import { Combobox } from './combobox'
 import type { ComboboxT } from './combobox.types'
-
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
@@ -34,8 +33,8 @@ async function finishExit(): Promise<void> {
   await Promise.resolve()
 }
 
-describe('Combobox', () => {
-  test('uses one input focus owner and a secondary non-tab-stop trigger', () => {
+describe('combobox', () => {
+  it('uses one input focus owner and a secondary non-tab-stop trigger', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const input = screen.getByRole('combobox')
     const trigger = screen.getByRole('button', { name: 'Toggle options' })
@@ -46,7 +45,7 @@ describe('Combobox', () => {
     expect(screen.container.querySelectorAll('input[data-slot="combobox-input"]')).toHaveLength(1)
   })
 
-  test('announces list autocomplete for an editable input', () => {
+  it('announces list autocomplete for an editable input', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     expect(input.readOnly).toBe(false)
@@ -55,13 +54,13 @@ describe('Combobox', () => {
     expect(input.getAttribute('autocomplete')).toBe('off')
   })
 
-  test('supports custom autocomplete attribute', () => {
+  it('supports custom autocomplete attribute', () => {
     const screen = render(() => <Combobox items={ITEMS} autoComplete="off email" />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     expect(input.getAttribute('autocomplete')).toBe('off email')
   })
 
-  test('control clicks do not open by default', () => {
+  it('control clicks do not open by default', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const control = screen.container.querySelector<HTMLElement>('[data-slot="combobox-control"]')!
     const input = screen.getByRole('combobox')
@@ -71,14 +70,14 @@ describe('Combobox', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('openOnControlClick=true enables pointer-open', () => {
+  it('openOnControlClick=true enables pointer-open', () => {
     const screen = render(() => <Combobox items={ITEMS} openOnControlClick />)
     const input = screen.getByRole('combobox')
     fireEvent.click(input)
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('typing opens independently of openOnControlClick', () => {
+  it('typing opens independently of openOnControlClick', () => {
     const screen = render(() => <Combobox items={ITEMS} openOnControlClick={false} />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     fireEvent.input(input, { target: { value: 'ba' } })
@@ -86,7 +85,7 @@ describe('Combobox', () => {
     expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(1)
   })
 
-  test('secondary trigger toggles without bubbling into control open', () => {
+  it('secondary trigger toggles without bubbling into control open', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const input = screen.getByRole('combobox')
     const trigger = screen.getByRole('button', { name: 'Toggle options' })
@@ -96,7 +95,7 @@ describe('Combobox', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('keeps a read-only field browsable without promising autocomplete', () => {
+  it('keeps a read-only field browsable without promising autocomplete', () => {
     const screen = render(() => <Combobox items={ITEMS} readOnly />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     const trigger = screen.getByRole('button', { name: 'Toggle options' })
@@ -111,7 +110,7 @@ describe('Combobox', () => {
     expect(listbox.getAttribute('aria-readonly')).toBe('true')
   })
 
-  test('inherits read-only autocomplete semantics from Field', () => {
+  it('inherits read-only autocomplete semantics from Field', () => {
     const screen = render(() => (
       <Field readOnly>
         <Combobox items={ITEMS} />
@@ -123,7 +122,7 @@ describe('Combobox', () => {
     expect(input.getAttribute('aria-autocomplete')).toBe('none')
   })
 
-  test('validates required selection and submits with the form', () => {
+  it('validates required selection and submits with the form', () => {
     const screen = render(() => (
       <form>
         <Combobox name="fruit" items={ITEMS} required />
@@ -143,8 +142,8 @@ describe('Combobox', () => {
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
   })
 
-  test('clear and trigger coexist and clear does not open', () => {
-    const onClear = vi.fn()
+  it('clear and trigger coexist and clear does not open', () => {
+    const onClear = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox items={ITEMS} defaultValue="apple" clearable onClear={onClear} />
     ))
@@ -154,16 +153,16 @@ describe('Combobox', () => {
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('keeps the trigger structurally present while loading', () => {
+  it('keeps the trigger structurally present while loading', () => {
     const screen = render(() => <Combobox items={ITEMS} defaultValue="apple" clearable loading />)
     const trigger = screen.getByRole('button', { name: 'Loading' })
     expect(trigger.getAttribute('data-slot')).toBe('combobox-trigger')
     expect(trigger.hasAttribute('data-loading')).toBe(true)
   })
 
-  test('keeps query and committed value independent with exit-safe cleanup', async () => {
-    const onSearchValueChange = vi.fn()
-    const onChange = vi.fn()
+  it('keeps query and committed value independent with exit-safe cleanup', async () => {
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox
         items={ITEMS}
@@ -184,7 +183,7 @@ describe('Combobox', () => {
     await waitFor(() => expect(onSearchValueChange).toHaveBeenLastCalledWith(''))
   })
 
-  test('supports controlled query and external filtering', () => {
+  it('supports controlled query and external filtering', () => {
     const [query, setQuery] = createSignal('')
     const screen = render(() => (
       <Combobox
@@ -200,9 +199,9 @@ describe('Combobox', () => {
     expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(3)
   })
 
-  test('keeps a controlled query until the parent applies onSearchValueChange', () => {
+  it('keeps a controlled query until the parent applies onSearchValueChange', () => {
     const [query, setQuery] = createSignal('ap')
-    const onSearchValueChange = vi.fn()
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox
         items={ITEMS}
@@ -226,13 +225,13 @@ describe('Combobox', () => {
     expect(untrack(query)).toBe('ap')
     expect(options().map((option) => option.textContent)).toEqual(['Apple'])
 
-    setQuery('ba')
+    flush(() => setQuery('ba'))
     expect(input.value).toBe('ba')
     expect(options().map((option) => option.textContent)).toEqual(['Banana'])
   })
 
-  test('does not publish partial IME composition', () => {
-    const onSearchValueChange = vi.fn()
+  it('does not publish partial IME composition', () => {
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox items={ITEMS} onSearchValueChange={onSearchValueChange} />
     ))
@@ -244,7 +243,7 @@ describe('Combobox', () => {
     expect(onSearchValueChange).toHaveBeenLastCalledWith('ば')
   })
 
-  test('serializes and resets the committed value, not the query', () => {
+  it('serializes and resets the committed value, not the query', () => {
     const screen = render(() => (
       <form>
         <Combobox name="fruit" items={ITEMS} defaultValue="apple" />
@@ -260,7 +259,7 @@ describe('Combobox', () => {
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
   })
 
-  test('keeps Form.Field selection values scalar across falsey changes and reset', async () => {
+  it('keeps Form.Field selection values scalar across falsey changes and reset', async () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -294,7 +293,7 @@ describe('Combobox', () => {
     expect(getInput(form)).toEqual({ choice: null })
   })
 
-  test('synchronizes controlled scalar Form.Field values as primitives', () => {
+  it('synchronizes controlled scalar Form.Field values as primitives', () => {
     const [controlled, setControlled] = createSignal<string | number | undefined>('apple')
     const { value: form } = renderWithOwner(
       () =>
@@ -315,16 +314,16 @@ describe('Combobox', () => {
     )
 
     expect(getInput(form)).toEqual({ choice: 'apple' })
-    setControlled(0)
+    flush(() => setControlled(0))
     expect(getInput(form)).toEqual({ choice: 0 })
-    setControlled('')
+    flush(() => setControlled(''))
     expect(getInput(form)).toEqual({ choice: '' })
-    setControlled(undefined)
+    flush(() => setControlled(undefined))
     expect(getInput(form)).toEqual({ choice: '' })
   })
 
-  test('treats value undefined as uncontrolled and applies defaultValue', () => {
-    const onChange = vi.fn()
+  it('treats value undefined as uncontrolled and applies defaultValue', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox items={ITEMS} value={undefined} defaultValue="banana" onValueChange={onChange} />
     ))
@@ -337,9 +336,9 @@ describe('Combobox', () => {
     expect(input.value).toBe('Apple')
   })
 
-  test('keeps a defined value authoritative over defaultValue and user selection', () => {
+  it('keeps a defined value authoritative over defaultValue and user selection', () => {
     const [value, setValue] = createSignal<string | undefined>('apple')
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Combobox items={ITEMS} value={value()} defaultValue="banana" onValueChange={onChange} />
     ))
@@ -350,20 +349,20 @@ describe('Combobox', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(onChange).toHaveBeenLastCalledWith('banana')
     expect(input.value).toBe('Apple')
-    setValue('banana')
+    flush(() => setValue('banana'))
     expect(input.value).toBe('Banana')
   })
 
-  test('treats value null as a controlled empty selection', () => {
+  it('treats value null as a controlled empty selection', () => {
     const [value, setValue] = createSignal<string | null | undefined>('banana')
-    const onChange = vi.fn((next: string | null | undefined) => setValue(next))
+    const onChange = vi.fn<(next: string | null | undefined) => any>((next) => setValue(next))
     const screen = render(() => (
       <Combobox items={ITEMS} value={value()} defaultValue="apple" onValueChange={onChange} />
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
     expect(input.value).toBe('Banana')
-    setValue(null)
+    flush(() => setValue(null))
     expect(input.value).toBe('')
     fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
@@ -371,20 +370,20 @@ describe('Combobox', () => {
     expect(input.value).toBe('Apple')
   })
 
-  test('hands back to the initial default when a defined value becomes undefined', () => {
+  it('hands back to the initial default when a defined value becomes undefined', () => {
     const [value, setValue] = createSignal<string | undefined>('apple')
     const screen = render(() => <Combobox items={ITEMS} value={value()} defaultValue="banana" />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
     expect(input.value).toBe('Apple')
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(input.value).toBe('Banana')
     fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(input.value).toBe('Apple')
   })
 
-  test('falls back to the Form.Field value while value is undefined', () => {
+  it('falls back to the Form.Field value while value is undefined', () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -409,7 +408,7 @@ describe('Combobox', () => {
     expect(getInput(form)).toEqual({ choice: 'apple' })
   })
 
-  test('preserves empty-string Form.Field selection when search filtering removes the empty-string item', () => {
+  it('preserves empty-string Form.Field selection when search filtering removes the empty-string item', () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -445,7 +444,7 @@ describe('Combobox', () => {
     expect(getInput(form)).toEqual({ choice: '' })
   })
 
-  test('preserves initial empty-string Form.Field selection when defaultSearchValue hides the empty item', () => {
+  it('preserves initial empty-string Form.Field selection when defaultSearchValue hides the empty item', () => {
     const { value: form } = renderWithOwner(
       () =>
         createForm({
@@ -472,7 +471,7 @@ describe('Combobox', () => {
     expect(getInput(form)).toEqual({ choice: '' })
   })
 
-  test('treats empty string as unselected when items do not contain an empty string value', () => {
+  it('treats empty string as unselected when items do not contain an empty string value', () => {
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -493,15 +492,15 @@ describe('Combobox', () => {
     expect(new FormData(screen.container.querySelector('form')!).has('choice')).toBe(false)
   })
 
-  test('marks the editable control with data-editable', () => {
+  it('marks the editable control with data-editable', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="combobox-control"]')!
     expect(control.hasAttribute('data-editable')).toBe(true)
   })
 })
 
-test('selects, submits, clears, and resets string shorthand values', async () => {
-  const onChange = vi.fn()
+it('selects, submits, clears, and resets string shorthand values', async () => {
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <form>
       <Combobox
@@ -525,10 +524,10 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
   expect(new FormData(form).getAll('string-fruit')).toEqual(['Apple'])
 })
 
-test('updates mixed string groups and passes normalized objects to row callbacks', () => {
+it('updates mixed string groups and passes normalized objects to row callbacks', () => {
   const object = { value: 1, label: 'One', extra: true }
   const [keys, setKeys] = createSignal(['Apple', 'Banana'])
-  const seen: unknown[] = []
+  const seen: Array<unknown> = []
   const screen = render(() => (
     <Combobox<string | typeof object>
       items={[object, { type: 'group', label: 'Fruit', children: keys() }]}
@@ -548,7 +547,7 @@ test('updates mixed string groups and passes normalized objects to row callbacks
       .getByRole('option', { name: 'Banana', hidden: true })
       .getAttribute('aria-disabled'),
   ).toBe('true')
-  setKeys(['Cherry'])
+  flush(() => setKeys(['Cherry']))
   expect(within(document.body).queryByRole('option', { name: 'Apple', hidden: true })).toBeNull()
   expect(
     within(document.body)
@@ -558,11 +557,11 @@ test('updates mixed string groups and passes normalized objects to row callbacks
   expect(screen.getByRole('combobox')).toBeTruthy()
 })
 
-test('filters normalized string items and commits a keyboard selection', () => {
-  const filterMethod = vi.fn((query: string, item: { value: string; label: string }) =>
-    item.label.toLowerCase().includes(query.toLowerCase()),
+it('filters normalized string items and commits a keyboard selection', () => {
+  const filterMethod = vi.fn<(query: string, item: { value: string; label: string }) => any>(
+    (query, item) => item.label.toLowerCase().includes(query.toLowerCase()),
   )
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <Combobox
       items={['Apple', 'Banana']}
@@ -580,7 +579,7 @@ test('filters normalized string items and commits a keyboard selection', () => {
   expect(onChange).toHaveBeenLastCalledWith('Banana')
 })
 
-test('filters items with Intl.Collator from the provider locale', () => {
+it('filters items with Intl.Collator from the provider locale', () => {
   const screen = render(() => (
     <MoraineProvider locale="en-US">
       <Combobox items={['Apple', 'Banana']} defaultOpen />
@@ -591,7 +590,7 @@ test('filters items with Intl.Collator from the provider locale', () => {
   expect(within(document.body).queryByRole('option', { name: 'Banana', hidden: true })).toBeNull()
 })
 
-test('keeps Home and End on the query caret while the list is open', () => {
+it('keeps Home and End on the query caret while the list is open', () => {
   const screen = render(() => <Combobox items={ITEMS} defaultOpen />)
   const input = screen.getByRole<HTMLInputElement>('combobox')
   fireEvent.input(input, { target: { value: 'a' } })
@@ -607,7 +606,7 @@ test('keeps Home and End on the query caret while the list is open', () => {
   expect(highlighted()).toBe(current)
 })
 
-test('lets Enter submit when the open list has nothing to commit', () => {
+it('lets Enter submit when the open list has nothing to commit', () => {
   const screen = render(() => (
     <form>
       <Combobox items={ITEMS} defaultOpen />
@@ -617,15 +616,16 @@ test('lets Enter submit when the open list has nothing to commit', () => {
   fireEvent.input(input, { target: { value: 'zzzz' } })
   const enter = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter' })
   input.dispatchEvent(enter)
+  flush()
   expect(enter.defaultPrevented).toBe(false)
   expect(input.getAttribute('aria-expanded')).toBe('false')
 })
 
-test('commits Android composition input immediately', () => {
+it('commits Android composition input immediately', () => {
   const userAgent = vi
     .spyOn(navigator, 'userAgent', 'get')
     .mockReturnValue('Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36')
-  const onSearchValueChange = vi.fn()
+  const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
   try {
     const screen = render(() => (
       <Combobox items={ITEMS} onSearchValueChange={onSearchValueChange} />
@@ -639,10 +639,10 @@ test('commits Android composition input immediately', () => {
   }
 })
 
-test('ignores Enter immediately after compositionend', () => {
+it('ignores Enter immediately after compositionend', () => {
   vi.useFakeTimers()
   try {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Combobox items={ITEMS} defaultOpen onValueChange={onChange} />)
     const input = screen.getByRole('combobox')
     fireEvent.compositionStart(input)
@@ -656,8 +656,8 @@ test('ignores Enter immediately after compositionend', () => {
   }
 })
 
-test('combobox clearable provides non-tabbable button without focus ring and keyboard clear', () => {
-  const onClear = vi.fn()
+it('combobox clearable provides non-tabbable button without focus ring and keyboard clear', () => {
+  const onClear = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <Combobox items={['Apple', 'Banana']} defaultValue="Apple" clearable onClear={onClear} />
   ))
@@ -674,20 +674,22 @@ test('combobox clearable provides non-tabbable button without focus ring and key
   expect(onClear).toHaveBeenCalledOnce()
 })
 
-test('scrolls a distant initial selection into view once the virtualizer mounts', async () => {
-  const items: ComboboxT.Item<string>[] = Array.from({ length: 1000 }, (_, index) => ({
+it('scrolls a distant initial selection into view once the virtualizer mounts', async () => {
+  const items: Array<ComboboxT.Item<string>> = Array.from({ length: 1000 }, (_, index) => ({
     label: `Item ${index}`,
     value: `item-${index}`,
   }))
   // jsdom has no layout; TanStack clamps scroll offsets to `scrollHeight - clientHeight`.
-  const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(32000)
+  const scrollHeight = vi
+    .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+    .mockReturnValue(32_000)
   const clientHeight = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(160)
   onTestFinished(() => {
     scrollHeight.mockRestore()
     clientHeight.mockRestore()
   })
   // jsdom has no `Element.scrollTo`, so the scroll the virtualizer requests is recorded here.
-  const scrollTo = vi.fn()
+  const scrollTo = vi.fn<(...args: Array<any>) => void>()
   Object.defineProperty(Element.prototype, 'scrollTo', { configurable: true, value: scrollTo })
   onTestFinished(() => {
     Reflect.deleteProperty(Element.prototype, 'scrollTo')
@@ -703,13 +705,13 @@ test('scrolls a distant initial selection into view once the virtualizer mounts'
   await Promise.resolve()
 
   // Row 999 ends at 32,000 px; aligning its end to a 160 px viewport gives 31,840.
-  expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 31840 }))
+  expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 31_840 }))
 })
 
-test('custom emptyRender shows the selected value and its close action dismisses the popup', () => {
+it('custom emptyRender shows the selected value and its close action dismisses the popup', () => {
   const screen = render(() => (
     <Combobox
-      items={[] as string[]}
+      items={[] as Array<string>}
       defaultValue="Banana"
       defaultOpen
       emptyRender={(props) => (

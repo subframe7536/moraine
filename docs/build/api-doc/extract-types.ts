@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential type resolution keeps shared recursion state and caches correct.
 import { existsSync, readFileSync, statSync } from 'node:fs'
 
 import path from 'pathe'
@@ -7,7 +8,6 @@ import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScrip
 import type { ParsedSource } from './ast.ts'
 import type { RecipeVariantApi } from './recipe.ts'
 import type { DefaultValue, GenericParameterApi, ItemApi, PropApi } from './types.ts'
-
 export interface ParsedModule {
   filePath: string
   source: ParsedSource
@@ -48,7 +48,7 @@ function isFiniteStyleAlias(node: ESTree.TSType): boolean {
 export class TypeExtractor {
   readonly #modules = new Map<string, ParsedModule>()
   readonly #indexedAccessStack = new Set<string>()
-  #recipeVariants: RecipeVariantApi[] = []
+  #recipeVariants: Array<RecipeVariantApi> = []
   #expandingCollection = false
   #genericBindings = new Map<string, TypeBinding>()
   readonly projectRoot: string
@@ -178,8 +178,9 @@ export class TypeExtractor {
     }
 
     // 3. Module-level declarations
-    if (fromModule.declarations.has(name)) {
-      return { module: fromModule, node: fromModule.declarations.get(name)! }
+    const declaration = fromModule.declarations.get(name)
+    if (declaration) {
+      return { module: fromModule, node: declaration }
     }
 
     // 4. Imports
@@ -205,8 +206,9 @@ export class TypeExtractor {
     fromModule: ParsedModule,
     name: string,
   ): Promise<{ module: ParsedModule; node: ESTree.TSModuleDeclaration } | null> {
-    if (fromModule.namespaces.has(name)) {
-      return { module: fromModule, node: fromModule.namespaces.get(name)! }
+    const namespace = fromModule.namespaces.get(name)
+    if (namespace) {
+      return { module: fromModule, node: namespace }
     }
 
     const imp = fromModule.imports.get(name)
@@ -227,36 +229,36 @@ export class TypeExtractor {
     return this.resolveNamespace(targetModule, imp.importedName)
   }
 
-  #resolveSpecifier(importerPath: string, specifier: string): string | null {
-    const tryCandidates = (basePath: string): string | null => {
-      const candidates = [
-        basePath,
-        `${basePath}.ts`,
-        `${basePath}.types.ts`,
-        path.join(basePath, 'index.ts'),
-      ]
-      for (const candidate of candidates) {
-        if (candidate.endsWith('.ts') && existsSync(candidate)) {
-          try {
-            if (statSync(candidate).isFile()) {
-              return candidate
-            }
-          } catch {
-            // ignore
+  static #tryCandidates(basePath: string): string | null {
+    const candidates = [
+      basePath,
+      `${basePath}.ts`,
+      `${basePath}.types.ts`,
+      path.join(basePath, 'index.ts'),
+    ]
+    for (const candidate of candidates) {
+      if (candidate.endsWith('.ts') && existsSync(candidate)) {
+        try {
+          if (statSync(candidate).isFile()) {
+            return candidate
           }
+        } catch {
+          // ignore
         }
       }
-      return null
     }
+    return null
+  }
 
+  #resolveSpecifier(importerPath: string, specifier: string): string | null {
     if (specifier.startsWith('.')) {
       const dir = path.dirname(importerPath)
       const direct = path.resolve(dir, specifier)
-      return tryCandidates(direct)
+      return TypeExtractor.#tryCandidates(direct)
     } else if (specifier.startsWith('@src/')) {
       const rel = specifier.slice('@src/'.length)
       const direct = path.resolve(this.projectRoot, 'src', rel)
-      return tryCandidates(direct)
+      return TypeExtractor.#tryCandidates(direct)
     }
     return null
   }
@@ -327,11 +329,11 @@ export class TypeExtractor {
     namespaceName: string,
     propsTypeName: string,
     isRoot: boolean,
-    recipeVariants: RecipeVariantApi[] = [],
+    recipeVariants: Array<RecipeVariantApi> = [],
   ): Promise<{
-    generics: GenericParameterApi[]
+    generics: Array<GenericParameterApi>
     defaultElement?: string
-    props: PropApi[]
+    props: Array<PropApi>
     description?: string
   }> {
     this.#recipeVariants = recipeVariants
@@ -400,7 +402,7 @@ export class TypeExtractor {
     }
 
     let defaultElement: string | undefined
-    let props: PropApi[]
+    let props: Array<PropApi>
 
     if (
       targetDecl.type === 'TSTypeAliasDeclaration' &&
@@ -475,12 +477,12 @@ export class TypeExtractor {
     module: ParsedModule,
     nsNode: ESTree.TSModuleDeclaration | undefined,
     typeRef: ESTree.TSTypeReference,
-    existingGenerics: GenericParameterApi[],
+    existingGenerics: Array<GenericParameterApi>,
     substitutions?: Map<string, string>,
   ): Promise<{
-    props: PropApi[]
+    props: Array<PropApi>
     defaultElement?: string
-    generics?: GenericParameterApi[]
+    generics?: Array<GenericParameterApi>
   }> {
     const args = typeRef.typeArguments?.params ?? []
     const tElementNode = args[0]
@@ -504,7 +506,7 @@ export class TypeExtractor {
       const matched = existingGenerics.find((g) => g.name === typeParamName)
       if (matched) {
         if (!defaultElement && matched.default) {
-          defaultElement = matched.default.replace(/['"]/g, '')
+          defaultElement = matched.default.replaceAll(/['"]/g, '')
         }
       }
     }
@@ -515,7 +517,7 @@ export class TypeExtractor {
       )
     }
 
-    const props: PropApi[] = []
+    const props: Array<PropApi> = []
 
     // 1. Resolve Base props
     if (baseNode) {
@@ -646,7 +648,7 @@ export class TypeExtractor {
     return false
   }
 
-  static #mergeProperties(target: PropApi[], incoming: readonly PropApi[]): void {
+  static #mergeProperties(target: Array<PropApi>, incoming: ReadonlyArray<PropApi>): void {
     for (const property of incoming) {
       const index = target.findIndex((candidate) => candidate.name === property.name)
       if (index >= 0) {
@@ -664,7 +666,7 @@ export class TypeExtractor {
     keysNode: ESTree.TSType,
     nsNode?: ESTree.TSModuleDeclaration,
     substitutions?: Map<string, string>,
-  ): Promise<PropApi[]> {
+  ): Promise<Array<PropApi>> {
     const keys = TypeExtractor.#extractStringLiteralUnion(keysNode)
     const properties = await this.#resolvePropertiesFromTypeNode(
       module,
@@ -680,7 +682,7 @@ export class TypeExtractor {
     nsNode: ESTree.TSModuleDeclaration | undefined,
     declaration: ESTree.Declaration,
     declarationModule: ParsedModule,
-    typeArguments: readonly ESTree.TSType[],
+    typeArguments: ReadonlyArray<ESTree.TSType>,
     substitutions?: Map<string, string>,
     applyDefaults = true,
   ): Promise<Map<string, string> | undefined> {
@@ -708,8 +710,9 @@ export class TypeExtractor {
             ? parameter.name
             : (getIdentifierName(parameter.name) ?? '')
       let formattedArgument = TypeExtractor.#formatTypeText(argumentModule.source, argument)
-      if (substitutions?.has(formattedArgument)) {
-        formattedArgument = substitutions.get(formattedArgument)!
+      const substituted = substitutions?.get(formattedArgument)
+      if (substituted !== undefined) {
+        formattedArgument = substituted
       } else {
         const alias = await this.resolveSymbol(argumentModule, formattedArgument, nsNode)
         if (alias?.node.type === 'TSTypeAliasDeclaration') {
@@ -729,8 +732,8 @@ export class TypeExtractor {
     decl: ESTree.Declaration,
     nsNode?: ESTree.TSModuleDeclaration,
     substitutions?: Map<string, string>,
-  ): Promise<PropApi[]> {
-    const props: PropApi[] = []
+  ): Promise<Array<PropApi>> {
+    const props: Array<PropApi> = []
 
     if (decl.type === 'TSInterfaceDeclaration') {
       if (decl.extends) {
@@ -746,26 +749,27 @@ export class TypeExtractor {
             heritageWithArguments.typeArguments?.params ??
             []
           if (name) {
-            if (name === 'Omit' && typeArgs.length === 2) {
+            const [firstArg, secondArg] = typeArgs
+            if (name === 'Omit' && typeArgs.length === 2 && firstArg && secondArg) {
               TypeExtractor.#mergeProperties(
                 props,
                 await this.#resolveMappedProperties(
                   'Omit',
                   module,
-                  typeArgs[0]!,
-                  typeArgs[1]!,
+                  firstArg,
+                  secondArg,
                   nsNode,
                   substitutions,
                 ),
               )
-            } else if (name === 'Pick' && typeArgs.length === 2) {
+            } else if (name === 'Pick' && typeArgs.length === 2 && firstArg && secondArg) {
               TypeExtractor.#mergeProperties(
                 props,
                 await this.#resolveMappedProperties(
                   'Pick',
                   module,
-                  typeArgs[0]!,
-                  typeArgs[1]!,
+                  firstArg,
+                  secondArg,
                   nsNode,
                   substitutions,
                 ),
@@ -833,12 +837,12 @@ export class TypeExtractor {
     node: ESTree.TSType,
     nsNode?: ESTree.TSModuleDeclaration,
     substitutions?: Map<string, string>,
-  ): Promise<PropApi[]> {
+  ): Promise<Array<PropApi>> {
     if (node.type === 'TSTypeLiteral') {
       return this.#extractPropertiesFromTypeLiteral(module, node, nsNode, substitutions)
     }
     if (node.type === 'TSIntersectionType') {
-      const res: PropApi[] = []
+      const res: Array<PropApi> = []
       for (const t of node.types) {
         res.push(...(await this.#resolvePropertiesFromTypeNode(module, t, nsNode, substitutions)))
       }
@@ -856,31 +860,32 @@ export class TypeExtractor {
         const basePropsRes = await this.#handleBaseProps(module, nsNode, node, [], substitutions)
         return basePropsRes.props
       }
-      if (name === 'Omit' && node.typeArguments?.params.length === 2) {
+      const typeParams = node.typeArguments?.params ?? []
+      const [firstParam, secondParam] = typeParams
+      if (name === 'Omit' && typeParams.length === 2 && firstParam && secondParam) {
         return this.#resolveMappedProperties(
           'Omit',
           module,
-          node.typeArguments.params[0]!,
-          node.typeArguments.params[1]!,
+          firstParam,
+          secondParam,
           nsNode,
           substitutions,
         )
       }
-      if (name === 'Pick' && node.typeArguments?.params.length === 2) {
+      if (name === 'Pick' && typeParams.length === 2 && firstParam && secondParam) {
         return this.#resolveMappedProperties(
           'Pick',
           module,
-          node.typeArguments.params[0]!,
-          node.typeArguments.params[1]!,
+          firstParam,
+          secondParam,
           nsNode,
           substitutions,
         )
       }
-      if ((name === 'Partial' || name === 'Required') && node.typeArguments?.params.length === 1) {
-        const targetType = node.typeArguments.params[0]!
+      if ((name === 'Partial' || name === 'Required') && typeParams.length === 1 && firstParam) {
         const targetProps = await this.#resolvePropertiesFromTypeNode(
           module,
-          targetType,
+          firstParam,
           nsNode,
           substitutions,
         )
@@ -915,10 +920,10 @@ export class TypeExtractor {
    */
   async #resolveUnionProperties(
     module: ParsedModule,
-    members: readonly ESTree.TSType[],
+    members: ReadonlyArray<ESTree.TSType>,
     nsNode?: ESTree.TSModuleDeclaration,
     substitutions?: Map<string, string>,
-  ): Promise<PropApi[]> {
+  ): Promise<Array<PropApi>> {
     const merged = new Map<string, PropApi>()
     const typeParts = new Map<string, Set<string>>()
     const memberCounts = new Map<string, number>()
@@ -945,7 +950,7 @@ export class TypeExtractor {
       }
     }
     for (const [name, prop] of merged) {
-      prop.type = [...typeParts.get(name)!].join(' | ')
+      prop.type = [...(typeParts.get(name) ?? [])].join(' | ')
       if ((memberCounts.get(name) ?? 0) < members.length) {
         prop.optional = true
       }
@@ -958,8 +963,8 @@ export class TypeExtractor {
     literal: ESTree.TSTypeLiteral,
     nsNode?: ESTree.TSModuleDeclaration,
     substitutions?: Map<string, string>,
-  ): Promise<PropApi[]> {
-    const props: PropApi[] = []
+  ): Promise<Array<PropApi>> {
+    const props: Array<PropApi> = []
     for (const member of literal.members) {
       if (member.type === 'TSPropertySignature') {
         const prop = await this.#convertPropertySignature(module, member, nsNode, substitutions)
@@ -1011,19 +1016,21 @@ export class TypeExtractor {
           const params =
             (symbol.node as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
               ?.params ?? []
-          for (let index = 0; index < params.length; index++) {
-            const parameter = params[index]!
+          for (const [index, parameter] of params.entries()) {
             const argument = node.typeArguments?.params[index]
             const fallback = parameter.default ?? parameter.constraint
-            if (argument || fallback) {
-              nextBindings.set(
-                typeof parameter.name === 'string'
-                  ? parameter.name
-                  : (getIdentifierName(parameter.name) ?? ''),
-                argument
-                  ? { module, node: argument, namespace, bindings }
-                  : { module: symbol.module, node: fallback!, namespace: symbol.nsNode },
-              )
+            const paramName =
+              typeof parameter.name === 'string'
+                ? parameter.name
+                : (getIdentifierName(parameter.name) ?? '')
+            if (argument) {
+              nextBindings.set(paramName, { module, node: argument, namespace, bindings })
+            } else if (fallback) {
+              nextBindings.set(paramName, {
+                module: symbol.module,
+                node: fallback,
+                namespace: symbol.nsNode,
+              })
             }
           }
           if (symbol.node.type === 'TSTypeAliasDeclaration') {
@@ -1069,7 +1076,7 @@ export class TypeExtractor {
     return TypeExtractor.#formatTypeText(module.source, node)
   }
 
-  static #formatObjectType(fields: PropApi[]): string {
+  static #formatObjectType(fields: Array<PropApi>): string {
     if (fields.length === 0) {
       return '{}'
     }
@@ -1106,7 +1113,7 @@ export class TypeExtractor {
 
     if (substitutions && substitutions.size > 0) {
       for (const [paramName, replacement] of substitutions) {
-        typeText = typeText.replace(new RegExp(`\\b${paramName}\\b`, 'g'), replacement)
+        typeText = typeText.replaceAll(new RegExp(`\\b${paramName}\\b`, 'g'), replacement)
       }
     }
 
@@ -1250,7 +1257,7 @@ export class TypeExtractor {
     this.#indexedAccessStack.add(rawKey)
     try {
       if (node.indexType.type === 'TSUnionType') {
-        const results: string[] = []
+        const results: Array<string> = []
         for (const t of node.indexType.types) {
           const sub = await this.#resolveIndexedAccessType(
             module,
@@ -1325,14 +1332,14 @@ export class TypeExtractor {
   static #formatTypeText(source: ParsedSource, node: ESTree.TSType): string {
     const raw = nodeText(source, node).trim()
     const normalized = raw
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .replace(/\s+/g, ' ')
-      .replace(/\s*\|\s*/g, ' | ')
-      .replace(/\s*&\s*/g, ' & ')
-      .replace(/\s*:\s*/g, ': ')
-      .replace(/\s*,\s*/g, ', ')
-      .replace(/{\s+/g, '{ ')
-      .replace(/\s+}/g, ' }')
+      .replaceAll(/\/\*[\s\S]*?\*\//g, '')
+      .replaceAll(/\s+/g, ' ')
+      .replaceAll(/\s*\|\s*/g, ' | ')
+      .replaceAll(/\s*&\s*/g, ' & ')
+      .replaceAll(/\s*:\s*/g, ': ')
+      .replaceAll(/\s*,\s*/g, ', ')
+      .replaceAll(/{\s+/g, '{ ')
+      .replaceAll(/\s+}/g, ' }')
       .replaceAll('cls_variant0.', '')
       .replaceAll('_$', '')
 
@@ -1361,7 +1368,7 @@ export class TypeExtractor {
 
   static #extractGenericParameters(
     decl?: ESTree.TSTypeParameterDeclaration,
-  ): GenericParameterApi[] {
+  ): Array<GenericParameterApi> {
     if (!decl || !decl.params) {
       return []
     }

@@ -2,7 +2,6 @@ import { defineRecipe } from '../../theme/recipe'
 import { TONE_CLASS } from '../../theme/recipe-common.recipe'
 
 import type { BadgeStyleSlot, BadgeRecipeVariant } from './badge.style-types'
-
 export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRecipeVariant>(
   'badge',
   {

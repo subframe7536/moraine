@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -8,7 +8,6 @@ import type { ValidComponent } from '../../shared/types'
 import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
-
 /**
  * Main region of `Sheet.Content`, placed between the header and footer. Scrolls when its content
  * overflows. Renders a `div` by default; pass `as` to change the element.
@@ -28,15 +27,16 @@ import type { SheetT } from './sheet.types'
 export function SheetBody<T extends ValidComponent = 'div'>(
   props: SheetT.BodyProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
+  const rest = omit(props, 'as', 'class', 'style')
   const sheet = useSheetContext()
   const content = useSheetContent()
   const {
     slots: { body: bodySlot },
-  } = useRecipe(sheetRecipe, local, {
+  } = useRecipe(sheetRecipe, props, {
     slot: 'body',
     data: { body: sheetDataAttributes.body({ header: content.hasHeader }) },
     context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
-  return <Dynamic component={local.as ?? 'div'} data-slot="sheet-body" {...bodySlot} {...rest} />
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
+  return <Root data-slot="sheet-body" {...bodySlot} {...(rest as Record<string, unknown>)} />
 }

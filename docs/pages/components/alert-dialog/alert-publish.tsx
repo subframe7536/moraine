@@ -1,6 +1,5 @@
 import { AlertDialog, Badge, Button } from '@src'
 import { createSignal, onCleanup, Show } from 'solid-js'
-
 export function AlertPublish() {
   const [stage, setStage] = createSignal<'running' | 'passed' | 'published'>('running')
   const [publishedAt, setPublishedAt] = createSignal<string>()
@@ -21,7 +20,9 @@ export function AlertPublish() {
   }
 
   const publishRelease = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 800)
+    })
     setStage('published')
     setPublishedAt(new Date().toLocaleTimeString())
   }

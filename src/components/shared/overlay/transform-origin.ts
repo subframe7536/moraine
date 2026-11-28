@@ -1,5 +1,4 @@
 import type { Placement } from '@floating-ui/dom'
-
 type FloatingSide = 'top' | 'right' | 'bottom' | 'left'
 
 export interface TransformOriginOptions {

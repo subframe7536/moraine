@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 
@@ -7,7 +7,6 @@ import { ButtonGroupProvider } from './button-group-context'
 import { ButtonGroupSeparator } from './button-group-separator'
 import { buttonGroupRecipe } from './button-group.recipe'
 import type { ButtonGroupProps } from './button-group.types'
-
 /**
  * Joins related buttons into one visual control set and provides shared `size`, `variant`,
  * `tone`, and `orientation` defaults that each child `Button` can override. Each child stays its
@@ -27,7 +26,8 @@ import type { ButtonGroupProps } from './button-group.types'
  * ```
  */
 export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'orientation',
     'role',
     'size',
@@ -37,17 +37,17 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
+  )
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(buttonGroupRecipe, local)
+  } = useRecipe(buttonGroupRecipe, props)
 
   return (
     <ButtonGroupProvider
       value={{
         get size() {
-          return local.size ?? undefined
+          return props.size ?? undefined
         },
         get variant() {
           return variants.variant
@@ -59,11 +59,11 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
           return variants.orientation
         },
         get slotOverrides() {
-          return { classes: local.classes, styles: local.styles }
+          return { classes: props.classes, styles: props.styles }
         },
       }}
     >
-      <div role={local.role ?? 'group'} data-slot="button-group" {...rootSlot} {...rest} />
+      <div role={props.role ?? 'group'} data-slot="button-group" {...rootSlot} {...rest} />
     </ButtonGroupProvider>
   )
 }

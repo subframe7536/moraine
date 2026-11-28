@@ -1,5 +1,4 @@
-import { createSignal, onMount } from 'solid-js'
-
+import { createSignal, onSettled } from 'solid-js'
 export type ThemeMode = 'light' | 'dark'
 
 function getSystemTheme(): ThemeMode {
@@ -25,7 +24,7 @@ export function useTheme() {
   // Keep the server and hydration tree deterministic; the pre-module script owns first paint.
   const [theme, setTheme] = createSignal<ThemeMode>('light')
 
-  onMount(() => {
+  onSettled(() => {
     const preferredTheme = getSystemTheme()
     setTheme(preferredTheme)
     applyTheme(preferredTheme)

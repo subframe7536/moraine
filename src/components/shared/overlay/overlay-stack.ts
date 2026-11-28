@@ -1,7 +1,7 @@
+import { untrack } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { containsComposed } from './dom'
-
 /**
  * Lightweight registry of currently present interactive overlays. The stack
  * preserves push order so that nested overlays (e.g. a popover opened from
@@ -17,7 +17,7 @@ export interface OverlayStackEntry {
   ownerDocument?: Document
 }
 
-const overlayStacks = new WeakMap<Document, OverlayStackEntry[]>()
+const overlayStacks = new WeakMap<Document, Array<OverlayStackEntry>>()
 
 function getOverlayDocument(entry: OverlayStackEntry): Document | undefined {
   return (
@@ -27,7 +27,7 @@ function getOverlayDocument(entry: OverlayStackEntry): Document | undefined {
   )
 }
 
-function getOverlayStack(entry: OverlayStackEntry): OverlayStackEntry[] {
+function getOverlayStack(entry: OverlayStackEntry): Array<OverlayStackEntry> {
   const ownerDocument = getOverlayDocument(entry)
   if (!ownerDocument) {
     return []
@@ -56,14 +56,16 @@ export function pushOverlayLayer(entry: OverlayStackEntry): () => void {
 
 export function isTopOverlay(entry: OverlayStackEntry): boolean {
   const overlayStack = getOverlayStack(entry)
-  return overlayStack[overlayStack.length - 1] === entry
+  return overlayStack.at(-1) === entry
 }
 
 /** Returns whether a target belongs to this layer, its trigger, or a nested layer above it. */
 export function isInsideOverlayLayer(entry: OverlayStackEntry, target: Node): boolean {
+  const contentElement = entry.contentElement()
+  const triggerElement = entry.triggerElement()
   if (
-    (entry.contentElement() && containsComposed(entry.contentElement()!, target)) ||
-    (entry.triggerElement() && containsComposed(entry.triggerElement()!, target))
+    (contentElement && containsComposed(contentElement, target)) ||
+    (triggerElement && containsComposed(triggerElement, target))
   ) {
     return true
   }
@@ -105,7 +107,7 @@ export function containsOverlayContentAbove(target: Node, branch: Element): bool
   const ownerDocument = target.ownerDocument
   const overlayStack = ownerDocument ? (overlayStacks.get(ownerDocument) ?? []) : []
   const ownerIndex = overlayStack.findIndex((entry) => {
-    const content = entry.contentElement()
+    const content = untrack(entry.contentElement)
     return Boolean(content && containsComposed(content, target))
   })
 
@@ -114,7 +116,7 @@ export function containsOverlayContentAbove(target: Node, branch: Element): bool
   }
 
   for (let index = ownerIndex + 1; index < overlayStack.length; index++) {
-    const content = overlayStack[index]?.contentElement()
+    const content = untrack(() => overlayStack[index]?.contentElement())
     if (content && containsComposed(branch, content)) {
       return true
     }

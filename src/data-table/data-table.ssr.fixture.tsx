@@ -1,15 +1,14 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { createDataTable } from './create-data-table'
 import type { DataTableT } from './data-table.types'
-
 interface RowItem {
   id: string
   title: string
   count: number
 }
 
-const FIXTURE_COLUMNS: DataTableT.Column<RowItem>[] = [
+const FIXTURE_COLUMNS: Array<DataTableT.Column<RowItem>> = [
   {
     accessorKey: 'title',
     header: 'Title',
@@ -22,9 +21,9 @@ const FIXTURE_COLUMNS: DataTableT.Column<RowItem>[] = [
   },
 ]
 
-const BASE_ROWS: RowItem[] = [{ id: '1', title: 'First Item', count: 10 }]
+const BASE_ROWS: Array<RowItem> = [{ id: '1', title: 'First Item', count: 10 }]
 
-const EXTRA_ROWS: RowItem[] = [
+const EXTRA_ROWS: Array<RowItem> = [
   { id: '1', title: 'First Item', count: 10 },
   { id: '2', title: 'Second Item', count: 20 },
 ]

@@ -19,7 +19,6 @@ import {
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
 } from './tokens'
-
 const animations = getMoraineAnimations()
 
 /** All animations as Tailwind shorthand strings. */

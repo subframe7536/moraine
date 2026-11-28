@@ -20,7 +20,6 @@ import type { defaultSidebarMessages } from '../../components/sidebar/sidebar.me
 import type { defaultSliderMessages } from '../../components/slider/slider.messages'
 import type { defaultToastMessages } from '../../components/toast/toast.messages'
 import type { defaultDataTableMessages } from '../../data-table/data-table.messages'
-
 export type ComponentMessages<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R ? (...args: A) => R : string
 }

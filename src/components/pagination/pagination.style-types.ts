@@ -1,7 +1,6 @@
 import type { ComponentSize } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { ButtonStyleVariants } from '../button/button.style-types'
-
 export interface PaginationStyleSlot<T = unknown> {
   /**
    * Navigation container for page controls.

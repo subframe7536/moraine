@@ -1,6 +1,5 @@
 import { Button, NavigationMenu } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Controlled() {
   const [value, setValue] = createSignal<string | null>(null)
   const [disabled, setDisabled] = createSignal(false)

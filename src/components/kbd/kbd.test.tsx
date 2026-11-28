@@ -1,6 +1,6 @@
 import { render, screen } from '@solidjs/testing-library'
-import { createSignal, onCleanup } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { createSignal, flush, onCleanup } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
@@ -8,9 +8,8 @@ import { KbdGroup } from '../kbd-group/kbd-group'
 import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 
 import { Kbd } from './kbd'
-
-describe('Kbd', () => {
-  test('renders a keycap in the root slot', () => {
+describe('kbd', () => {
+  it('renders a keycap in the root slot', () => {
     const view = render(() => <Kbd value="K" />)
     const root = view.container.querySelector('[data-slot="kbd"]')
 
@@ -18,7 +17,7 @@ describe('Kbd', () => {
     expect(root?.textContent).toBe('K')
   })
 
-  test.each([
+  it.each([
     ['meta', '⌘', 'Meta'],
     ['COMMAND', '⌘', 'Command'],
     ['ctrl', 'Ctrl', 'Control'],
@@ -47,7 +46,7 @@ describe('Kbd', () => {
     expect(screen.getByLabelText(label).textContent).toBe(text)
   })
 
-  test('preserves unknown values without an invented accessible label', () => {
+  it('preserves unknown values without an invented accessible label', () => {
     const view = render(() => <Kbd value="F13" />)
     const root = view.container.querySelector('[data-slot="kbd"]')
 
@@ -55,13 +54,13 @@ describe('Kbd', () => {
     expect(root?.hasAttribute('aria-label')).toBe(false)
   })
 
-  test('lets aria-label win over the alias label', () => {
+  it('lets aria-label win over the alias label', () => {
     render(() => <Kbd value="meta" aria-label="Super key" />)
 
     expect(screen.getByLabelText('Super key').textContent).toBe('⌘')
   })
 
-  test('renders the raw key when symbol aliases are disabled', () => {
+  it('renders the raw key when symbol aliases are disabled', () => {
     const view = render(() => <Kbd value="meta" symbol={false} />)
     const root = view.container.querySelector('[data-slot="kbd"]')
 
@@ -69,13 +68,13 @@ describe('Kbd', () => {
     expect(root?.getAttribute('aria-label')).toBeNull()
   })
 
-  test('does not render an empty value', () => {
+  it('does not render an empty value', () => {
     const view = render(() => <Kbd value="" />)
 
     expect(view.container.querySelector('[data-slot="kbd"]')).toBeNull()
   })
 
-  test('supports a custom slot, class, and style overrides', () => {
+  it('supports a custom slot, class, and style overrides', () => {
     const view = render(() => (
       <Kbd value="K" data-slot="shortcut" class="shortcut-class" style={{ width: '200px' }} />
     ))
@@ -85,7 +84,7 @@ describe('Kbd', () => {
     expect(root?.style.width).toBe('200px')
   })
 
-  test('applies root slot overrides without leaking style props to the DOM', () => {
+  it('applies root slot overrides without leaking style props to the DOM', () => {
     const view = render(() => (
       <Kbd
         value="K"
@@ -106,7 +105,7 @@ describe('Kbd', () => {
     expect(root.hasAttribute('styles')).toBe(false)
   })
 
-  test('replaces Design root styling without remounting the keycap', () => {
+  it('replaces Design root styling without remounting the keycap', () => {
     const [design, setDesign] = createSignal(
       defineTheme({ kbd: { base: { root: 'theme-kbd-a' } } }),
     )
@@ -119,7 +118,7 @@ describe('Kbd', () => {
 
     expect(root.className).toContain('theme-kbd-a')
 
-    setDesign(defineTheme({ kbd: { base: { root: 'theme-kbd-b' } } }))
+    flush(() => setDesign(defineTheme({ kbd: { base: { root: 'theme-kbd-b' } } })))
 
     expect(view.container.querySelector('[data-slot="kbd"]')).toBe(root)
     expect(root.className).toContain('theme-kbd-b')
@@ -127,8 +126,8 @@ describe('Kbd', () => {
   })
 })
 
-describe('KbdGroup', () => {
-  test('renders default inline separators without separator semantics', () => {
+describe('kbdGroup', () => {
+  it('renders default inline separators without separator semantics', () => {
     const view = render(() => <KbdGroup items={['Ctrl', 'Shift', 'P']} />)
     const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
     const root = view.container.querySelector('[data-slot="kbd-group"]')
@@ -141,19 +140,19 @@ describe('KbdGroup', () => {
     expect(view.container.querySelector('[data-slot="separator"]')).toBeNull()
   })
 
-  test('renders item objects with relabeled aliases', () => {
+  it('renders item objects with relabeled aliases', () => {
     render(() => <KbdGroup items={[{ value: 'meta', ariaLabel: 'Command' }, 'K']} />)
 
     expect(screen.getByLabelText('Command').textContent).toBe('⌘')
   })
 
-  test('names non-alias item keys through their ariaLabel', () => {
+  it('names non-alias item keys through their ariaLabel', () => {
     render(() => <KbdGroup items={[{ value: 'fn', ariaLabel: 'Function key' }, 'K']} />)
 
     expect(screen.getByLabelText('Function key').textContent).toBe('fn')
   })
 
-  test('renders nothing for empty items and no separator for a single item', () => {
+  it('renders nothing for empty items and no separator for a single item', () => {
     const empty = render(() => <KbdGroup items={[]} />)
     const single = render(() => <KbdGroup items={['K']} separator="/" />)
 
@@ -162,7 +161,7 @@ describe('KbdGroup', () => {
     expect(single.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('K')
   })
 
-  test('supports string shorthand and independent custom separators', () => {
+  it('supports string shorthand and independent custom separators', () => {
     const stringSeparator = render(() => <KbdGroup items={['Ctrl', 'K']} separator="/" />)
     const jsxSeparator = render(() => (
       <KbdGroup
@@ -187,7 +186,7 @@ describe('KbdGroup', () => {
     )
   })
 
-  test('keeps separator nodes across reorders and cleans up removed separators', () => {
+  it('keeps separator nodes across reorders and cleans up removed separators', () => {
     const [items, setItems] = createSignal(['Ctrl', 'Shift', 'P'])
     const [text, setText] = createSignal('+')
     let cleanups = 0
@@ -197,37 +196,39 @@ describe('KbdGroup', () => {
       })
       return <span data-index={props.index}>{text()}</span>
     }
-    const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>(SeparatorRender)
+    const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>(
+      () => SeparatorRender,
+    )
     const view = render(() => <KbdGroup items={items()} separator={separator()} />)
     const separators = [...view.container.querySelectorAll('span')]
     expect(separators).toHaveLength(2)
     expect(separators[0]).not.toBe(separators[1])
-    setText('/')
+    flush(() => setText('/'))
     expect([...view.container.querySelectorAll('span')]).toEqual(separators)
     expect(separators.map((node) => node.textContent)).toEqual(['/', '/'])
-    setItems(['Shift', 'Ctrl', 'P'])
+    flush(() => setItems(['Shift', 'Ctrl', 'P']))
     expect([...view.container.querySelectorAll('span')]).toEqual([separators[1], separators[0]])
     expect(separators.map((node) => node.dataset.index)).toEqual(['1', '0'])
     expect(cleanups).toBe(0)
-    setItems(['Shift', 'Ctrl'])
+    flush(() => setItems(['Shift', 'Ctrl']))
     expect(view.container.querySelectorAll('span')).toHaveLength(1)
     expect(cleanups).toBe(1)
-    setSeparator('/')
+    flush(() => setSeparator('/'))
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧/Ctrl')
     expect(view.container.querySelectorAll('span')).toHaveLength(0)
     expect(cleanups).toBe(2)
-    setSeparator(() => SeparatorRender)
+    flush(() => setSeparator(() => SeparatorRender))
     expect(view.container.querySelectorAll('span')).toHaveLength(1)
-    setSeparator('0')
+    flush(() => setSeparator('0'))
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧0Ctrl')
     expect(cleanups).toBe(3)
-    setSeparator(undefined)
+    flush(() => setSeparator(undefined))
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧+Ctrl')
     view.unmount()
     expect(cleanups).toBe(3)
   })
 
-  test('applies root and item slot customizations', () => {
+  it('applies root and item slot customizations', () => {
     const view = render(() => (
       <KbdGroup
         items={['Ctrl', 'K']}
@@ -246,16 +247,16 @@ describe('KbdGroup', () => {
     expect(item?.style.height).toBe('20px')
   })
 
-  test('reacts to item changes', () => {
+  it('reacts to item changes', () => {
     const [items, setItems] = createSignal(['Ctrl', 'K'])
     const view = render(() => <KbdGroup items={items()} />)
 
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('Ctrl+K')
-    setItems(['Shift', 'P'])
+    flush(() => setItems(['Shift', 'P']))
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧+P')
   })
 
-  test('renders duplicate key items without key collision', () => {
+  it('renders duplicate key items without key collision', () => {
     const view = render(() => <KbdGroup items={['Shift', 'Shift']} />)
     const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
 

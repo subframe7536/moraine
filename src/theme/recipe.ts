@@ -2,7 +2,6 @@ import type { ClassValue } from 'cn'
 
 import { getThemeRecipeLayers } from './create-theme'
 import type { MoraineTheme } from './types'
-
 export type RecipeSlot<S extends object> = Extract<keyof S, string>
 
 type ComponentVariantKey<T> = T extends boolean
@@ -20,7 +19,7 @@ export type RecipeVariantsConfig<S extends object, V> = [V] extends [never]
   ? never
   : { [K in keyof V]?: { [Value in ComponentVariantKey<V[K]>]?: RecipeContribution<S> } }
 
-export type RecipeVariantMatch<V> = { [K in keyof V]?: V[K] | readonly NonNullable<V[K]>[] }
+export type RecipeVariantMatch<V> = { [K in keyof V]?: V[K] | ReadonlyArray<NonNullable<V[K]>> }
 
 export type RecipeCompoundVariant<S extends object, V> = [V] extends [never]
   ? never
@@ -38,7 +37,7 @@ export type RecipeDefaultVariants<V> = [V] extends [never]
 export interface RecipeConfig<S extends object, V> {
   readonly base: RecipeBase<S>
   readonly variants?: RecipeVariantsConfig<S, V>
-  readonly compoundVariants?: readonly RecipeCompoundVariant<S, V>[]
+  readonly compoundVariants?: ReadonlyArray<RecipeCompoundVariant<S, V>>
   readonly defaultVariants?: RecipeDefaultVariants<V>
 }
 
@@ -46,21 +45,21 @@ export interface RecipeConfig<S extends object, V> {
 export interface RecipeLayerConfig<S extends object, V> {
   readonly base?: RecipeContribution<S>
   readonly variants?: RecipeVariantsConfig<S, V>
-  readonly compoundVariants?: readonly RecipeCompoundVariant<S, V>[]
+  readonly compoundVariants?: ReadonlyArray<RecipeCompoundVariant<S, V>>
   readonly defaultVariants?: RecipeDefaultVariants<V>
 }
 
 declare const RECIPE_TYPES: unique symbol
 
 /** Readonly component recipe definition. Construction is internal to Moraine. */
-export interface RecipeDefinition<S extends object = any, V = any> {
+export interface RecipeDefinition<S extends object = object, V = unknown> {
   readonly key: string
   readonly config: RecipeConfig<S, V>
   readonly [RECIPE_TYPES]?: { slots: S; variants: V }
 }
 
 export type RecipeSlots<T> = T extends RecipeDefinition<infer S> ? S : never
-export type RecipeVariants<T> = T extends RecipeDefinition<any, infer V> ? V : never
+export type RecipeVariants<T> = T extends RecipeDefinition<object, infer V> ? V : never
 
 /** Internal builder for statically declared component recipes. Does no work at module load. */
 export function defineRecipe<S extends object, V = never>(
@@ -72,7 +71,7 @@ export function defineRecipe<S extends object, V = never>(
 
 /** A contribution guarded by variant matches; `when` is absent for base contributions. */
 export interface RecipeEntry<T> {
-  readonly when?: Readonly<Record<string, readonly string[]>>
+  readonly when?: Readonly<Record<string, ReadonlyArray<string>>>
   readonly value: T
 }
 
@@ -83,26 +82,26 @@ export type RecipeVars = Partial<Record<`--${string}`, string | number>>
  * Readers match entries lazily, so each slot memo tracks only the variants its entries test.
  */
 export interface CompiledRecipe {
-  readonly slots: readonly string[]
+  readonly slots: ReadonlyArray<string>
   readonly defaults: Readonly<Record<string, unknown>>
-  readonly keys: readonly string[]
-  readonly bySlot: Readonly<Record<string, readonly RecipeEntry<ClassValue>[]>>
-  readonly vars: readonly RecipeEntry<RecipeVars>[]
+  readonly keys: ReadonlyArray<string>
+  readonly bySlot: Readonly<Record<string, ReadonlyArray<RecipeEntry<ClassValue>>>>
+  readonly vars: ReadonlyArray<RecipeEntry<RecipeVars>>
 }
 
 const isVar = (key: string) => key.startsWith('--')
 
-function compile(layers: readonly RecipeLayerConfig<any, any>[]): CompiledRecipe {
-  const slots = Object.keys(layers[0]!.base!).filter((key) => !isVar(key))
+function compile(layers: ReadonlyArray<RecipeLayerConfig<object, unknown>>): CompiledRecipe {
+  const slots = Object.keys(layers[0]?.base ?? {}).filter((key) => !isVar(key))
   const defaults: Record<string, unknown> = {}
   const keys = new Set<string>()
-  const bySlot: Record<string, RecipeEntry<ClassValue>[]> = {}
+  const bySlot: Record<string, Array<RecipeEntry<ClassValue>>> = {}
   for (const slot of slots) {
     bySlot[slot] = []
   }
-  const vars: RecipeEntry<RecipeVars>[] = []
+  const vars: Array<RecipeEntry<RecipeVars>> = []
 
-  const add = (contribution: object | undefined, when?: Record<string, readonly string[]>) => {
+  const add = (contribution: object | undefined, when?: Record<string, ReadonlyArray<string>>) => {
     let style: RecipeVars | undefined
     for (const [key, value] of Object.entries(contribution ?? {})) {
       if (key === 'variants' || value === undefined) {
@@ -136,9 +135,9 @@ function compile(layers: readonly RecipeLayerConfig<any, any>[]): CompiledRecipe
       }
     }
     for (const compound of layer.compoundVariants ?? []) {
-      const when: Record<string, string[]> = {}
+      const when: Record<string, Array<string>> = {}
       let valid = false
-      for (const [name, expected] of Object.entries(compound.variants as object)) {
+      for (const [name, expected] of Object.entries(compound.variants)) {
         keys.add(name)
         valid = expected !== undefined && expected !== null
         if (!valid) {
@@ -164,7 +163,7 @@ export function compileRecipe(
   theme?: MoraineTheme | null,
 ): CompiledRecipe {
   const overrides = theme ? getThemeRecipeLayers(theme, recipe.key) : []
-  const scope = overrides.length > 0 ? theme! : NO_THEME
+  const scope = theme && overrides.length > 0 ? theme : NO_THEME
   let cache = compiled.get(scope)
   if (!cache) {
     cache = new WeakMap()
@@ -180,10 +179,10 @@ export function compileRecipe(
 
 /** Returns the values of entries whose `when` matches the variant reader, in declaration order. */
 export function matchEntries<T>(
-  entries: readonly RecipeEntry<T>[],
+  entries: ReadonlyArray<RecipeEntry<T>>,
   read: (key: string) => unknown,
-): T[] {
-  const matched: T[] = []
+): Array<T> {
+  const matched: Array<T> = []
   for (const entry of entries) {
     if (matches(entry.when, read)) {
       matched.push(entry.value)
@@ -193,14 +192,16 @@ export function matchEntries<T>(
 }
 
 function matches(
-  when: Readonly<Record<string, readonly string[]>> | undefined,
+  when: Readonly<Record<string, ReadonlyArray<string>>> | undefined,
   read: (key: string) => unknown,
 ): boolean {
   for (const name in when) {
+    const expected = when[name]
     const value = read(name)
     if (
+      !expected ||
       (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') ||
-      !when[name]!.includes(String(value))
+      !expected.includes(String(value))
     ) {
       return false
     }

@@ -1,7 +1,6 @@
 import { Button, DropdownMenu } from '@src'
 import type { DropdownMenuT } from '@src'
 import { createMemo, createSignal, For, Show } from 'solid-js'
-
 const PROJECTS = [
   { name: 'Design system', owner: 'Alex', updated: 3, archived: false },
   { name: 'Customer portal', owner: 'Sam', updated: 2, archived: false },
@@ -19,7 +18,7 @@ export function WorkspaceView() {
       byName ? a.name.localeCompare(b.name) : b.updated - a.updated,
     )
   })
-  const items = createMemo<DropdownMenuT.Item[]>(() => [
+  const items = createMemo<Array<DropdownMenuT.Item>>(() => [
     {
       type: 'group',
       label: 'Visible fields',

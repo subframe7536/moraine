@@ -1,6 +1,5 @@
 import { Badge, Button, Dialog } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function StateDismissal() {
   const [open, setOpen] = createSignal(false)
   const [allowDismiss, setAllowDismiss] = createSignal(false)

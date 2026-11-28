@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 
@@ -13,7 +13,6 @@ import { TableHeader } from './table-header'
 import { TableRow } from './table-row'
 import { tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
-
 /**
  * Styled native table for data you lay out yourself, such as invoices or comparison grids with a
  * known set of columns. Compose `Table.Caption`, `Table.Header`, `Table.Body`, `Table.Footer`,
@@ -45,7 +44,8 @@ import type { TableT } from './table.types'
  * ```
  */
 export function Table(props: TableT.Props): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'size',
     'striped',
     'highlightOnHover',
@@ -57,17 +57,17 @@ export function Table(props: TableT.Props): JSX.Element {
     'style',
     'ref',
     'children',
-  ])
+  )
   const {
     slots: { container: containerSlot, root: rootSlot },
     variants,
-  } = useRecipe(tableRecipe, local)
+  } = useRecipe(tableRecipe, props)
 
   return (
-    <TableProvider value={{ variants, slotOverrides: pickSlotOverrides(local) }}>
-      <div ref={local.containerRef} data-slot="table-container" {...containerSlot}>
-        <table data-slot="table" {...rootSlot} {...rest} ref={local.ref}>
-          {local.children}
+    <TableProvider value={{ variants, slotOverrides: pickSlotOverrides(props) }}>
+      <div ref={props.containerRef} data-slot="table-container" {...containerSlot}>
+        <table data-slot="table" {...rootSlot} {...rest} ref={props.ref}>
+          {props.children}
         </table>
       </div>
     </TableProvider>

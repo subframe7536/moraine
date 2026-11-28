@@ -2,8 +2,7 @@ import { Select } from '@src'
 import type { SelectT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
-const ITEMS: SelectT.Entry[] = [
+const ITEMS: Array<SelectT.Entry> = [
   {
     type: 'group',
     label: 'Client frameworks',

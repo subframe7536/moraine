@@ -1,10 +1,9 @@
 import { Button, Stepper } from '@src'
 import type { StepperT } from '@src'
 import { For, createSignal } from 'solid-js'
-
 type Navigation = NonNullable<StepperT.Base['navigation']>
 
-const NAVIGATION_MODES: Navigation[] = ['none', 'linear', 'free']
+const NAVIGATION_MODES: Array<Navigation> = ['none', 'linear', 'free']
 
 export function NavigationModes() {
   const [navigation, setNavigation] = createSignal<Navigation>('linear')
@@ -30,7 +29,7 @@ export function NavigationModes() {
       value: 'payment',
       content: <p class="text-sm text-foreground">Review billing details and submit payment.</p>,
     },
-  ] satisfies StepperT.Item[]
+  ] satisfies Array<StepperT.Item>
 
   return (
     <div class="space-y-4">

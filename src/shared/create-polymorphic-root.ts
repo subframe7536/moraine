@@ -1,12 +1,10 @@
+import { DelegatedEvents, delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createSignal, mergeProps, splitProps, untrack } from 'solid-js'
-import { DelegatedEvents, delegateEvents } from 'solid-js/web'
+import { createEffect, createMemo, createSignal, merge, omit, untrack } from 'solid-js'
 
-import { bindElement, publishElement } from './element-binding'
 import { attachEventListener } from './event-listener'
 import type { ValidComponent } from './types'
-import { callHandler, callRef } from './utils'
-
+import { callHandler, publishElement } from './utils'
 const DELEGATED_EVENTS = [
   'click',
   'keydown',
@@ -20,7 +18,52 @@ const DELEGATED_EVENTS = [
   'pointercancel',
 ].filter((name) => DelegatedEvents.has(name))
 
-/** Tracks a Dynamic root and bridges events from custom and foreign-document roots. */
+interface ClickBridge {
+  seq: number
+  handler: (event: MouseEvent) => void
+}
+
+// One document-level dispatcher per owner document invokes click bridges in
+// descending creation order: nested trigger components are created after their
+// ancestors, so the innermost trigger's handler runs first and can preventDefault
+// before an outer trigger toggles, regardless of reactive apply order.
+const clickBridgeRegistries = new WeakMap<
+  Document,
+  { bridges: Array<ClickBridge>; release: VoidFunction }
+>()
+let clickBridgeSeq = 0
+
+function attachClickBridge(document: Document, seq: number, handler: (event: MouseEvent) => void) {
+  let registry = clickBridgeRegistries.get(document)
+  if (!registry) {
+    const bridges: Array<ClickBridge> = []
+    registry = {
+      bridges,
+      release: attachEventListener(document, 'click', (event) => {
+        const ordered = [...bridges].sort((a, b) => b.seq - a.seq)
+        for (const bridge of ordered) {
+          bridge.handler(event)
+        }
+      }),
+    }
+    clickBridgeRegistries.set(document, registry)
+  }
+  const bridge: ClickBridge = { seq, handler }
+  registry.bridges.push(bridge)
+  const active = registry
+  return () => {
+    const index = active.bridges.indexOf(bridge)
+    if (index !== -1) {
+      active.bridges.splice(index, 1)
+    }
+    if (active.bridges.length === 0) {
+      active.release()
+      clickBridgeRegistries.delete(document)
+    }
+  }
+}
+
+/** Tracks a polymorphic dynamic root and bridges events from custom and foreign-document roots. */
 export function createPolymorphicRoot(options: {
   tag: Accessor<ValidComponent>
   /** Run custom trigger clicks after the target's own handler, allowing it to cancel activation. */
@@ -33,19 +76,46 @@ export function createPolymorphicRoot(options: {
   }
 }) {
   const [element, setElement] = createSignal<HTMLElement>()
+  const seq = ++clickBridgeSeq
   let boundProps: Record<string, unknown> | undefined
 
   if (options.registration) {
-    bindElement(
-      element,
-      publishElement(options.registration.element, options.registration.setElement),
-    )
+    const publish = publishElement(options.registration.element, options.registration.setElement)
+    createEffect(element, (node) => {
+      if (!node) {
+        return
+      }
+      return publish(node)
+    })
   }
 
-  bindElement(element, (root) => {
-    const bridgeCustomClick = options.bridgeClick && typeof options.tag() !== 'string'
+  const bridgeCustomClick = createMemo(() =>
+    Boolean(options.bridgeClick && typeof options.tag() !== 'string'),
+  )
+  const clickBinding = createMemo(
+    () => {
+      const root = element()
+      if (!root) {
+        return undefined
+      }
+      return {
+        root,
+        bridgeCustomClick: bridgeCustomClick(),
+      }
+    },
+    {
+      equals: (prev, next) =>
+        prev?.root === next?.root && prev?.bridgeCustomClick === next?.bridgeCustomClick,
+    },
+  )
+
+  createEffect(clickBinding, (binding) => {
+    if (!binding) {
+      return
+    }
+    const { root, bridgeCustomClick } = binding
     let bridgeDocument: Document | undefined
-    let releaseDocument: VoidFunction = () => {}
+    let releaseDocument: VoidFunction | undefined
     const bridgeClick = (event: MouseEvent) => {
       // A custom root can unmount its element without telling this root; ignore it once detached.
       if (element() !== root || !root.isConnected || !event.composedPath().includes(root)) {
@@ -67,13 +137,14 @@ export function createPolymorphicRoot(options: {
       if (bridgeDocument === root.ownerDocument) {
         return
       }
-      releaseDocument()
+      releaseDocument?.()
       bridgeDocument = root.ownerDocument
       // Let Solid dispatch the target's handlers before trigger behavior, including in iframes.
-      delegateEvents(DELEGATED_EVENTS, bridgeDocument)
+      delegateEvents(DELEGATED_EVENTS)
+      registerDelegatedContainer(bridgeDocument)
       releaseDocument = bridgeCustomClick
-        ? attachEventListener(bridgeDocument, 'click', bridgeClick)
-        : () => {}
+        ? attachClickBridge(bridgeDocument, seq, bridgeClick)
+        : undefined
     }
     registerDocument()
     // A root may be adopted after mounting. Register on its new document before bubbling.
@@ -82,7 +153,7 @@ export function createPolymorphicRoot(options: {
     )
     return () => {
       releases.forEach((dispose) => dispose())
-      releaseDocument()
+      releaseDocument?.()
     }
   })
 
@@ -90,8 +161,8 @@ export function createPolymorphicRoot(options: {
     props: T,
   ): Omit<T, 'ref'> & { ref: (element: HTMLElement) => void } {
     boundProps = props as Record<string, unknown>
-    const [, attributes] = splitProps(props, ['onClick' as keyof T])
-    const binding = mergeProps(attributes, {
+    const attributes = omit(props, 'onClick' as keyof T)
+    const binding = merge(attributes, {
       get onClick() {
         return options.bridgeClick && typeof options.tag() !== 'string'
           ? undefined
@@ -99,10 +170,18 @@ export function createPolymorphicRoot(options: {
       },
       ref(next: HTMLElement) {
         setElement(next)
-        callRef(
-          untrack(() => options.ref?.()),
-          next,
-        )
+        untrack(() => {
+          const ref = options.ref?.()
+          if (Array.isArray(ref)) {
+            for (const entry of ref.flat(Infinity)) {
+              if (typeof entry === 'function') {
+                entry(next)
+              }
+            }
+          } else if (typeof ref === 'function') {
+            ref(next)
+          }
+        })
       },
     }) as Omit<T, 'ref'> & { ref: (element: HTMLElement) => void }
     return binding

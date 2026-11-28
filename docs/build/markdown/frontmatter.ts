@@ -1,7 +1,6 @@
 import YAML from 'yaml'
 
 import type { FrontmatterData } from './types.ts'
-
 /**
  * Component sources live under `src/components`, or in a top-level directory for a component that
  * ships from its own package entry, such as `src/data-table` (`moraine/data-table`).
@@ -26,7 +25,7 @@ export function parseFrontmatterData(raw: string | null | undefined, id: string)
   try {
     parsed = YAML.parse(raw)
   } catch (error) {
-    throw new Error(`[docs-mdx] invalid frontmatter in ${id}: ${String(error)}`)
+    throw new Error(`[docs-mdx] invalid frontmatter in ${id}: ${String(error)}`, { cause: error })
   }
 
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -54,7 +53,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
   }
 
   const data = value as FrontmatterRecord
-  const checkKeys = (record: FrontmatterRecord, allowed: readonly string[], prefix = '') => {
+  const checkKeys = (record: FrontmatterRecord, allowed: ReadonlyArray<string>, prefix = '') => {
     for (const key of Object.keys(record)) {
       if (!allowed.includes(key)) {
         fail(`${prefix}${key}`, 'is not a supported field')

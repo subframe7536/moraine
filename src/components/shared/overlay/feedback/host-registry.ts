@@ -1,6 +1,5 @@
+import { isServer } from '@solidjs/web'
 import { DEV } from 'solid-js'
-import { isServer } from 'solid-js/web'
-
 export interface FeedbackHost {
   id: () => string | undefined
 }
@@ -9,11 +8,11 @@ export interface HostRegistry<T extends FeedbackHost> {
   register: (host: T) => () => void
   active: (hostId?: string) => T | undefined
   require: (hostId?: string) => T
-  entries: () => readonly T[]
+  entries: () => ReadonlyArray<T>
 }
 
 export function createHostRegistry<T extends FeedbackHost>(componentName: string): HostRegistry<T> {
-  const hosts: T[] = []
+  const hosts: Array<T> = []
 
   const missingMessage = (hostId?: string): string => {
     if (hostId === undefined) {

@@ -5,7 +5,6 @@ import type { AnatomyConfig } from '../../../shared/anatomy'
 
 import { CodeBlock } from './code'
 import { ComponentDocContext } from './component-doc.context'
-
 export function Anatomy(props: { value: AnatomyConfig }) {
   const component = useContext(ComponentDocContext)
   if (!component) {

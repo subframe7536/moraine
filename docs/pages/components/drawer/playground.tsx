@@ -2,7 +2,6 @@ import { Button, Drawer, Icon } from '@src'
 import { For, createSignal } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const GOAL_BARS = [400, 300, 200, 300, 200, 278, 189, 239, 300, 200, 278, 189, 349]
 
 export default function DrawerPlayground() {

@@ -1,12 +1,11 @@
 import { createTree } from '@src'
-
 interface FileNode {
   id: string
   name: string
-  children?: FileNode[]
+  children?: Array<FileNode>
 }
 
-const FILES: FileNode[] = [
+const FILES: Array<FileNode> = [
   {
     id: 'src',
     name: 'src',

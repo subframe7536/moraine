@@ -1,7 +1,6 @@
 import type { ComponentSize } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { KbdStyleVariants } from '../kbd/kbd.style-types'
-
 export interface KbdGroupStyleSlot<T = unknown> {
   /** KbdGroup root element. */
   root?: T

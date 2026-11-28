@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 import morainePlugin from './oxlint-plugin-moraine.ts'
-
 function createMockContext(filename: string) {
   const reports: Array<{ node: any; messageId?: string; message?: string; data?: any }> = []
   return {
@@ -306,11 +305,11 @@ describe('oxlint-plugin-moraine', () => {
       expect(ctx.reports.every((report) => report.messageId === 'lifecycleInRef')).toBe(true)
     })
 
-    it('allows assignments and callRef in refs, and lifecycle calls outside refs', () => {
+    it('allows assignments and forwardRef in refs, and lifecycle calls outside refs', () => {
       const ctx = createMockContext('/project/src/components/tree/tree-item.tsx')
       const visitor = rule.create(ctx)
 
-      visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'callRef' }, jsxRef))
+      visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'forwardRef' }, jsxRef))
       visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'setElement' }, jsxRef))
       visitor.CallExpression(
         callInFunction({ type: 'Identifier', name: 'onCleanup' }, (fn) => jsxRef(fn, 'onClick')),
@@ -350,7 +349,7 @@ describe('oxlint-plugin-moraine', () => {
       expect(ctx.reports).toHaveLength(2)
     })
 
-    it('allows createEffect wrapped with on(...)', () => {
+    it('reports the Solid 1 single-argument createEffect(on(...)) form', () => {
       const ctx = createMockContext('/project/src/components/accordion/accordion.tsx')
       const visitor = rule.create(ctx)
 
@@ -364,7 +363,7 @@ describe('oxlint-plugin-moraine', () => {
           },
         ],
       })
-      expect(ctx.reports).toHaveLength(0)
+      expect(ctx.reports).toHaveLength(1)
     })
 
     it('ignores test files', () => {

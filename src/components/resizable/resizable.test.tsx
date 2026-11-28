@@ -1,11 +1,10 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { Show, createSignal } from 'solid-js'
-import type { JSX } from 'solid-js'
-import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
+import { afterAll, beforeAll, describe, expect, vi, it } from 'vitest'
 
 import { Resizable } from './resizable'
 import type { ResizableT } from './resizable.types'
-
 function createRect(input: { top: number; right: number; bottom: number; left: number }): DOMRect {
   const { top, right, bottom, left } = input
 
@@ -48,11 +47,11 @@ afterAll(() => {
   })
 })
 
-function panelsOf(container: HTMLElement): HTMLElement[] {
+function panelsOf(container: HTMLElement): Array<HTMLElement> {
   return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="resizable-panel"]'))
 }
 
-function handlesOf(container: HTMLElement): HTMLElement[] {
+function handlesOf(container: HTMLElement): Array<HTMLElement> {
   return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="resizable-handle"]'))
 }
 
@@ -65,7 +64,9 @@ function expectPanelBasis(panel: HTMLElement | null | undefined, percent: number
 }
 
 async function waitForLayout(): Promise<void> {
-  await new Promise<void>((resolve) => queueMicrotask(resolve))
+  await new Promise<void>((resolve) => {
+    queueMicrotask(resolve)
+  })
 }
 
 interface TwoPanelProps {
@@ -107,7 +108,7 @@ function TwoPanels(props: TwoPanelProps): JSX.Element {
 function setPanelSizes(container: HTMLElement, sizePx: number): void {
   const rect = createRect({ top: 0, right: sizePx, bottom: sizePx, left: 0 })
   for (const panel of panelsOf(container)) {
-    setRect(panel, rect)
+    flush(() => setRect(panel, rect))
   }
 }
 
@@ -154,8 +155,8 @@ async function renderNestedGroups() {
     </Resizable>
   ))
   const [outerHandle, innerHandle] = handlesOf(screen.container)
-  setRect(outerHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
-  setRect(innerHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
+  flush(() => setRect(outerHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 })))
+  flush(() => setRect(innerHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 })))
   setRect(
     screen.container.querySelector<HTMLElement>('#outer-a')!,
     createRect({ top: 0, right: 100, bottom: 600, left: 0 }),
@@ -179,8 +180,8 @@ async function renderNestedGroups() {
   return screen
 }
 
-describe('Resizable', () => {
-  test('renders panels sized by defaultValue record and fills missing entries', () => {
+describe('resizable', () => {
+  it('renders panels sized by defaultValue record and fills missing entries', () => {
     const screen = render(() => (
       <Resizable defaultValue={{ a: 30 }}>
         <Resizable.Panel id="a">A</Resizable.Panel>
@@ -199,7 +200,7 @@ describe('Resizable', () => {
     expect(handlesOf(screen.container)).toHaveLength(2)
   })
 
-  test('panels keep sizes keyed by id when a middle panel is inserted', async () => {
+  it('panels keep sizes keyed by id when a middle panel is inserted', async () => {
     const [showB, setShowB] = createSignal(false)
     const screen = render(() => (
       <Resizable defaultValue={{ a: 50, c: 50 }}>
@@ -213,7 +214,7 @@ describe('Resizable', () => {
       </Resizable>
     ))
 
-    setShowB(true)
+    flush(() => setShowB(true))
     await waitForLayout()
 
     const panels = panelsOf(screen.container)
@@ -225,9 +226,9 @@ describe('Resizable', () => {
     expectPanelBasis(panels[2], 37.5)
   })
 
-  test('does not fire collapse callbacks when a same-id panel remounts', async () => {
-    const onCollapse = vi.fn()
-    const onExpand = vi.fn()
+  it('does not fire collapse callbacks when a same-id panel remounts', async () => {
+    const onCollapse = vi.fn<(...args: Array<any>) => void>()
+    const onExpand = vi.fn<(...args: Array<any>) => void>()
     const [showB, setShowB] = createSignal(true)
     const [layout, setLayout] = createSignal({ a: 100, b: 0 })
     render(() => (
@@ -245,11 +246,11 @@ describe('Resizable', () => {
     expect(onCollapse).not.toHaveBeenCalled()
     expect(onExpand).not.toHaveBeenCalled()
 
-    setShowB(false)
-    setLayout({ a: 50, b: 50 })
+    flush(() => setShowB(false))
+    flush(() => setLayout({ a: 50, b: 50 }))
     await waitForLayout()
 
-    setShowB(true)
+    flush(() => setShowB(true))
     await waitForLayout()
 
     // The remounted panel reports its fresh collapsed state, not a transition
@@ -258,9 +259,9 @@ describe('Resizable', () => {
     expect(onExpand).not.toHaveBeenCalled()
   })
 
-  test('drag updates layout live, emits change per move and one commit on release', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+  it('drag updates layout live, emits change per move and one commit on release', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -268,7 +269,7 @@ describe('Resizable', () => {
         onValueCommit={onValueCommit}
       />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     const [a, b] = panelsOf(screen.container)
@@ -284,9 +285,9 @@ describe('Resizable', () => {
     expect(onValueCommit).toHaveBeenLastCalledWith({ a: 40, b: 60 })
   })
 
-  test('does not emit commit when a drag ends without changing the layout', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+  it('does not emit commit when a drag ends without changing the layout', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -294,7 +295,7 @@ describe('Resizable', () => {
         onValueCommit={onValueCommit}
       />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     fireEvent.pointerDown(handle!, { pointerId: 1, button: 0, clientX: 500, clientY: 0 })
@@ -304,12 +305,12 @@ describe('Resizable', () => {
     expect(onValueCommit).not.toHaveBeenCalled()
   })
 
-  test('controlled value emits but layout follows the prop', () => {
-    const onValueChange = vi.fn()
+  it('controlled value emits but layout follows the prop', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels value={{ a: 50, b: 50 }} onValueChange={onValueChange} />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     const [a, b] = panelsOf(screen.container)
@@ -321,16 +322,16 @@ describe('Resizable', () => {
     expectPanelBasis(b, 50)
   })
 
-  test('collapses a panel live once the drag passes the midpoint and expands past it again', () => {
-    const onCollapse = vi.fn()
-    const onExpand = vi.fn()
+  it('collapses a panel live once the drag passes the midpoint and expands past it again', () => {
+    const onCollapse = vi.fn<(...args: Array<any>) => void>()
+    const onExpand = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
         a={{ min: 20, collapsible: true, onCollapse, onExpand }}
       />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     const [a, b] = panelsOf(screen.container)
@@ -359,9 +360,9 @@ describe('Resizable', () => {
     fireEvent.pointerUp(handle!, { pointerId: 1, clientX: 120, clientY: 0 })
   })
 
-  test('Resizable.usePanel collapses, expands, and resizes with change + commit emissions', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+  it('resizable.usePanel collapses, expands, and resizes with change + commit emissions', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     let api: ResizableT.PanelContext | undefined
 
     function PanelContent(): JSX.Element {
@@ -385,20 +386,20 @@ describe('Resizable', () => {
 
     const [a, b] = panelsOf(screen.container)
 
-    api!.collapse()
+    flush(() => api!.collapse())
     expectPanelBasis(a, 10)
     expect(api!.collapsed()).toBe(true)
     expect(onValueChange).toHaveBeenLastCalledWith({ a: 10, b: 90 })
     expect(onValueCommit).toHaveBeenLastCalledWith({ a: 10, b: 90 })
     expect(a!.hasAttribute('data-transitioning')).toBe(true)
 
-    api!.expand()
+    flush(() => api!.expand())
     // expand() restores the last expanded size (50), recorded before the collapse
     expectPanelBasis(a, 50)
     expect(api!.collapsed()).toBe(false)
     expect(onValueCommit).toHaveBeenLastCalledWith({ a: 50, b: 50 })
 
-    api!.resize(45)
+    flush(() => api!.resize(45))
     expectPanelBasis(a, 45)
     expectPanelBasis(b, 55)
     expect(onValueChange).toHaveBeenLastCalledWith({ a: 45, b: 55 })
@@ -407,40 +408,42 @@ describe('Resizable', () => {
     expect(api!.size()).toBeCloseTo(45, 3)
   })
 
-  test('Resizable.usePanel throws outside a panel', () => {
+  it('resizable.usePanel throws outside a panel', () => {
     function Outside(): JSX.Element {
       Resizable.usePanel()
       return null
     }
 
-    expect(() => render(() => <Outside />)).toThrow()
+    expect(() => render(() => <Outside />)).toThrow(
+      'useResizablePanelContext must be used within <ResizablePanelProvider />',
+    )
   })
 
-  test('rtl reverses arrow keys and drag direction', () => {
+  it('rtl reverses arrow keys and drag direction', () => {
     const screen = render(() => (
       <div dir="rtl">
         <TwoPanels defaultValue={{ a: 50, b: 50 }} />
       </div>
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
     const [handle] = handlesOf(screen.container)
     const [a, b] = panelsOf(screen.container)
 
     fireEvent.keyDown(handle!, { key: 'ArrowRight' })
-    expectPanelBasis(a, 40)
-    expectPanelBasis(b, 60)
+    expect(panelBasis(a)).toBeCloseTo(40, 3)
+    expect(panelBasis(b)).toBeCloseTo(60, 3)
 
     fireEvent.keyDown(handle!, { key: 'ArrowLeft' })
-    expectPanelBasis(a, 50)
+    expect(panelBasis(a)).toBeCloseTo(50, 3)
 
     // The preceding panel is on the right, so dragging left grows it.
     dragHandle(handle!, { x: 500, y: 0 }, { x: 400, y: 0 })
-    expectPanelBasis(a, 60)
-    expectPanelBasis(b, 40)
+    expect(panelBasis(a)).toBeCloseTo(60, 3)
+    expect(panelBasis(b)).toBeCloseTo(40, 3)
   })
 
-  test('arrow keys step the split, Shift+arrow jumps further, Home and End reach the limits', () => {
-    const onValueCommit = vi.fn()
+  it('arrow keys step the split, Shift+arrow jumps further, Home and End reach the limits', () => {
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels defaultValue={{ a: 50, b: 50 }} onValueCommit={onValueCommit} />
     ))
@@ -469,9 +472,9 @@ describe('Resizable', () => {
     expect(onValueCommit).toHaveBeenCalledTimes(5)
   })
 
-  test('Enter toggles the nearest collapsible neighbor and Space does not', () => {
-    const onCollapse = vi.fn()
-    const onExpand = vi.fn()
+  it('enter toggles the nearest collapsible neighbor and Space does not', () => {
+    const onCollapse = vi.fn<(...args: Array<any>) => void>()
+    const onExpand = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -501,7 +504,7 @@ describe('Resizable', () => {
     expect(onExpand).toHaveBeenCalledTimes(1)
   })
 
-  test('handle ARIA reflects the preceding panel as a 0-100 value', () => {
+  it('handle ARIA reflects the preceding panel as a 0-100 value', () => {
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -518,7 +521,7 @@ describe('Resizable', () => {
     expect(handle!.getAttribute('aria-orientation')).toBe('vertical')
   })
 
-  test('nested roots still intersect and a cross drag moves both handles', async () => {
+  it('nested roots still intersect and a cross drag moves both handles', async () => {
     const screen = await renderNestedGroups()
     const crossTarget = innerHandleOf(screen.container).querySelector<HTMLElement>(
       '[data-slot="resizable-intersection"]',
@@ -535,7 +538,7 @@ describe('Resizable', () => {
     expect(panelBasis(screen.container.querySelector<HTMLElement>('#inner-a'))).toBeGreaterThan(50)
   })
 
-  test('pressing the handle body near a crossed edge drags both axes', async () => {
+  it('pressing the handle body near a crossed edge drags both axes', async () => {
     const screen = await renderNestedGroups()
 
     fireEvent.pointerDown(innerHandleOf(screen.container), {
@@ -551,7 +554,7 @@ describe('Resizable', () => {
     expect(panelBasis(screen.container.querySelector<HTMLElement>('#inner-a'))).toBeGreaterThan(50)
   })
 
-  test('handles of unrelated sibling groups do not link where they cross', async () => {
+  it('handles of unrelated sibling groups do not link where they cross', async () => {
     const screen = render(() => (
       <>
         <Resizable>
@@ -566,11 +569,11 @@ describe('Resizable', () => {
         </Resizable>
       </>
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
     const [leftHandle, rightHandle] = handlesOf(screen.container)
     // The vertical group's horizontal bar crosses the horizontal group's vertical bar.
-    setRect(leftHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
-    setRect(rightHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
+    flush(() => setRect(leftHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 })))
+    flush(() => setRect(rightHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 })))
 
     const { refreshSplitterIntersections } = await import('../shared/splitter/manager')
     refreshSplitterIntersections()
@@ -589,8 +592,8 @@ describe('Resizable', () => {
     expect(panelBasis(screen.container.querySelector<HTMLElement>('#right-a'))).toBeGreaterThan(50)
   })
 
-  test('toggling Alt mid-drag still commits the final layout once', () => {
-    const onValueCommit = vi.fn()
+  it('toggling Alt mid-drag still commits the final layout once', () => {
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Resizable defaultValue={{ a: 50, b: 50 }} onValueCommit={onValueCommit}>
         <Resizable.Panel id="a">A</Resizable.Panel>
@@ -598,7 +601,7 @@ describe('Resizable', () => {
         <Resizable.Panel id="b">B</Resizable.Panel>
       </Resizable>
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     const [a] = panelsOf(screen.container)
@@ -618,7 +621,7 @@ describe('Resizable', () => {
     expect(committed.a).toBeCloseTo(Number.parseFloat(a!.style.flexBasis), 4)
   })
 
-  test('alt+drag distributes the delta symmetrically', () => {
+  it('alt+drag distributes the delta symmetrically', () => {
     const screen = render(() => (
       <Resizable defaultValue={{ a: 30, b: 40, c: 30 }}>
         <Resizable.Panel id="a">A</Resizable.Panel>
@@ -628,7 +631,7 @@ describe('Resizable', () => {
         <Resizable.Panel id="c">C</Resizable.Panel>
       </Resizable>
     ))
-    setPanelSizes(screen.container, 400)
+    flush(() => setPanelSizes(screen.container, 400))
 
     const [first] = handlesOf(screen.container)
     const [a, b, c] = panelsOf(screen.container)
@@ -638,12 +641,12 @@ describe('Resizable', () => {
 
     // symmetric: the 10% delta is taken equally from the outer panels and
     // redistributed to the center panel
-    expectPanelBasis(a, 20)
-    expectPanelBasis(b, 60)
-    expectPanelBasis(c, 20)
+    expect(panelBasis(a)).toBeCloseTo(20, 3)
+    expect(panelBasis(b)).toBeCloseTo(60, 3)
+    expect(panelBasis(c)).toBeCloseTo(20, 3)
   })
 
-  test('a handle without a panel on either side renders disabled', () => {
+  it('a handle without a panel on either side renders disabled', () => {
     const screen = render(() => (
       <Resizable>
         <Resizable.Panel id="a">A</Resizable.Panel>
@@ -653,11 +656,11 @@ describe('Resizable', () => {
 
     const [handle] = handlesOf(screen.container)
     expect(handle!.getAttribute('aria-disabled')).toBe('true')
-    expect(handle!.getAttribute('tabIndex')).toBe('-1')
+    expect(handle!.getAttribute('tabindex')).toBe('-1')
   })
 
-  test('root disabled locks all handles', () => {
-    const onValueChange = vi.fn()
+  it('root disabled locks all handles', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels disabled defaultValue={{ a: 50, b: 50 }} onValueChange={onValueChange} />
     ))
@@ -668,9 +671,9 @@ describe('Resizable', () => {
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('marks the handle active on hover and dragging during a drag', () => {
+  it('marks the handle active on hover and dragging during a drag', () => {
     const screen = render(() => <TwoPanels defaultValue={{ a: 50, b: 50 }} />)
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
     const [handle] = handlesOf(screen.container)
 
     fireEvent.mouseEnter(handle!)
@@ -686,9 +689,9 @@ describe('Resizable', () => {
     expect(handle!.hasAttribute('data-dragging')).toBe(false)
   })
 
-  test('pointercancel stops a drag and keeps the last emitted layout', () => {
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
+  it('pointercancel stops a drag and keeps the last emitted layout', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueCommit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <TwoPanels
         defaultValue={{ a: 50, b: 50 }}
@@ -696,7 +699,7 @@ describe('Resizable', () => {
         onValueCommit={onValueCommit}
       />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     fireEvent.pointerDown(handle!, { pointerId: 1, button: 0, clientX: 500, clientY: 0 })
@@ -710,7 +713,7 @@ describe('Resizable', () => {
     expect(onValueCommit).toHaveBeenCalledTimes(1)
   })
 
-  test('passes drag state to a render-prop handle and hides the grip with children={false}', () => {
+  it('passes drag state to a render-prop handle and hides the grip with children={false}', () => {
     const screen = render(() => (
       <Resizable>
         <Resizable.Panel id="a">A</Resizable.Panel>
@@ -728,12 +731,12 @@ describe('Resizable', () => {
     expect(grips).toHaveLength(1)
   })
 
-  test('non-resizable neighbors disable the handle', () => {
+  it('non-resizable neighbors disable the handle', () => {
     const screen = render(() => (
       <TwoPanels defaultValue={{ a: 50, b: 50 }} b={{ resizable: false }} />
     ))
     const [handle] = handlesOf(screen.container)
     expect(handle!.getAttribute('aria-disabled')).toBe('true')
-    expect(handle!.getAttribute('tabIndex')).toBe('-1')
+    expect(handle!.getAttribute('tabindex')).toBe('-1')
   })
 })

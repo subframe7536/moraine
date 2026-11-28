@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useTablePart } from './table-part'
 import { tableDataAttributes } from './table.recipe'
 import type { TableT } from './table.types'
-
 /**
  * Row of the surrounding `Table`; renders a `tr`. Place it inside `Table.Header`, `Table.Body`,
  * or `Table.Footer`, holding `Table.Head` or `Table.Cell` children. `selected` only changes the
@@ -26,9 +25,9 @@ import type { TableT } from './table.types'
  * ```
  */
 export function TableRow(props: TableT.RowProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['selected', 'class', 'style'])
-  const { row: rowSlot } = useTablePart('row', local, {
-    data: tableDataAttributes.row({ selected: () => local.selected }),
+  const rest = omit(props, 'selected', 'class', 'style')
+  const { row: rowSlot } = useTablePart('row', props, {
+    data: tableDataAttributes.row({ selected: () => props.selected }),
   })
 
   // Selection is presentation only: `aria-selected` is not valid on rows of a static table.

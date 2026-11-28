@@ -1,12 +1,11 @@
 // @vitest-environment node
 
 import { mdxToJs } from 'satteri'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { createDocsCodePlugin, createDocsCodeTabsPlugin } from './plugins.ts'
-
 describe('createDocsCodeTabsPlugin with group-id', () => {
-  test('transforms consecutive code blocks with group-id into CodeTabs', async () => {
+  it('transforms consecutive code blocks with group-id into CodeTabs', async () => {
     const markdown = `
 \`\`\`shell title="bun" group-id="install"
 bun add moraine
@@ -32,7 +31,7 @@ npm i moraine
     expect(res.code).toContain('npm i moraine')
   })
 
-  test('keeps ungrouped code blocks as CodeBlock while grouping group-id blocks', async () => {
+  it('keeps ungrouped code blocks as CodeBlock while grouping group-id blocks', async () => {
     const markdown = `
 \`\`\`shell title="bun" group-id="install"
 bun add moraine
@@ -58,7 +57,7 @@ console.log('standalone')
     expect(res.code).toContain('standalone')
   })
 
-  test('separates consecutive code blocks with different group-id values into distinct CodeTabs', async () => {
+  it('separates consecutive code blocks with different group-id values into distinct CodeTabs', async () => {
     const markdown = `
 \`\`\`shell title="bun" group-id="install"
 bun add moraine
@@ -85,7 +84,7 @@ pnpm dev
     expect(res.code).toContain('groupId: "run"')
   })
 
-  test('parses highlighted lines in grouped code blocks', async () => {
+  it('parses highlighted lines in grouped code blocks', async () => {
     const markdown = `
 \`\`\`ts title="wind4" {1} group-id="unocss"
 import { presetWind4 } from '@subf/unocss'
@@ -106,7 +105,7 @@ export default {}
     expect(res.code).toContain('"highlightedLines": [2]')
   })
 
-  test('normalizes explicit items into data without retaining duplicate child nodes', async () => {
+  it('normalizes explicit items into data without retaining duplicate child nodes', async () => {
     const markdown = `
 <CodeTabs>
   <CodeTabs.Item lang="ts" title="config">
@@ -122,5 +121,21 @@ export default {}
     expect(result.code).toContain("export default { theme: 'dark' }")
     expect(result.code).toContain('"title": "config"')
     expect(result.code).not.toContain('CodeTabs.Item')
+  })
+
+  it('expands CodeTabs package prop into highlighted package manager install tabs', async () => {
+    const markdown = `<CodeTabs package="@dnd-kit/dom" />`
+
+    const result = await mdxToJs(markdown, {
+      mdastPlugins: [() => createDocsCodeTabsPlugin(), () => createDocsCodePlugin()],
+    })
+
+    expect(result.code).toContain('CodeTabs')
+    expect(result.code).toContain('groupId: "install"')
+    expect(result.code).toContain('pnpm add @dnd-kit/dom')
+    expect(result.code).toContain('bun add @dnd-kit/dom')
+    expect(result.code).toContain('npm install @dnd-kit/dom')
+    expect(result.code).toContain('yarn add @dnd-kit/dom')
+    expect(result.code).not.toContain('package:')
   })
 })

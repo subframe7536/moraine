@@ -4,7 +4,6 @@ import { createDataAttributes } from '../../../../theme/style-contract'
 import { POPPER_SIDE_CLASS } from '../popper.recipe'
 
 import type { OverlayMenuStyleSlot, OverlayMenuStyleVariants } from './style-types'
-
 export const overlayMenuDataAttributes = {
   content: /* @__PURE__ */ createDataAttributes('align', 'closed', 'expanded', 'side'),
   item: /* @__PURE__ */ createDataAttributes(

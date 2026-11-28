@@ -1,6 +1,5 @@
 import { RadioGroup } from '@src'
 import { createSignal } from 'solid-js'
-
 export function ControlledDisabled() {
   const [value, setValue] = createSignal('pro')
 

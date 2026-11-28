@@ -1,6 +1,5 @@
 import { Avatar, Badge, Button, Icon, Sidebar } from '@src'
 import { For, Show } from 'solid-js'
-
 export function ForcedMobile() {
   const mobileNav = [
     { label: 'Overview', icon: 'i-lucide:home', active: true },
@@ -41,11 +40,12 @@ export function ForcedMobile() {
               {(item) => (
                 <a
                   href="#"
-                  class={`text-xs font-medium px-2 py-2 rounded-lg flex transition-colors items-center justify-between ${
+                  class={[
+                    'text-xs font-medium px-2 py-2 rounded-lg flex transition-colors items-center justify-between',
                     item.active
                       ? 'bg-accent text-accent-foreground font-semibold'
-                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                  }`}
+                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                  ]}
                 >
                   <div class="flex gap-2.5 items-center">
                     <Icon name={item.icon} class="shrink-0 size-4" />
@@ -139,9 +139,12 @@ export function ForcedMobile() {
                         <div class="text-[10px] text-muted-foreground">{tx.type}</div>
                       </div>
                       <span
-                        class={`font-semibold ${
-                          tx.positive ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'
-                        }`}
+                        class={[
+                          'font-semibold',
+                          tx.positive
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-foreground',
+                        ]}
                       >
                         {tx.amount}
                       </span>

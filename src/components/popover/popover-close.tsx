@@ -1,6 +1,7 @@
-import type { Accessor, JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
@@ -8,7 +9,6 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 
 import { usePopoverContext } from './popover-context'
 import type { PopoverT } from './popover.types'
-
 /**
  * Element that closes the surrounding `Popover` when pressed. Compose it inside
  * `Popover.Content`. Renders a `button`; pass `as` to render another component such as `Button`.
@@ -29,13 +29,17 @@ import type { PopoverT } from './popover.types'
 export function PopoverClose<T extends ValidComponent = 'button'>(
   props: PopoverT.CloseProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'disabled', 'ref' as any])
+  const refKey = 'ref' as keyof PopoverT.CloseProps<T>
+  const rest = omit(props, 'as', 'disabled', refKey)
   const behavior = usePopoverContext()
-  const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
-  const root = createPolymorphicRoot({ tag, ref: () => local.ref })
+  const tag: Accessor<ValidComponent> = () => props.as ?? 'button'
+  const root = createPolymorphicRoot({
+    tag,
+    ref: () => (props as { ref?: (el: HTMLElement) => void }).ref,
+  })
   const interaction = useButtonInteraction(
     {
-      disabled: () => Boolean(local.disabled),
+      disabled: () => Boolean(props.disabled),
       disabledForComponent: true,
       element: root.element,
       onPress: () => behavior.popper.setOpen(false),
@@ -44,6 +48,7 @@ export function PopoverClose<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interaction)
+  const Root = dynamic(tag)
 
-  return <Dynamic component={tag()} data-slot="popover-close" {...binding} />
+  return <Root data-slot="popover-close" {...binding} />
 }

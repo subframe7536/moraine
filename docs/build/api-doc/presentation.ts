@@ -1,7 +1,6 @@
 import { DATA_ATTRIBUTE_DESCRIPTIONS } from '../markdown/descriptions.ts'
 
 import type { ComponentApi, DefaultValue, PartApi, PropApi } from './types.ts'
-
 export interface PresentationPropItem {
   name: string
   optional: boolean
@@ -13,8 +12,8 @@ export interface PresentationPropItem {
   defaultValue?: string
   description?: string
   descriptionHtml?: string
-  examples?: string[]
-  examplesHtml?: string[]
+  examples?: Array<string>
+  examplesHtml?: Array<string>
 }
 
 export interface PresentationPartSection {
@@ -23,20 +22,20 @@ export interface PresentationPartSection {
   shortHeading: string
   description?: string
   defaultElement?: string
-  props: PresentationPropItem[]
+  props: Array<PresentationPropItem>
 }
 
 export interface PresentationAttributeItem {
   name: string
-  slots: string[]
+  slots: Array<string>
   description?: string
 }
 
 export interface PresentationAttributesSection {
   id: string
   heading: string
-  slots: string[]
-  items: PresentationAttributeItem[]
+  slots: Array<string>
+  items: Array<PresentationAttributeItem>
 }
 
 export interface ApiReferencePresentationModel {
@@ -44,7 +43,7 @@ export interface ApiReferencePresentationModel {
   componentName: string
   kind: 'single' | 'composite'
   description?: string
-  parts: PresentationPartSection[]
+  parts: Array<PresentationPartSection>
   attributes?: PresentationAttributesSection
 }
 
@@ -75,7 +74,7 @@ export function normalizeApiType(type: string): string {
 }
 
 export function splitTopLevelUnionSegments(type: string): {
-  segments: string[]
+  segments: Array<string>
   hasTopLevelArrow: boolean
   hasTopLevelConditional: boolean
 } {
@@ -84,7 +83,7 @@ export function splitTopLevelUnionSegments(type: string): {
   let segmentStart = 0
   let hasTopLevelArrow = false
   let hasTopLevelConditional = false
-  const segments: string[] = []
+  const segments: Array<string> = []
 
   for (let index = 0; index < type.length; index++) {
     const char = type[index]
@@ -229,7 +228,7 @@ export function getDomSlotName(componentKey: string, slot: string): string {
   }
   return slot === 'root'
     ? componentKey
-    : `${componentKey}-${slot.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`
+    : `${componentKey}-${slot.replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`
 }
 
 function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropItem {
@@ -249,7 +248,7 @@ function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropIt
   }
 }
 
-function sortProps(props: PropApi[], anchorPrefix: string): PresentationPropItem[] {
+function sortProps(props: Array<PropApi>, anchorPrefix: string): Array<PresentationPropItem> {
   return props
     .map((prop) => formatPropItem(prop, anchorPrefix))
     .sort((left, right) => {
@@ -304,7 +303,7 @@ function createAttributesSection(
         (slotOrder.get(right) ?? targetOrder.get(right) ?? Number.MAX_SAFE_INTEGER),
     )
 
-  const items: PresentationAttributeItem[] = []
+  const items: Array<PresentationAttributeItem> = []
   for (const [name, slots] of slotsByAttribute) {
     const item: PresentationAttributeItem = { name, slots: orderSlots(slots) }
     const description = DATA_ATTRIBUTE_DESCRIPTIONS[name]
@@ -358,13 +357,13 @@ export function createApiReferenceModel(
   }
 }
 
-export function getApiReferenceTocEntries(component: ComponentApi | undefined): TocEntry[] {
+export function getApiReferenceTocEntries(component: ComponentApi | undefined): Array<TocEntry> {
   const model = createApiReferenceModel(component)
   if (!model) {
     return []
   }
 
-  const entries: TocEntry[] = [{ id: 'api-reference', label: 'API Reference', level: 1 }]
+  const entries: Array<TocEntry> = [{ id: 'api-reference', label: 'API Reference', level: 1 }]
   if (model.attributes) {
     entries.push({ id: model.attributes.id, label: model.attributes.heading, level: 2 })
   }

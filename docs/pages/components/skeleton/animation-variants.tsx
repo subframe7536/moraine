@@ -1,5 +1,4 @@
 import { Skeleton } from '@src'
-
 export function AnimationVariants() {
   return (
     <div class="flex gap-3 max-w-sm w-full items-center">

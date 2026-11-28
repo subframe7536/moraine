@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Badge } from './badge'
-
 export function renderBadgeFixture(): string {
   return renderToString(() => (
     <Badge leading="i-lucide-check" trailing="i-lucide-x">
@@ -12,7 +11,7 @@ export function renderBadgeFixture(): string {
 
 export function renderButtonBadgeFixture(): string {
   return renderToString(() => (
-    <Badge as="button" type="button" aria-pressed={false}>
+    <Badge as="button" type="button" aria-pressed="false">
       Slot
     </Badge>
   ))

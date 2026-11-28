@@ -21,7 +21,6 @@ import {
   resolveMoraineColor,
 } from './tokens.ts'
 import { createThemeCSS, resolveThemes } from './unocss-theme.ts'
-
 type UtilityTheme = PresetWind3Theme & PresetWind4Theme
 
 export type {
@@ -140,14 +139,20 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
           return matcher
         }
         const [, utility, groupName, state, alpha] = match
-        const group = (theme as UtilityTheme).colors?.[groupName!]
+        if (!utility || !groupName || !alpha) {
+          return matcher
+        }
+        const group = (theme as UtilityTheme).colors?.[groupName]
         const color =
           typeof group === 'string' ? (state ? undefined : group) : group?.[state ?? 'DEFAULT']
         if (typeof color !== 'string') {
           return matcher
         }
-        const opacity = resolvePercentageValue(alpha!)!
-        const percentage = alpha!.startsWith('[')
+        const opacity = resolvePercentageValue(alpha)
+        if (opacity === undefined) {
+          return matcher
+        }
+        const percentage = alpha.startsWith('[')
           ? opacity.endsWith('%')
             ? opacity
             : `calc(${opacity} * 100%)`
@@ -180,7 +185,10 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
     [
       /^accent-fg-([\w-]+)$/,
       ([, name], { theme }) => {
-        const color = resolveMoraineColor((theme as UtilityTheme).colors, name!)
+        if (!name) {
+          return undefined
+        }
+        const color = resolveMoraineColor((theme as UtilityTheme).colors, name)
         return color ? { color: `var(--mo-accent-fg, ${color})` } : undefined
       },
       { autocomplete: 'accent-fg-<colors>' },
@@ -189,15 +197,17 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
     [
       /^tone-([\w-]+)$/,
       ([, name], { theme }) =>
-        createToneDeclarations(name!, (key) =>
-          resolveMoraineColor((theme as UtilityTheme).colors, key),
-        ),
+        name
+          ? createToneDeclarations(name, (key) =>
+              resolveMoraineColor((theme as UtilityTheme).colors, key),
+            )
+          : undefined,
       { autocomplete: 'tone-<colors>' },
     ],
     [
       /^(enter|exit)-opacity-(.+)$/,
       ([, type, value]) => {
-        const resolved = resolvePercentageValue(value!)
+        const resolved = value ? resolvePercentageValue(value) : undefined
         if (resolved !== undefined) {
           return { [`--mo-${type}-opacity`]: resolved }
         }
@@ -207,7 +217,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
     [
       /^(enter|exit)-scale-(.+)$/,
       ([, type, value]) => {
-        const resolved = resolvePercentageValue(value!)
+        const resolved = value ? resolvePercentageValue(value) : undefined
         if (resolved !== undefined) {
           return { [`--mo-${type}-scale`]: resolved }
         }
@@ -217,7 +227,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
     [
       /^(enter|exit)-translate-([xy])-(.+)$/,
       ([, type, axis, value], { theme }) => {
-        const resolved = resolveTranslateValue(value!, theme)
+        const resolved = value ? resolveTranslateValue(value, theme) : undefined
         if (resolved !== undefined) {
           return { [`--mo-${type}-translate-${axis}`]: resolved }
         }
@@ -227,7 +237,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
     [
       /^(enter|exit)-rotate-(.+)$/,
       ([, type, value]) => {
-        const resolved = resolveRotateValue(value!)
+        const resolved = value ? resolveRotateValue(value) : undefined
         if (resolved !== undefined) {
           return { [`--mo-${type}-rotate`]: resolved }
         }
@@ -297,7 +307,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
           config.postprocess.unshift((utility) => {
             for (const entry of utility.entries) {
               if (typeof entry[1] === 'string') {
-                entry[1] = entry[1].replace(
+                entry[1] = entry[1].replaceAll(
                   /var\((--(?:text|radius)-[\w-]+)\)/g,
                   (reference, variable: string) => inlineVariables.get(variable) ?? reference,
                 )

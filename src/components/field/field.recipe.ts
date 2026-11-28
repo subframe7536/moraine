@@ -3,7 +3,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { FieldRecipeVariant, FieldStyleSlot } from './field.style-types'
-
 export const fieldDataAttributes = {
   label: /* @__PURE__ */ createDataAttributes('required'),
   container: /* @__PURE__ */ createDataAttributes('has-text'),

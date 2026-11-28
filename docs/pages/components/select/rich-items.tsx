@@ -1,7 +1,6 @@
 import { Select } from '@src'
 import type { SelectT } from '@src'
-
-const PLANS: SelectT.Item[] = [
+const PLANS: Array<SelectT.Item> = [
   {
     label: 'Starter',
     value: 'starter',

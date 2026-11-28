@@ -1,5 +1,4 @@
 import type { IconT } from '../../../icon'
-
 export const FEEDBACK_TYPE_ICONS = {
   info: 'icon-info',
   success: 'icon-success',

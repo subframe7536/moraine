@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { createMemo } from 'solid-js'
 
 import type { CnConfig } from '../theme/cn'
@@ -9,7 +9,6 @@ import { createDetectedLocale } from './locale/default-locale'
 import { resolveLocale } from './locale/locale-context'
 import type { MoraineMessagesInput } from './locale/messages.types'
 import { MoraineContextProvider, useMoraineContext } from './moraine-context'
-
 export interface MoraineProviderProps {
   /**
    * Theme created with `defineTheme()` whose recipe overrides and default variants apply to every descendant component.

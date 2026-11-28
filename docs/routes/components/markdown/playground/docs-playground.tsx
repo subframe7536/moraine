@@ -1,6 +1,5 @@
-import { For, Show, createMemo, untrack, useContext } from 'solid-js'
-import { createStore } from 'solid-js/store'
-import { Portal } from 'solid-js/web'
+import { Portal } from '@solidjs/web'
+import { For, Show, createMemo, untrack, useContext, createStore } from 'solid-js'
 
 import { Badge, Button, Icon, Switch, cn } from '../../../../../src'
 import { createId } from '../../../../../src/utils'
@@ -21,7 +20,7 @@ import type {
 } from './docs-playground-controls'
 
 /** Compact, controlled primitive inputs for an interactive docs example. */
-export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>(
+export function DocsPlayground<const C extends ReadonlyArray<DocsPlaygroundControl>>(
   props: DocsPlaygroundProps<C>,
 ) {
   const api = useContext(ComponentDocContext)?.api
@@ -72,7 +71,7 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                     size="sm"
                     leading="i-lucide:rotate-ccw"
                     class="text-[0.7rem] text-muted-foreground px-1.5 h-6 hover:text-foreground"
-                    onClick={() => setValues(getDocsPlaygroundControlDefaults(controls))}
+                    onClick={() => setValues(() => getDocsPlaygroundControlDefaults(controls))}
                   >
                     Reset
                   </Button>
@@ -85,8 +84,12 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                       <DocsPlaygroundControlField
                         control={control}
                         controlId={getControlId(control)}
-                        value={values[control.prop]!}
-                        onChange={(val) => setValues(control.prop, val)}
+                        value={values[control.prop] ?? control.defaultValue}
+                        onChange={(val) =>
+                          setValues((values) => {
+                            values[control.prop] = val
+                          })
+                        }
                       />
                     )}
                   </For>
@@ -99,8 +102,12 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                       <DocsPlaygroundControlField
                         control={control}
                         controlId={getControlId(control)}
-                        value={values[control.prop]!}
-                        onChange={(val) => setValues(control.prop, val)}
+                        value={values[control.prop] ?? control.defaultValue}
+                        onChange={(val) =>
+                          setValues((values) => {
+                            values[control.prop] = val
+                          })
+                        }
                       />
                     )}
                   </For>
@@ -110,7 +117,9 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
             <Show when={api}>
               {(componentApi) => {
                 const slots = createDocsPlaygroundSlots({
-                  api: componentApi(),
+                  get api() {
+                    return componentApi()
+                  },
                   preview: () => previewElement,
                 })
                 return (
@@ -145,7 +154,7 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                                 : 'enabled:hover:(border-primary/60 bg-primary/8)',
                             ]}
                             disabled={!slots.nodes().has(slot.name)}
-                            aria-pressed={slots.locked() === slot.name}
+                            aria-pressed={slots.locked() === slot.name ? 'true' : 'false'}
                             onPointerEnter={() => slots.setListHovered(slot.name)}
                             onPointerLeave={() => slots.setListHovered(undefined)}
                             onFocus={() => slots.setListHovered(slot.name)}
@@ -159,7 +168,7 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                     </div>
                     <Show when={slots.boxes().length > 0}>
                       {(_boxes) => (
-                        <Portal mount={previewElement!.ownerDocument.body}>
+                        <Portal mount={previewElement?.ownerDocument?.body ?? document.body}>
                           <For each={slots.boxes()}>
                             {(box, index) => (
                               <div

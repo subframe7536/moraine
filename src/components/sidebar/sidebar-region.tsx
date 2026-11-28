@@ -1,22 +1,19 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
 import type { SlotClassValue } from '../../theme/style-types'
 
 import { useSidebarStyles } from './sidebar-context'
 import type { SidebarStyleSlot } from './sidebar.style-types'
-
 export type RegionSlot = Extract<
   keyof SidebarStyleSlot,
   'header' | 'content' | 'footer' | 'group' | 'menu' | 'menuItem'
 >
 
-export type RegionProps<T extends ValidComponent = 'div'> = Omit<
-  JSX.HTMLAttributes<HTMLElement>,
-  'style' | 'class' | 'children'
-> & {
+export type RegionProps<T extends ValidComponent = 'div'> = {
+  [key: string]: unknown
   as?: T
   class?: SlotClassValue
   style?: JSX.CSSProperties
@@ -31,12 +28,11 @@ export function createRegion<S extends RegionSlot>(
   return function SidebarRegion<T extends ValidComponent = 'div'>(
     props: RegionProps<T>,
   ): JSX.Element {
-    const [local, rest] = splitProps(props, ['as', 'class', 'style'])
+    const rest = omit(props, 'as', 'class', 'style')
     const {
       slots: { [slot]: regionSlot },
-    } = useSidebarStyles(slot, local)
-    return (
-      <Dynamic component={local.as ?? defaultTag} data-slot={dataSlot} {...regionSlot} {...rest} />
-    )
+    } = useSidebarStyles(slot, props)
+    const Root = dynamic<ValidComponent>(() => props.as ?? defaultTag)
+    return <Root data-slot={dataSlot} {...regionSlot} {...(rest as Record<string, unknown>)} />
   }
 }

@@ -1,6 +1,5 @@
 import { Icon, Resizable } from '@src'
 import { For } from 'solid-js'
-
 const FILES = [
   { name: 'src/app.tsx', active: true, icon: 'i-lucide:file-code', color: 'text-blue-500' },
   { name: 'src/theme.ts', icon: 'i-lucide:file-code', color: 'text-blue-500' },
@@ -28,11 +27,12 @@ export function NestedPanels() {
               <For each={FILES}>
                 {(file) => (
                   <div
-                    class={`text-xs px-2 py-1 rounded-md flex gap-2 cursor-pointer transition-colors items-center ${
+                    class={[
+                      'text-xs px-2 py-1 rounded-md flex gap-2 cursor-pointer transition-colors items-center',
                       file.active
                         ? 'bg-accent text-accent-foreground font-medium'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                    }`}
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+                    ]}
                   >
                     <Icon name={file.icon} class={`shrink-0 size-3.5 ${file.color}`} />
                     <span class="truncate">{file.name}</span>

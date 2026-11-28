@@ -1,6 +1,6 @@
 import { render, within } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { BaseDialog } from '../components/base-dialog'
 import { BaseSelect } from '../components/base-select'
@@ -16,11 +16,10 @@ import { defineTheme } from '../theme'
 import type { CnConfig } from '../theme/cn'
 
 import { MoraineProvider } from './moraine-provider'
-
 const keepPadding: CnConfig = { override: { classGroups: { p: [] } } }
 
 describe('composite family presentation', () => {
-  test('resolves a portal part in its nearest Theme and cn scope with reactive layered overrides', () => {
+  it('resolves a portal part in its nearest Theme and cn scope with reactive layered overrides', () => {
     const outerTheme = defineTheme({ dialog: { base: { content: 'outer-theme p-1' } } })
     const [innerTheme, setInnerTheme] = createSignal(
       defineTheme({
@@ -79,8 +78,8 @@ describe('composite family presentation', () => {
         dialog: { base: { content: 'next-theme p-6', contentClose: 'next-close-theme' } },
       }),
     )
-    setInstanceClass('next-instance p-7')
-    setInstanceWidth('40px')
+    flush(() => setInstanceClass('next-instance p-7'))
+    flush(() => setInstanceWidth('40px'))
     expect(within(document.body).getByTestId('dialog-content')).toBe(content)
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBe(contentClose)
     expect(content.className).toContain('next-theme')
@@ -88,13 +87,13 @@ describe('composite family presentation', () => {
     expect(content.className).toContain('next-instance')
     expect(content.style.width).toBe('40px')
 
-    setConfig({})
+    flush(() => setConfig({}))
     expect(within(document.body).getByTestId('dialog-content')).toBe(content)
     expect(content.className).toContain('p-5')
     expect(content.className).not.toContain('p-7')
   })
 
-  test('propagates headless-root family defaults to detached parts', () => {
+  it('propagates headless-root family defaults to detached parts', () => {
     render(() => (
       <>
         <BaseDialog
@@ -155,7 +154,7 @@ describe('composite family presentation', () => {
     }
   })
 
-  test('shadows outer presentation at every nested family root', () => {
+  it('shadows outer presentation at every nested family root', () => {
     render(() => (
       <>
         <Popover classes={{ trigger: 'popover-outer' }}>
@@ -225,7 +224,7 @@ describe('composite family presentation', () => {
     }
   })
 
-  test('Sidebar and BaseSelect parts resolve nested Provider themes locally', () => {
+  it('sidebar and BaseSelect parts resolve nested Provider themes locally', () => {
     const outer = defineTheme({
       sidebar: { base: { inset: 'sidebar-theme-outer' } },
       baseSelect: { base: { trigger: 'select-theme-outer' } },
@@ -269,7 +268,7 @@ describe('composite family presentation', () => {
     )
   })
 
-  test('same-family nested Dialog uses only the nearest instance presentation', () => {
+  it('same-family nested Dialog uses only the nearest instance presentation', () => {
     render(() => (
       <Dialog open classes={{ content: 'dialog-outer' }}>
         <Dialog.Content data-testid="dialog-outer">

@@ -1,11 +1,9 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, Show, splitProps } from 'solid-js'
-import { Portal, isServer } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Portal } from '@solidjs/web'
+import { createEffect, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import { callRef } from '../../shared/utils'
 import { useFloatingPosition } from '../shared/overlay/floating'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
 import { resolveFloatingPlacement } from '../shared/overlay/placement'
@@ -18,7 +16,6 @@ import {
   baseSelectRecipe,
 } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Floating popup panel of `BaseSelect`. It mounts in a portal only while the select is open, is
  * positioned against `BaseSelect.Control` (or the focus owner when there is none), and dismisses
@@ -41,10 +38,10 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectContext()
-  const [local, rest] = splitProps(props, ['ref', 'class', 'style'])
+  const rest = omit(props, 'ref', 'class', 'style')
   const {
     slots: { content: contentSlot },
-  } = useRecipe(baseSelectRecipe, local, {
+  } = useRecipe(baseSelectRecipe, props, {
     slot: 'content',
     data: {
       content: baseSelectDataAttributes.content(() => ({
@@ -64,11 +61,18 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
   })
   const [content, setContent] = createSignal<HTMLDivElement>()
   const [positioner, setPositioner] = createSignal<HTMLDivElement>()
+  const activeContent = () => (presence.present() ? content() : undefined)
+  const activePositioner = () => (presence.present() ? positioner() : undefined)
   const [side, setSide] = createSignal('bottom')
-  bindElement(content, presence.registerElement)
+  createEffect(activeContent, (node) => {
+    if (!node) {
+      return
+    }
+    return presence.registerElement(node)
+  })
   useFloatingPosition({
-    contentElement: content,
-    floatingElement: positioner,
+    contentElement: activeContent,
+    floatingElement: activePositioner,
     getReferenceElement: () => state.anchor() ?? state.focusOwner(),
     flip: () => state.props.flip ?? true,
     gutter: () => state.props.gutter ?? 4,
@@ -82,23 +86,27 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     slide: () => state.props.slide ?? true,
   })
   createEffect(
-    on(presence.present, (present) => {
+    () =>
+      [
+        presence.present(),
+        state.props.preventScroll ?? true,
+        state.anchor() ?? state.focusOwner(),
+      ] as const,
+    ([present, preventScroll, reference]) => {
       if (!present) {
-        // The content unmounted with the Show branch; release its presence registration.
-        setContent(undefined)
         return
       }
-      if (state.props.preventScroll ?? true) {
-        onCleanup(acquireBodyScrollLock(state.anchor() ?? state.focusOwner()))
+      if (preventScroll) {
+        return acquireBodyScrollLock(reference)
       }
-    }),
+    },
   )
   useOverlayInteraction({
     containsTarget: (node) =>
       Boolean(
         state.anchor()?.contains(node) ||
         state.focusOwner()?.contains(node) ||
-        positioner()?.contains(node),
+        activePositioner()?.contains(node),
       ),
     onPointerOutside: (event) => {
       if (state.open() && !event.defaultPrevented) {
@@ -128,16 +136,12 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
           data-slot={state.slotName('positioner')}
           ref={setPositioner}
           class={BASE_SELECT_POSITIONER_CLASS}
-          style={isServer ? { visibility: 'hidden' } : undefined}
         >
           <div
             data-slot={state.slotName('content')}
             {...contentSlot}
             {...rest}
-            ref={(element) => {
-              setContent(element)
-              callRef(local.ref, element)
-            }}
+            ref={[setContent, props.ref]}
           />
         </div>
       </Portal>

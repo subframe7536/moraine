@@ -1,10 +1,10 @@
+import type { JSX } from '@solidjs/web'
 import type { ClassValue } from 'cn'
-import type { Accessor, Component, JSX } from 'solid-js'
-import { Show, createSignal, onCleanup, onMount } from 'solid-js'
+import type { Accessor, Component } from 'solid-js'
+import { Show, createEffect, createSignal, onFlush, onSettled } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
-import { bindElement } from '../../../../shared/element-binding'
 import { attachEventListenerMap } from '../../../../shared/event-listener'
 import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { renderWithProps } from '../../../../shared/render-with-props'
@@ -147,8 +147,11 @@ export function bindSelectableItemHandlers(
   element: Accessor<HTMLDivElement | undefined>,
   handlers: ReturnType<typeof createSelectableItemHandlers>,
 ): void {
-  bindElement(element, (current) =>
-    attachEventListenerMap(current, {
+  createEffect(element, (current) => {
+    if (!current) {
+      return
+    }
+    return attachEventListenerMap(current, {
       click: handlers.onClick,
       focus: handlers.onFocus,
       keydown: handlers.onKeyDown,
@@ -156,8 +159,8 @@ export function bindSelectableItemHandlers(
       pointerenter: handlers.onPointerEnter,
       pointermove: handlers.onPointerMove,
       pointerleave: handlers.onPointerLeave,
-    } as Record<string, ((event: Event) => void) | undefined>),
-  )
+    } as Record<string, ((event: Event) => void) | undefined>)
+  })
 }
 
 interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
@@ -210,7 +213,9 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   ): OverlayMenuItemRenderProps<TItem> {
     return {
       item,
-      depth: props.depth,
+      get depth() {
+        return props.depth
+      },
       hasChildren,
     }
   }
@@ -225,17 +230,23 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     const kbds = createLazyMemo(() =>
       'kbds' in contentProps.item ? contentProps.item.kbds : undefined,
     )
+    const itemRenderProps: OverlayMenuItemRenderProps<TItem> = {
+      get item() {
+        return contentProps.item
+      },
+      get depth() {
+        return props.depth
+      },
+      get hasChildren() {
+        return contentProps.hasChildren
+      },
+    }
     return (
       <Show
         when={itemRender() === undefined}
         fallback={
           <Show when={itemRender()} keyed>
-            {(render) =>
-              renderWithProps(
-                render,
-                getItemRenderProps(contentProps.item, contentProps.hasChildren),
-              )
-            }
+            {(render) => renderWithProps(render, itemRenderProps)}
           </Show>
         }
       >
@@ -297,21 +308,19 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     element: Accessor<HTMLDivElement | undefined>,
     itemId: Accessor<string>,
   ): void {
-    onMount(() => {
-      onCleanup(
-        layer.registerItem({
-          disabled: () => Boolean(item().disabled),
-          element,
-          hasSubmenu: false,
-          id: itemId(),
-          textValue: () => getOverlayMenuTextValue(item()) ?? element()?.textContent,
-        }),
-      )
-    })
+    onSettled(() =>
+      layer.registerItem({
+        disabled: () => Boolean(item().disabled),
+        element,
+        hasSubmenu: false,
+        id: itemId(),
+        textValue: () => getOverlayMenuTextValue(item()) ?? element()?.textContent,
+      }),
+    )
   }
 
   function LeafItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
-    const itemId = createId(undefined, `${props.id}-item`)
+    const itemId = createId(undefined, () => `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
 
     useItemRegistration(() => itemProps.item, element, itemId)
@@ -321,10 +330,10 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         return
       }
 
+      onFlush(() => closeRoot({ restoreFocus: true }))
       if ('onSelect' in itemProps.item) {
         itemProps.item.onSelect?.()
       }
-      closeRoot({ restoreFocus: true })
     }
 
     const handlers = createSelectableItemHandlers(layer, {
@@ -356,7 +365,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitem"
-        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
+        tabindex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}
         ref={setElement}
@@ -367,7 +376,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   }
 
   function CheckboxMenuItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
-    const itemId = createId(undefined, `${props.id}-checkbox`)
+    const itemId = createId(undefined, () => `${props.id}-checkbox`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const [checked, setCheckedState] = createControllableValue<boolean>({
       value: () => ('checked' in itemProps.item ? itemProps.item.checked : undefined),
@@ -426,7 +435,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitemcheckbox"
-        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
+        tabindex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}
@@ -441,7 +450,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     item: OverlayMenuRadioItem
     radioGroup: MenuRadioGroupState
   }): JSX.Element {
-    const itemId = createId(undefined, `${props.id}-radio`)
+    const itemId = createId(undefined, () => `${props.id}-radio`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const checked = () => itemProps.radioGroup.value() === itemProps.item.value
 
@@ -485,7 +494,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitemradio"
-        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
+        tabindex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}

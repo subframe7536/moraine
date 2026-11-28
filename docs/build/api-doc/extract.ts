@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential extraction keeps shared extractor caches and output ordering deterministic.
 import type { DocsPageSource } from '../routes.ts'
 
 import { TypeExtractor } from './extract-types.ts'
@@ -5,7 +6,6 @@ import { RecipeExtractor } from './recipe.ts'
 import type { RecipeApi } from './recipe.ts'
 import { loadApiRegistry } from './registry.ts'
 import type { ComponentApi, ComponentIndexEntry, GenerationResult, PartApi } from './types.ts'
-
 const EMPTY_RECIPE: RecipeApi = {
   slots: [],
   variants: [],
@@ -14,13 +14,13 @@ const EMPTY_RECIPE: RecipeApi = {
 
 export async function generateApiDoc(
   projectRoot: string,
-  pages: readonly DocsPageSource[],
+  pages: ReadonlyArray<DocsPageSource>,
 ): Promise<GenerationResult> {
   const registry = await loadApiRegistry(projectRoot, pages)
   const typeExtractor = new TypeExtractor(projectRoot)
   const recipeExtractor = new RecipeExtractor(projectRoot)
   const componentDocs = new Map<string, ComponentApi>()
-  const indexComponents: ComponentIndexEntry[] = []
+  const indexComponents: Array<ComponentIndexEntry> = []
 
   for (const component of registry) {
     const typesModule = await typeExtractor.loadModule(component.typesPath)
@@ -35,7 +35,7 @@ export async function generateApiDoc(
     const recipe = component.recipePath
       ? await recipeExtractor.extract(component.recipePath, component.name)
       : EMPTY_RECIPE
-    const parts: PartApi[] = []
+    const parts: Array<PartApi> = []
 
     for (const part of component.parts) {
       const partTypesModule =

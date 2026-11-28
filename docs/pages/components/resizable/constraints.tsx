@@ -1,5 +1,4 @@
 import { Icon, Resizable } from '@src'
-
 export function Constraints() {
   return (
     <div class="border border-border/60 rounded-xl bg-card/30 h-64 w-full shadow-xs overflow-hidden">

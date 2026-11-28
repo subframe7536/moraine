@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { FieldProvider } from '../field/field-context'
@@ -9,7 +9,6 @@ import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { Checkbox } from './checkbox'
-
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
   expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
 }
@@ -20,15 +19,15 @@ function getHiddenCheckbox(container: HTMLElement): HTMLInputElement {
   ) as HTMLInputElement
 }
 
-describe('Checkbox', () => {
-  test('exposes native inputRef', () => {
+describe('checkbox', () => {
+  it('exposes native inputRef', () => {
     let ref: HTMLInputElement | undefined
     render(() => <Checkbox inputRef={(el) => (ref = el)} label="Ref test" />)
     expect(ref).toBeInstanceOf(HTMLInputElement)
     expect(ref?.type).toBe('checkbox')
   })
-  test('fires a root onPointerDown handler when the control is pressed', () => {
-    const onPointerDown = vi.fn()
+  it('fires a root onPointerDown handler when the control is pressed', () => {
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Checkbox onPointerDown={onPointerDown} label="Press me" />)
     const control = screen.getByRole('checkbox')
 
@@ -37,8 +36,8 @@ describe('Checkbox', () => {
     expect(onPointerDown.mock.calls[0]?.[0].target).toBe(control)
   })
 
-  test('applies tabIndex to the focusable control instead of the root', () => {
-    const screen = render(() => <Checkbox tabIndex={-1} aria-hidden="true" label="Skipped" />)
+  it('applies tabIndex to the focusable control instead of the root', () => {
+    const screen = render(() => <Checkbox tabindex={-1} aria-hidden="true" label="Skipped" />)
 
     expect(
       screen.container.querySelector('[data-slot="checkbox-control"]')?.getAttribute('tabindex'),
@@ -48,7 +47,7 @@ describe('Checkbox', () => {
     )
   })
 
-  test('renders label and description with accessible checkbox input', () => {
+  it('renders label and description with accessible checkbox input', () => {
     const screen = render(() => (
       <Checkbox label="Accept terms" description="Required to continue" />
     ))
@@ -64,7 +63,7 @@ describe('Checkbox', () => {
     )
   })
 
-  test('supports uncontrolled toggle and custom checked icon content', async () => {
+  it('supports uncontrolled toggle and custom checked icon content', async () => {
     const screen = render(() => (
       <Checkbox
         defaultChecked
@@ -89,8 +88,8 @@ describe('Checkbox', () => {
     expect(root.getAttribute('data-unchecked')).toBe('')
   })
 
-  test('toggles once from the native Space sequence and never from Enter', async () => {
-    const onChange = vi.fn()
+  it('toggles once from the native Space sequence and never from Enter', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Checkbox label="Keyboard" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Keyboard' })
 
@@ -119,11 +118,11 @@ describe('Checkbox', () => {
     expectCheckboxChecked(checkbox, true)
   })
 
-  test('forwards visual focus boundaries to the bound Field', () => {
-    const emit = vi.fn()
+  it('forwards visual focus boundaries to the bound Field', () => {
+    const emit = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
@@ -145,9 +144,9 @@ describe('Checkbox', () => {
     expect(emit).toHaveBeenCalledTimes(2)
   })
 
-  test('calls user onFocus and onBlur when the control gains and loses focus', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+  it('calls user onFocus and onBlur when the control gains and loses focus', () => {
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Checkbox label="Focusable" onFocus={onFocus} onBlur={onBlur} />)
     const control = screen.getByRole('checkbox', { name: 'Focusable' })
     const root = screen.container.querySelector('[data-slot="checkbox"]')!
@@ -164,7 +163,7 @@ describe('Checkbox', () => {
     expect(onBlur.mock.calls[0]?.[0].target).toBe(control)
   })
 
-  test('marks a Form.Field checkbox touched on visual focus and validates on blur', async () => {
+  it('marks a Form.Field checkbox touched on visual focus and validates on blur', async () => {
     const schema = v.object({
       terms: v.pipe(
         v.boolean(),
@@ -192,8 +191,8 @@ describe('Checkbox', () => {
     expect(control.getAttribute('aria-invalid')).toBe('true')
   })
 
-  test('lets a canceled root click prevent control activation', async () => {
-    const onChange = vi.fn()
+  it('lets a canceled root click prevent control activation', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Checkbox
         label="Canceled"
@@ -208,8 +207,8 @@ describe('Checkbox', () => {
     expectCheckboxChecked(screen.getByRole('checkbox', { name: 'Canceled' }), false)
   })
 
-  test('does not toggle when disabled', async () => {
-    const onChange = vi.fn()
+  it('does not toggle when disabled', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Checkbox disabled label="Disabled" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Disabled' })
     const control = screen.container.querySelector('[data-slot="checkbox-control"]') as HTMLElement
@@ -224,7 +223,7 @@ describe('Checkbox', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('updates the control state and indicator when checked changes from indeterminate', () => {
+  it('updates the control state and indicator when checked changes from indeterminate', () => {
     const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
     const screen = render(() => (
       <Checkbox
@@ -241,7 +240,7 @@ describe('Checkbox', () => {
     expect(control.hasAttribute('data-indeterminate')).toBe(true)
     expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
 
-    setChecked(true)
+    flush(() => setChecked(true))
 
     expectCheckboxChecked(checkbox, true)
     expect(control.hasAttribute('data-indeterminate')).toBe(false)
@@ -250,7 +249,7 @@ describe('Checkbox', () => {
     expect(screen.getByTestId('checked-icon').textContent).toBe('C')
   })
 
-  test.each([
+  it.each([
     ['controlled', { checked: 'indeterminate' as const }],
     ['uncontrolled', { defaultChecked: 'indeterminate' as const }],
   ])('shows the mixed state when a %s checkbox starts indeterminate', async (_mode, state) => {
@@ -276,13 +275,13 @@ describe('Checkbox', () => {
     })
   })
 
-  test.each([
+  it.each([
     ['controlled', { checked: 'indeterminate' as const }, 'mixed'],
     ['uncontrolled', { defaultChecked: 'indeterminate' as const }, true],
   ])(
     'emits the checked value when a %s indeterminate checkbox is clicked',
     (_mode, state, aria) => {
-      const onChange = vi.fn()
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <Checkbox
           {...state}
@@ -301,7 +300,7 @@ describe('Checkbox', () => {
     },
   )
 
-  test('passes id, name, value and required attributes to input', () => {
+  it('passes id, name, value and required attributes to input', () => {
     const screen = render(() => (
       <Checkbox id="terms-checkbox" name="terms" value="accepted" required label="Terms" />
     ))
@@ -318,8 +317,8 @@ describe('Checkbox', () => {
     expect(control?.getAttribute('data-required')).toBe('')
   })
 
-  test('keeps controlled state while emitting onCheckedChange', async () => {
-    const onChange = vi.fn()
+  it('keeps controlled state while emitting onCheckedChange', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => <Checkbox checked label="Controlled" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Controlled' })
@@ -334,11 +333,11 @@ describe('Checkbox', () => {
     })
   })
 
-  test.each([
+  it.each([
     ['controlled', { checked: true }, true],
     ['uncontrolled', { defaultChecked: false }, false],
   ])('does not toggle a %s readonly checkbox', async (_mode, state, expected) => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Checkbox {...state} readOnly label="Readonly" onCheckedChange={onChange} />
     ))
@@ -353,8 +352,8 @@ describe('Checkbox', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('maps custom true and false values for controlled checkbox', async () => {
-    const onChange = vi.fn()
+  it('maps custom true and false values for controlled checkbox', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Checkbox
@@ -379,8 +378,8 @@ describe('Checkbox', () => {
     })
   })
 
-  test('submits hidden checkbox value only when checked and resets to default state', async () => {
-    const onSubmit = vi.fn()
+  it('submits hidden checkbox value only when checked and resets to default state', async () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form onSubmit={onSubmit}>
         <Checkbox name="agree" value="yes" defaultChecked label="Agree" />
@@ -412,18 +411,18 @@ describe('Checkbox', () => {
     })
   })
 
-  test('resolves defaultChecked against trueValue and falseValue', () => {
+  it('resolves defaultChecked against trueValue and falseValue', () => {
     const screen = render(() => (
       <>
         <Checkbox trueValue="pro" falseValue="free" defaultChecked="pro" label="On" />
         <Checkbox trueValue="pro" falseValue="free" defaultChecked="free" label="Off" />
       </>
     ))
-    expectCheckboxChecked(screen.getByRole('checkbox', { name: 'On' }), true)
-    expectCheckboxChecked(screen.getByRole('checkbox', { name: 'Off' }), false)
+    expect(screen.getByRole('checkbox', { name: 'On' }).getAttribute('aria-checked')).toBe('true')
+    expect(screen.getByRole('checkbox', { name: 'Off' }).getAttribute('aria-checked')).toBe('false')
   })
 
-  test('submits the native value from value, then trueValue, then on, and nothing when unchecked', () => {
+  it('submits the native value from value, then trueValue, then on, and nothing when unchecked', () => {
     const screen = render(() => (
       <form>
         <Checkbox name="boolean" defaultChecked label="Boolean" />
@@ -456,7 +455,7 @@ describe('Checkbox', () => {
     expect(new FormData(form).has('mapped')).toBe(false)
   })
 
-  test('derives the native value from a string or number trueValue, otherwise on', () => {
+  it('derives the native value from a string or number trueValue, otherwise on', () => {
     const screen = render(() => (
       <form>
         <Checkbox name="count" trueValue={1} falseValue={0} label="Count" />
@@ -472,8 +471,8 @@ describe('Checkbox', () => {
     expect(meta!.value).toBe('on')
   })
 
-  test('form.Field checkbox submits its trueValue as the native value', async () => {
-    const onSubmit = vi.fn()
+  it('form.Field checkbox submits its trueValue as the native value', async () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -501,8 +500,8 @@ describe('Checkbox', () => {
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ plan: 'pro' })
   })
 
-  test('form.Field checkbox submits a boolean and keeps its native input checked with its value', async () => {
-    const onSubmit = vi.fn()
+  it('form.Field checkbox submits a boolean and keeps its native input checked with its value', async () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({ schema: v.object({ terms: v.boolean() }), initialInput: { terms: false } }),
@@ -534,8 +533,8 @@ describe('Checkbox', () => {
     expect(onSubmit.mock.calls[1]?.[0]).toEqual({ terms: false })
   })
 
-  test('implicitly submits the form on Enter through the default submitter', () => {
-    const onSubmit = vi.fn()
+  it('implicitly submits the form on Enter through the default submitter', () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form
         onSubmit={(event) => {
@@ -550,7 +549,7 @@ describe('Checkbox', () => {
 
     const checkbox = screen.getByRole('checkbox', { name: 'Agree' })
     const submitter = screen.getByRole('button', { name: 'Send' })
-    const onSubmitterClick = vi.fn()
+    const onSubmitterClick = vi.fn<(...args: Array<any>) => void>()
     submitter.addEventListener('click', onSubmitterClick)
 
     expectCheckboxChecked(checkbox, false)
@@ -561,8 +560,8 @@ describe('Checkbox', () => {
     expectCheckboxChecked(checkbox, false)
   })
 
-  test('implicitly submits the form on Enter without a submit button', () => {
-    const onSubmit = vi.fn()
+  it('implicitly submits the form on Enter without a submit button', () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form
         onSubmit={(event) => {
@@ -581,16 +580,16 @@ describe('Checkbox', () => {
     expectCheckboxChecked(checkbox, false)
   })
 
-  test('does not toggle or submit on Enter outside a form', () => {
+  it('does not toggle or submit on Enter outside a form', () => {
     const screen = render(() => <Checkbox name="agree" label="Agree" />)
 
     const checkbox = screen.getByRole('checkbox', { name: 'Agree' })
     fireEvent.keyDown(checkbox, { key: 'Enter' })
 
-    expectCheckboxChecked(checkbox, false)
+    expect(checkbox.getAttribute('aria-checked')).toBe('false')
   })
 
-  test('associates the hidden input with an external form through the form prop', () => {
+  it('associates the hidden input with an external form through the form prop', () => {
     const screen = render(() => (
       <>
         <form id="external-form" />
@@ -605,7 +604,7 @@ describe('Checkbox', () => {
     expect(input.form).toBe(externalForm)
   })
 
-  test('uses the initial default snapshot for reset after defaultChecked changes', async () => {
+  it('uses the initial default snapshot for reset after defaultChecked changes', async () => {
     const [defaultChecked, setDefaultChecked] = createSignal(false)
     const screen = render(() => (
       <form>
@@ -618,7 +617,7 @@ describe('Checkbox', () => {
     fireEvent.click(checkbox)
     expectCheckboxChecked(checkbox, true)
 
-    setDefaultChecked(true)
+    flush(() => setDefaultChecked(true))
     form.reset()
 
     await waitFor(() => {
@@ -627,8 +626,8 @@ describe('Checkbox', () => {
     })
   })
 
-  test('keeps controlled state and callback count unchanged on form reset', async () => {
-    const onChange = vi.fn()
+  it('keeps controlled state and callback count unchanged on form reset', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <Checkbox
@@ -651,7 +650,7 @@ describe('Checkbox', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('restores the initial indeterminate state on form reset', async () => {
+  it('restores the initial indeterminate state on form reset', async () => {
     const screen = render(() => (
       <form>
         <Checkbox defaultChecked="indeterminate" label="Mixed reset" />
@@ -673,7 +672,7 @@ describe('Checkbox', () => {
     })
   })
 
-  test('preserves native required validity, serialization, and disabled omission', async () => {
+  it('preserves native required validity, serialization, and disabled omission', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (
       <form>
@@ -692,11 +691,11 @@ describe('Checkbox', () => {
     expect(input.validity.valueMissing).toBe(false)
     expect(new FormData(form).get('terms')).toBe('accepted')
 
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(new FormData(form).has('terms')).toBe(false)
   })
 
-  test('passes user classes to the root and control slots', () => {
+  it('passes user classes to the root and control slots', () => {
     const screen = render(() => (
       <Checkbox
         variant="card"
@@ -712,7 +711,7 @@ describe('Checkbox', () => {
     expect(base?.classList.contains('user-control')).toBe(true)
   })
 
-  test('applies style overrides', () => {
+  it('applies style overrides', () => {
     const screen = render(() => (
       <Checkbox
         variant="card"
@@ -734,7 +733,7 @@ describe('Checkbox', () => {
     expect(label?.style.width).toBe('200px')
   })
 
-  test.each([
+  it.each([
     ['card', true],
     ['list', false],
   ] as const)('a root click on a %s checkbox sets checked to %s', async (variant, toggles) => {
@@ -746,17 +745,17 @@ describe('Checkbox', () => {
     fireEvent.click(root)
 
     await waitFor(() => {
-      expectCheckboxChecked(checkbox, toggles)
+      expect(checkbox.getAttribute('aria-checked')).toBe(String(toggles))
     })
   })
 
-  test.each([
+  it.each([
     ['link', <a href="#details">Details</a>],
     ['button', <button type="button">Action</button>],
     ['input', <input aria-label="Nested input" />],
     ['disabled button', <button disabled>Disabled action</button>],
   ])('does not toggle a card from a nested %s', async (_name, content) => {
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Checkbox variant="card" label={content} onCheckedChange={onChange} />
     ))
@@ -770,8 +769,8 @@ describe('Checkbox', () => {
     expectCheckboxChecked(screen.getByRole('checkbox'), false)
   })
 
-  test('ignores non-primary synthetic card clicks', () => {
-    const onChange = vi.fn()
+  it('ignores non-primary synthetic card clicks', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Checkbox variant="card" label="Secondary" onCheckedChange={onChange} />
     ))
@@ -782,7 +781,7 @@ describe('Checkbox', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('renders JSX label, description, and icons passed as content', () => {
+  it('renders JSX label, description, and icons passed as content', () => {
     const screen = render(() => (
       <Checkbox
         checked="indeterminate"

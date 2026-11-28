@@ -1,14 +1,13 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { Card } from './card'
-
 const slot = (container: HTMLElement, name: string) =>
   container.querySelector<HTMLElement>(`[data-slot="card${name ? `-${name}` : ''}"]`)
 
-describe('Card', () => {
-  test('renders every public part with its default element and no inferred semantics', () => {
+describe('card', () => {
+  it('renders every public part with its default element and no inferred semantics', () => {
     const { container } = render(() => (
       <Card>
         <Card.Header>
@@ -32,7 +31,7 @@ describe('Card', () => {
     expect(slot(container, '')?.hasAttribute('aria-describedby')).toBe(false)
   })
 
-  test('applies family overrides alongside local part class and style', () => {
+  it('applies family overrides alongside local part class and style', () => {
     const { container } = render(() => (
       <Card
         classes={{ header: 'header-family', body: 'body-override' }}
@@ -50,7 +49,7 @@ describe('Card', () => {
     expect(slot(container, 'footer')?.style.color).toBe('red')
   })
 
-  test('keeps child parts mounted when the root size changes', () => {
+  it('keeps child parts mounted when the root size changes', () => {
     const [size, setSize] = createSignal<'sm' | 'lg'>('sm')
     const { container } = render(() => (
       <Card size={size()}>
@@ -61,12 +60,12 @@ describe('Card', () => {
       </Card>
     ))
     const title = slot(container, 'title')
-    setSize('lg')
+    flush(() => setSize('lg'))
     expect(slot(container, 'title')).toBe(title)
     expect(slot(container, 'body')?.textContent).toBe('Body')
   })
 
-  test('supports polymorphic elements and direct full-width media', () => {
+  it('supports polymorphic elements and direct full-width media', () => {
     const { container } = render(() => (
       <Card as="article">
         <img alt="Landscape" />
@@ -82,7 +81,7 @@ describe('Card', () => {
     expect(slot(container, 'footer')?.tagName).toBe('NAV')
   })
 
-  test.each([
+  it.each([
     ['outline', true, false],
     ['subtle', true, true],
     ['none', false, false],
@@ -105,7 +104,7 @@ describe('Card', () => {
     },
   )
 
-  test('requires Card for parts', () => {
+  it('requires Card for parts', () => {
     expect(() => render(() => <Card.Body />)).toThrow('useCardContext')
   })
 })

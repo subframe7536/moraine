@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Pagination } from './pagination'
-
 export function renderPaginationFixture(): string {
   return renderToString(() => (
     <Pagination

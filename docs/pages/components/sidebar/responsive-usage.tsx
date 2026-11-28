@@ -1,13 +1,12 @@
 import { Avatar, Badge, Breadcrumb, Button, Icon, Kbd, Separator, Sidebar } from '@src'
 import type { BreadcrumbT } from '@src'
 import { For, Show } from 'solid-js'
-
 export function ResponsiveUsage() {
   const breadcrumbItems = [
     { label: 'Acme Cloud', href: '#' },
     { label: 'Platform', href: '#' },
     { label: 'Deployments' },
-  ] satisfies BreadcrumbT.Item[]
+  ] satisfies Array<BreadcrumbT.Item>
 
   const navPlatform = [
     { label: 'Dashboard', icon: 'i-lucide:layout-dashboard', href: '#' },

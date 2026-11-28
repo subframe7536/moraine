@@ -32,7 +32,6 @@ import {
   createTree,
 } from '../../../../src'
 import { createMediaQuery } from '../../../../src/utils'
-
 interface ThemePreset {
   id: string
   name: string
@@ -44,7 +43,7 @@ interface ThemePreset {
   density: 'sm' | 'md'
 }
 
-const PRESETS: ThemePreset[] = [
+const PRESETS: Array<ThemePreset> = [
   {
     id: 'default',
     name: 'Default',
@@ -119,10 +118,10 @@ const DENSITY_ITEMS = [
 interface FileNode {
   id: string
   name: string
-  children?: FileNode[]
+  children?: Array<FileNode>
 }
 
-const WORKSPACE_FILES: FileNode[] = [
+const WORKSPACE_FILES: Array<FileNode> = [
   {
     id: 'src',
     name: 'src',
@@ -181,15 +180,20 @@ const TOAST_HOST_ID = 'landing-preview'
 export function StylingShowcase() {
   const isDesktop = createMediaQuery('(min-width: 768px)')
 
-  const [activePresetId, setActivePresetId] = createSignal(PRESETS[0]!.id)
-  const [primary, setPrimary] = createSignal<string>(PRESETS[0]!.primary)
-  const [foreground, setForeground] = createSignal<string>(PRESETS[0]!.foreground)
-  const [radius, setRadius] = createSignal<string>(PRESETS[0]!.radius)
-  const [spacing, setSpacing] = createSignal<string>(PRESETS[0]!.spacing)
+  const defaultPreset = PRESETS[0]
+  if (!defaultPreset) {
+    throw new Error('Expected at least one theme preset')
+  }
+
+  const [activePresetId, setActivePresetId] = createSignal(defaultPreset.id)
+  const [primary, setPrimary] = createSignal<string>(defaultPreset.primary)
+  const [foreground, setForeground] = createSignal<string>(defaultPreset.foreground)
+  const [radius, setRadius] = createSignal<string>(defaultPreset.radius)
+  const [spacing, setSpacing] = createSignal<string>(defaultPreset.spacing)
   const [inputVariant, setInputVariant] = createSignal<'outline' | 'subtle'>(
-    PRESETS[0]!.inputVariant,
+    defaultPreset.inputVariant,
   )
-  const [density, setDensity] = createSignal<'sm' | 'md'>(PRESETS[0]!.density)
+  const [density, setDensity] = createSignal<'sm' | 'md'>(defaultPreset.density)
   const [slotOverride, setSlotOverride] = createSignal(false)
   const [inspectSlots, setInspectSlots] = createSignal(false)
 
@@ -202,7 +206,7 @@ export function StylingShowcase() {
   const [replicas, setReplicas] = createSignal<number | null>(3)
   const [autoDeploy, setAutoDeploy] = createSignal(true)
   const [alertOpen, setAlertOpen] = createSignal(true)
-  const [selectedRows, setSelectedRows] = createSignal<string[]>(['dep-41'])
+  const [selectedRows, setSelectedRows] = createSignal<Array<string>>(['dep-41'])
   const [customizeOpen, setCustomizeOpen] = createSignal(false)
   const [codeOpen, setCodeOpen] = createSignal(false)
 
@@ -522,7 +526,11 @@ export function StylingShowcase() {
               <Popover.Trigger as={Button} aria-label="More deploy options">
                 <Icon name="i-lucide:chevron-down" class="size-3.5" />
               </Popover.Trigger>
-              <Popover.Content aria-label="Deploy options" class="p-3 w-52 space-y-2">
+              <Popover.Content
+                aria-label="Deploy options"
+                class="p-3 w-52 space-y-2"
+                style={themeStyle()}
+              >
                 <p class="text-xs font-medium">Preview target</p>
                 <p class="text-xs text-muted-foreground">
                   Portaled overlays automatically inherit the active theme tokens.
@@ -642,8 +650,8 @@ export function StylingShowcase() {
             >
               <Alert
                 tone="info"
-                title="Zero-runtime recipes active"
-                description="All 15+ controls in this canvas share one semantic token layer."
+                title="Unified theme tokens active"
+                description="Every control in this canvas shares one semantic token layer."
                 closable
                 open={alertOpen()}
                 onOpenChange={setAlertOpen}
@@ -722,7 +730,7 @@ export function StylingShowcase() {
             <Popover.Trigger as={Button} size="sm" variant="outline">
               Open Popover
             </Popover.Trigger>
-            <Popover.Content aria-label="Popover preview" class="p-3 w-52">
+            <Popover.Content aria-label="Popover preview" class="p-3 w-52" style={themeStyle()}>
               <p class="text-xs text-muted-foreground">
                 Anchored floating panel with collision detection.
               </p>

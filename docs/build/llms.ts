@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Document generation order is part of the emitted llms output.
 import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
@@ -38,7 +39,6 @@ import { resolvePreviewExportName } from './previews/module.ts'
 import { resolvePreviewComponentSource } from './previews/source.ts'
 import { scanDocsRoutes } from './routes.ts'
 import type { DocsRouteEntry } from './routes.ts'
-
 export interface LlmsTxtPluginOptions {
   projectRoot: string
   siteName: string
@@ -53,7 +53,7 @@ export interface LlmsDocument {
 
 interface MdxComponentNode extends MdxNode {
   name: string
-  attributes: unknown[]
+  attributes: Array<unknown>
   start: number
   end: number
   hasChildren: boolean
@@ -62,7 +62,7 @@ interface MdxComponentNode extends MdxNode {
 interface PageConversionContext {
   projectRoot: string
   siteUrl: string
-  routes: DocsRouteEntry[]
+  routes: Array<DocsRouteEntry>
   sourcePath: string
   markdownSource?: string
 }
@@ -118,22 +118,33 @@ function renderFrontmatter(title: string, description: string): string {
   })}---\n\n`
 }
 
-function routeByPath(routes: DocsRouteEntry[]): Map<string, DocsRouteEntry> {
+function routeByPath(routes: Array<DocsRouteEntry>): Map<string, DocsRouteEntry> {
   return new Map(routes.map((route) => [route.info.routePath, route]))
 }
 
 function escapeTableCell(value: string): string {
-  return value.replaceAll('\\', '\\\\').replaceAll('|', '\\|').replaceAll(/\r?\n/g, '<br>')
+  return value
+    .replaceAll('\\', String.raw`\\`)
+    .replaceAll('|', String.raw`\|`)
+    .replaceAll(/\r?\n/g, '<br>')
 }
 
-function renderTable(rows: readonly (readonly string[])[], headers: readonly string[]): string {
-  const renderRow = (row: readonly string[]) => `| ${row.map(escapeTableCell).join(' | ')} |`
-  return [renderRow(headers), renderRow(headers.map(() => '---')), ...rows.map(renderRow)].join(
-    '\n',
-  )
+function renderTableRow(row: ReadonlyArray<string>): string {
+  return `| ${row.map(escapeTableCell).join(' | ')} |`
 }
 
-function renderPropTable(props: readonly PresentationPropItem[], nameColumn = 'Prop'): string {
+function renderTable(
+  rows: ReadonlyArray<ReadonlyArray<string>>,
+  headers: ReadonlyArray<string>,
+): string {
+  return [
+    renderTableRow(headers),
+    renderTableRow(headers.map(() => '---')),
+    ...rows.map(renderTableRow),
+  ].join('\n')
+}
+
+function renderPropTable(props: ReadonlyArray<PresentationPropItem>, nameColumn = 'Prop'): string {
   const rows = props.map((prop) => [
     `${prop.name}${!prop.optional ? '*' : ''}`,
     prop.type,
@@ -143,16 +154,21 @@ function renderPropTable(props: readonly PresentationPropItem[], nameColumn = 'P
   return renderTable(rows, [nameColumn, 'Type', 'Default', 'Description'])
 }
 
-function renderPropExamples(propItems: readonly PresentationPropItem[]): string {
+function renderPropExamples(propItems: ReadonlyArray<PresentationPropItem>): string {
   return propItems
-    .filter((prop) => prop.examples?.length)
-    .map((prop) =>
-      [
-        `**\`${prop.name}\` ${prop.examples!.length > 1 ? 'examples' : 'example'}**`,
-        '',
-        ...prop.examples!.map((code) => codeFence('tsx', code)),
-      ].join('\n'),
-    )
+    .flatMap((prop) => {
+      const examples = prop.examples
+      if (!examples?.length) {
+        return []
+      }
+      return [
+        [
+          `**\`${prop.name}\` ${examples.length > 1 ? 'examples' : 'example'}**`,
+          '',
+          ...examples.map((code) => codeFence('tsx', code)),
+        ].join('\n'),
+      ]
+    })
     .join('\n')
 }
 
@@ -173,7 +189,7 @@ function renderApiReference(apiDoc: ComponentApi): string {
     return ''
   }
 
-  const output: string[] = ['## API Reference', '']
+  const output: Array<string> = ['## API Reference', '']
   if (model.attributes) {
     output.push('### Attributes', '', renderAttributes(model.attributes), '')
   }
@@ -322,7 +338,7 @@ function renderComponentNode(
     ].join('\n')
   }
   if (node.name === 'ComponentsIndex') {
-    const output: string[] = []
+    const output: Array<string> = []
     for (const section of [
       'layout',
       'display',
@@ -346,7 +362,7 @@ function renderComponentNode(
     return output.join('\n')
   }
   if (node.name === 'HooksIndex') {
-    const output: string[] = []
+    const output: Array<string> = []
     const pages = context.routes
       .filter((route) => route.info.surface === 'hooks' && route.info.routePath !== '/hooks')
       .sort((a, b) => a.info.title.localeCompare(b.info.title))
@@ -402,7 +418,7 @@ function copyMdxNode(value: unknown): MdxNode | null {
   }
 }
 
-function createLlmsMdastPlugin(sourcePath: string, nodes: MdxComponentNode[]) {
+function createLlmsMdastPlugin(sourcePath: string, nodes: Array<MdxComponentNode>) {
   const visit = (node: unknown) => {
     const record = asObjectRecord(node)
     const position = asObjectRecord(record?.position)
@@ -456,7 +472,7 @@ function createLlmsMdastPlugin(sourcePath: string, nodes: MdxComponentNode[]) {
 }
 
 async function collectMdxComponents(source: string, sourcePath: string) {
-  const nodes: MdxComponentNode[] = []
+  const nodes: Array<MdxComponentNode> = []
   const plugin = createLlmsMdastPlugin(sourcePath, nodes)
   const handle = createMdxMdastHandle(source, DOCS_MDX_FEATURES, true)
   try {
@@ -505,17 +521,17 @@ async function convertPageMarkdown(
   const body = output.trim()
   const apiDoc = loadComponentApiDoc(context.sourcePath)
   const content = `${header}\n${body}${body ? '\n\n' : '\n'}${apiDoc ? `\n${renderApiReference(apiDoc)}` : ''}`
-  const normalizedContent = content.replace(/\n{3,}/g, '\n\n')
+  const normalizedContent = content.replaceAll(/\n{3,}/g, '\n\n')
   return `${renderFrontmatter(frontmatter.title, frontmatter.description)}${normalizedContent}`
 }
 
 function normalizeInternalLinks(
   markdown: string,
   siteUrl: string,
-  routes: DocsRouteEntry[],
+  routes: Array<DocsRouteEntry>,
 ): string {
   const routeMap = routeByPath(routes)
-  return markdown.replace(/\]\((\/[^)]+)\)/g, (match, href: string) => {
+  return markdown.replaceAll(/\]\((\/[^)]+)\)/g, (match, href: string) => {
     const hrefMatch = href.match(/^\/([^?#]*)([?#].*)?$/)
     if (!hrefMatch) {
       return match
@@ -567,9 +583,11 @@ export function buildLlmsTxt(
   return `${renderFrontmatter(options.siteName, options.description)}${output.join('\n').trimEnd()}\n`
 }
 
-export async function buildLlmsDocuments(options: LlmsTxtPluginOptions): Promise<LlmsDocument[]> {
+export async function buildLlmsDocuments(
+  options: LlmsTxtPluginOptions,
+): Promise<Array<LlmsDocument>> {
   const routes = scanDocsRoutes(options.projectRoot)
-  const documents: LlmsDocument[] = [
+  const documents: Array<LlmsDocument> = [
     { fileName: 'llms.txt', source: buildLlmsTxt(options, routes) },
   ]
   const schemaUrl = absoluteUrl(options.siteUrl, 'component-api.schema.json')
@@ -622,7 +640,7 @@ function sendDocumentResponse(res: ServerResponse, document: LlmsDocument): void
 }
 
 export function llmsTxtPlugin(options: LlmsTxtPluginOptions): Plugin {
-  let documentsPromise: Promise<LlmsDocument[]> | undefined
+  let documentsPromise: Promise<Array<LlmsDocument>> | undefined
   const pagesRoot = path.resolve(options.projectRoot, 'docs/pages')
 
   const getDocuments = () => {

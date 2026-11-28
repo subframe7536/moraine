@@ -1,24 +1,22 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  onMount,
-  splitProps,
+  merge,
+  onSettled,
   Show,
   untrack,
+  omit,
 } from 'solid-js'
-import { delegateEvents } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { toNumber } from '../../provider/locale/number'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
@@ -33,7 +31,6 @@ import { clamp, createNumberInput } from './number-input-state'
 import { defaultNumberInputMessages } from './number-input.messages'
 import { numberInputDataAttributes, numberInputRecipe } from './number-input.recipe'
 import type { NumberInputProps, NumberInputT } from './number-input.types'
-
 /** iPhone/iPad, including iPadOS that reports as MacIntel. */
 function isIOSUserAgent(): boolean {
   const userAgent = globalThis.navigator?.userAgent ?? ''
@@ -59,7 +56,7 @@ type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, omit } from 'solid-js'
  * import { Field, NumberInput } from 'moraine'
  *
  * const [quantity, setQuantity] = createSignal<number | null>(1)
@@ -70,7 +67,8 @@ type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
  * ```
  */
 export function NumberInput(props: NumberInputProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'ref',
     'inputRef',
     'id',
@@ -118,16 +116,16 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'class',
     'style',
     'translations',
-  ])
+  )
   const themeField = useFieldContext()
-  const messages = useMessages('numberInput', defaultNumberInputMessages, () => local.translations)
+  const messages = useMessages('numberInput', defaultNumberInputMessages, () => props.translations)
   const providerLocale = useLocale().locale
-  const locale = () => local.locale ?? providerLocale()
+  const locale = () => props.locale ?? providerLocale()
   const {
     slots,
     slots: { root: rootSlot, input: inputSlot, controls: controlsSlot },
     variants,
-  } = useRecipe(numberInputRecipe, local, {
+  } = useRecipe(numberInputRecipe, props, {
     data: {
       root: numberInputDataAttributes.root(() => fieldDataState),
       input: numberInputDataAttributes.input(() => ({
@@ -147,11 +145,11 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       stepSnapping: true,
     },
-    local,
+    props,
   )
   const formatOptions = () => merged.formatOptions
 
@@ -211,34 +209,28 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
 
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
-    on(
-      [explicitControlledValue, min, max, field.value, locale],
-      ([value, min, max, formValue, localeTag]) => {
-        if (value === undefined) {
-          return
+    () =>
+      [explicitControlledValue(), min(), max(), field.value(), locale(), formatOptions()] as const,
+    ([value, min, max, formValue, localeTag, fmtOptions]) => {
+      if (value === undefined) {
+        return
+      }
+      if (value === null) {
+        if (formValue !== undefined) {
+          field.setFormValue(undefined)
         }
-        if (value === null) {
-          if (formValue !== undefined) {
-            field.setFormValue(undefined)
-          }
-          return
-        }
-        const boundedValue = clamp(value, min, max)
-        if (
-          !Object.is(
-            toNumber(
-              formValue as string | number | undefined,
-              Number.NaN,
-              localeTag,
-              formatOptions(),
-            ),
-            boundedValue,
-          )
-        ) {
-          field.setFormValue(boundedValue)
-        }
-      },
-    ),
+        return
+      }
+      const boundedValue = clamp(value, min, max)
+      if (
+        !Object.is(
+          toNumber(formValue as string | number | undefined, Number.NaN, localeTag, fmtOptions),
+          boundedValue,
+        )
+      ) {
+        field.setFormValue(boundedValue)
+      }
+    },
   )
 
   const incrementIcon = (): IconT.Name => {
@@ -288,6 +280,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     event: Event,
     offset: number,
   ): void {
+    // Delegated key/wheel handlers run unowned; settle the stepped value write.
     const details = stepDetails(kind, emitter, event, offset)
     if (kind === 'increment' ? state.incrementValue(offset) : state.decrementValue(offset)) {
       merged.onStep?.(details)
@@ -339,10 +332,10 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   function resolveControlProps(kind: ControlKind): NumberInputControlProps {
     const isIncrement = kind === 'increment'
     const isControlDisabled = (): boolean => !isControlInteractive(kind)
-    const controlProps = mergeProps(slots[kind], {
+    const controlProps = merge(slots[kind], {
       'data-slot': `number-input-${kind}`,
       type: 'button',
-      tabIndex: -1,
+      tabindex: -1,
       get 'aria-label'() {
         return isIncrement ? messages().increment : messages().decrement
       },
@@ -407,47 +400,39 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     step('decrement', 'wheel', event, event.shiftKey ? largeStepValue() : stepValue())
   }
 
-  let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
   const [isIOS, setIsIOS] = createSignal(false)
-
-  onCleanup(() => {
-    if (autoFocusTimeoutId !== undefined) {
-      clearTimeout(autoFocusTimeoutId)
-    }
-  })
 
   useFormReset(
     () => inputEl?.form,
     () => {
-      state.reset(initialResetValue)
+      const resetText = state.reset(initialResetValue)
       if (inputEl) {
-        inputEl.value = state.formattedValue()
+        inputEl.value = resetText
       }
     },
   )
 
-  onMount(() => {
+  onSettled(() => {
     if (isIOSUserAgent()) {
       setIsIOS(true)
     }
 
     if (inputEl && inputEl.ownerDocument !== document) {
       // Solid delegates these events on the global document by default.
-      delegateEvents(
-        ['click', 'contextmenu', 'input', 'keydown', 'pointerdown', 'pointerup'],
-        inputEl.ownerDocument,
-      )
+      delegateEvents(['click', 'contextmenu', 'input', 'keydown', 'pointerdown', 'pointerup'])
+      registerDelegatedContainer(inputEl.ownerDocument)
     }
 
     if (!merged.autoFocus) {
       return
     }
 
-    autoFocusTimeoutId = setTimeout(() => {
+    const autoFocusTimeoutId = setTimeout(() => {
       if (!field.disabled()) {
         inputEl?.focus()
       }
     }, merged.autoFocusDelay ?? 0)
+    return () => clearTimeout(autoFocusTimeoutId)
   })
 
   const onInputKeyDown = createKeyDownHandler<HTMLInputElement>({
@@ -487,7 +472,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       {...rootSlot}
       {...rest}
       id={`${field.id()}-root`}
-      ref={(element) => callRef(local.ref, element)}
+      ref={props.ref}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
@@ -498,14 +483,14 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       <Show when={field.name()}>
         <HiddenInput
           type="text"
-          tabIndex={-1}
+          tabindex={-1}
           aria-hidden="true"
           name={field.name()}
           form={merged.form}
           value={state.currentValue() !== null ? String(state.currentValue()) : ''}
           required={field.required()}
           disabled={field.disabled()}
-          readOnly={readOnly()}
+          readonly={readOnly()}
           onInvalid={onInvalid}
         />
       </Show>
@@ -513,15 +498,17 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       <input
         data-slot="number-input-input"
         type="text"
-        inputMode={isIOS() && min() < 0 ? 'text' : 'decimal'}
+        inputmode={isIOS() && min() < 0 ? 'text' : 'decimal'}
         role="spinbutton"
         placeholder={merged.placeholder}
         {...inputSlot}
-        ref={(e) => {
-          inputEl = e
-          field.setControlRef(e)
-          callRef(local.inputRef, e)
-        }}
+        ref={[
+          (e) => {
+            inputEl = e
+          },
+          field.setControlRef,
+          props.inputRef,
+        ]}
         id={field.id()}
         form={merged.form}
         value={state.draftText() ?? state.formattedValue()}
@@ -550,7 +537,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         onBlur={onBlur}
         onFocus={onFocus}
         onWheel={onWheel}
-        {...mergeFieldAriaAttributes(local, field.ariaAttrs())}
+        {...mergeFieldAriaAttributes(props, field.ariaAttrs())}
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>

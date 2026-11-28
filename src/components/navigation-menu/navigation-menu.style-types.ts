@@ -1,6 +1,5 @@
 import type { Orientation } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface NavigationMenuStyleSlot<T = unknown> {
   /** Navigation landmark. */
   root?: T

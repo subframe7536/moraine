@@ -1,6 +1,5 @@
 import { Badge, NumberInput } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Controlled() {
   const [quantity, setQuantity] = createSignal(2)
   const unitPrice = 49.0

@@ -5,7 +5,6 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { KbdT } from '../kbd/kbd.types'
 
 import type { KbdGroupStyleSlot, KbdGroupStyleVariants } from './kbd-group.style-types'
-
 export namespace KbdGroupT {
   export type Kind = 'single'
 
@@ -49,7 +48,7 @@ export namespace KbdGroupT {
      * <KbdGroup items={['meta', { value: 'K', ariaLabel: 'letter K' }]} />
      * ```
      */
-    items: Item[]
+    items: Array<Item>
 
     /**
      * Plain text between keys (not an icon name), or a component rendered between each pair of

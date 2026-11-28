@@ -1,14 +1,13 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field'
 import { createForm } from '../form'
 
 import { FileUpload } from './file-upload'
-
 function createFile(
   name: string,
   type = 'text/plain',
@@ -28,20 +27,20 @@ function getFileInput(container: HTMLElement): HTMLInputElement {
   return input as HTMLInputElement
 }
 
-async function setInputFiles(input: HTMLInputElement, files: File[]): Promise<void> {
+async function setInputFiles(input: HTMLInputElement, files: Array<File>): Promise<void> {
   fireEvent.change(input, {
     target: { files },
     currentTarget: { files },
   })
 }
 
-async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
+async function dropFiles(target: HTMLElement, files: Array<File>): Promise<void> {
   let dataTransfer:
     | DataTransfer
     | {
-        files: File[] | FileList
+        files: Array<File> | FileList
         items: Array<{ kind: string; type: string; getAsFile: () => File }>
-        types: string[]
+        types: Array<string>
         dropEffect: string
       }
 
@@ -68,15 +67,15 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
   fireEvent.drop(target, { dataTransfer })
 }
 
-describe('FileUpload', () => {
-  test('exposes native inputRef', () => {
+describe('fileUpload', () => {
+  it('exposes native inputRef', () => {
     let ref: HTMLInputElement | undefined
     render(() => <FileUpload inputRef={(el) => (ref = el)} />)
     expect(ref).toBeInstanceOf(HTMLInputElement)
     expect(ref?.type).toBe('file')
   })
-  test('supports tuple click handlers on the upload control', async () => {
-    const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
+  it('supports tuple click handlers on the upload control', async () => {
+    const onClick = vi.fn<(_data: string, _event: MouseEvent) => any>((_data, _event) => undefined)
     const screen = render(() => <FileUpload onClick={[onClick, 'payload']} />)
     const control = screen.container.querySelector(
       '[data-slot="file-upload-control"]',
@@ -87,9 +86,9 @@ describe('FileUpload', () => {
     expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
   })
 
-  test('calls user onFocus and onBlur when the control gains and loses focus', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+  it('calls user onFocus and onBlur when the control gains and loses focus', () => {
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload onFocus={onFocus} onBlur={onBlur} />)
     const control = screen.container.querySelector(
       '[data-slot="file-upload-control"]',
@@ -108,8 +107,8 @@ describe('FileUpload', () => {
     expect(onBlur.mock.calls[0]?.[0].target).toBe(control)
   })
 
-  test('opens the picker from click, Enter, and Space while respecting cancellation', async () => {
-    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+  it('opens the picker from click, Enter, and Space while respecting cancellation', async () => {
+    const onKeyDown = vi.fn<(event: KeyboardEvent) => any>((event) => {
       if (event.key === 'Escape') {
         event.preventDefault()
       }
@@ -151,7 +150,7 @@ describe('FileUpload', () => {
     readOnlyClick.mockRestore()
   })
 
-  test('renders base attributes and text', () => {
+  it('renders base attributes and text', () => {
     const screen = render(() => (
       <FileUpload
         id="upload-input"
@@ -177,7 +176,7 @@ describe('FileUpload', () => {
     expect(screen.getByText('PNG, JPG up to 2MB')).not.toBeNull()
   })
 
-  test.each([true, false])(
+  it.each([true, false])(
     'keeps the visible picker as the only focus and validation target (dropzone=%s)',
     async (dropzone) => {
       const screen = render(() => <FileUpload dropzone={dropzone} required label="Attachments" />)
@@ -201,8 +200,8 @@ describe('FileUpload', () => {
     },
   )
 
-  test('single mode emits File | null', async () => {
-    const onValueChange = vi.fn()
+  it('single mode emits File | null', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
 
@@ -214,8 +213,8 @@ describe('FileUpload', () => {
     expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]').length).toBe(1)
   })
 
-  test('multiple mode appends files and emits File[]', async () => {
-    const onValueChange = vi.fn()
+  it('multiple mode appends files and emits File[]', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload multiple onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
 
@@ -230,8 +229,8 @@ describe('FileUpload', () => {
     expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]').length).toBe(2)
   })
 
-  test('dropzone flow accepts files when enabled', async () => {
-    const onValueChange = vi.fn()
+  it('dropzone flow accepts files when enabled', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload multiple dropzone onValueChange={onValueChange} />)
     const base = screen.container.querySelector('[data-slot="file-upload-control"]') as HTMLElement
     const file = createFile('drop.txt')
@@ -242,8 +241,8 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenLastCalledWith([file])
   })
 
-  test('variant="button" still accepts dropped files', async () => {
-    const onValueChange = vi.fn()
+  it('variant="button" still accepts dropped files', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload multiple variant="button" onValueChange={onValueChange} />
     ))
@@ -256,8 +255,8 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenLastCalledWith([file])
   })
 
-  test('dropzone=false does not process drop files or mark dragging', async () => {
-    const onValueChange = vi.fn()
+  it('dropzone=false does not process drop files or mark dragging', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload multiple dropzone={false} onValueChange={onValueChange} />
     ))
@@ -271,7 +270,7 @@ describe('FileUpload', () => {
     expect(screen.container.querySelector('[data-slot="file-upload-file"]')).toBeNull()
   })
 
-  test('marks the dropzone as dragging while files are dragged over it', async () => {
+  it('marks the dropzone as dragging while files are dragged over it', async () => {
     const screen = render(() => <FileUpload dropzone />)
     const base = screen.container.querySelector('[data-slot="file-upload-control"]') as HTMLElement
 
@@ -289,8 +288,8 @@ describe('FileUpload', () => {
     })
   })
 
-  test('remove file updates list and emitted value for multiple mode', async () => {
-    const onValueChange = vi.fn()
+  it('remove file updates list and emitted value for multiple mode', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload multiple onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
 
@@ -310,8 +309,8 @@ describe('FileUpload', () => {
     expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]').length).toBe(0)
   })
 
-  test('remove file emits null in single mode', async () => {
-    const onValueChange = vi.fn()
+  it('remove file emits null in single mode', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
     const file = createFile('single.txt')
@@ -327,7 +326,7 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenNthCalledWith(2, null)
   })
 
-  test('preview creates and revokes object URL for image files', async () => {
+  it('preview creates and revokes object URL for image files', async () => {
     const createObjectURL = vi
       .spyOn(URL, 'createObjectURL')
       .mockImplementation(() => 'blob:preview-image')
@@ -358,8 +357,8 @@ describe('FileUpload', () => {
     }
   })
 
-  test('fileList=false hides the file list but keeps the selected value', async () => {
-    const onValueChange = vi.fn()
+  it('fileList=false hides the file list but keeps the selected value', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload fileList={false} onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
     const file = createFile('file.txt')
@@ -371,7 +370,7 @@ describe('FileUpload', () => {
     expect(screen.container.querySelector('[data-slot="file-upload-file"]')).toBeNull()
   })
 
-  test('creates preview URLs only while previews are mounted and revokes each URL once', async () => {
+  it('creates preview URLs only while previews are mounted and revokes each URL once', async () => {
     const createObjectURL = vi
       .spyOn(URL, 'createObjectURL')
       .mockImplementation(() => 'blob:preview-image')
@@ -385,10 +384,10 @@ describe('FileUpload', () => {
       await setInputFiles(getFileInput(screen.container), [image])
       expect(createObjectURL).not.toHaveBeenCalled()
 
-      setFileList(true)
+      flush(() => setFileList(true))
       await waitFor(() => expect(createObjectURL).toHaveBeenCalledTimes(1))
 
-      setFileList(false)
+      flush(() => setFileList(false))
       await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledTimes(1))
 
       screen.unmount()
@@ -399,7 +398,7 @@ describe('FileUpload', () => {
     }
   })
 
-  test('does not create a preview URL for a rejected image', async () => {
+  it('does not create a preview URL for a rejected image', async () => {
     const createObjectURL = vi
       .spyOn(URL, 'createObjectURL')
       .mockImplementation(() => 'blob:rejected-image')
@@ -418,7 +417,7 @@ describe('FileUpload', () => {
     }
   })
 
-  test('replaces preview URL ownership and cleans the remaining URL on unmount', async () => {
+  it('replaces preview URL ownership and cleans the remaining URL on unmount', async () => {
     const createObjectURL = vi
       .spyOn(URL, 'createObjectURL')
       .mockImplementation((value) => `blob:${(value as File).name}`)
@@ -444,7 +443,7 @@ describe('FileUpload', () => {
     }
   })
 
-  test('ignores non-file drags, sets copy effect for files, and ignores nested dragleave', async () => {
+  it('ignores non-file drags, sets copy effect for files, and ignores nested dragleave', async () => {
     const screen = render(() => <FileUpload />)
     const control = screen.getByRole('button', { name: 'File upload' })
     const nonFileTransfer = {
@@ -479,8 +478,8 @@ describe('FileUpload', () => {
     expect(control.getAttribute('data-dragging')).toBeNull()
   })
 
-  test('respects canceled drag handlers and does not process non-file drops', async () => {
-    const onValueChange = vi.fn()
+  it('respects canceled drag handlers and does not process non-file drops', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload onValueChange={onValueChange} onDragOver={(event) => event.preventDefault()} />
     ))
@@ -502,8 +501,8 @@ describe('FileUpload', () => {
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('clears hidden input and supports selecting same file again after remove', async () => {
-    const onValueChange = vi.fn()
+  it('clears hidden input and supports selecting same file again after remove', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <FileUpload onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
     const file = createFile('repeat.txt')
@@ -520,7 +519,7 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenNthCalledWith(3, file)
   })
 
-  test('applies class overrides for root and file slots', async () => {
+  it('applies class overrides for root and file slots', async () => {
     const screen = render(() => (
       <FileUpload multiple classes={{ root: 'root-override', file: 'file-override' }} />
     ))
@@ -535,7 +534,7 @@ describe('FileUpload', () => {
     expect(file?.classList.contains('file-override')).toBe(true)
   })
 
-  test('applies style overrides for root and file slots', async () => {
+  it('applies style overrides for root and file slots', async () => {
     const screen = render(() => (
       <FileUpload multiple styles={{ root: { width: '200px' }, file: { width: '200px' } }} />
     ))
@@ -550,8 +549,8 @@ describe('FileUpload', () => {
     expect(file?.style.width).toBe('200px')
   })
 
-  test('accepts maxFiles only in multiple mode at the type level', () => {
-    void ((multiple: boolean) => (
+  it('accepts maxFiles only in multiple mode at the type level', () => {
+    const check = (multiple: boolean) => (
       <>
         <FileUpload multiple maxFiles={2} />
         <FileUpload multiple={multiple} maxFiles={2} />
@@ -560,11 +559,12 @@ describe('FileUpload', () => {
         {/* @ts-expect-error maxFiles requires multiple. */}
         <FileUpload multiple={false} maxFiles={2} />
       </>
-    ))
+    )
+    expect(check).toBeTypeOf('function')
   })
 
-  test('calls onValueInvalid when files are rejected', async () => {
-    const onValueInvalid = vi.fn()
+  it('calls onValueInvalid when files are rejected', async () => {
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload multiple maxFiles={1} onValueInvalid={onValueInvalid} />
     ))
@@ -575,9 +575,9 @@ describe('FileUpload', () => {
     expect(onValueInvalid).toHaveBeenCalledTimes(1)
   })
 
-  test('rejects files smaller than minSize', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+  it('rejects files smaller than minSize', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload
         multiple
@@ -599,9 +599,9 @@ describe('FileUpload', () => {
     })
   })
 
-  test('rejects files larger than maxSize', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+  it('rejects files larger than maxSize', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload
         multiple
@@ -623,9 +623,9 @@ describe('FileUpload', () => {
     })
   })
 
-  test('rejects duplicate files from the same batch and existing list', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+  it('rejects duplicate files from the same batch and existing list', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload multiple onValueChange={onValueChange} onValueInvalid={onValueInvalid} />
     ))
@@ -647,9 +647,9 @@ describe('FileUpload', () => {
     })
   })
 
-  test('keeps accepted type and maxFiles rejection behavior', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+  it('keeps accepted type and maxFiles rejection behavior', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload
         multiple
@@ -677,9 +677,9 @@ describe('FileUpload', () => {
     })
   })
 
-  test('reports type and size reasons together and keeps one file in single mode', async () => {
-    const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+  it('reports type and size reasons together and keeps one file in single mode', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onValueInvalid = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <FileUpload
         accept="image/*"
@@ -703,12 +703,12 @@ describe('FileUpload', () => {
     })
   })
 
-  test('clears files, previews, and form value on native reset without emitting a callback', async () => {
+  it('clears files, previews, and form value on native reset without emitting a callback', async () => {
     const createObjectURL = vi
       .spyOn(URL, 'createObjectURL')
       .mockImplementation(() => 'blob:reset-image')
     const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     try {
       const screen = render(() => (
@@ -738,8 +738,8 @@ describe('FileUpload', () => {
     }
   })
 
-  test('synchronizes accepted files and reset state with Field submission', async () => {
-    const onSubmit = vi.fn()
+  it('synchronizes accepted files and reset state with Field submission', async () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -771,7 +771,7 @@ describe('FileUpload', () => {
     expect(onSubmit.mock.calls[1]?.[0]).toEqual({ attachment: null })
   })
 
-  test('uses the visible picker for Field validation focus and feedback', async () => {
+  it('uses the visible picker for Field validation focus and feedback', async () => {
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -804,7 +804,7 @@ describe('FileUpload', () => {
     expect(input.getAttribute('aria-hidden')).toBe('true')
   })
 
-  test('provides a fallback accessible name and links label and description', () => {
+  it('provides a fallback accessible name and links label and description', () => {
     const unnamed = render(() => <FileUpload />)
     expect(unnamed.getByRole('button', { name: 'File upload' })).not.toBeNull()
     unnamed.unmount()
@@ -818,7 +818,7 @@ describe('FileUpload', () => {
     expect(control.getAttribute('aria-describedby')).toContain(description.id)
   })
 
-  test.each([
+  it.each([
     { dropzone: true, override: undefined, locked: true },
     { dropzone: false, override: undefined, locked: true },
     { dropzone: true, override: false, locked: false },
@@ -827,7 +827,7 @@ describe('FileUpload', () => {
     'resolves reactive Field readonly and explicit overrides ($dropzone, $override)',
     async ({ dropzone, override, locked }) => {
       const [readOnly, setReadOnly] = createSignal(true)
-      const onValueChange = vi.fn()
+      const onValueChange = vi.fn<(...args: Array<any>) => void>()
       const initial = createFile('initial.txt')
       const screen = render(() => (
         <Field readOnly={readOnly()}>
@@ -862,15 +862,16 @@ describe('FileUpload', () => {
       expect(inputClick).toHaveBeenCalledTimes(locked ? 0 : dropzone ? 3 : 1)
       if (locked) {
         fireEvent.click(removal)
-        expect(onValueChange).not.toHaveBeenCalled()
-        expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]')).toHaveLength(1)
-      } else {
-        expect(onValueChange).toHaveBeenLastCalledWith(
-          expect.arrayContaining([initial, expect.objectContaining({ name: 'picked.txt' })]),
-        )
       }
+      const lastFiles = (onValueChange.mock.lastCall?.[0] as Array<File> | undefined) ?? []
+      expect(onValueChange.mock.calls.length > 0).toBe(!locked)
+      expect(lastFiles.includes(initial)).toBe(!locked)
+      expect(lastFiles.some((file) => file.name === 'picked.txt')).toBe(!locked)
+      expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]')).toHaveLength(
+        locked ? 1 : dropzone ? 3 : 2,
+      )
 
-      setReadOnly(false)
+      flush(() => setReadOnly(false))
       expect(control.hasAttribute('aria-readonly')).toBe(false)
       expect(root.hasAttribute('data-readonly')).toBe(false)
       expect(input.readOnly).toBe(false)
@@ -883,14 +884,14 @@ describe('FileUpload', () => {
       expect(inputClick).toHaveBeenCalledTimes(1)
       expect(onValueChange).toHaveBeenCalledTimes(1)
       expect(screen.queryByRole('button', { name: 'Remove initial.txt' })).toBeNull()
-      setReadOnly(true)
+      flush(() => setReadOnly(true))
       expect(control.getAttribute('aria-readonly')).toBe(locked ? 'true' : null)
       inputClick.mockRestore()
     },
   )
 
-  test('readOnly keeps selected files and disables removal', async () => {
-    const onValueChange = vi.fn()
+  it('readOnly keeps selected files and disables removal', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const [readOnly, setReadOnly] = createSignal(false)
     const screen = render(() => (
       <FileUpload multiple readOnly={readOnly()} onValueChange={onValueChange} />
@@ -899,7 +900,7 @@ describe('FileUpload', () => {
 
     await setInputFiles(input, [createFile('locked.txt')])
 
-    setReadOnly(true)
+    flush(() => setReadOnly(true))
 
     await waitFor(() => {
       expect(
@@ -923,7 +924,7 @@ describe('FileUpload', () => {
     ).toBe('')
   })
 
-  test('supports custom itemRender renderer', () => {
+  it('supports custom itemRender renderer', () => {
     const file = createFile('custom.png', 'image/png')
     const screen = render(() => (
       <FileUpload

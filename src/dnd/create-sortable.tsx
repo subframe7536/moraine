@@ -1,20 +1,11 @@
 import { DragDropManager, Feedback, resolveCustomizable } from '@dnd-kit/dom'
 import type { DragDropManagerInput, DragEndEvent } from '@dnd-kit/dom'
 import { isSortable, Sortable as DndSortable } from '@dnd-kit/dom/sortable'
+import { isServer } from '@solidjs/web'
 import type { FlowComponent } from 'solid-js'
-import {
-  createContext,
-  createEffect,
-  createRenderEffect,
-  createSignal,
-  on,
-  onCleanup,
-  onMount,
-  untrack,
-  useContext,
-} from 'solid-js'
-import { isServer } from 'solid-js/web'
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
+import { createContextProvider } from '../shared/create-context-provider'
 import { createDataAttributes } from '../theme/style-contract'
 
 import type {
@@ -28,6 +19,8 @@ import type {
   SortableItemInput,
   SortableVirtualRange,
 } from './sortable.types'
+
+const noop = (): void => {}
 
 export interface SortableOptions {
   /**
@@ -89,7 +82,7 @@ function prefersReducedMotion(): boolean {
 
 type PluginList = Exclude<
   NonNullable<DragDropManagerInput['plugins']>,
-  (...args: never[]) => unknown
+  (...args: Array<never>) => unknown
 >
 
 /**
@@ -105,17 +98,17 @@ function configureFeedback(plugins: PluginList): PluginList {
 }
 
 interface ItemData extends Record<string, unknown> {
-  positions: readonly SortableDropPosition[]
+  positions: ReadonlyArray<SortableDropPosition>
 }
 
-const DEFAULT_POSITIONS: readonly SortableDropPosition[] = ['before', 'after']
+const DEFAULT_POSITIONS: ReadonlyArray<SortableDropPosition> = ['before', 'after']
 
 const itemDataAttributes = /* @__PURE__ */ createDataAttributes('dragging', 'drop-position')
 
 /** Picks a drop position from where the source sits along the target, from 0 (start) to 1 (end). */
 function pickPosition(
   ratio: number,
-  positions: readonly SortableDropPosition[],
+  positions: ReadonlyArray<SortableDropPosition>,
 ): SortableDropPosition | undefined {
   const before = positions.includes('before')
   const after = positions.includes('after')
@@ -223,7 +216,7 @@ function createSaveElementPosition() {
     } else if (nextElement?.isConnected && element.nextElementSibling !== nextElement) {
       nextElement.insertAdjacentElement('beforebegin', element)
     } else if (parentElement?.isConnected) {
-      parentElement.appendChild(element)
+      parentElement.append(element)
     }
   }
   return {
@@ -265,7 +258,10 @@ export function createSortable(options: SortableOptions = {}): Sortable {
   const elements = new Map<SortableId, HTMLElement>()
   const animation = options.dropAnimation === false ? undefined : (options.dropAnimation ?? {})
 
-  const SortableContext = createContext<DragDropManager>()
+  const [SortableProvider, useSortableManager] = createContextProvider<DragDropManager | null>(
+    'Sortable',
+    null,
+  )
 
   /** Slides the element of `id` from `from` (viewport position) to where it has settled. */
   const animateInto = (manager: DragDropManager, id: SortableId, from: Rect): void => {
@@ -363,7 +359,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       current.destroy()
     })
 
-    return <SortableContext.Provider value={current}>{props.children}</SortableContext.Provider>
+    return <SortableProvider value={current}>{props.children}</SortableProvider>
   }
 
   // Handles rendered apart from their item attach by id, in either mount order.
@@ -391,10 +387,9 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     }
     const attributes = itemDataAttributes({ dragging, dropPosition }) as SortableItemAttributes
     if (isServer) {
-      const noop = (): void => {}
       return { ref: noop, handleRef: noop, targetRef: noop, dragging, dropPosition, attributes }
     }
-    const manager = useContext(SortableContext)
+    const manager = useSortableManager()
     if (!manager) {
       throw new Error('useItem must be called under the sortable Provider')
     }
@@ -404,11 +399,16 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         return input.positions?.() ?? DEFAULT_POSITIONS
       },
     }
+    // The dnd kit entity is created once from the current values; the effect below applies
+    // later id, index, and disabled changes to it.
+    const initial = untrack(() => ({
+      id: input.id(),
+      index: input.index(),
+      disabled: input.disabled?.() ?? false,
+    }))
     const sortable = new DndSortable<ItemData>(
       {
-        id: input.id(),
-        index: input.index(),
-        disabled: input.disabled?.() ?? false,
+        ...initial,
         data,
         // Index changes come from the host's re-render after a drop, which the drop animation
         // already covers; dnd kit's own index transition would animate from the stale index.
@@ -419,18 +419,24 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     )
     // Element and prop writes trigger plugin effects that measure shapes, which must wait until
     // the current render and the drag operation settle; refs therefore feed signals synced here.
+    // All client-only effects use `transparent: true` because `useItem` returns early on the server
+    // without allocating these primitives, so they must not consume hydration child IDs.
     const [itemElement, setItemElement] = createSignal<HTMLElement>()
     const [itemHandle, setItemHandle] = createSignal<HTMLElement>()
     const [itemTarget, setItemTarget] = createSignal<HTMLElement>()
-    onMount(() => {
-      const unregister = sortable.register()
-      onCleanup(unregister)
-    })
-    onCleanup(() => {
-      sortable.destroy()
-    })
     createEffect(
-      on([itemElement, itemHandle, itemTarget], ([element, handle, target]) => {
+      () => undefined,
+      () => {
+        sortable.register()
+        return () => {
+          sortable.destroy()
+        }
+      },
+      { transparent: true },
+    )
+    createEffect(
+      () => [itemElement(), itemHandle(), itemTarget()],
+      ([element, handle, target]) => {
         if (element) {
           sortable.element = element
         }
@@ -440,56 +446,60 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         if (target) {
           sortable.target = target
         }
-      }),
+      },
+      { transparent: true },
     )
     createEffect(
-      on(
-        [input.id, input.index, () => input.disabled?.() ?? false],
-        ([id, index, disabled], prev) => {
-          sortable.id = id
-          sortable.disabled = disabled
-          sortable.index = index
-          if (
-            prev?.[1] !== undefined &&
-            index !== prev[1] &&
-            manager.dragOperation.status.idle &&
-            sortable.transition?.idle
-          ) {
-            sortable.refreshShape()
-          }
-        },
-      ),
+      () => [input.id(), input.index(), input.disabled?.() ?? false] as const,
+      ([id, index, disabled], prev) => {
+        sortable.id = id
+        sortable.disabled = disabled
+        sortable.index = index
+        if (
+          prev?.[1] !== undefined &&
+          index !== prev[1] &&
+          manager.dragOperation.status.idle &&
+          sortable.transition?.idle
+        ) {
+          sortable.refreshShape()
+        }
+      },
+      { transparent: true },
     )
     const handleRef = (element: HTMLElement): void => {
       setItemHandle(element)
     }
-    createRenderEffect(
-      on(input.id, (id) => {
+    createEffect(
+      input.id,
+      (id) => {
         handleSetters.set(id, handleRef)
         const pending = pendingHandles.get(id)
         if (pending) {
           pendingHandles.delete(id)
           handleRef(pending)
         }
-        onCleanup(() => {
+        return () => {
           if (handleSetters.get(id) === handleRef) {
             handleSetters.delete(id)
           }
-        })
-      }),
+        }
+      },
+      { transparent: true },
     )
     let element: HTMLElement | undefined
-    createRenderEffect(
-      on(input.id, (id) => {
+    createEffect(
+      input.id,
+      (id) => {
         if (element) {
           elements.set(id, element)
         }
-        onCleanup(() => {
+        return () => {
           if (elements.get(id) === element) {
             elements.delete(id)
           }
-        })
-      }),
+        }
+      },
+      { transparent: true },
     )
     return {
       ref: (next) => {
@@ -505,10 +515,10 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     }
   }
 
-  const rangeExtractor = (range: SortableVirtualRange): number[] => {
+  const rangeExtractor = (range: SortableVirtualRange): Array<number> => {
     const start = Math.max(range.startIndex - range.overscan, 0)
     const end = Math.min(range.endIndex + range.overscan, range.count - 1)
-    const indexes: number[] = []
+    const indexes: Array<number> = []
     for (let index = start; index <= end; index++) {
       indexes.push(index)
     }

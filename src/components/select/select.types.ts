@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -20,7 +21,6 @@ import type {
 
 import type { defaultSelectMessages } from './select.messages'
 import type { SelectStyleSlot, SelectStyleVariants } from './select.style-types'
-
 export namespace SelectT {
   export type Kind = 'single'
   export type Slot<T = unknown> = SelectStyleSlot<T>
@@ -114,7 +114,7 @@ export namespace SelectT {
      * />
      * ```
      */
-    items?: Entry<TItem>[]
+    items?: Array<Entry<TItem>>
     /**
      * Called with the new item `value` when the user changes the selection, or with `null` when
      * it is cleared. Not called for prop updates, when the same item is chosen again, or while

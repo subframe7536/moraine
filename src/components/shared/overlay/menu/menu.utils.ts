@@ -1,6 +1,7 @@
 import type { Placement, VirtualElement } from '@floating-ui/dom'
-import type { Accessor, JSX } from 'solid-js'
-import { createSelector, createSignal, onCleanup, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createSignal, onCleanup, untrack, createProjection } from 'solid-js'
 
 import type { KeyBindingOptions } from '../../../../shared/keyboard'
 import { createKeyDownHandler } from '../../../../shared/keyboard'
@@ -9,13 +10,15 @@ import { createTypeahead } from '../../../../shared/typeahead'
 import { focusWithoutScrolling } from '../focus'
 
 import type { OverlayMenuItem, OverlayMenuRadioGroupItem } from './types'
-
 export function getOverlayMenuTextValue(item: { label?: JSX.Element }): string | undefined {
   return typeof item.label === 'string' ? item.label : undefined
 }
 
 /** Whether an item opens a submenu: an untyped (or `'item'`) entry with at least one non-empty child. */
-export function hasOverlayMenuChildren(item: { type?: string; children?: unknown[] }): boolean {
+export function hasOverlayMenuChildren(item: {
+  type?: string
+  children?: Array<unknown>
+}): boolean {
   if ((item.type !== undefined && item.type !== 'item') || !item.children?.length) {
     return false
   }
@@ -23,26 +26,26 @@ export function hasOverlayMenuChildren(item: { type?: string; children?: unknown
   return item.children.some(
     (child) =>
       (child as { type?: string }).type !== 'group' ||
-      Boolean((child as { children?: unknown[] }).children?.length),
+      Boolean((child as { children?: Array<unknown> }).children?.length),
   )
 }
 
 export interface OverlayMenuGroup<TItem = OverlayMenuItem> {
   label?: JSX.Element
-  items: TItem[]
+  items: Array<TItem>
   separator?: boolean
   radioGroup?: OverlayMenuRadioGroupItem
 }
 
 export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuItem>(
-  items?: (TItem | TItem[])[],
-): OverlayMenuGroup<TItem>[] {
+  items?: Array<TItem | Array<TItem>>,
+): Array<OverlayMenuGroup<TItem>> {
   if (!items || items.length === 0) {
     return []
   }
 
-  const groups: OverlayMenuGroup<TItem>[] = []
-  let defaultGroup: TItem[] = []
+  const groups: Array<OverlayMenuGroup<TItem>> = []
+  let defaultGroup: Array<TItem> = []
 
   const flushDefaultGroup = (): void => {
     if (defaultGroup.length > 0) {
@@ -51,8 +54,12 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
     }
   }
 
-  const pushNestedItems = (list: TItem[], label?: JSX.Element, withSeparator = false): void => {
-    let chunk: TItem[] = []
+  const pushNestedItems = (
+    list: Array<TItem>,
+    label?: JSX.Element,
+    withSeparator = false,
+  ): void => {
+    let chunk: Array<TItem> = []
     let first = true
     const push = (entry: OverlayMenuGroup<TItem>): void => {
       if (first && withSeparator) {
@@ -106,7 +113,7 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
     if (item.type === 'group') {
       flushDefaultGroup()
 
-      const groupItems = item.children as TItem[] | undefined
+      const groupItems = item.children as Array<TItem> | undefined
       if (groupItems?.length) {
         pushNestedItems(groupItems, item.label)
       }
@@ -140,7 +147,7 @@ export interface OverlayMenuRegisteredItem {
 }
 
 export interface OverlayMenuRegisteredSubmenu {
-  close: () => void
+  close: (syncFlush?: boolean) => void
   id: string
 }
 
@@ -158,8 +165,12 @@ const POINTER_GRACE_SHADOW_PADDING = 12
 
 export interface OverlayMenuLayerState {
   clearQueuedPointerEnter: (element?: HTMLElement) => void
-  closeSubmenus: (exceptId?: string, registeredSubmenus?: OverlayMenuRegisteredSubmenu[]) => void
-  submenus: Accessor<OverlayMenuRegisteredSubmenu[]>
+  closeSubmenus: (
+    exceptId?: string,
+    registeredSubmenus?: Array<OverlayMenuRegisteredSubmenu>,
+    syncFlush?: boolean,
+  ) => void
+  submenus: Accessor<Array<OverlayMenuRegisteredSubmenu>>
   /** Whether `node` sits inside this layer's positioner or a descendant submenu positioner. */
   containsTarget: (node: Node) => boolean
   contentElement: Accessor<HTMLDivElement | undefined>
@@ -196,8 +207,13 @@ function isPointInPolygon(point: [number, number], polygon: Array<[number, numbe
   let inside = false
 
   for (let index = 0, previous = polygon.length - 1; index < polygon.length; previous = index++) {
-    const [xi, yi] = polygon[index]!
-    const [xj, yj] = polygon[previous]!
+    const currentVertex = polygon[index]
+    const previousVertex = polygon[previous]
+    if (!currentVertex || !previousVertex) {
+      continue
+    }
+    const [xi, yi] = currentVertex
+    const [xj, yj] = previousVertex
     const intersect =
       yi > point[1] !== yj > point[1] &&
       point[0] < ((xj - xi) * (point[1] - yi)) / (yj - yi || 1) + xi
@@ -352,9 +368,20 @@ export function useOverlayMenuLayerState(
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom-start')
   const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined)
-  const isHighlighted = createSelector<string | undefined, string>(highlightedItemId)
-  const [items, setItems] = createSignal<OverlayMenuRegisteredItem[]>([])
-  const [submenus, setSubmenus] = createSignal<OverlayMenuRegisteredSubmenu[]>([])
+  let previousHighlightedId: string | undefined
+  const highlightedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = highlightedItemId()
+    if (previousHighlightedId !== undefined && previousHighlightedId !== next) {
+      delete draft[previousHighlightedId]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousHighlightedId = next
+  }, {})
+  const isHighlighted = (id: string): boolean => highlightedMap[id] === true
+  const [items, setItems] = createSignal<Array<OverlayMenuRegisteredItem>>([])
+  const [submenus, setSubmenus] = createSignal<Array<OverlayMenuRegisteredSubmenu>>([])
   let pointerGraceIntent: OverlayMenuPointerGraceIntent | null = null
   let pointerGraceTimeoutId = 0
   let pointerGraceWindow: Window | undefined
@@ -365,13 +392,17 @@ export function useOverlayMenuLayerState(
       }
     | undefined
 
-  const closeSubmenus = (exceptId?: string, registeredSubmenus = submenus()): void => {
+  const closeSubmenus = (
+    exceptId?: string,
+    registeredSubmenus = untrack(submenus),
+    syncFlush = true,
+  ): void => {
     for (const submenu of [...registeredSubmenus].reverse()) {
       if (submenu.id === exceptId) {
         continue
       }
 
-      submenu.close()
+      submenu.close(syncFlush)
     }
   }
 

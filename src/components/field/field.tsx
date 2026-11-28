@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { createMemo, createSignal, Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
@@ -11,7 +11,6 @@ import type { FieldBinding, FieldContextOptions, FieldPath } from './field-conte
 import { FieldProvider } from './field-context'
 import { fieldDataAttributes, fieldRecipe } from './field.recipe'
 import type { FieldProps } from './field.types'
-
 /**
  * Layout and accessibility wrapper that associates a control with its label, description, help,
  * and error text. It registers the nested Moraine control, inherits `size` and disabled state
@@ -30,7 +29,8 @@ import type { FieldProps } from './field.types'
 export function Field<T extends ValidComponent = 'div'>(
   props: FieldProps<T> & { binding?: FieldBinding },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'binding',
     'as',
     'id',
@@ -51,14 +51,16 @@ export function Field<T extends ValidComponent = 'div'>(
     'styles',
     'class',
     'style',
-  ])
-  const isRequired = () => Boolean(local.required)
-  const labelHidden = () => !hasContent(local.label) && Boolean(local.hiddenLabel)
-  const label = createMemo(() => (hasContent(local.label) ? local.label : local.hiddenLabel))
-  const description = createMemo(() => local.description)
-  const hint = createMemo(() => local.hint)
-  const help = createMemo(() => local.help)
-  const error = createMemo(() => local.error)
+  )
+  const isRequired = () => Boolean(props.required)
+  const rawLabel = createMemo(() => props.label)
+  const rawHiddenLabel = createMemo(() => props.hiddenLabel)
+  const labelHidden = () => !hasContent(rawLabel()) && Boolean(rawHiddenLabel())
+  const label = () => (hasContent(rawLabel()) ? rawLabel() : rawHiddenLabel())
+  const description = createMemo(() => props.description)
+  const hint = createMemo(() => props.hint)
+  const help = createMemo(() => props.help)
+  const error = createMemo(() => props.error)
 
   const showLabel = () => hasContent(label())
   const showHint = () => showLabel() && hasContent(hint())
@@ -78,7 +80,7 @@ export function Field<T extends ValidComponent = 'div'>(
       error: errorSlot,
     },
     variants,
-  } = useRecipe(fieldRecipe, local, {
+  } = useRecipe(fieldRecipe, props, {
     data: {
       label: fieldDataAttributes.label({ required: isRequired }),
       container: fieldDataAttributes.container({ hasText }),
@@ -92,13 +94,13 @@ export function Field<T extends ValidComponent = 'div'>(
     }),
   })
 
-  const ariaId = createId(() => local.id, 'field')
+  const ariaId = createId(() => props.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
-    { id: () => string; labelFor: () => boolean; key: symbol }[]
+    Array<{ id: () => string; labelFor: () => boolean; key: symbol }>
   >([])
 
   const standalonePath = createMemo<FieldPath | undefined>(() => {
-    const name = local.name
+    const name = props.name
     if (Array.isArray(name)) {
       return name.length > 0 ? name : undefined
     }
@@ -132,57 +134,65 @@ export function Field<T extends ValidComponent = 'div'>(
     if (value !== undefined && value !== null) {
       return value
     }
-    return local.binding?.error
+    return props.binding?.error
   })
 
   const shouldShowError = () => hasContent(resolvedError())
   const showError = () => error() !== false && shouldShowError()
   const showHelp = () => !showError() && hasContent(help())
-  const fieldAriaAttrs = createMemo<Record<string, string | boolean | undefined>>(() => {
-    const describedBy = [
-      ...new Set(
-        [
-          showHint() ? `${ariaId()}-hint` : undefined,
-          showDescription() ? `${ariaId()}-description` : undefined,
-          showError() ? `${ariaId()}-error` : undefined,
-          showHelp() ? `${ariaId()}-help` : undefined,
-        ].filter((id): id is string => Boolean(id)),
-      ),
-    ]
-    const attrs: Record<string, string | boolean | undefined> = {}
-    if (hasContent(resolvedError())) {
-      attrs['aria-invalid'] = 'true'
-    }
-    if (showLabel()) {
-      attrs['aria-labelledby'] = `${ariaId()}-label`
-    }
-    if (describedBy.length > 0) {
-      attrs['aria-describedby'] = describedBy.join(' ')
-    }
-    return attrs
-  })
+  const fieldAriaAttrs = createMemo<Record<string, string | boolean | undefined>>(
+    () => {
+      const describedBy = [
+        ...new Set(
+          [
+            showHint() ? `${ariaId()}-hint` : undefined,
+            showDescription() ? `${ariaId()}-description` : undefined,
+            showError() ? `${ariaId()}-error` : undefined,
+            showHelp() ? `${ariaId()}-help` : undefined,
+          ].filter((id): id is string => Boolean(id)),
+        ),
+      ]
+      const attrs: Record<string, string | boolean | undefined> = {}
+      if (hasContent(resolvedError())) {
+        attrs['aria-invalid'] = 'true'
+      }
+      if (showLabel()) {
+        attrs['aria-labelledby'] = `${ariaId()}-label`
+      }
+      if (describedBy.length > 0) {
+        attrs['aria-describedby'] = describedBy.join(' ')
+      }
+      return attrs
+    },
+    {
+      equals: (prev, next) => {
+        const keys = Object.keys(next)
+        return Object.keys(prev).length === keys.length && keys.every((k) => prev[k] === next[k])
+      },
+    },
+  )
 
   const fieldContextValue: FieldContextOptions = {
     get error() {
       return resolvedError()
     },
     get name() {
-      return local.name
+      return props.name
     },
     get path() {
       return standalonePath()
     },
     get binding() {
-      return local.binding
+      return props.binding
     },
     get size() {
       return variants.size
     },
     get disabled() {
-      return local.disabled
+      return props.disabled
     },
     get readOnly() {
-      return local.readOnly
+      return props.readOnly
     },
     get required() {
       return isRequired()
@@ -191,10 +201,12 @@ export function Field<T extends ValidComponent = 'div'>(
     registerControl,
   }
 
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
+
   function RenderFieldInternal(): JSX.Element {
     // Read the children getter in its own memo so mounted components are created once, then call
     // function values tracked so Solid control-flow accessors, such as `Show`, stay reactive.
-    const fieldChild = createMemo(() => local.children)
+    const fieldChild = createMemo(() => props.children)
     const fieldChildren = createMemo(() => {
       const child = fieldChild()
       if (typeof child !== 'function') {
@@ -208,7 +220,7 @@ export function Field<T extends ValidComponent = 'div'>(
     })
 
     return (
-      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rootSlot} {...rest}>
+      <Root data-slot="field" {...rootSlot} {...(rest as Record<string, unknown>)}>
         <div data-slot="field-wrapper" {...wrapperSlot}>
           <Show when={showLabel()}>
             <div data-slot="field-label-wrapper" {...labelWrapperSlot}>
@@ -255,7 +267,7 @@ export function Field<T extends ValidComponent = 'div'>(
             </div>
           </Show>
         </div>
-      </Dynamic>
+      </Root>
     )
   }
 

@@ -1,16 +1,16 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   DEV,
   For,
   Show,
   createEffect,
   createMemo,
-  createSelector,
   createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  splitProps,
+  onFlush,
+  onSettled,
+  omit,
+  untrack,
+  createProjection,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -20,7 +20,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
+import { callHandler, createId, isAndroidUserAgent, mergeDefinedProps } from '../../shared/utils'
 import { Icon } from '../icon'
 import { KbdGroup } from '../kbd-group'
 import { List } from '../list'
@@ -32,7 +32,6 @@ import { resolveDirection } from '../shared/overlay/direction'
 import { defaultCommandPaletteMessages } from './command-palette.messages'
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
-
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string
   label: string
@@ -48,7 +47,7 @@ interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.I
   id: string
   source: CommandPaletteT.Group<TItem>
   label: string
-  items: NormalizedItem<TItem>[]
+  items: Array<NormalizedItem<TItem>>
 }
 
 function buildItemLabel(item: CommandPaletteT.Item): string {
@@ -76,10 +75,10 @@ function isGroup<TItem extends CommandPaletteT.Item>(
 
 /** Collects each run of loose items into one unlabelled group, so every item has a group. */
 function toGroups<TItem extends CommandPaletteT.Item>(
-  entries: CommandPaletteT.Entry<TItem>[],
-): CommandPaletteT.Group<TItem>[] {
-  const groups: CommandPaletteT.Group<TItem>[] = []
-  let loose: TItem[] | undefined
+  entries: Array<CommandPaletteT.Entry<TItem>>,
+): Array<CommandPaletteT.Group<TItem>> {
+  const groups: Array<CommandPaletteT.Group<TItem>> = []
+  let loose: Array<TItem> | undefined
 
   for (const entry of entries) {
     if (isGroup(entry)) {
@@ -99,10 +98,10 @@ function toGroups<TItem extends CommandPaletteT.Item>(
 }
 
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
-  groups: CommandPaletteT.Group<TItem>[],
+  groups: Array<CommandPaletteT.Group<TItem>>,
   getItemSearchText: ((item: TItem) => string) | undefined,
   warnDuplicateValue: (value: string) => void,
-): NormalizedGroup<TItem>[] {
+): Array<NormalizedGroup<TItem>> {
   const seenValues = new Set<string>()
   const seenKeys = new Set<string>()
 
@@ -173,7 +172,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
   const { locale, dir: direction } = useLocale()
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'ref',
     'inputRef',
     'items',
@@ -206,11 +206,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'class',
     'style',
     'translations',
-  ])
+  )
   const messages = useMessages(
     'commandPalette',
     defaultCommandPaletteMessages,
-    () => local.translations,
+    () => props.translations,
   )
   const {
     slots: {
@@ -228,7 +228,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     },
     variants,
     slotWith,
-  } = useRecipe(commandPaletteRecipe, local, {
+  } = useRecipe(commandPaletteRecipe, props, {
     data: {
       inputLeading: commandPaletteDataAttributes.inputLeading(() => ({
         loading: () => merged.loading,
@@ -236,7 +236,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     },
   })
 
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       get placeholder() {
         return messages().placeholder
@@ -249,7 +249,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       closeIcon: 'icon-close',
     },
 
-    local,
+    props,
   )
 
   const search = useSearchQuery({
@@ -267,15 +267,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     },
   })
   const currentSearchValue = search.value
-  const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
-  const isActive = createSelector(activeKey)
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
-  let listboxElement: HTMLDivElement | undefined
+  const [listboxElement, setListboxElement] = createSignal<HTMLDivElement | undefined>()
   const listboxId = createId(undefined, 'command-palette-listbox')
   const descriptionPosition = () => variants.descriptionPosition
-  const activeDescendantId = createMemo(() =>
-    activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
-  )
   const composition = createCompositionState()
   const [compositionQuery, setCompositionQuery] = createSignal<string>()
   const warnedDuplicateValues = new Set<string>()
@@ -297,7 +292,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     applySearchValue(value)
   }
 
-  onCleanup(() => {
+  onSettled(() => () => {
     composition.dispose()
   })
 
@@ -323,20 +318,25 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   createEffect(
-    on([inputElement, () => merged.autoFocus], ([input, autoFocus]) => {
+    () => [inputElement(), merged.autoFocus],
+    ([input, autoFocus]) => {
       if (!autoFocus || !input) {
         return
       }
 
-      queueMicrotask(() => {
-        if (input.isConnected && !input.closest('[role="dialog"]')) {
+      let cancelled = false
+      onFlush(() => {
+        if (!cancelled && input.isConnected && !input.closest('[role="dialog"]')) {
           input.focus({ preventScroll: true })
         }
       })
-    }),
+      return () => {
+        cancelled = true
+      }
+    },
   )
 
-  const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => toGroups(merged.items ?? []))
+  const groups = createMemo<Array<CommandPaletteT.Group<TItem>>>(() => toGroups(merged.items ?? []))
 
   const normalizedGroups = createMemo(() =>
     createNormalizedGroups<TItem>(groups(), merged.getItemSearchText, warnDuplicateValue),
@@ -367,8 +367,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const visibleItemPositionByKey = createMemo(
     () => new Map(visibleItems().map((item, index) => [item.key, index + 1])),
   )
-  const virtualEntries = createMemo<CommandPaletteT.VirtualEntry<TItem>[]>(() => {
-    const entries: CommandPaletteT.VirtualEntry<TItem>[] = []
+  const virtualEntries = createMemo<Array<CommandPaletteT.VirtualEntry<TItem>>>(() => {
+    const entries: Array<CommandPaletteT.VirtualEntry<TItem>> = []
 
     for (const group of visibleGroups()) {
       if (group.label) {
@@ -398,13 +398,26 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     () => new Set(visibleItems().flatMap((item) => (item.disabled ? [] : [item.key]))),
   )
 
-  createEffect(
-    on([enabledKeys, activeKey], ([keys, highlighted]) => {
-      if (highlighted && keys.has(highlighted)) {
-        return
-      }
-      setActiveKey(keys.values().next().value)
-    }),
+  // The highlighted item, or the first enabled one once it is filtered out or disabled. Writes
+  // highlight an item until the next change of the enabled items re-derives it.
+  const [activeKey, setActiveKey] = createSignal<string | undefined>((previous) => {
+    const keys = enabledKeys()
+    return previous !== undefined && keys.has(previous) ? previous : keys.values().next().value
+  })
+  let previousActiveKey: string | undefined
+  const activeMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = activeKey()
+    if (previousActiveKey !== undefined && previousActiveKey !== next) {
+      delete draft[previousActiveKey]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousActiveKey = next
+  }, {})
+  const isActive = (key: string): boolean => activeMap[key] === true
+  const activeDescendantId = createMemo(() =>
+    activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
   )
 
   const virtualEntryIndexByKey = createLazyMemo(() => {
@@ -418,28 +431,41 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   })
 
   createEffect(
-    on([activeKey, visibleItemByKey, () => merged.virtualizer], ([key, items, virtualizer]) => {
-      if (!key) {
+    () => {
+      const key = activeKey()
+      const virtualizer = merged.virtualizer
+      const visible = key !== undefined && visibleItemByKey().has(key)
+      return {
+        visible,
+        virtualizer,
+        // Rows outside the virtual window have no element to scroll into view.
+        entryIndex: visible && virtualizer ? virtualEntryIndexByKey().get(key) : undefined,
+        id: activeDescendantId(),
+        listbox: listboxElement(),
+      }
+    },
+    ({ visible, virtualizer, entryIndex, id, listbox }) => {
+      if (!visible) {
         return
       }
-      const item = items.get(key)
-      if (!item) {
-        return
-      }
-      // Rows outside the virtual window have no element to scroll into view.
-      const entryIndex = virtualizer ? virtualEntryIndexByKey().get(key) : undefined
       if (virtualizer && entryIndex !== undefined) {
         virtualizer.scrollToIndex(entryIndex)
         return
       }
-      const id = activeDescendantId()
-      queueMicrotask(() => {
-        const element = id ? listboxElement?.ownerDocument.getElementById(id) : undefined
-        if (element && listboxElement?.contains(element)) {
+      let cancelled = false
+      onFlush(() => {
+        if (cancelled) {
+          return
+        }
+        const element = id ? listbox?.ownerDocument.getElementById(id) : undefined
+        if (element && listbox?.contains(element)) {
           element.scrollIntoView?.({ block: 'nearest' })
         }
       })
-    }),
+      return () => {
+        cancelled = true
+      }
+    },
   )
 
   const { onNavigationKeyDown } = createSelectableCollectionNavigation<
@@ -451,7 +477,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     isDisabled: (item) => item.disabled,
     loop: () => true,
     activationMode: () => 'manual',
-    getDirection: () => resolveDirection(listboxElement, direction()),
+    getDirection: () => resolveDirection(listboxElement(), direction()),
     focusValue: (value) => {
       setActiveKey(value)
     },
@@ -552,6 +578,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         highlighted: () => itemProps.context.highlighted,
       }),
     })
+    const leadingRender = createLazyMemo(() => itemProps.item.item.leadingRender)
+    const trailingRender = createLazyMemo(() => itemProps.item.item.trailingRender)
 
     return (
       <Show
@@ -559,20 +587,15 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         keyed
         fallback={
           <>
-            <Show
-              when={
-                itemProps.item.item.leadingRender !== undefined ||
-                itemProps.item.item.icon !== undefined
-              }
-            >
+            <Show when={leadingRender() !== undefined || itemProps.item.item.icon !== undefined}>
               <span data-slot="command-palette-item-leading" {...itemLeadingSlot}>
                 <Show
-                  when={itemProps.item.item.leadingRender !== undefined}
+                  when={leadingRender() !== undefined}
                   fallback={
                     <Show when={itemProps.item.item.icon}>{(icon) => <Icon name={icon()} />}</Show>
                   }
                 >
-                  {renderWithProps(itemProps.item.item.leadingRender, itemProps.context)}
+                  {renderWithProps(leadingRender(), itemProps.context)}
                 </Show>
               </span>
             </Show>
@@ -596,21 +619,18 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             </span>
 
             <Show
-              when={
-                itemProps.item.item.trailingRender !== undefined ||
-                (itemProps.item.item.kbds?.length ?? 0) > 0
-              }
+              when={trailingRender() !== undefined || (itemProps.item.item.kbds?.length ?? 0) > 0}
             >
               <span data-slot="command-palette-item-trailing" {...itemTrailingSlot}>
                 <Show
-                  when={itemProps.item.item.trailingRender !== undefined}
+                  when={trailingRender() !== undefined}
                   fallback={
                     <Show when={itemProps.item.item.kbds}>
                       {(kbds) => <KbdGroup size="sm" items={kbds()} />}
                     </Show>
                   }
                 >
-                  {renderWithProps(itemProps.item.item.trailingRender, itemProps.context)}
+                  {renderWithProps(trailingRender(), itemProps.context)}
                 </Show>
               </span>
             </Show>
@@ -676,18 +696,24 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         {...itemProps.virtualProps}
         id={`${listboxId()}-${encodeURIComponent(itemProps.item.key)}`}
         role="option"
-        tabIndex={-1}
+        tabindex={-1}
         data-slot="command-palette-item"
-        aria-selected={isActive(itemProps.item.key)}
-        aria-disabled={itemProps.item.disabled || undefined}
+        aria-selected={isActive(itemProps.item.key) ? 'true' : 'false'}
+        aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         aria-posinset={
           merged.virtualizer ? visibleItemPositionByKey().get(itemProps.item.key) : undefined
         }
         aria-setsize={merged.virtualizer ? visibleItems().length : undefined}
-        ref={(element) => {
-          callRef(itemAttributes()?.ref, element)
-          itemProps.virtualProps?.ref?.(element)
-        }}
+        ref={[
+          (element) => {
+            const attrs = untrack(itemAttributes)
+            const ref = attrs?.ref
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          },
+          (element) => itemProps.virtualProps?.ref?.(element),
+        ]}
         {...itemSlot}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)
@@ -728,18 +754,22 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function EmptyState(): JSX.Element {
+    const emptyRender = createLazyMemo(() => merged.emptyRender)
     return (
       <div data-slot="command-palette-empty" {...emptySlot}>
-        <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
-          {renderWithProps(merged.emptyRender, getContext())}
+        <Show when={emptyRender() !== undefined} fallback={messages().empty}>
+          {renderWithProps(emptyRender(), getContext())}
         </Show>
       </div>
     )
   }
 
   function handleListboxRef(element: HTMLDivElement): void {
-    listboxElement = element
-    callRef(merged.listboxProps?.ref, element)
+    setListboxElement(element)
+    const ref = untrack(() => merged.listboxProps?.ref)
+    if (typeof ref === 'function') {
+      ref(element)
+    }
   }
 
   const listboxSlot = slotWith('listbox', {
@@ -802,23 +832,34 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     )
   }
 
+  const footerRender = createLazyMemo(() => merged.footerRender)
+
+  const forwardInputPropsRef = (el: HTMLInputElement): void => {
+    const ref = untrack(() => merged.inputProps?.ref)
+    if (typeof ref === 'function') {
+      ref(el)
+    }
+  }
+  const forwardInputRef = (el: HTMLInputElement): void => {
+    const ref = untrack(() => Reflect.get(props, 'inputRef'))
+    if (typeof ref === 'function') {
+      ref(el)
+    }
+  }
+
   return (
-    <div data-slot="command-palette" {...rootSlot} {...rest} ref={(el) => callRef(local.ref, el)}>
+    <div data-slot="command-palette" {...rootSlot} {...rest} ref={props.ref}>
       <div data-slot="command-palette-input-wrapper" {...inputWrapperSlot}>
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leading}
           data-slot="command-palette-input-leading"
-          aria-busy={merged.loading || undefined}
+          aria-busy={merged.loading ? 'true' : undefined}
           {...inputLeadingSlot}
         />
 
         <input
           {...merged.inputProps}
-          ref={(el) => {
-            setInputElement(el)
-            callRef(merged.inputProps?.ref, el)
-            callRef(local.inputRef, el)
-          }}
+          ref={[setInputElement, forwardInputPropsRef, forwardInputRef]}
           data-slot="command-palette-input"
           {...inputSlot}
           role="combobox"
@@ -832,7 +873,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           aria-autocomplete="list"
           aria-activedescendant={activeDescendantId()}
           placeholder={merged.placeholder}
-          maxLength={merged.searchMaxLength}
+          maxlength={merged.searchMaxLength}
           value={compositionQuery() ?? currentSearchValue()}
           onInput={(event) => {
             const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput)
@@ -905,9 +946,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         )}
       </Show>
 
-      <Show when={merged.footerRender !== undefined}>
+      <Show when={footerRender() !== undefined}>
         <div data-slot="command-palette-footer" {...footerSlot}>
-          {renderWithProps(merged.footerRender, getContext())}
+          {renderWithProps(footerRender(), getContext())}
         </div>
       </Show>
     </div>

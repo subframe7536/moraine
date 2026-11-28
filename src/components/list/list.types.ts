@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { ListVirtualizer, VirtualRowProps } from '../../virtualizer/virtualizer.types'
 
 import type { ListStyleSlot, ListStyleVariants } from './list.style-types'
-
 export namespace ListT {
   export type Kind = 'single'
   export type Slot<T = unknown> = ListStyleSlot<T>
@@ -41,7 +41,7 @@ export namespace ListT {
      */
     emptyRender?: JSX.Element | Component<EmptyRenderProps>
     /** Collection to render, one `itemRender` call per entry. Treated as empty when `undefined`. */
-    items?: readonly TItem[]
+    items?: ReadonlyArray<TItem>
     /**
      * Renders one row for an item. Receives the `item`, its `index` in the complete `items`
      * collection, and, when a `virtualizer` is set, `rowProps` to spread onto the row's outer element.

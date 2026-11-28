@@ -18,10 +18,11 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "noUncheckedIndexedAccess": true,
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
+    "jsxImportSource": "@solidjs/web",
     "paths": {
       "@src": ["./src/index.ts"],
-      "@src/*": ["./src/*"]
+      "@src/*": ["./src/*"],
+      "#tl": ["./node_modules/@solidjs/testing-library/dist/index.d.ts"]
     },
     "types": ["vite/client", "node"]
   },

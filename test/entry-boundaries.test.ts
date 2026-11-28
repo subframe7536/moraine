@@ -1,8 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 
-import { describe, expect, test } from 'vitest'
-
+import { describe, expect, it } from 'vitest'
 const DIST = resolve(__dirname, '../dist')
 const IMPORT_PATTERN =
   /(?:(?:import|export)\s*(?:[^'"]*?\bfrom\s*)?|\bimport\s*\(\s*)['"]([^'"]+)['"]/g
@@ -34,27 +33,27 @@ function collectBareImports(entry: string): Set<string> {
 }
 
 describe.skipIf(!existsSync(join(DIST, 'index.mjs')))('package entry boundaries', () => {
-  test.each(['index.mjs', 'index.jsx'])('%s does not import optional peers', (entry) => {
+  it.each(['index.mjs', 'index.jsx'])('%s does not import optional peers', (entry) => {
     const imports = collectBareImports(entry)
     for (const peer of OPTIONAL_PEERS) {
       expect([...imports].filter((name) => name.startsWith(peer))).toEqual([])
     }
   })
 
-  test.each(['data-table.mjs', 'data-table.jsx'])('%s imports TanStack Table', (entry) => {
+  it.each(['data-table.mjs', 'data-table.jsx'])('%s imports TanStack Table', (entry) => {
     expect(collectBareImports(entry)).toContain('@tanstack/table-core')
   })
 
-  test.each(['virtualizer.mjs', 'virtualizer.jsx'])('%s imports TanStack Virtual', (entry) => {
+  it.each(['virtualizer.mjs', 'virtualizer.jsx'])('%s imports TanStack Virtual', (entry) => {
     expect(collectBareImports(entry)).toContain('@tanstack/virtual-core')
   })
 
-  test.each(['dnd.mjs', 'dnd.jsx'])('%s imports dnd kit', (entry) => {
+  it.each(['dnd.mjs', 'dnd.jsx'])('%s imports dnd kit', (entry) => {
     expect(collectBareImports(entry)).toContain('@dnd-kit/dom')
   })
 
   // Consumers type-check against declarations, so they must keep the same boundaries.
-  test.each([
+  it.each([
     ['index.d.mts', OPTIONAL_PEERS],
     ['data-table.mjs', ['@dnd-kit/dom', '@tanstack/virtual-core']],
     ['data-table.jsx', ['@dnd-kit/dom', '@tanstack/virtual-core']],

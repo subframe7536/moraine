@@ -1,21 +1,11 @@
-import type { JSX } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createEffect, createMemo, createSignal, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { Icon } from '../icon'
 
 import { AVATAR_BADGE_ICON_CLASS, avatarDataAttributes, avatarRecipe } from './avatar.recipe'
 import type { AvatarProps, AvatarT } from './avatar.types'
-
 function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
   const preferredText = text?.trim()
   if (preferredText) {
@@ -55,7 +45,8 @@ function resolveFallbackText(text: string | undefined, alt: string | undefined):
  * ```
  */
 export function Avatar(props: AvatarProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'src',
     'alt',
     'badge',
@@ -68,7 +59,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
     'classes',
     'styles',
     'size',
-  ])
+  )
   const {
     slots: {
       root: rootSlot,
@@ -77,7 +68,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       fallbackIcon: fallbackIconSlot,
       badge: badgeSlot,
     },
-  } = useRecipe(avatarRecipe, local, {
+  } = useRecipe(avatarRecipe, props, {
     data: {
       root: avatarDataAttributes.root(() => ({ status })),
       image: avatarDataAttributes.image(() => ({ status })),
@@ -85,57 +76,31 @@ export function Avatar(props: AvatarProps): JSX.Element {
     },
   })
 
-  const source = createMemo(() => local.src?.trim() || undefined)
-  const alt = createMemo(() => local.alt)
-  const text = createMemo(() => local.text)
-  const icon = createMemo(() => local.icon)
-  const badge = createMemo(() => local.badge)
-  const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
-  const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
-  const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
-  const [status, setStatusSignal] = createSignal<AvatarT.Status>(
-    untrack(source) ? 'loading' : 'error',
+  const source = createMemo(() => props.src?.trim() || undefined)
+  const fallbackText = createMemo(() => resolveFallbackText(props.text, props.alt))
+  const fallbackAccessibleLabel = createMemo(
+    () => props.alt?.trim() || props.text?.trim() || undefined,
   )
+  const rootAriaLabel = () => (rest as JSX.AriaAttributes)['aria-label']
+  const [status, setStatus] = createSignal<AvatarT.Status>(() => (source() ? 'loading' : 'error'))
   let imageElement: HTMLImageElement | undefined
   let disposed = false
-  onCleanup(() => {
+  onSettled(() => () => {
     disposed = true
   })
 
-  let currentStatus: AvatarT.Status | undefined
+  createEffect(status, (nextStatus) => {
+    untrack(() => props.onStatusChange)?.(nextStatus)
+  })
 
-  function setStatus(nextStatus: AvatarT.Status): void {
-    if (currentStatus === nextStatus) {
+  createEffect(source, (currentSource) => {
+    if (!currentSource) {
       return
     }
-
-    currentStatus = nextStatus
-    setStatusSignal(nextStatus)
-    untrack(() => local.onStatusChange)?.(nextStatus)
-  }
-
-  createEffect(
-    on(source, (currentSource) => {
-      let cancelled = false
-
-      onCleanup(() => {
-        cancelled = true
-      })
-
-      if (!currentSource) {
-        setStatus('error')
-        return
-      }
-
-      setStatus('loading')
-      queueMicrotask(() => {
-        if (cancelled || !imageElement?.complete) {
-          return
-        }
-        setStatus(imageElement.naturalWidth > 0 ? 'loaded' : 'error')
-      })
-    }),
-  )
+    if (imageElement?.complete) {
+      setStatus(imageElement.naturalWidth > 0 ? 'loaded' : 'error')
+    }
+  })
 
   return (
     <span
@@ -161,7 +126,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
             setStatus('error')
           }
         }}
-        alt={alt() ?? ''}
+        alt={props.alt ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
       />
 
@@ -180,14 +145,14 @@ export function Avatar(props: AvatarProps): JSX.Element {
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
       >
-        <Show when={icon()} fallback={fallbackText()}>
+        <Show when={props.icon} fallback={fallbackText()}>
           {(fallbackIcon) => (
             <Icon name={fallbackIcon()} data-slot="avatar-fallback-icon" {...fallbackIconSlot} />
           )}
         </Show>
       </span>
 
-      <Show when={badge()}>
+      <Show when={props.badge}>
         {(badge) => (
           <span data-slot="avatar-badge" {...badgeSlot}>
             <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />

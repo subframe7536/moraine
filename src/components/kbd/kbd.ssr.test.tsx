@@ -1,14 +1,13 @@
-import { createSignal } from 'solid-js'
-import { expect, test } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 
 import { KbdHydrationFixture } from './kbd.ssr.fixture'
-
-test('hydrates semantic KbdGroup output and reacts to item changes', () => {
+it('hydrates semantic KbdGroup output and reacts to item changes', () => {
   const [keyName, setKeyName] = createSignal('escape')
-  const [items, setItems] = createSignal<KbdGroupT.Item[]>(['ctrl', 'k'])
+  const [items, setItems] = createSignal<Array<KbdGroupT.Item>>(['ctrl', 'k'])
   const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>()
   const { container } = hydrateFixture(
     '/src/components/kbd/kbd.ssr.fixture.tsx',
@@ -27,16 +26,16 @@ test('hydrates semantic KbdGroup output and reacts to item changes', () => {
   expect(group.querySelector('[aria-orientation]')).toBeNull()
 
   const customSeparator = group.querySelector('[data-slot="kbd-group-separator"]')!
-  setItems(['p', 'ctrl', 'k'])
+  flush(() => setItems(['p', 'ctrl', 'k']))
   expect(group.querySelectorAll('[data-slot="kbd-group-separator"]')[1]).toBe(customSeparator)
   expect(customSeparator.getAttribute('data-index')).toBe('1')
 
-  setKeyName('tab')
-  setItems(['shift', 'p'])
+  flush(() => setKeyName('tab'))
+  flush(() => setItems(['shift', 'p']))
   expect(container.querySelector('kbd')).toBe(key)
   expect(key.getAttribute('aria-label')).toBe('Tab')
   expect(group.textContent).toBe('⇧/p')
-  setSeparator('+')
+  flush(() => setSeparator('+'))
   expect(group.textContent).toBe('⇧+p')
   expect(group.querySelector('[data-slot="kbd-group-separator"]')).toBeNull()
 })

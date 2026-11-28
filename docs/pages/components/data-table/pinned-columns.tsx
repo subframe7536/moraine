@@ -1,7 +1,6 @@
-import { Badge, Button, DropdownMenu } from '@src'
+import { Badge, Button, DropdownMenu, Toast } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
-
 interface Customer {
   id: string
   name: string
@@ -15,7 +14,7 @@ interface Customer {
   status: 'active' | 'past_due' | 'canceled'
 }
 
-const CUSTOMERS: Customer[] = [
+const CUSTOMERS: Array<Customer> = [
   {
     id: 'CUST-8021',
     name: 'Sarah Connor',
@@ -102,7 +101,7 @@ const STATUS = {
   canceled: { label: 'Canceled', tone: 'danger' },
 } as const
 
-const COLUMNS: DataTableT.Column<Customer>[] = [
+const COLUMNS: Array<DataTableT.Column<Customer>> = [
   {
     accessorKey: 'id',
     header: 'Customer ID',
@@ -191,15 +190,17 @@ const COLUMNS: DataTableT.Column<Customer>[] = [
           items={[
             {
               label: 'View customer profile',
-              onSelect: () => console.log('Viewing', props.row.original.id),
+              onSelect: () => Toast.info({ title: `Viewing ${props.row.original.id}` }),
             },
             {
               label: 'Download tax invoices',
-              onSelect: () => console.log('Invoices for', props.row.original.id),
+              onSelect: () =>
+                Toast.info({ title: `Downloading invoices for ${props.row.original.id}` }),
             },
             {
               label: 'Manage subscription',
-              onSelect: () => console.log('Managing', props.row.original.id),
+              onSelect: () =>
+                Toast.info({ title: `Managing subscription for ${props.row.original.id}` }),
             },
           ]}
         />

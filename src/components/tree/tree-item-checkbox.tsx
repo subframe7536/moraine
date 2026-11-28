@@ -1,13 +1,12 @@
-import type { JSX } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { CheckControl } from '../shared/check-control/check-control'
 
-import { useTreeContext, useTreeItemContext } from './tree-context'
+import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 /**
  * Checkbox bound to the check state of the surrounding `tree.Item`. It renders nothing unless
  * `createTree` has `checkable: true`. The `treeitem` announces the state through `aria-checked`
@@ -35,12 +34,12 @@ import type { TreeT } from './tree.types'
  * ```
  */
 export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Element {
-  const [local, rest] = splitProps(props, ['checkedIcon', 'indeterminateIcon', 'class', 'style'])
+  const rest = omit(props, 'checkedIcon', 'indeterminateIcon', 'class', 'style')
   const context = useTreeContext()
-  const item = useTreeItemContext()!.item
+  const itemContext = requireTreeItemContext()
   const {
     slots: { checkbox: checkboxSlot },
-  } = useRecipe(treeRecipe, local, {
+  } = useRecipe(treeRecipe, props, {
     slot: 'checkbox',
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
@@ -49,17 +48,19 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
     <Show when={context.options.checkable}>
       <CheckControl
         slotName="tree-checkbox"
-        aria-hidden={true}
-        tabIndex={-1}
+        aria-hidden={'true'}
+        tabindex={-1}
         {...checkboxSlot}
         {...rest}
         checked={
-          item.checkedState === 'indeterminate' ? 'indeterminate' : item.checkedState === 'checked'
+          itemContext.item.checkedState === 'indeterminate'
+            ? 'indeterminate'
+            : itemContext.item.checkedState === 'checked'
         }
-        disabled={item.disabled}
-        checkedIcon={local.checkedIcon}
-        indeterminateIcon={local.indeterminateIcon}
-        onCheckedChange={(checked) => context.state.setChecked(item.key, checked)}
+        disabled={itemContext.item.disabled}
+        checkedIcon={props.checkedIcon}
+        indeterminateIcon={props.indeterminateIcon}
+        onCheckedChange={(checked) => context.state.setChecked(itemContext.item.key, checked)}
       />
     </Show>
   )

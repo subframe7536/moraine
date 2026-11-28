@@ -1,7 +1,6 @@
 import { Button, ButtonGroup } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function ButtonGroupPlayground() {
   return (
     <DocsPlayground

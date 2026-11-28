@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import {
   createIsolatedConsumer,
@@ -16,7 +16,6 @@ import {
   verifyConsumerPackageExports,
 } from './helpers'
 import type { IsolatedConsumer } from './helpers'
-
 const CANDIDATES = [
   'data-disabled:opacity-64',
   'data-focused:opacity-64',
@@ -92,7 +91,7 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     return { css: compiled.build(candidates), sources: compiled.sources, designSystem }
   }
 
-  test('compiles all build class tokens with valid transition properties', async () => {
+  it('compiles all build class tokens with valid transition properties', async () => {
     // Group and peer markers intentionally emit no declarations.
     const candidates = readBuiltClassTokens().filter(
       (token) => !/^(?:group|peer)(?:\/.*)?$/.test(token),
@@ -109,7 +108,7 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     )
   })
 
-  test('loads the package plugin and compiles published component contracts', async () => {
+  it('loads the package plugin and compiles published component contracts', async () => {
     verifyConsumerPackageExports(consumer)
     const { css, sources } = await compileConsumerCSS()
 
@@ -154,7 +153,7 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).not.toContain('.icon-check')
   })
 
-  test('keeps bundled icon masks optional and independent', async () => {
+  it('keeps bundled icon masks optional and independent', async () => {
     const withoutIcons = await compileConsumerCSS()
     const withIcons = await compileConsumerCSS(true)
     const iconAsset = readFileSync(join(consumer.packageDir, 'dist/icon.css'), 'utf8')
@@ -165,15 +164,15 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(withIcons.css).toContain('.animate-mo-enter')
   })
 
-  test('puts icon masks in the components layer so size utilities override them', () => {
+  it('puts icon masks in the components layer so size utilities override them', () => {
     const iconAsset = readFileSync(join(consumer.packageDir, 'dist/icon.css'), 'utf8')
-    const rules = iconAsset.replace(/\/\*[\s\S]*?\*\//g, '').trim()
+    const rules = iconAsset.replaceAll(/\/\*[\s\S]*?\*\//g, '').trim()
 
     expect(rules.startsWith('@layer components')).toBe(true)
     // Every rule sits inside an `@layer components { ... }` block.
     expect(
       rules
-        .replace(/@layer components\{[\s\S]*?\n\}/g, '')
+        .replaceAll(/@layer components\{[\s\S]*?\n\}/g, '')
         .replace(/@layer[^;]*;/, '')
         .trim(),
     ).toBe('')

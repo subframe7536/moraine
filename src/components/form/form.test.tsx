@@ -1,8 +1,8 @@
-import { focus, getInput, setInput } from '@formisch/solid'
+import { focus, getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
@@ -19,15 +19,14 @@ import { Slider } from '../slider'
 import { Switch } from '../switch'
 
 import { createForm } from './'
-
 const Schema = v.object({
   email: v.pipe(v.string(), v.email('Enter a valid email.')),
   enabled: v.boolean(),
 })
 
-describe('Form', () => {
-  test('submits Formisch output through the high-level adapters', async () => {
-    const onSubmit = vi.fn()
+describe('form', () => {
+  it('submits Formisch output through the high-level adapters', async () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -56,7 +55,7 @@ describe('Form', () => {
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ email: 'dev@example.com', enabled: true })
   })
 
-  test('renders field errors and forwards native form props', async () => {
+  it('renders field errors and forwards native form props', async () => {
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -84,7 +83,7 @@ describe('Form', () => {
     expect(element.style.width).toBe('200px')
   })
 
-  test('applies root slot overrides without leaking style props to the native form', () => {
+  it('applies root slot overrides without leaking style props to the native form', () => {
     const { screen } = renderWithOwner(
       () => createForm({ schema: Schema }),
       (form) => (
@@ -108,7 +107,7 @@ describe('Form', () => {
     expect(element.hasAttribute('styles')).toBe(false)
   })
 
-  test('replaces Design root styling without remounting the bound form', () => {
+  it('replaces Design root styling without remounting the bound form', () => {
     const { screen, value } = renderWithOwner(
       () => {
         const [design, setDesign] = createSignal(
@@ -126,14 +125,14 @@ describe('Form', () => {
 
     expect(element.className).toContain('theme-root-a')
 
-    value.setDesign(defineTheme({ form: { base: { root: 'theme-root-b' } } }))
+    flush(() => value.setDesign(defineTheme({ form: { base: { root: 'theme-root-b' } } })))
 
     expect(screen.container.querySelector('form')).toBe(element)
     expect(element.className).toContain('theme-root-b')
     expect(element.className).not.toContain('theme-root-a')
   })
 
-  test('uses a control initialValue only when Formisch has no field input', async () => {
+  it('uses a control initialValue only when Formisch has no field input', async () => {
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -154,8 +153,8 @@ describe('Form', () => {
     })
   })
 
-  test('blocks invalid submission and renders the first field error', async () => {
-    const onSubmit = vi.fn()
+  it('blocks invalid submission and renders the first field error', async () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -180,7 +179,7 @@ describe('Form', () => {
     expect(screen.container.querySelector('form')?.hasAttribute('novalidate')).toBe(true)
   })
 
-  test('rechecks whether invalid controls are enabled between submissions', async () => {
+  it('rechecks whether invalid controls are enabled between submissions', async () => {
     const schema = v.object({
       first: v.pipe(v.string(), v.nonEmpty('First is required.')),
       second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
@@ -203,13 +202,13 @@ describe('Form', () => {
     fireEvent.submit(screen.container.querySelector('form')!)
     await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Second')))
 
-    setFirstDisabled(false)
+    flush(() => setFirstDisabled(false))
     fireEvent.submit(screen.container.querySelector('form')!)
 
     await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('First')))
   })
 
-  test('focuses the visible checkbox before a later invalid text input', async () => {
+  it('focuses the visible checkbox before a later invalid text input', async () => {
     const schema = v.object({
       accepted: v.pipe(
         v.boolean(),
@@ -240,7 +239,7 @@ describe('Form', () => {
     )
   })
 
-  test('focuses the visible switch before a later invalid text input', async () => {
+  it('focuses the visible switch before a later invalid text input', async () => {
     const schema = v.object({
       enabled: v.pipe(
         v.boolean(),
@@ -271,7 +270,7 @@ describe('Form', () => {
     )
   })
 
-  test('registers visible controls with Formisch for programmatic focus', () => {
+  it('registers visible controls with Formisch for programmatic focus', () => {
     const schema = v.object({ email: v.string(), enabled: v.boolean() })
     const { screen, value: form } = renderWithOwner(
       () => createForm({ schema, initialInput: { email: '', enabled: false } }),
@@ -296,7 +295,7 @@ describe('Form', () => {
     )
   })
 
-  test('registers Combobox, editable MultiSelect, and Select with Formisch for focus', () => {
+  it('registers Combobox, editable MultiSelect, and Select with Formisch for focus', () => {
     const schema = v.object({
       fruit: v.string(),
       tags: v.array(v.string()),
@@ -351,8 +350,8 @@ describe('Form', () => {
     expect(document.activeElement).toBe(selectTrigger)
   })
 
-  test('binds and submits a root array field', async () => {
-    const onSubmit = vi.fn()
+  it('binds and submits a root array field', async () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () => createForm({ schema: v.array(v.string()), initialInput: ['Initial'] }),
       (form) => (
@@ -367,7 +366,7 @@ describe('Form', () => {
     expect(input.value).toBe('Initial')
     focus(form, { path: [0] })
     expect(document.activeElement).toBe(input)
-    setInput(form, { input: ['Updated'] })
+    flush(() => setInput(form, { input: ['Updated'] }))
     await waitFor(() => expect(input.value).toBe('Updated'))
     expect(getInput(form)).toEqual(['Updated'])
     fireEvent.input(input, { target: { value: 'Changed' } })
@@ -375,13 +374,13 @@ describe('Form', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(['Changed'], expect.anything()))
   })
 
-  test('focuses only the first invalid field in schema order during submit', async () => {
+  it('focuses only the first invalid field in schema order during submit', async () => {
     const schema = v.object({
       first: v.pipe(v.string(), v.nonEmpty('First is required.')),
       second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
     })
-    const firstFocus = vi.fn()
-    const secondFocus = vi.fn()
+    const firstFocus = vi.fn<(...args: Array<any>) => void>()
+    const secondFocus = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () => createForm({ schema, initialInput: { first: '', second: '' } }),
       (form) => (
@@ -402,7 +401,7 @@ describe('Form', () => {
     expect(secondFocus).not.toHaveBeenCalled()
   })
 
-  test('focuses an invalid control that is outside the tab order', async () => {
+  it('focuses an invalid control that is outside the tab order', async () => {
     const schema = v.object({
       code: v.pipe(v.string(), v.nonEmpty('Code is required.')),
     })
@@ -411,7 +410,7 @@ describe('Form', () => {
       (form) => (
         <form.Form>
           <form.Field name="code" label="Code">
-            <Input tabIndex={-1} />
+            <Input tabindex={-1} />
           </form.Field>
         </form.Form>
       ),
@@ -422,7 +421,7 @@ describe('Form', () => {
     await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Code')))
   })
 
-  test('focuses the first slider thumb before a later invalid text input', async () => {
+  it('focuses the first slider thumb before a later invalid text input', async () => {
     const schema = v.object({
       score: v.pipe(v.number(), v.minValue(1, 'Choose a score.')),
       email: v.pipe(v.string(), v.nonEmpty('Email is required.')),
@@ -447,7 +446,7 @@ describe('Form', () => {
     await waitFor(() => expect(document.activeElement).toBe(thumb))
   })
 
-  test('focuses the first enabled radio in an invalid group', async () => {
+  it('focuses the first enabled radio in an invalid group', async () => {
     const schema = v.object({
       plan: v.pipe(v.string(), v.nonEmpty('Choose a plan.')),
       email: v.pipe(v.string(), v.nonEmpty('Email is required.')),
@@ -477,7 +476,7 @@ describe('Form', () => {
     await waitFor(() => expect(document.activeElement).toBe(enabledRadio))
   })
 
-  test('focuses the first enabled checkbox in an invalid checkbox group', async () => {
+  it('focuses the first enabled checkbox in an invalid checkbox group', async () => {
     const schema = v.object({
       choices: v.pipe(v.array(v.string()), v.minLength(1, 'Choose an option.')),
       email: v.pipe(v.string(), v.nonEmpty('Email is required.')),
@@ -509,7 +508,7 @@ describe('Form', () => {
     await waitFor(() => expect(document.activeElement).toBe(enabledCheckbox))
   })
 
-  test('skips disabled controls when focusing nested invalid paths', async () => {
+  it('skips disabled controls when focusing nested invalid paths', async () => {
     const schema = v.object({
       profile: v.object({ name: v.pipe(v.string(), v.nonEmpty('Name is required.')) }),
       title: v.pipe(v.string(), v.nonEmpty('Title is required.')),
@@ -534,7 +533,7 @@ describe('Form', () => {
     expect(document.activeElement).toBe(screen.getByLabelText('Title'))
   })
 
-  test('focuses the first invalid field inside an iframe document', async () => {
+  it('focuses the first invalid field inside an iframe document', async () => {
     const schema = v.object({
       first: v.pipe(v.string(), v.nonEmpty('First is required.')),
       second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
@@ -572,7 +571,7 @@ describe('Form', () => {
     }
   })
 
-  test('focuses an invalid control inside its shadow root', async () => {
+  it('focuses an invalid control inside its shadow root', async () => {
     const lightControl = document.createElement('input')
     lightControl.id = 'shadow-email'
     const host = document.createElement('div')
@@ -606,10 +605,10 @@ describe('Form', () => {
     host.remove()
   })
 
-  test('preserves the native submitter and exposes exact async submitting state', async () => {
+  it('preserves the native submitter and exposes exact async submitting state', async () => {
     let resolveSubmit: (() => void) | undefined
-    const onSubmit = vi.fn(
-      (_output: v.InferOutput<typeof Schema>, _event: SubmitEvent) =>
+    const onSubmit = vi.fn<(_output: v.InferOutput<typeof Schema>, _event: SubmitEvent) => any>(
+      (_output, _event) =>
         new Promise<void>((resolve) => {
           resolveSubmit = resolve
         }),
@@ -642,7 +641,7 @@ describe('Form', () => {
     await waitFor(() => expect(formElement.getAttribute('data-submitting')).toBeNull())
   })
 
-  test('captures rejected submit handlers as form errors and clears submitting state', async () => {
+  it('captures rejected submit handlers as form errors and clears submitting state', async () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -663,11 +662,11 @@ describe('Form', () => {
     expect(formElement.getAttribute('data-submitting')).toBeNull()
   })
 
-  test.each([false, true])(
+  it.each([false, true])(
     'resets native controls and Formisch state with enabled initially %s',
     async (enabled) => {
-      const resetSnapshots: unknown[] = []
-      const onChange = vi.fn()
+      const resetSnapshots: Array<unknown> = []
+      const onChange = vi.fn<(...args: Array<any>) => void>()
       const { screen, value: form } = renderWithOwner(
         () =>
           createForm({
@@ -724,7 +723,7 @@ describe('Form', () => {
     },
   )
 
-  test.each(['form', 'ancestor'])('keeps state when the %s cancels reset', async (cancelAt) => {
+  it.each(['form', 'ancestor'])('keeps state when the %s cancels reset', async (cancelAt) => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -732,8 +731,12 @@ describe('Form', () => {
           initialInput: { value: 'Initial' },
         }),
       (form) => (
-        <div onReset={cancelAt === 'ancestor' ? (event) => event.preventDefault() : undefined}>
-          <form.Form onReset={cancelAt === 'form' ? (event) => event.preventDefault() : undefined}>
+        <div
+          onReset={cancelAt === 'ancestor' ? (event: Event) => event.preventDefault() : undefined}
+        >
+          <form.Form
+            onReset={cancelAt === 'form' ? (event: Event) => event.preventDefault() : undefined}
+          >
             <form.Field name="value" label="Value">
               <Input />
             </form.Field>
@@ -746,14 +749,16 @@ describe('Form', () => {
 
     fireEvent.input(input, { target: { value: 'Changed' } })
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0)
+    })
 
     expect(input.value).toBe('Changed')
     expect(getInput(form)).toEqual({ value: 'Changed' })
     expect(form.isDirty).toBe(true)
   })
 
-  test('restores Formisch state and visible controls after a native reset', async () => {
+  it('restores Formisch state and visible controls after a native reset', async () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -788,10 +793,10 @@ describe('Form', () => {
     expect(screen.queryByText('Enter a valid email.')).toBeNull()
   })
 
-  test('keeps sibling form providers and submissions isolated', async () => {
+  it('keeps sibling form providers and submissions isolated', async () => {
     const schema = v.object({ value: v.string() })
-    const firstSubmit = vi.fn()
-    const secondSubmit = vi.fn()
+    const firstSubmit = vi.fn<(...args: Array<any>) => void>()
+    const secondSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: forms } = renderWithOwner(
       (): [
         ReturnType<typeof createForm<typeof schema>>,
@@ -832,7 +837,7 @@ describe('Form', () => {
     expect(secondSubmit.mock.calls[0]?.[0]).toEqual({ value: 'Second' })
   })
 
-  test('binds form.Field without requiring form.Form', () => {
+  it('binds form.Field without requiring form.Form', () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -852,7 +857,7 @@ describe('Form', () => {
     expect(getInput(form)).toEqual({ value: 'Changed' })
   })
 
-  test('redirects a bound field when its reactive path changes', () => {
+  it('redirects a bound field when its reactive path changes', () => {
     const [name, setName] = createSignal<'first' | 'second'>('first')
     const { screen, value: form } = renderWithOwner(
       () =>
@@ -869,7 +874,7 @@ describe('Form', () => {
 
     const input = screen.getByLabelText<HTMLInputElement>('Value')
     expect(input.value).toBe('First')
-    setName('second')
+    flush(() => setName('second'))
     expect(input.value).toBe('Second')
     fireEvent.input(input, { target: { value: 'Changed second' } })
     expect(getInput(form)).toEqual({ first: 'First', second: 'Changed second' })
@@ -881,7 +886,7 @@ describe('Form', () => {
     expect(document.activeElement).not.toBe(input)
   })
 
-  test('uses the current field path for invalid focus after a reactive path switch', async () => {
+  it('uses the current field path for invalid focus after a reactive path switch', async () => {
     const [name, setName] = createSignal<'first' | 'second'>('first')
     const schema = v.object({
       first: v.pipe(v.string(), v.nonEmpty('First is required.')),
@@ -899,7 +904,7 @@ describe('Form', () => {
     )
     const input = screen.getByLabelText<HTMLInputElement>('Current')
     expect(input.value).toBe('Valid')
-    setName('second')
+    flush(() => setName('second'))
     expect(input.value).toBe('')
 
     fireEvent.submit(screen.container.querySelector('form')!)
@@ -907,7 +912,7 @@ describe('Form', () => {
     expect(screen.getByText('Second is required.')).not.toBeNull()
   })
 
-  test('lets explicit errors override or suppress Formisch errors', async () => {
+  it('lets explicit errors override or suppress Formisch errors', async () => {
     const [error, setError] = createSignal<string | false | undefined>()
     const { screen } = renderWithOwner(
       () =>
@@ -926,14 +931,14 @@ describe('Form', () => {
 
     fireEvent.submit(screen.container.querySelector('form')!)
     await waitFor(() => expect(screen.getByText('Schema error')).not.toBeNull())
-    setError('Manual error')
+    flush(() => setError('Manual error'))
     expect(screen.getByText('Manual error')).not.toBeNull()
-    setError(false)
+    flush(() => setError(false))
     expect(screen.queryByText('Manual error')).toBeNull()
     expect(screen.queryByText('Schema error')).toBeNull()
   })
 
-  test('exposes plain dot-joined paths as native names for FormData', () => {
+  it('exposes plain dot-joined paths as native names for FormData', () => {
     const { screen } = renderWithOwner(
       () =>
         createForm({

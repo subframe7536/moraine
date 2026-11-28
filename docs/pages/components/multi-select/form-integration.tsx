@@ -2,17 +2,16 @@ import { Button, createForm, MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const TOPICS = [
   { label: 'TypeScript', value: 'typescript' },
   { label: 'SolidJS', value: 'solidjs' },
   { label: 'Tailwind CSS', value: 'tailwind' },
   { label: 'UnoCSS', value: 'unocss' },
   { label: 'Vite', value: 'vite' },
-] satisfies MultiSelectT.Item[]
+] satisfies Array<MultiSelectT.Item>
 
 export function FormIntegration() {
-  const [submittedTags, setSubmittedTags] = createSignal<string[]>([])
+  const [submittedTags, setSubmittedTags] = createSignal<Array<string>>([])
   const form = createForm({
     schema: v.object({
       topics: v.pipe(

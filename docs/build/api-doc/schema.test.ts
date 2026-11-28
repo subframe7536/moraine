@@ -3,18 +3,17 @@
 import { existsSync, readFileSync } from 'node:fs'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { collectFiles } from '../core/paths.ts'
 
 import { COMPONENT_API_SCHEMA_URL } from './write.ts'
-
 const projectRoot = path.resolve(__dirname, '../../..')
 const schemaPath = path.join(projectRoot, 'docs/public/component-api.schema.json')
 const pagesRoot = path.join(projectRoot, 'docs/pages')
 
 describe('component-api.schema.json', () => {
-  test('schema file exists and defines valid JSON Schema structure', () => {
+  it('schema file exists and defines valid JSON Schema structure', () => {
     expect(existsSync(schemaPath)).toBe(true)
     const raw = readFileSync(schemaPath, 'utf8')
     const schema = JSON.parse(raw) as {
@@ -22,7 +21,7 @@ describe('component-api.schema.json', () => {
       $id: string
       title: string
       type: string
-      required: string[]
+      required: Array<string>
       properties: Record<string, { type?: string; description?: string }>
       $defs: Record<string, unknown>
     }
@@ -47,7 +46,7 @@ describe('component-api.schema.json', () => {
     expect(schema.$defs.DataAttributeTargetApi).toBeDefined()
   })
 
-  test('all component api.json files conform to the component api contract', () => {
+  it('all component api.json files conform to the component api contract', () => {
     const apiFiles = collectFiles(pagesRoot, (file) => path.basename(file) === 'api.json')
     expect(apiFiles.length).toBeGreaterThanOrEqual(40)
 
@@ -63,8 +62,8 @@ describe('component-api.schema.json', () => {
           access: { kind: string; name?: string; root?: string; member?: string; factory?: string }
           props: Array<{ name: string; optional: boolean; type: string }>
         }>
-        slots: string[]
-        dataAttributes: Array<{ target: string; attributes: string[] }>
+        slots: Array<string>
+        dataAttributes: Array<{ target: string; attributes: Array<string> }>
       }
 
       expect(typeof data.key).toBe('string')

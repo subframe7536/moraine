@@ -1,5 +1,5 @@
+import type { JSX } from '@solidjs/web'
 import type { RowData } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
 import { Button } from '../components/button'
@@ -12,7 +12,6 @@ import {
   DATA_TABLE_PAGINATION_INFO_CLASS,
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
-
 /** Default page sizes offered by the pagination toolbar and `paginated` option. */
 export const DEFAULT_DATA_TABLE_PAGE_SIZES = [5, 10, 20, 50] as const
 
@@ -37,7 +36,7 @@ export function DataTablePagination<TData extends RowData>(props: {
   const pageIndex = () => pagination()?.pageIndex ?? 0
   const pageSize = () => pagination()?.pageSize ?? 10
 
-  const pageSizeChoices = createMemo((): readonly number[] | false => {
+  const pageSizeChoices = createMemo((): ReadonlyArray<number> | false => {
     const choices = props.pageSizes
     if (choices === false || choices.includes(pageSize())) {
       return choices

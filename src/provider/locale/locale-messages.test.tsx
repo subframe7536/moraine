@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal, onMount } from 'solid-js'
+import { createSignal, flush, onSettled } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { AlertDialog } from '../../components/alert-dialog/alert-dialog'
 import { Alert } from '../../components/alert/alert'
@@ -25,11 +25,10 @@ import { Slider } from '../../components/slider/slider'
 import { Toast } from '../../components/toast/toast'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { MoraineProvider } from '../moraine-provider'
-
 const FRUIT = [{ label: 'Apple', value: 'apple' }]
 
 describe('localized component text', () => {
-  test('uses dialog and sheet close messages', () => {
+  it('uses dialog and sheet close messages', () => {
     render(() => (
       <MoraineProvider
         messages={{ dialog: { close: 'Fermer' }, sheet: { close: 'Fermer la feuille' } }}
@@ -51,7 +50,7 @@ describe('localized component text', () => {
     ).toBe('Fermer la feuille')
   })
 
-  test('uses toast close and label messages', async () => {
+  it('uses toast close and label messages', async () => {
     Toast.close()
     render(() => (
       <MoraineProvider
@@ -77,7 +76,7 @@ describe('localized component text', () => {
     Toast.close()
   })
 
-  test('uses select, combobox, and multi-select messages unless a prop sets the text', () => {
+  it('uses select, combobox, and multi-select messages unless a prop sets the text', () => {
     const screen = render(() => (
       <MoraineProvider
         messages={{
@@ -112,7 +111,7 @@ describe('localized component text', () => {
     expect(screen.getByRole('button', { name: 'Retirer Apple' })).toBeTruthy()
   })
 
-  test('uses command palette messages and lets placeholder win', () => {
+  it('uses command palette messages and lets placeholder win', () => {
     const screen = render(() => (
       <MoraineProvider
         messages={{
@@ -130,7 +129,7 @@ describe('localized component text', () => {
     expect(screen.getAllByText('Rien')).toHaveLength(2)
   })
 
-  test('uses pagination messages and lets aria-label win', () => {
+  it('uses pagination messages and lets aria-label win', () => {
     const screen = render(() => (
       <MoraineProvider
         messages={{
@@ -152,7 +151,7 @@ describe('localized component text', () => {
     expect(screen.getByRole('button', { name: 'Weiter' })).toBeTruthy()
   })
 
-  test('uses input number control messages', () => {
+  it('uses input number control messages', () => {
     const screen = render(() => (
       <MoraineProvider messages={{ numberInput: { increment: 'Plus', decrement: 'Moins' } }}>
         <NumberInput aria-label="Quantity" />
@@ -163,7 +162,7 @@ describe('localized component text', () => {
     expect(screen.getByRole('button', { name: 'Moins' })).toBeTruthy()
   })
 
-  test('uses file upload messages unless a field label names the control', () => {
+  it('uses file upload messages unless a field label names the control', () => {
     const file = new File(['a'], 'notes.txt', { type: 'text/plain' })
     const screen = render(() => (
       <MoraineProvider
@@ -183,7 +182,7 @@ describe('localized component text', () => {
     expect(screen.getByRole('button', { name: 'Documents' })).toBeTruthy()
   })
 
-  test('uses file upload messages unless aria-label names the control', () => {
+  it('uses file upload messages unless aria-label names the control', () => {
     const screen = render(() => (
       <MoraineProvider messages={{ fileUpload: { label: 'Televerser' } }}>
         <FileUpload aria-label="Workspace files" />
@@ -194,10 +193,12 @@ describe('localized component text', () => {
     expect(screen.queryByRole('button', { name: 'Televerser' })).toBeNull()
   })
 
-  test('uses the sidebar message and lets ariaLabel win', async () => {
+  it('uses the sidebar message and lets ariaLabel win', async () => {
     function OpenSidebar(props: { label?: string }) {
       const frame = useSidebarContext()
-      onMount(() => frame.setOpen(true))
+      onSettled(() => {
+        frame.setOpen(true)
+      })
       return <Sidebar.Panel aria-label={props.label}>Links</Sidebar.Panel>
     }
 
@@ -220,7 +221,7 @@ describe('localized component text', () => {
     })
   })
 
-  test('uses the form message when a submit handler rejects without a message', async () => {
+  it('uses the form message when a submit handler rejects without a message', async () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -229,6 +230,7 @@ describe('localized component text', () => {
         }),
       (form) => (
         <MoraineProvider messages={{ form: { unknownError: 'Erreur inconnue' } }}>
+          {/* oxlint-disable-next-line eslint/prefer-promise-reject-errors -- testing non-Error rejection fallback */}
           <form.Form onSubmit={() => Promise.reject(null)}>
             <button type="submit">Save</button>
           </form.Form>
@@ -240,7 +242,7 @@ describe('localized component text', () => {
     await waitFor(() => expect(form.errors).toEqual(['Erreur inconnue']))
   })
 
-  test('uses kbd messages and lets aria-label win', () => {
+  it('uses kbd messages and lets aria-label win', () => {
     const screen = render(() => (
       <MoraineProvider messages={{ kbd: { meta: 'Commande' } }}>
         <Kbd value="meta" />
@@ -252,7 +254,7 @@ describe('localized component text', () => {
     expect(screen.getByLabelText('Primary').textContent).toBe('⌘')
   })
 
-  test('uses progress indeterminate message', () => {
+  it('uses progress indeterminate message', () => {
     const screen = render(() => (
       <MoraineProvider messages={{ progress: { indeterminate: 'progression indéterminée' } }}>
         <Progress aria-label="Scan" />
@@ -264,7 +266,7 @@ describe('localized component text', () => {
     )
   })
 
-  test('lets a native kbd aria-label win over messages', () => {
+  it('lets a native kbd aria-label win over messages', () => {
     const screen = render(() => (
       <MoraineProvider messages={{ kbd: { meta: 'Commande' } }}>
         <Kbd value="meta" aria-label="Super key" />
@@ -274,7 +276,7 @@ describe('localized component text', () => {
     expect(screen.getByLabelText('Super key').textContent).toBe('⌘')
   })
 
-  test('uses multi-select overflow and create messages', async () => {
+  it('uses multi-select overflow and create messages', async () => {
     const screen = render(() => (
       <MoraineProvider
         messages={{
@@ -301,7 +303,7 @@ describe('localized component text', () => {
     })
   })
 
-  test('uses slider thumb and valueText messages', () => {
+  it('uses slider thumb and valueText messages', () => {
     const screen = render(() => (
       <MoraineProvider
         messages={{
@@ -322,7 +324,7 @@ describe('localized component text', () => {
     expect(thumbs[1]?.getAttribute('aria-valuetext')).toBe('80 plage 2/2')
   })
 
-  test('uses breadcrumb message and lets aria-label win', () => {
+  it('uses breadcrumb message and lets aria-label win', () => {
     const screen = render(() => (
       <MoraineProvider messages={{ breadcrumb: { label: 'Fil d’Ariane' } }}>
         <Breadcrumb items={[{ label: 'Home' }]} />
@@ -336,7 +338,7 @@ describe('localized component text', () => {
 })
 
 describe('component translations prop', () => {
-  test('uses alert, kbd, and progress translations', () => {
+  it('uses alert, kbd, and progress translations', () => {
     const screen = render(() => (
       <>
         <Alert closable translations={{ close: 'Dismiss banner' }} />
@@ -352,7 +354,7 @@ describe('component translations prop', () => {
     expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('Working...')
   })
 
-  test('uses select, combobox, and multi-select translations including tag removal', () => {
+  it('uses select, combobox, and multi-select translations including tag removal', () => {
     const screen = render(() => (
       <>
         <Select
@@ -382,7 +384,7 @@ describe('component translations prop', () => {
     expect(screen.getByRole('button', { name: 'Drop Apple' })).toBeTruthy()
   })
 
-  test('uses file upload, input number, and slider translations', () => {
+  it('uses file upload, input number, and slider translations', () => {
     const screen = render(() => (
       <>
         <FileUpload translations={{ label: 'Upload document' }} />
@@ -397,7 +399,7 @@ describe('component translations prop', () => {
     expect(screen.getByRole('slider', { name: 'Knob 1' })).toBeTruthy()
   })
 
-  test('uses breadcrumb, command palette, and pagination translations', () => {
+  it('uses breadcrumb, command palette, and pagination translations', () => {
     const screen = render(() => (
       <>
         <Breadcrumb items={[{ label: 'Home' }]} translations={{ label: 'Path' }} />
@@ -422,7 +424,7 @@ describe('component translations prop', () => {
     expect(screen.getByRole('button', { name: 'Next step' })).toBeTruthy()
   })
 
-  test('uses dialog, sheet, toast, and alert-dialog translations', async () => {
+  it('uses dialog, sheet, toast, and alert-dialog translations', async () => {
     Toast.close()
     render(() => (
       <>
@@ -470,7 +472,7 @@ describe('component translations prop', () => {
     AlertDialog.close()
   })
 
-  test('uses form translations on rejected submission', async () => {
+  it('uses form translations on rejected submission', async () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -479,6 +481,7 @@ describe('component translations prop', () => {
         }),
       (form) => (
         <form.Form
+          // oxlint-disable-next-line eslint/prefer-promise-reject-errors -- testing non-Error rejection fallback
           onSubmit={() => Promise.reject(null)}
           translations={{ unknownError: 'Custom error' }}
         >
@@ -491,7 +494,7 @@ describe('component translations prop', () => {
     await waitFor(() => expect(form.errors).toEqual(['Custom error']))
   })
 
-  test('component translations override MoraineProvider messages while explicit props win over both', () => {
+  it('component translations override MoraineProvider messages while explicit props win over both', () => {
     const screen = render(() => (
       <MoraineProvider
         messages={{
@@ -518,7 +521,7 @@ describe('component translations prop', () => {
     expect(screen.getByRole('navigation', { name: 'Explicit pages' })).toBeTruthy()
   })
 
-  test('translations prop updates reactively without remounting', () => {
+  it('translations prop updates reactively without remounting', () => {
     const [messages, setMessages] = createSignal({ close: 'Close 1' })
     render(() => (
       <Dialog open translations={messages()}>
@@ -529,7 +532,7 @@ describe('component translations prop', () => {
     const button = document.body.querySelector('[data-slot="dialog-content-close"]')
     expect(button?.getAttribute('aria-label')).toBe('Close 1')
 
-    setMessages({ close: 'Close 2' })
+    flush(() => setMessages({ close: 'Close 2' }))
     expect(button?.getAttribute('aria-label')).toBe('Close 2')
   })
 })

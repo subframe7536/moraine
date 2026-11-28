@@ -1,30 +1,25 @@
 import type { Placement } from '@floating-ui/dom'
-import type { Accessor, JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  splitProps,
-  onCleanup,
-  untrack,
-} from 'solid-js'
-import { Dynamic, Portal } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Portal, dynamic } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, untrack, omit } from 'solid-js'
 
 import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { createPolymorphicRoot } from '../../../shared/create-polymorphic-root'
-import { bindElement, publishElement } from '../../../shared/element-binding'
 import { renderWithProps } from '../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import type { ValidComponent } from '../../../shared/types'
 import { useButtonInteraction } from '../../../shared/use-button-interaction'
-import { callHandler, callRef, createId } from '../../../shared/utils'
+import {
+  callHandler,
+  createId,
+  mergeDefinedProps,
+  resolvePropsChildren,
+  publishElement,
+} from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
 import { useFloatingPosition, usePositionerZIndex } from './floating'
@@ -41,6 +36,39 @@ import type {
   PopperTriggerProps,
 } from './popper.types'
 import { acquireBodyScrollLock } from './scroll-lock'
+
+// Composed refs are cached per (internal, user) pair so spread re-applications
+// keep an identity-stable `ref` instead of re-invoking it on every merge eval.
+const composedRefs = new WeakMap<object, WeakMap<object, (element: never) => void>>()
+
+function composeElementRef<T extends HTMLElement>(
+  internal: JSX.HTMLAttributes<T>,
+  user: Record<string, unknown>,
+): (element: T) => void {
+  let inner = composedRefs.get(internal)
+  if (!inner) {
+    composedRefs.set(internal, (inner = new WeakMap()))
+  }
+  let composed = inner.get(user) as ((element: T) => void) | undefined
+  if (!composed) {
+    composed = (element: T) => {
+      for (const ref of [internal.ref, user.ref]) {
+        if (Array.isArray(ref)) {
+          for (const entry of ref.flat(Infinity)) {
+            if (typeof entry === 'function') {
+              entry(element)
+            }
+          }
+        } else if (typeof ref === 'function') {
+          ref(element)
+        }
+      }
+    }
+    inner.set(user, composed)
+  }
+  return composed
+}
+
 /** Preserve floating behavior while forwarding the surface's native ref and events. */
 export function mergePopperElementProps<T extends HTMLElement>(
   internal: JSX.HTMLAttributes<T>,
@@ -64,17 +92,20 @@ export function mergePopperElementProps<T extends HTMLElement>(
       }
     }
   }
-  const contentProps = mergeProps(
+  // Resolve the children getter through its own descriptor so spread
+  // re-applications keep the mounted nodes instead of rebuilding the subtree.
+  const children = Object.getOwnPropertyDescriptor(user, 'children')
+    ? resolvePropsChildren(user)
+    : undefined
+  const contentProps = mergeDefinedProps(
     internal,
     user,
     handlers,
     {
-      ref: (element: T) => {
-        callRef(internal.ref, element)
-        callRef(user.ref, element)
-      },
+      ref: composeElementRef(internal, user),
     },
     overrides,
+    children === undefined ? {} : { children },
   )
   return contentProps as JSX.HTMLAttributes<T>
 }
@@ -123,6 +154,7 @@ export function createPopper(
   })
 
   function setOpen(nextOpen: boolean): void {
+    // Outside dismissal and focus handlers run unowned; settle the write.
     if (!props.disabled) {
       setControlledOpen(nextOpen)
     }
@@ -145,23 +177,17 @@ export function createPopper(
 export function PopperTrigger<T extends ValidComponent = 'button'>(
   props: PopperTriggerProps<T> & { context: PopperTriggerState },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'context',
-    'as',
-    'disabled',
-    'ariaRelation',
-    'toggleOnClick',
-    'ref' as any,
-  ])
+  const refKey = 'ref' as keyof (PopperTriggerProps<T> & { context: PopperTriggerState })
+  const rest = omit(props, 'context', 'as', 'disabled', 'ariaRelation', 'toggleOnClick', refKey)
   const context = untrack(() => props.context)
-  const tag = () => local.as ?? 'button'
+  const tag = () => props.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
     bridgeClick: true,
-    ref: () => local.ref,
+    ref: () => (props as { ref?: (el: HTMLElement) => void }).ref,
     registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
-  const disabled = () => Boolean(local.disabled || context.options.disabled)
+  const disabled = () => Boolean(props.disabled || context.options.disabled)
   const interaction = useButtonInteraction(
     {
       disabled,
@@ -169,7 +195,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       element: root.element,
       tag,
       onPress: () => {
-        if (local.toggleOnClick ?? true) {
+        if (props.toggleOnClick ?? true) {
           context.setOpen(!context.isOpen())
         }
       },
@@ -184,24 +210,24 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     disabled,
     expanded: context.isOpen,
   })
+  const Root = dynamic<ValidComponent>(tag)
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot={context.slotName('trigger')}
       {...triggerData}
-      aria-haspopup={(local.ariaRelation ?? 'popup') === 'popup' ? true : undefined}
+      aria-haspopup={(props.ariaRelation ?? 'popup') === 'popup' ? 'true' : undefined}
       aria-controls={
-        (local.ariaRelation ?? 'popup') === 'popup' && context.contentPresence.present()
+        (props.ariaRelation ?? 'popup') === 'popup' && context.contentPresence.present()
           ? context.contentId()
           : undefined
       }
       aria-describedby={
-        local.ariaRelation === 'description' && context.contentPresence.present()
+        props.ariaRelation === 'description' && context.contentPresence.present()
           ? context.contentId()
           : undefined
       }
       aria-expanded={
-        (local.ariaRelation ?? 'popup') === 'popup'
+        (props.ariaRelation ?? 'popup') === 'popup'
           ? context.isOpen()
             ? 'true'
             : 'false'
@@ -218,7 +244,7 @@ export function PopperContent(
   const cn = useCn()
   const direction = useLocale().dir
   const context = untrack(() => props.context)
-  const options = mergeProps(
+  const options = mergeDefinedProps(
     {
       closeOnOutsideFocus: true,
       detachedPadding: 0,
@@ -242,32 +268,32 @@ export function PopperContent(
   )
   const { contentId, contentElement, setContentElement, triggerElement, contentPresence, setOpen } =
     context
-  const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
-  const [positionerPositioned, setPositionerPositioned] = createSignal(false)
-  const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom')
-  const [mount, setPortalMount] = createSignal<HTMLElement>()
-  // Resolve after mounting, when the trigger may have been adopted into another document.
-  createEffect(on(triggerElement, (trigger) => setPortalMount(trigger?.ownerDocument.body)))
   const contentMounted = () =>
     contentPresence.present() || (options.forceMount && !context.options.disabled)
+  const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
+    (previous) => (contentMounted() ? previous : undefined),
+  )
+  const [positionerPositioned, setPositionerPositioned] = createSignal<boolean>((previous) =>
+    contentMounted() ? (previous ?? false) : false,
+  )
+  const [currentPlacement, setCurrentPlacement] = createSignal<Placement>(() =>
+    resolveFloatingPlacement(options.placement, options.align),
+  )
   let restoreFocusAfterClose = true
 
-  createEffect(
-    on(context.isOpen, (open) => {
-      if (open) {
-        restoreFocusAfterClose = true
-      }
-    }),
-  )
+  createEffect(context.isOpen, (open) => {
+    if (open) {
+      restoreFocusAfterClose = true
+    }
+  })
 
-  createEffect(
-    on([() => options.placement, () => options.align], ([placement, align]) => {
-      setCurrentPlacement(resolveFloatingPlacement(placement, align))
-    }),
+  const [content, setContent] = createSignal<HTMLDivElement | undefined>((previous) =>
+    contentMounted() ? previous : undefined,
   )
-
-  const [content, setContent] = createSignal<HTMLDivElement>()
-  bindElement(content, (element) => {
+  createEffect(content, (element) => {
+    if (!element) {
+      return
+    }
     const unpublish = publishElement(contentElement, setContentElement)(element)
     const release = contentPresence.registerElement(element)
     return () => {
@@ -275,16 +301,6 @@ export function PopperContent(
       unpublish()
     }
   })
-
-  createEffect(
-    on(contentMounted, (mounted) => {
-      if (!mounted) {
-        setContent(undefined)
-        setPositionerElement(undefined)
-        setPositionerPositioned(false)
-      }
-    }),
-  )
 
   useFloatingPosition({
     detachedPadding: () => options.detachedPadding,
@@ -298,10 +314,7 @@ export function PopperContent(
     initialPosition: () => props.initialPosition,
     inline: () => options.inline,
     onPlacementChange: setCurrentPlacement,
-    onPositionedChange: (positioned) => {
-      setPositionerPositioned(positioned)
-      positionerElement()?.toggleAttribute('data-positioned', positioned)
-    },
+    onPositionedChange: setPositionerPositioned,
     open: contentPresence.present,
     overlap: () => options.overlap,
     overflowPadding: () => options.overflowPadding,
@@ -311,30 +324,38 @@ export function PopperContent(
     slide: () => options.slide,
   })
 
+  createEffect(
+    () => [positionerElement(), positionerPositioned()] as const,
+    ([positioner, positioned]) => {
+      positioner?.toggleAttribute('data-positioned', positioned)
+    },
+  )
+
   usePositionerZIndex(positionerElement, contentElement)
 
+  // `preventScroll` is latched when the open cycle starts so toggling it
+  // mid-cycle does not release or acquire the lock.
+  let activePreventScroll = false
   createEffect(
-    on(contentPresence.present, (present) => {
-      if (!present) {
-        return
+    () => [contentPresence.present(), options.preventScroll === true] as const,
+    ([present, preventScroll], previous) => {
+      if (present && !previous?.[0]) {
+        activePreventScroll = preventScroll
       }
-      const preventScroll = options.preventScroll
-      if (!preventScroll) {
-        return
-      }
+    },
+  )
 
-      createEffect(
-        on([contentElement, positionerElement], ([currentContent, currentPositioner]) => {
-          if (!currentContent || !currentPositioner) {
-            return
-          }
-          const releaseScrollLock = acquireBodyScrollLock(currentContent)
-          onCleanup(() => {
-            releaseScrollLock?.()
-          })
-        }),
-      )
-    }),
+  createEffect(
+    () => [contentPresence.present(), contentElement(), positionerElement()],
+    ([present, currentContent, currentPositioner]) => {
+      if (!present || !activePreventScroll || !currentContent || !currentPositioner) {
+        return
+      }
+      const releaseScrollLock = acquireBodyScrollLock(currentContent)
+      return () => {
+        releaseScrollLock?.()
+      }
+    },
   )
 
   useOverlayInteraction({
@@ -410,10 +431,13 @@ export function PopperContent(
     onDeactivate: (context) => {
       // Restore focus while this entry is still topmost so lower overlays
       // treat the resulting focus event as owned by the closing layer.
-      if (restoreFocusAfterClose && context.isTop()) {
+      const top = untrack(() => context.isTop())
+      if (restoreFocusAfterClose && top) {
+        // Reads inside disposal serve the reverting transaction's staged view;
+        // `untrack` sees the committed element.
         focusTrigger(
           options.finalFocus === undefined
-            ? triggerElement()
+            ? untrack(triggerElement)
             : resolveFocusTarget(options.finalFocus),
         )
       }
@@ -434,7 +458,7 @@ export function PopperContent(
     get role() {
       return options.role
     },
-    tabIndex: -1,
+    tabindex: -1,
   } as PopperContentAttributes
   Object.defineProperties(
     contentProps,
@@ -450,7 +474,7 @@ export function PopperContent(
   return (
     <Show when={contentMounted()}>
       {(_present) => {
-        const child = resolveChildren(() => props.children as JSX.Element)
+        const child = resolvePropsChildren(props as { children?: JSX.Element })
         // Portals emit no SSR markup, so content resolution must stay lazy and run
         // inside the portal's post-hydration mount rather than during hydration.
         const content = createLazyMemo(() =>
@@ -463,7 +487,7 @@ export function PopperContent(
           }),
         )
         return (
-          <Portal mount={options.mount ?? mount()}>
+          <Portal mount={(options.mount ?? triggerElement()?.ownerDocument.body) as Element}>
             <div
               ref={setPositionerElement}
               dir={props.dir ?? direction()}

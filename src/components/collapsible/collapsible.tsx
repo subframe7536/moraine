@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -12,7 +12,6 @@ import { CollapsibleProvider } from './collapsible-context'
 import { CollapsibleTrigger } from './collapsible-trigger'
 import { collapsibleDataAttributes, collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleProps } from './collapsible.types'
-
 /**
  * Single disclosure whose `Collapsible.Trigger` and `Collapsible.Content` belong to the surrounding
  * layout, with optional height transitions. Use `Accordion` when several disclosures share
@@ -21,7 +20,7 @@ import type { CollapsibleProps } from './collapsible.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, omit } from 'solid-js'
  * import { Collapsible } from 'moraine'
  *
  * const [open, setOpen] = createSignal(false)
@@ -33,7 +32,8 @@ import type { CollapsibleProps } from './collapsible.types'
  * ```
  */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'open',
     'defaultOpen',
@@ -45,20 +45,20 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
-  const rootId = createId(() => local.id, 'collapsible')
+  )
+  const rootId = createId(() => props.id, 'collapsible')
   const contentId = () => `${rootId()}-content`
   const triggerId = () => `${rootId()}-trigger`
   const [open, setControlledOpen] = createControllableValue<boolean>({
-    value: () => local.open,
-    defaultValue: () => Boolean(local.defaultOpen),
-    onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
+    value: () => props.open,
+    defaultValue: () => Boolean(props.defaultOpen),
+    onChange: (nextOpen) => props.onOpenChange?.(nextOpen),
   })
   const disclosure = createDisclosureState({
     open,
-    disabled: () => Boolean(local.disabled),
-    transition: () => local.transition !== false,
-    forceMount: () => local.forceMount,
+    disabled: () => Boolean(props.disabled),
+    transition: () => props.transition !== false,
+    forceMount: () => props.forceMount,
     onBeforeMatch: () => {
       if (!open()) {
         toggleContent()
@@ -67,7 +67,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   })
   const {
     slots: { root: rootSlot },
-  } = useRecipe(collapsibleRecipe, local, {
+  } = useRecipe(collapsibleRecipe, props, {
     data: {
       root: collapsibleDataAttributes.root({
         expanded: disclosure.open,
@@ -94,10 +94,10 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   const context: CollapsibleContext = {
     slotOverrides: {
       get classes() {
-        return local.classes
+        return props.classes
       },
       get styles() {
-        return local.styles
+        return props.styles
       },
     },
     triggerId,

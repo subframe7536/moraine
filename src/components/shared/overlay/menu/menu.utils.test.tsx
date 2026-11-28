@@ -1,5 +1,5 @@
-import { createRoot } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createRoot, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import {
   createLayerKeyDownHandler,
@@ -9,7 +9,6 @@ import {
   resolveMenuGroups,
   useOverlayMenuLayerState,
 } from './menu.utils'
-
 function createRectElement(rect: {
   bottom: number
   left: number
@@ -54,7 +53,7 @@ function installWindowStub(): () => void {
 }
 
 describe('hasOverlayMenuChildren', () => {
-  test('opens a submenu only for untyped or item entries with nested children', () => {
+  it('opens a submenu only for untyped or item entries with nested children', () => {
     expect(hasOverlayMenuChildren({ children: [{ label: 'Email' }] })).toBe(true)
     expect(hasOverlayMenuChildren({ type: 'item', children: [{ label: 'Email' }] })).toBe(true)
     expect(hasOverlayMenuChildren({ children: [] })).toBe(false)
@@ -65,8 +64,8 @@ describe('hasOverlayMenuChildren', () => {
 })
 
 describe('createLayerKeyDownHandler', () => {
-  test('does not close the menu for Escape emitted during IME composition', () => {
-    const onClose = vi.fn()
+  it('does not close the menu for Escape emitted during IME composition', () => {
+    const onClose = vi.fn<(...args: Array<any>) => void>()
 
     createRoot((dispose) => {
       const layer = useOverlayMenuLayerState()
@@ -86,7 +85,7 @@ describe('createLayerKeyDownHandler', () => {
 })
 
 describe('createPointerGraceIntent', () => {
-  test('keeps the right-side corridor between the leave point and submenu open', () => {
+  it('keeps the right-side corridor between the leave point and submenu open', () => {
     const trigger = createRectElement({
       bottom: 120,
       left: 0,
@@ -107,7 +106,7 @@ describe('createPointerGraceIntent', () => {
     expect(isPointInPointerGraceIntent([10, 180], intent)).toBe(false)
   })
 
-  test('does not clear the active grace timer when leaving another submenu trigger inside the safe area', () => {
+  it('does not clear the active grace timer when leaving another submenu trigger inside the safe area', () => {
     vi.useFakeTimers()
     const restoreWindow = installWindowStub()
 
@@ -125,36 +124,36 @@ describe('createPointerGraceIntent', () => {
         top: 40,
       })
       const pendingTarget = {} as HTMLElement
-      const pendingPointerEnter = vi.fn()
+      const pendingPointerEnter = vi.fn<(...args: Array<any>) => void>()
 
-      createRoot((dispose) => {
-        const layer = useOverlayMenuLayerState()
-        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement)
+      const [layer, dispose] = createRoot((d) => [useOverlayMenuLayerState(), d] as const)
+      flush(() =>
+        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement),
+      )
 
-        layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
-        layer.setPointerGraceIntent(
-          createPointerGraceIntent('right-start', [50, 80], firstTrigger, firstContent),
-        )
+      layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
+      layer.setPointerGraceIntent(
+        createPointerGraceIntent('right-start', [50, 80], firstTrigger, firstContent),
+      )
 
-        vi.advanceTimersByTime(150)
+      vi.advanceTimersByTime(150)
 
-        layer.setPointerGraceIntent(null, [80, 80])
+      layer.setPointerGraceIntent(null, [80, 80])
 
-        vi.advanceTimersByTime(149)
-        expect(pendingPointerEnter).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(149)
+      expect(pendingPointerEnter).not.toHaveBeenCalled()
 
-        vi.advanceTimersByTime(1)
-        expect(pendingPointerEnter).toHaveBeenCalledTimes(1)
+      vi.advanceTimersByTime(1)
+      expect(pendingPointerEnter).toHaveBeenCalledTimes(1)
 
-        dispose()
-      })
+      dispose()
     } finally {
       restoreWindow()
       vi.useRealTimers()
     }
   })
 
-  test('does not restart the active grace timer when another submenu trigger updates it inside the safe area', () => {
+  it('does not restart the active grace timer when another submenu trigger updates it inside the safe area', () => {
     vi.useFakeTimers()
     const restoreWindow = installWindowStub()
 
@@ -184,32 +183,32 @@ describe('createPointerGraceIntent', () => {
         top: 120,
       })
       const pendingTarget = {} as HTMLElement
-      const pendingPointerEnter = vi.fn()
+      const pendingPointerEnter = vi.fn<(...args: Array<any>) => void>()
 
-      createRoot((dispose) => {
-        const layer = useOverlayMenuLayerState()
-        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement)
+      const [layer, dispose] = createRoot((d) => [useOverlayMenuLayerState(), d] as const)
+      flush(() =>
+        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement),
+      )
 
-        layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
-        layer.setPointerGraceIntent(
-          createPointerGraceIntent('right-start', [50, 80], firstTrigger, firstContent),
-        )
+      layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
+      layer.setPointerGraceIntent(
+        createPointerGraceIntent('right-start', [50, 80], firstTrigger, firstContent),
+      )
 
-        vi.advanceTimersByTime(150)
+      vi.advanceTimersByTime(150)
 
-        layer.setPointerGraceIntent(
-          createPointerGraceIntent('right-start', [50, 130], secondTrigger, secondContent),
-          [80, 80],
-        )
+      layer.setPointerGraceIntent(
+        createPointerGraceIntent('right-start', [50, 130], secondTrigger, secondContent),
+        [80, 80],
+      )
 
-        vi.advanceTimersByTime(149)
-        expect(pendingPointerEnter).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(149)
+      expect(pendingPointerEnter).not.toHaveBeenCalled()
 
-        vi.advanceTimersByTime(1)
-        expect(pendingPointerEnter).toHaveBeenCalledTimes(1)
+      vi.advanceTimersByTime(1)
+      expect(pendingPointerEnter).toHaveBeenCalledTimes(1)
 
-        dispose()
-      })
+      dispose()
     } finally {
       restoreWindow()
       vi.useRealTimers()
@@ -218,7 +217,7 @@ describe('createPointerGraceIntent', () => {
 })
 
 describe('useOverlayMenuLayerState', () => {
-  test('normalizes and cycles typeahead while skipping disabled items', () => {
+  it('normalizes and cycles typeahead while skipping disabled items', () => {
     vi.useFakeTimers()
     const elements = ['Banana', 'Blueberry', 'Bravo', 'Open file'].map((label) => {
       const element = document.createElement('div')
@@ -229,9 +228,9 @@ describe('useOverlayMenuLayerState', () => {
     })
 
     try {
-      createRoot((dispose) => {
-        const layer = useOverlayMenuLayerState()
-        const releases = elements.map((element, index) =>
+      const [layer, dispose] = createRoot((d) => [useOverlayMenuLayerState(), d] as const)
+      const releases = elements.map((element, index) =>
+        flush(() =>
           layer.registerItem({
             disabled: () => index === 1,
             element: () => element,
@@ -239,33 +238,33 @@ describe('useOverlayMenuLayerState', () => {
             id: `item-${index}`,
             textValue: () => element.textContent ?? undefined,
           }),
-        )
-        const press = (key: string): KeyboardEvent => {
-          const event = new KeyboardEvent('keydown', { cancelable: true, key })
-          layer.handleTypeaheadKeyDown(event)
-          return event
-        }
+        ),
+      )
+      const press = (key: string): KeyboardEvent => {
+        const event = new KeyboardEvent('keydown', { cancelable: true, key })
+        flush(() => layer.handleTypeaheadKeyDown(event))
+        return event
+      }
 
-        expect(press('B').defaultPrevented).toBe(true)
-        expect(document.activeElement).toBe(elements[0])
+      expect(press('B').defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(elements[0])
 
-        press('B')
-        expect(document.activeElement).toBe(elements[2])
+      press('B')
+      expect(document.activeElement).toBe(elements[2])
 
-        vi.advanceTimersByTime(500)
-        press('O')
-        expect(document.activeElement).toBe(elements[3])
-        expect(press(' ').defaultPrevented).toBe(true)
-        expect(document.activeElement).toBe(elements[3])
+      vi.advanceTimersByTime(500)
+      press('O')
+      expect(document.activeElement).toBe(elements[3])
+      expect(press(' ').defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(elements[3])
 
-        vi.advanceTimersByTime(500)
-        expect(press(' ').defaultPrevented).toBe(false)
+      vi.advanceTimersByTime(500)
+      expect(press(' ').defaultPrevented).toBe(false)
 
-        for (const release of releases) {
-          release()
-        }
-        dispose()
-      })
+      for (const release of releases) {
+        release()
+      }
+      dispose()
     } finally {
       for (const element of elements) {
         element.remove()
@@ -274,7 +273,7 @@ describe('useOverlayMenuLayerState', () => {
     }
   })
 
-  test('recovers navigation after the highlighted item is removed and handles all-disabled lists', () => {
+  it('recovers navigation after the highlighted item is removed and handles all-disabled lists', () => {
     const first = document.createElement('div')
     const second = document.createElement('div')
     const disabled = document.createElement('div')
@@ -284,45 +283,49 @@ describe('useOverlayMenuLayerState', () => {
     document.body.append(first, second, disabled)
 
     try {
-      createRoot((dispose) => {
-        const layer = useOverlayMenuLayerState()
-        const releaseFirst = layer.registerItem({
+      const [layer, dispose] = createRoot((d) => [useOverlayMenuLayerState(), d] as const)
+      const releaseFirst = flush(() =>
+        layer.registerItem({
           disabled: () => false,
           element: () => first,
           hasSubmenu: false,
           id: 'first',
           textValue: () => 'First',
-        })
-        const releaseSecond = layer.registerItem({
+        }),
+      )
+      const releaseSecond = flush(() =>
+        layer.registerItem({
           disabled: () => false,
           element: () => second,
           hasSubmenu: false,
           id: 'second',
           textValue: () => 'Second',
-        })
+        }),
+      )
 
-        layer.focusFirstItem()
-        expect(document.activeElement).toBe(first)
-        releaseFirst()
-        expect(layer.highlightedItemId()).toBeUndefined()
+      flush(() => layer.focusFirstItem())
+      expect(document.activeElement).toBe(first)
+      flush(() => releaseFirst())
+      expect(layer.highlightedItemId()).toBeUndefined()
 
-        layer.focusItemByOffset(1)
-        expect(document.activeElement).toBe(second)
-        releaseSecond()
+      flush(() => layer.focusItemByOffset(1))
+      expect(document.activeElement).toBe(second)
+      flush(() => releaseSecond())
 
-        const releaseDisabled = layer.registerItem({
+      const releaseDisabled = flush(() =>
+        layer.registerItem({
           disabled: () => true,
           element: () => disabled,
           hasSubmenu: false,
           id: 'disabled',
           textValue: () => 'Disabled',
-        })
-        layer.focusFirstItem()
-        expect(layer.highlightedItemId()).toBeUndefined()
+        }),
+      )
+      flush(() => layer.focusFirstItem())
+      expect(layer.highlightedItemId()).toBeUndefined()
 
-        releaseDisabled()
-        dispose()
-      })
+      flush(() => releaseDisabled())
+      dispose()
     } finally {
       first.remove()
       second.remove()
@@ -332,12 +335,12 @@ describe('useOverlayMenuLayerState', () => {
 })
 
 describe('resolveMenuGroups', () => {
-  test('returns empty array when items is undefined or empty', () => {
+  it('returns empty array when items is undefined or empty', () => {
     expect(resolveMenuGroups(undefined)).toEqual([])
     expect(resolveMenuGroups([])).toEqual([])
   })
 
-  test('resolves flat items into a single group without separator', () => {
+  it('resolves flat items into a single group without separator', () => {
     const items = [{ label: 'Edit' }, { label: 'Delete' }]
     const groups = resolveMenuGroups(items)
 
@@ -348,7 +351,7 @@ describe('resolveMenuGroups', () => {
     })
   })
 
-  test('resolves array-of-arrays into groups with automatic separators between them', () => {
+  it('resolves array-of-arrays into groups with automatic separators between them', () => {
     const group1 = [{ label: 'Copy' }, { label: 'Cut' }]
     const group2 = [{ label: 'Delete' }]
     const groups = resolveMenuGroups([group1, group2])
@@ -364,7 +367,7 @@ describe('resolveMenuGroups', () => {
     })
   })
 
-  test('handles explicit group objects with items', () => {
+  it('handles explicit group objects with items', () => {
     const item1 = { label: 'Profile' }
     const item2 = { label: 'Billing' }
     const item3 = { label: 'Settings' }
@@ -390,7 +393,7 @@ describe('resolveMenuGroups', () => {
     })
   })
 
-  test('ignores empty groups and empty nested arrays', () => {
+  it('ignores empty groups and empty nested arrays', () => {
     const groups = resolveMenuGroups([
       [],
       [{ label: 'Item 1' }],
@@ -406,7 +409,7 @@ describe('resolveMenuGroups', () => {
     expect(groups[1]?.separator).toBe(true)
   })
 
-  test('lifts radio-group entries out of array sub-groups into their own groups', () => {
+  it('lifts radio-group entries out of array sub-groups into their own groups', () => {
     const before = { label: 'Copy' }
     const after = { label: 'Delete' }
     const radioGroup = {
@@ -425,7 +428,7 @@ describe('resolveMenuGroups', () => {
     expect(groups[2]).toEqual({ items: [after] })
   })
 
-  test('lifts radio-group entries out of group items and keeps the label on the first chunk', () => {
+  it('lifts radio-group entries out of group items and keeps the label on the first chunk', () => {
     const before = { label: 'Profile' }
     const after = { label: 'Sign out' }
     const radioGroup = {

@@ -11,7 +11,6 @@ import {
 } from '../../../build/markdown/shared.recipe'
 import { listDocsColorTokens } from '../../../shared/color-tokens'
 import type { DocsColorTokenDefault } from '../../../shared/color-tokens'
-
 const COLOR_TOKENS = listDocsColorTokens()
 
 function DefaultValue(props: { value: DocsColorTokenDefault }) {
@@ -24,7 +23,7 @@ function DefaultValue(props: { value: DocsColorTokenDefault }) {
       <Match when={literal()}>
         {(value) => <code class={DOCS_INLINE_CODE_CLASS}>{value()}</code>}
       </Match>
-      <Match when={percent()}>{(value) => `auto (color-mix, ${value()}%)`}</Match>
+      <Match when={percent()}>{(value) => <>auto (color-mix, {value()}%)</>}</Match>
       <Match when={fallback()}>
         {(value) => (
           <>

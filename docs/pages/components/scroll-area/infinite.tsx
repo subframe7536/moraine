@@ -1,6 +1,5 @@
 import { ScrollArea } from '@src'
 import { For, Show, createSignal } from 'solid-js'
-
 const PAGE_SIZE = 15
 const TOTAL = 75
 

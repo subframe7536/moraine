@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import {
   createIsolatedConsumer,
@@ -14,7 +14,6 @@ import {
   verifyConsumerPackageExports,
 } from './helpers'
 import type { IsolatedConsumer } from './helpers'
-
 describe('isolated built-dist UnoCSS consumer', () => {
   let consumer: IsolatedConsumer
 
@@ -26,12 +25,27 @@ describe('isolated built-dist UnoCSS consumer', () => {
     removeIsolatedConsumer(consumer)
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
+  it.each([
+    [
+      'Wind3',
+      presetWind3,
+      (css: string) => {
+        expect(css).not.toContain('--mo-leading')
+        expect(css).not.toContain('font-size:calc(var(--font-size')
+        expect(css).not.toContain('--un-leading')
+      },
+    ],
+    [
+      'Wind4',
+      presetWind4,
+      (css: string) => {
+        expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
+        expect(css).toContain('border-radius:calc(var(--radius) * 0.8)')
+      },
+    ],
   ])(
     'compiles all build class tokens and component contracts with %s',
-    async (_name, wind) => {
+    async (_name, wind, assertWindCss) => {
       verifyConsumerPackageExports(consumer)
       const modulePath = join(consumer.packageDir, 'dist/unocss.mjs')
       const { presetMoraine } = await import(pathToFileURL(modulePath).href)
@@ -110,14 +124,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('transform-origin:var(--mo-popper-content-transform-origin)')
       expect(css).toContain('height:var(--mo-collapsible-content-height)')
       expect(css).toContain('var(--bs-pad)')
-      if (wind === presetWind3) {
-        expect(css).not.toContain('--mo-leading')
-        expect(css).not.toContain('font-size:calc(var(--font-size')
-        expect(css).not.toContain('--un-leading')
-      } else {
-        expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
-        expect(css).toContain('border-radius:calc(var(--radius) * 0.8)')
-      }
+      assertWindCss(css)
       expect(css).not.toContain('--st-')
       expect(css).toContain('width:var(--s-thumb-size)')
       expect(css).toContain('height:var(--s-thumb-size)')
@@ -125,7 +132,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
     15_000,
   )
 
-  test.each([
+  it.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
   ])('uses external colors and scoped overrides with %s', async (_name, wind) => {
@@ -155,7 +162,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
     expect(css).not.toContain('--background: rgb(')
   })
 
-  test('keeps icon masks in the optional asset', () => {
+  it('keeps icon masks in the optional asset', () => {
     const iconCSS = readFileSync(join(consumer.packageDir, 'dist/icon.css'), 'utf8')
 
     expect(iconCSS).toContain('.icon-check')

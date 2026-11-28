@@ -1,5 +1,4 @@
 import { Button, Card } from '@src'
-
 export function CardStructure() {
   return (
     <Card class="max-w-sm w-full">

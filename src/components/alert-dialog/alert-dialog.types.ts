@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -13,7 +14,6 @@ import type {
 } from '../shared/overlay/feedback/feedback.types'
 
 import type { AlertDialogStyleSlot, AlertDialogStyleVariants } from './alert-dialog.style-types'
-
 export namespace AlertDialogT {
   export type Kind = 'single'
 

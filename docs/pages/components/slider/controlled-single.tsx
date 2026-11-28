@@ -1,6 +1,5 @@
 import { Button, Icon, Slider } from '@src'
 import { createSignal } from 'solid-js'
-
 export function ControlledSingle() {
   const [volume, setVolume] = createSignal(75)
 

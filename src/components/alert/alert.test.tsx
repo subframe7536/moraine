@@ -3,8 +3,7 @@ import { createSignal } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Alert } from './alert'
-
-describe('Alert', () => {
+describe('alert', () => {
   it('renders default alert with title and no icon by default', () => {
     const screen = render(() => <Alert title="Default announcement" />)
     const alert = screen.getByRole('status')
@@ -99,7 +98,7 @@ describe('Alert', () => {
   })
 
   it('renders a close button that reports dismissal through onOpenChange', () => {
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Alert title="Dismissible alert" closable onOpenChange={onOpenChange} />
     ))
@@ -117,7 +116,7 @@ describe('Alert', () => {
     const view1 = render(() => (
       <Alert title="Custom close icon" closable closeIcon="icon-panel-close" />
     ))
-    let closeBtn = view1.getByRole('button', { name: 'Close alert' })
+    const closeBtn = view1.getByRole('button', { name: 'Close alert' })
     expect(closeBtn.firstElementChild?.className).toContain('icon-panel-close')
     view1.unmount()
 

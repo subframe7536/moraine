@@ -1,5 +1,6 @@
 import type { Coords, Placement } from '@floating-ui/dom'
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor, Component } from 'solid-js'
 
 import type { ValidComponent } from '../../../shared/types'
 import type { OverlayAlign, OverlayPlacement } from '../../../theme/style-types'
@@ -35,7 +36,7 @@ export interface PopperContentAttributes {
   /** Stores the content host; see `PopperContentContext.contentProps` for its lifetime contract. */
   ref: (element: HTMLDivElement) => void
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
-  tabIndex: number
+  tabindex: number
 }
 
 export interface PopperProps extends OverlayDisclosureProps, OverlayPortalProps {
@@ -157,7 +158,7 @@ export interface PopperContentOptions
    * </Popover>
    * ```
    */
-  flip?: boolean | Placement[]
+  flip?: boolean | Array<Placement>
 
   /**
    * Whether the content stays in the DOM while closed, hidden and marked with `data-closed`, for

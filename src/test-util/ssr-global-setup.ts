@@ -1,19 +1,19 @@
+// oxlint-disable eslint/no-await-in-loop -- SSR fixture rendering is ordered because fixtures share the server runner environment.
 import path from 'node:path'
 
+import solid from '@solidjs/vite-plugin'
 import { createServer } from 'vite'
-import solid from 'vite-plugin-solid'
 import type { TestProject } from 'vitest/node'
-
 type SsrFixture = () => unknown
 type SsrFixtureModule = Record<string, unknown>
 
-const getFixtureModules = (): string[] =>
+const getFixtureModules = (): Array<string> =>
   Object.keys(import.meta.glob('/src/**/*.ssr.fixture.tsx')).sort()
 
 export async function renderFixtures(
   project: TestProject,
   createViteServer: typeof createServer = createServer,
-  modules: string[] = getFixtureModules(),
+  modules: Array<string> = getFixtureModules(),
 ): Promise<void> {
   const server = await createViteServer({
     appType: 'custom',
@@ -21,7 +21,7 @@ export async function renderFixtures(
     root: project.config.root,
     cacheDir: path.resolve(project.config.root, 'node_modules/.vite/ssr-fixtures'),
     logLevel: 'silent',
-    plugins: [solid({ dev: false, hot: false, ssr: true })],
+    plugins: [solid({ ssr: true, dev: process.env.SOLID_DIAGNOSTICS === '1' })],
     server: { middlewareMode: true },
   })
   const runner = (

@@ -8,8 +8,8 @@ import type {
   RequiredPath,
   Schema,
   ValidPath,
-} from '@formisch/solid'
-import type { JSX } from 'solid-js'
+} from '@formisch/solid/v2'
+import type { JSX } from '@solidjs/web'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -18,7 +18,6 @@ import type { FieldProps as StandaloneFieldProps } from '../field'
 
 import type { defaultFormMessages } from './form.messages'
 import type { FormStyleSlot, FormStyleVariants } from './form.style-types'
-
 type PathKey = string | number
 // Formisch constrains its helpers to object schemas; preserve root collection types for Moraine forms.
 declare const rootFormSchema: unique symbol
@@ -27,7 +26,7 @@ type RootStore<TSchema extends Schema> = FormStore<never> & {
 }
 type ExactKeysOf<TValue> = 0 extends 1 & TValue
   ? never
-  : TValue extends readonly unknown[]
+  : TValue extends ReadonlyArray<unknown>
     ? number extends TValue['length']
       ? number
       : {
@@ -39,14 +38,14 @@ type ExactKeysOf<TValue> = 0 extends 1 & TValue
 type PropertiesOf<TValue> = {
   [TKey in ExactKeysOf<TValue>]: TValue extends Partial<Record<TKey, infer TItem>> ? TItem : never
 }
-type DeepFieldPath<TChild, TKey extends PathKey, TDepth extends 0[]> = TChild extends
-  | readonly unknown[]
+type DeepFieldPath<TChild, TKey extends PathKey, TDepth extends Array<0>> = TChild extends
+  | ReadonlyArray<unknown>
   | Record<PropertyKey, unknown>
   ? readonly [TKey, ...SchemaPath<TChild, [...TDepth, 0]>]
   : never
-type SchemaPath<TValue, TDepth extends 0[] = []> = TDepth['length'] extends 5
-  ? readonly [PathKey, ...PathKey[]]
-  : TValue extends readonly unknown[] | Record<PropertyKey, unknown>
+type SchemaPath<TValue, TDepth extends Array<0> = []> = TDepth['length'] extends 5
+  ? readonly [PathKey, ...Array<PathKey>]
+  : TValue extends ReadonlyArray<unknown> | Record<PropertyKey, unknown>
     ? {
         [TKey in ExactKeysOf<TValue>]:
           | readonly [TKey]
@@ -154,7 +153,7 @@ export namespace FormT {
 
 export type FormProps<TSchema extends Schema = FormSchema> = FormT.Props<TSchema>
 
-declare module '@formisch/solid' {
+declare module '@formisch/solid/v2' {
   function focus<TSchema extends Schema, TPath extends RequiredPath>(
     form: RootStore<TSchema>,
     config: { readonly path: ValidPath<InferInput<TSchema>, TPath> },

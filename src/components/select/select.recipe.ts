@@ -12,7 +12,6 @@ import {
 } from '../shared/form/select/select-field.recipe'
 
 import type { SelectStyleSlot, SelectStyleVariants } from './select.style-types'
-
 export const selectDataAttributes = {
   ...baseSelectDataAttributes,
   ...selectItemDataAttributes,

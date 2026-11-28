@@ -2,7 +2,6 @@ import { BaseSelect, Icon } from '@src'
 import { createBaseSelectSearchInput } from '@src/utils'
 import type { BaseSelectSearchInputOptions } from '@src/utils'
 import { createMemo, createSignal, For } from 'solid-js'
-
 const FRAMEWORKS = [
   { value: 'solid', label: 'Solid', description: 'Fine-grained reactive UI' },
   { value: 'react', label: 'React', description: 'Component-based UI' },
@@ -28,7 +27,7 @@ function SearchControl(
       />
       <button
         type="button"
-        tabIndex={-1}
+        tabindex={-1}
         aria-label="Toggle frameworks"
         onPointerDown={(event) => {
           event.preventDefault()

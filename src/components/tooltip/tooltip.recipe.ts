@@ -5,7 +5,6 @@ import { POPPER_SIDE_CLASS } from '../shared/overlay/popper.recipe'
 import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
 
 import type { TooltipStyleSlot, TooltipStyleVariants } from './tooltip.style-types'
-
 export const TOOLTIP_POSITIONER_CLASS = 'motion-reduce:transition-none'
 /** Slides the positioner from the previous tooltip while instant motion is active. */
 export const TOOLTIP_INSTANT_POSITIONER_CLASS = `${TOOLTIP_POSITIONER_CLASS} motion-safe:data-positioned:transition-transform`

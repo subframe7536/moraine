@@ -5,14 +5,14 @@ export interface DocsRouteInfo {
   title: string
   description: string
   order: number
-  tags: string[]
+  tags: Array<string>
   surface: DocsSurface
   section: string
   routePath: string
   markdownPath: string
   badge?: string
   api?: string
-  sections?: DocsRouteSection[]
+  sections?: Array<DocsRouteSection>
 }
 
 export interface DocsRouteSection {
@@ -38,3 +38,7 @@ export const DOCS_SECTION_ORDER = new Map<string, number>(
     'hooks:hooks',
   ].map((t, i) => [t, i]),
 )
+
+declare module 'solid-file-router' {
+  interface RouteInfo extends DocsRouteInfo {}
+}

@@ -1,7 +1,6 @@
 import { NumberInput } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function NumberInputPlayground() {
   return (
     <DocsPlayground

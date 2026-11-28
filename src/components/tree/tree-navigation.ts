@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo, createSignal, onCleanup } from 'solid-js'
+import { createMemo, createProjection, createSignal, onSettled, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider'
 import { attachEventListenerMap } from '../../shared/event-listener'
@@ -9,14 +9,13 @@ import { createTypeahead } from '../../shared/typeahead'
 import { getSiblingKeys } from './tree-registry'
 import type { TreeRegistry } from './tree-registry'
 import type { TreeT } from './tree.types'
-
 const PENDING_FOCUS_TIMEOUT = 1000
 
 export interface TreeNavigationDeps<T> {
   options: TreeT.Options<T>
   registry: Accessor<TreeRegistry<T>>
-  flattenedKeys: Accessor<readonly string[]>
-  selectedKeys: Accessor<readonly string[]>
+  flattenedKeys: Accessor<ReadonlyArray<string>>
+  selectedKeys: Accessor<ReadonlyArray<string>>
   getFocusedKey: () => string | undefined
   setFocusedKey: (key: string | undefined) => void
   isExpanded: (key: string) => boolean
@@ -37,6 +36,10 @@ export interface TreeNavigation {
   tabStopKey: Accessor<string | undefined>
   /** Key of the item that currently holds DOM focus. */
   focusedKey: Accessor<string | undefined>
+  /** O(1) reactive check for whether `key` is the current tab stop. */
+  isTabStop: (key: string) => boolean
+  /** O(1) reactive check for whether `key` is currently focused. */
+  isFocused: (key: string) => boolean
   focus: (key: string, options?: { dom?: boolean }) => void
   onKeyDown: (event: KeyboardEvent, key: string) => void
   registerElement: (key: string, element: HTMLElement) => () => void
@@ -84,12 +87,38 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     return hasFocusWithin() || !root ? tabStop : undefined
   })
 
+  let previousTabStop: string | undefined
+  const tabStopMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = tabStopKey()
+    if (previousTabStop !== undefined && previousTabStop !== next) {
+      delete draft[previousTabStop]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousTabStop = next
+  }, {})
+  const isTabStop = (key: string): boolean => tabStopMap[key] === true
+
+  let previousFocused: string | undefined
+  const focusedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = focusedKey()
+    if (previousFocused !== undefined && previousFocused !== next) {
+      delete draft[previousFocused]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousFocused = next
+  }, {})
+  const isFocused = (key: string): boolean => focusedMap[key] === true
+
   function isFocusWithin(): boolean {
     return !!root && root.contains(root.ownerDocument.activeElement)
   }
 
   function focus(key: string, focusOptions?: { dom?: boolean }): void {
-    const node = deps.registry().nodes.get(key)
+    const node = untrack(deps.registry).nodes.get(key)
     if (!node || node.disabled) {
       return
     }
@@ -111,18 +140,16 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
 
   function registerElement(key: string, element: HTMLElement): () => void {
     elements.set(key, element)
-    queueMicrotask(() => {
-      if (
-        pendingFocus?.key === key &&
-        pendingFocus.expires > Date.now() &&
-        elements.get(key) === element &&
-        element.isConnected
-      ) {
-        pendingFocus = undefined
-        element.focus()
-        setHasFocusWithin(isFocusWithin())
-      }
-    })
+    if (
+      pendingFocus?.key === key &&
+      pendingFocus.expires > Date.now() &&
+      elements.get(key) === element &&
+      element.isConnected
+    ) {
+      pendingFocus = undefined
+      element.focus()
+      setHasFocusWithin(isFocusWithin())
+    }
     return () => {
       if (elements.get(key) === element) {
         elements.delete(key)
@@ -140,7 +167,11 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   function moveRelative(from: string, offset: 1 | -1, extend: boolean): void {
     const keys = deps.flattenedKeys()
     let index = keys.indexOf(from) + offset
-    while (index >= 0 && index < keys.length && isDisabled(keys[index]!)) {
+    while (index >= 0 && index < keys.length) {
+      const candidate = keys[index]
+      if (candidate === undefined || !isDisabled(candidate)) {
+        break
+      }
       index += offset
     }
     const target = keys[index]
@@ -169,7 +200,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   }
 
   function activate(key: string): void {
-    const node = deps.registry().nodes.get(key)
+    const node = untrack(deps.registry).nodes.get(key)
     if (!node || node.disabled) {
       return
     }
@@ -231,7 +262,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
       forward: {
         preventDefault: false,
         handle: (event, key) => {
-          const node = deps.registry().nodes.get(key)
+          const node = untrack(deps.registry).nodes.get(key)
           if (!node?.hasChildren) {
             return
           }
@@ -250,7 +281,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
       backward: {
         preventDefault: false,
         handle: (event, key) => {
-          const node = deps.registry().nodes.get(key)
+          const node = untrack(deps.registry).nodes.get(key)
           if (!node) {
             return
           }
@@ -277,7 +308,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     },
   })
 
-  onCleanup(() => {
+  onSettled(() => () => {
     removeRootListeners?.()
     removeRootListeners = undefined
     elements.clear()
@@ -287,6 +318,8 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   return {
     tabStopKey,
     focusedKey,
+    isTabStop,
+    isFocused,
     focus,
     onKeyDown,
     registerElement,

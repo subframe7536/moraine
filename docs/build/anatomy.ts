@@ -14,7 +14,6 @@ import { asObjectRecord, extractMdxNodeText } from './markdown/mdx.ts'
 import type { MdxNode } from './markdown/mdx.ts'
 import { DOCS_MDX_FEATURES } from './markdown/plugins.ts'
 import { parsePreviewCode } from './previews/ast.ts'
-
 function fail(sourcePath: string, reason: string): never {
   throw new Error(`[docs-anatomy] ${sourcePath}: ${reason}`)
 }
@@ -117,7 +116,7 @@ export function validateAnatomyConfig(
   const slots = new Set(api?.slots ?? [])
   const object = (value: unknown, location: string): Record<string, unknown> =>
     asObjectRecord(value) ?? fail(sourcePath, `${location} must be an object`)
-  const keys = (node: Record<string, unknown>, allowed: string[], location: string) => {
+  const keys = (node: Record<string, unknown>, allowed: Array<string>, location: string) => {
     for (const key of Object.keys(node)) {
       if (!allowed.includes(key)) {
         fail(sourcePath, `${location}: unknown field ${key}`)
@@ -203,7 +202,7 @@ export function validateAnatomyConfig(
 
 /** Parse real MDX nodes, so examples inside code fences do not count as Anatomy instances. */
 export async function extractAnatomyConfig(source: string, sourcePath: string): Promise<unknown> {
-  const nodes: MdxNode[] = []
+  const nodes: Array<MdxNode> = []
   let headings = 0
   const plugin = defineMdastPlugin({
     name: 'moraine-anatomy',
@@ -245,13 +244,14 @@ export async function extractAnatomyConfig(source: string, sourcePath: string): 
   if (headings === 0 && nodes.length === 0) {
     return undefined
   }
-  if (headings !== 1 || nodes.length !== 1) {
+  const [node] = nodes
+  if (!node || headings !== 1 || nodes.length !== 1) {
     fail(
       sourcePath,
       `when present, Anatomy requires exactly one ## Anatomy and one <Anatomy /> (found ${headings} headings and ${nodes.length} components)`,
     )
   }
-  return parseAnatomyNode(nodes[0]!, sourcePath)
+  return parseAnatomyNode(node, sourcePath)
 }
 
 export async function validateAnatomy(

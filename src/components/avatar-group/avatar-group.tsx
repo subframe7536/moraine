@@ -1,12 +1,11 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { Avatar } from '../avatar/avatar'
 
 import { avatarGroupRecipe } from './avatar-group.recipe'
 import type { AvatarGroupProps } from './avatar-group.types'
-
 /**
  * Group of overlapping avatars with optional overflow count, for showing a small set of people in
  * a bounded space. Each entry in `items` takes the `Avatar` props. Use `Avatar` for a single
@@ -29,30 +28,22 @@ import type { AvatarGroupProps } from './avatar-group.types'
  * ```
  */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'items',
-    'maxVisible',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  ])
+  const rest = omit(props, 'items', 'maxVisible', 'size', 'classes', 'styles', 'class', 'style')
   const {
     slots: { root: rootSlot, item: itemSlot, count: countSlot },
     variants,
     overrides,
-  } = useRecipe(avatarGroupRecipe, local)
+  } = useRecipe(avatarGroupRecipe, props)
 
   const size = () => variants.size
-  const items = createMemo(() => local.items ?? [])
+  const items = createMemo(() => props.items ?? [])
   const visibleItems = createMemo(() => {
     const allItems = items()
     if (allItems.length === 0) {
       return []
     }
 
-    const maxVisible = local.maxVisible
+    const maxVisible = props.maxVisible
     return maxVisible === undefined
       ? allItems
       : allItems.slice(0, Math.max(0, Math.floor(maxVisible)))

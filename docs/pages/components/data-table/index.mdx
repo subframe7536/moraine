@@ -393,7 +393,7 @@ const table = createDataTable({
   onPaginationChange: setPagination,
 })
 
-return <table.DataTable loading={page.loading} />
+return <table.DataTable loading={isPending(page)} />
 ```
 
 ### Loading and empty states

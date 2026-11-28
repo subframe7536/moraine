@@ -1,16 +1,15 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { Field } from '../../field'
 import type { FieldBinding } from '../../field/field-context'
 import { FieldProvider } from '../../field/field-context'
 import { Input } from '../../input/input'
 import { Textarea } from '../../textarea/textarea'
-
 describe.each([Input, Textarea])('native text control: %s', (Control) => {
-  test('owns native attributes, handlers and refs on the editable element', () => {
+  it('owns native attributes, handlers and refs on the editable element', () => {
     let input: HTMLInputElement | HTMLTextAreaElement | undefined
-    const native = vi.fn()
+    const native = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Control
         ref={(element: HTMLInputElement | HTMLTextAreaElement) => {
@@ -49,7 +48,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
     expect(native.mock.calls.every(([event]) => event.target === editable)).toBe(true)
   })
 
-  test('merges ARIA IDs and lets explicit false state override the field', () => {
+  it('merges ARIA IDs and lets explicit false state override the field', () => {
     const screen = render(() => (
       <Field label="Message" description="Description" help="Help" required disabled readOnly>
         <Control
@@ -57,8 +56,8 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
           required={false}
           disabled={false}
           readOnly={false}
-          aria-required={false}
-          aria-invalid={false}
+          aria-required={'false'}
+          aria-invalid={'false'}
           aria-describedby=" caller caller "
           aria-labelledby=" label label "
         />
@@ -89,8 +88,8 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
     expect(inheritedControl.readOnly).toBe(true)
   })
 
-  test('normalizes once before field and original native event notifications', () => {
-    const calls: string[] = []
+  it('normalizes once before field and original native event notifications', () => {
+    const calls: Array<string> = []
     const binding: FieldBinding = {
       name: 'message',
       path: ['message'],
@@ -131,7 +130,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
   })
 })
 
-test('Input forwards list association to the native input', () => {
+it('input forwards list association to the native input', () => {
   const screen = render(() => <Input list="suggestions" />)
   expect(screen.getByRole('combobox').getAttribute('list')).toBe('suggestions')
   expect(screen.container.firstElementChild).toBe(screen.getByRole('combobox'))

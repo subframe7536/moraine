@@ -1,9 +1,8 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { Match, Switch } from 'solid-js'
 
 import { Input, NumberInput, Select, Switch as SwitchComp } from '../../../../../src'
 import type { InputT } from '../../../../../src'
-
 export type DocsPlaygroundControlValue = string | number | boolean
 
 /** A text input writes strings; a number input (`inputType: 'number'`) writes numbers. */
@@ -35,10 +34,10 @@ export interface DocsPlaygroundSelectControl {
   prop: string
   label: string
   defaultValue: string | number
-  options: readonly {
+  options: ReadonlyArray<{
     label: string
     value: string | number
-  }[]
+  }>
 }
 
 export type DocsPlaygroundControl =
@@ -49,7 +48,7 @@ export type DocsPlaygroundControl =
 export type DocsPlaygroundControlValues = Record<string, DocsPlaygroundControlValue>
 
 export interface DocsPlaygroundControlsProps {
-  controls: readonly DocsPlaygroundControl[]
+  controls: ReadonlyArray<DocsPlaygroundControl>
 }
 
 /**
@@ -59,14 +58,14 @@ export interface DocsPlaygroundControlsProps {
 export type DocsPlaygroundControlValueOf<C extends DocsPlaygroundControl> =
   C extends DocsPlaygroundSwitchControl
     ? boolean
-    : C extends { kind: 'select'; options: readonly { value: infer V }[] }
+    : C extends { kind: 'select'; options: ReadonlyArray<{ value: infer V }> }
       ? V
       : C extends { inputType: 'number' }
         ? number
         : string
 
 /** Current control values keyed by `prop`, inferred from a `const` control list. */
-export type DocsPlaygroundValues<C extends readonly DocsPlaygroundControl[]> = {
+export type DocsPlaygroundValues<C extends ReadonlyArray<DocsPlaygroundControl>> = {
   readonly [K in C[number] as K['prop']]: DocsPlaygroundControlValueOf<K>
 }
 
@@ -75,7 +74,7 @@ type DocsPlaygroundInvalidSelect<K> = K extends {
   kind: 'select'
   prop: infer P
   defaultValue: infer D
-  options: readonly { value: infer V }[]
+  options: ReadonlyArray<{ value: infer V }>
 }
   ? D extends V
     ? never
@@ -83,7 +82,7 @@ type DocsPlaygroundInvalidSelect<K> = K extends {
   : never
 
 /** Fails the `controls` prop with a message when a select's `defaultValue` is not an option. */
-type DocsPlaygroundCheckedControls<C extends readonly DocsPlaygroundControl[]> = [
+type DocsPlaygroundCheckedControls<C extends ReadonlyArray<DocsPlaygroundControl>> = [
   DocsPlaygroundInvalidSelect<C[number]>,
 ] extends [never]
   ? C
@@ -91,7 +90,7 @@ type DocsPlaygroundCheckedControls<C extends readonly DocsPlaygroundControl[]> =
       `select "${DocsPlaygroundInvalidSelect<C[number]> & string}" defaultValue is not one of its options`
 
 export interface DocsPlaygroundProps<
-  C extends readonly DocsPlaygroundControl[] = readonly DocsPlaygroundControl[],
+  C extends ReadonlyArray<DocsPlaygroundControl> = ReadonlyArray<DocsPlaygroundControl>,
 > {
   controls: DocsPlaygroundCheckedControls<C>
   children: (values: DocsPlaygroundValues<C>) => JSX.Element
@@ -114,11 +113,13 @@ function getValueKey(value: string | number): string {
 }
 
 /** Validates the static, serializable control configuration authored in MDX. */
-export function normalizeDocsPlaygroundControls(value: unknown): readonly DocsPlaygroundControl[] {
+export function normalizeDocsPlaygroundControls(
+  value: unknown,
+): ReadonlyArray<DocsPlaygroundControl> {
   if (!Array.isArray(value)) {
     return []
   }
-  const controls: DocsPlaygroundControl[] = []
+  const controls: Array<DocsPlaygroundControl> = []
   const props = new Set<string>()
 
   for (const candidate of value) {
@@ -131,10 +132,7 @@ export function normalizeDocsPlaygroundControls(value: unknown): readonly DocsPl
       continue
     }
 
-    if (
-      !Object.prototype.hasOwnProperty.call(candidate, 'defaultValue') ||
-      candidate.defaultValue === undefined
-    ) {
+    if (!Object.hasOwn(candidate, 'defaultValue') || candidate.defaultValue === undefined) {
       throw new TypeError(`[docs-playground] control "${prop}" is missing defaultValue`)
     }
 
@@ -198,7 +196,7 @@ export function normalizeDocsPlaygroundControls(value: unknown): readonly DocsPl
     }
 
     const values = new Set<string>()
-    const options: DocsPlaygroundSelectControl['options'][number][] = []
+    const options: Array<DocsPlaygroundSelectControl['options'][number]> = []
     let validOptions = true
     for (const option of candidate.options) {
       if (!isRecord(option) || !isText(option.label) || !isPrimitiveValue(option.value)) {
@@ -243,7 +241,7 @@ export function normalizeDocsPlaygroundControls(value: unknown): readonly DocsPl
 }
 
 export function getDocsPlaygroundControlDefaults(
-  controls: readonly DocsPlaygroundControl[],
+  controls: ReadonlyArray<DocsPlaygroundControl>,
 ): DocsPlaygroundControlValues {
   const defaults: DocsPlaygroundControlValues = {}
 

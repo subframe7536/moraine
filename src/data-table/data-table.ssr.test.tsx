@@ -1,11 +1,10 @@
-import { createSignal } from 'solid-js'
-import { expect, test } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../test-util/ssr-test'
 
 import { DataTableHydrationFixture } from './data-table.ssr.fixture'
-
-test.each([true, false])(
+it.each([true, false])(
   'hydrates data table and updates rows reactively (initially present=%s)',
   (initialExtraRow) => {
     const [extraRow, setExtraRow] = createSignal(initialExtraRow)
@@ -22,7 +21,7 @@ test.each([true, false])(
 
     expect(rows().length).toBe(initialExtraRow ? 2 : 1)
 
-    setExtraRow(!initialExtraRow)
+    flush(() => setExtraRow(!initialExtraRow))
 
     expect(container.firstElementChild).toBe(root)
     expect(rows().length).toBe(!initialExtraRow ? 2 : 1)

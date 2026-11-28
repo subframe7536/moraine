@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -9,7 +10,6 @@ import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared
 
 import type { defaultDialogMessages } from './dialog.messages'
 import type { DialogStyleSlot, DialogStyleVariants } from './dialog.style-types'
-
 export namespace DialogT {
   export type Kind = 'composite'
 

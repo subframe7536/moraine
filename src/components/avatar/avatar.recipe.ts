@@ -3,7 +3,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { AvatarStyleSlot, AvatarStyleVariants } from './avatar.style-types'
-
 /** Badge icon fills two thirds of the badge, so it follows the badge size at every avatar size. */
 export const AVATAR_BADGE_ICON_CLASS = 'size-2/3'
 

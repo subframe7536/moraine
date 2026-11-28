@@ -1,7 +1,7 @@
+import type { JSX } from '@solidjs/web'
 import type { MDXComponents } from 'solid-file-router/mdx'
-import type { Component, JSX } from 'solid-js'
-import { createSignal, lazy, onMount, Show, untrack } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { Component, ComponentProps } from 'solid-js'
+import { Show, createComponent } from 'solid-js'
 
 import { Kbd, cn } from '../../../../src'
 
@@ -12,22 +12,10 @@ import { ComponentsIndex } from './components-index'
 import { HooksIndex } from './hooks-index'
 import { IconGallery } from './icon-gallery'
 import { Markdown } from './markdown'
-import {
-  DOCS_BLOCK_CONTAINER_CLASS,
-  DOCS_INLINE_CODE_CLASS,
-  DOCS_PREVIEW_CANVAS_CLASS,
-} from './markdown.recipe'
-
-export const DOCS_DEMO_BLOCK_CLASS = DOCS_BLOCK_CONTAINER_CLASS
-export const DOCS_DEMO_BLOCK_PREVIEW_CLASS = DOCS_PREVIEW_CANVAS_CLASS
+import { DOCS_INLINE_CODE_CLASS } from './markdown.recipe'
 
 interface MdxProps {
   [key: string]: unknown
-}
-
-export interface DocsMdxPreview {
-  component?: Component
-  source?: string | { html: string; code: string }
 }
 
 function toStringProp(value: unknown): string | undefined {
@@ -40,7 +28,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   button: (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />,
   label: (props: JSX.LabelHTMLAttributes<HTMLLabelElement>) => <label {...props} />,
   kbd: (props: JSX.IntrinsicElements['kbd']) => (
-    <Kbd variant="outline" value={props.children as any} />
+    <Kbd variant="outline" value={props.children as ComponentProps<typeof Kbd>['value']} />
   ),
   code: (props: JSX.HTMLAttributes<HTMLElement>) => (
     <code {...props} class={cn(DOCS_INLINE_CODE_CLASS, props.class)} />
@@ -53,39 +41,11 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   HooksIndex,
 
   Preview(props: MdxProps) {
-    const loader = untrack(() => props.load as () => Promise<{ default: DocsMdxPreview }>)
-    const PreviewRender = lazy(async () => {
-      const descriptor = (await loader()).default
-
-      return {
-        default() {
-          const [mounted, setMounted] = createSignal(false)
-          onMount(() => queueMicrotask(() => setMounted(true)))
-          return (
-            <section class={DOCS_DEMO_BLOCK_CLASS}>
-              <div
-                class={DOCS_DEMO_BLOCK_PREVIEW_CLASS}
-                data-preview-ready={mounted() ? '' : undefined}
-              >
-                <Show when={mounted() && descriptor.component}>
-                  {(value) => <Dynamic component={value()} />}
-                </Show>
-              </div>
-              <Show when={descriptor.source}>
-                {(value) => {
-                  const src = value()
-                  const html = typeof src === 'string' ? src : src.html
-                  const code = typeof src === 'object' && src ? src.code : undefined
-                  return <CodeBlock variant="source" lang="tsx" html={html} code={code} />
-                }}
-              </Show>
-            </section>
-          )
-        },
-      }
-    })
-
-    return <PreviewRender />
+    return (
+      <Show when={props.component as Component | undefined}>
+        {(PreviewComponent) => createComponent(PreviewComponent(), {})}
+      </Show>
+    )
   },
 
   CodeTabs,
@@ -97,7 +57,9 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
         code={toStringProp(props.code)}
         lang={toStringProp(props.lang)}
         title={toStringProp(props.title)}
-        highlightedLines={props.highlightedLines as any}
+        highlightedLines={
+          props.highlightedLines as ComponentProps<typeof CodeBlock>['highlightedLines']
+        }
       />
     )
   },
@@ -109,7 +71,9 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
         code={toStringProp(props.code)}
         lang={toStringProp(props.lang)}
         title={toStringProp(props.title)}
-        highlightedLines={props.highlightedLines as any}
+        highlightedLines={
+          props.highlightedLines as ComponentProps<typeof CodeBlock>['highlightedLines']
+        }
       />
     )
   },

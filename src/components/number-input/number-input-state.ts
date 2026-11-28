@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on } from 'solid-js'
+import { createMemo, createSignal, untrack } from 'solid-js'
 
 import {
   formatLocaleNumber,
@@ -9,7 +9,6 @@ import {
 } from '../../provider/locale/number'
 import { createControllableValue } from '../../shared/controllable-value'
 import { snapValueToStep } from '../slider/utils'
-
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
@@ -99,21 +98,31 @@ export function createNumberInput(options: CreateNumberInputOptions) {
   })
 
   // Draft text exists only while actively typing uncommitted or partial input.
-  const [draftText, setDraftText] = createSignal<string>()
-
-  // Sync external numeric or locale changes without clobbering accepted manual text.
-  createEffect(
-    on([currentValue, options.locale], ([value, localeTag]) => {
-      const draft = draftText()
-      if (draft !== undefined) {
-        const parsed = parseLocaleNumber(draft, localeTag, options.formatOptions())
-        if (parsed !== undefined && Object.is(clamp(parsed, options.min(), options.max()), value)) {
-          return
-        }
-        setDraftText(undefined)
-      }
-    }),
-  )
+  // Re-derives on external numeric or locale changes: a draft that no longer parses to
+  // the current value is dropped synchronously without clobbering accepted manual text.
+  const [draftText, setDraftText] = createSignal<string | undefined>((previous) => {
+    const value = currentValue()
+    const locale = options.locale()
+    if (previous === undefined) {
+      return undefined
+    }
+    const parsed = parseLocaleNumber(
+      previous,
+      locale,
+      untrack(() => options.formatOptions()),
+    )
+    const stale =
+      parsed === undefined ||
+      !Object.is(
+        clamp(
+          parsed,
+          untrack(() => options.min()),
+          untrack(() => options.max()),
+        ),
+        value,
+      )
+    return stale ? undefined : previous
+  })
 
   function commitValue(nextValue: number): boolean {
     if (options.disabled() || options.readOnly() || !Number.isFinite(nextValue)) {
@@ -191,11 +200,12 @@ export function createNumberInput(options: CreateNumberInputOptions) {
   function stepBy(amount: number): boolean {
     const wasDirty = draftText() !== undefined
     const nextValue = getSteppedValue(getStepBase(), amount)
-    const boundedValue = clamp(nextValue, options.min(), options.max())
     const changed = commitValue(nextValue)
 
-    if (changed && Object.is(currentValue(), boundedValue)) {
-      setDraftText(undefined)
+    if (changed) {
+      if (options.explicitControlledValue() === undefined) {
+        setDraftText(undefined)
+      }
       return true
     }
 
@@ -271,7 +281,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     }
   }
 
-  function reset(initialResetValue: number | null): void {
+  function reset(initialResetValue: number | null): string {
     const controlledValue = options.explicitControlledValue()
     const nextValue =
       controlledValue === undefined
@@ -286,6 +296,9 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     options.setFormValue?.(nextValue ?? undefined)
     setDraftText(undefined)
     options.resetNativeInvalid?.()
+    return nextValue === null
+      ? ''
+      : formatLocaleNumber(nextValue, options.locale(), options.formatOptions())
   }
 
   return {

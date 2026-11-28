@@ -1,4 +1,3 @@
-/* oxlint-disable subf/solid-reactivity -- Tests assert lazy memo recomputation outside tracked scopes. */
 import { render } from '@solidjs/testing-library'
 import {
   createSortedRowModel,
@@ -7,12 +6,11 @@ import {
   tableFeatures,
 } from '@tanstack/table-core'
 import type { ColumnDef, SortingState } from '@tanstack/table-core'
-import { createMemo, createRoot, createSignal } from 'solid-js'
+import { createMemo, createRoot, createSignal, flush, untrack } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { FlexRender } from './flex-render'
 import { createSolidReactivity, createTable } from './solid-table'
-
 interface TestRow {
   a: string
   b: string
@@ -24,12 +22,12 @@ const features = tableFeatures({
   sortFns: { alphanumeric: sortFn_alphanumeric },
 })
 
-const columns: ColumnDef<typeof features, TestRow>[] = [
+const columns: Array<ColumnDef<typeof features, TestRow>> = [
   { accessorKey: 'a', header: 'A' },
   { accessorKey: 'b', header: 'B' },
 ]
 
-const data: TestRow[] = [
+const data: Array<TestRow> = [
   { a: '2', b: 'x' },
   { a: '1', b: 'y' },
 ]
@@ -41,14 +39,14 @@ describe('createSolidReactivity', () => {
       set: (value: number) => void
       subscribe: (cb: (value: number) => void) => unknown
     }
-    const seen: number[] = []
+    const seen: Array<number> = []
 
     atom.subscribe((value) => seen.push(value))
-    atom.set(1)
+    flush(() => atom.set(1))
     expect(seen).toEqual([1])
 
     reactivity.dispose()
-    atom.set(2)
+    flush(() => atom.set(2))
 
     expect(seen).toEqual([1])
   })
@@ -60,9 +58,9 @@ describe('createTable', () => {
       const table = createTable({ features, columns, data })
       const rowCount = createMemo(() => table.getRowModel().rows.length)
 
-      expect(rowCount()).toBe(2)
-      table.setOptions((prev) => ({ ...prev, data: [...data, { a: '3', b: 'z' }] }))
-      expect(rowCount()).toBe(3)
+      expect(untrack(rowCount)).toBe(2)
+      flush(() => table.setOptions((prev) => ({ ...prev, data: [...data, { a: '3', b: 'z' }] })))
+      expect(untrack(rowCount)).toBe(3)
 
       dispose()
     })
@@ -70,7 +68,7 @@ describe('createTable', () => {
 
   it('controlled state from a getter that rebuilds the state object', () => {
     createRoot((dispose) => {
-      const [sorting, setSorting] = createSignal<SortingState>([])
+      const [sorting, setSorting] = createSignal<SortingState>([], { ownedWrite: true })
       const table = createTable({
         features,
         columns,
@@ -82,15 +80,15 @@ describe('createTable', () => {
       })
       const firstA = createMemo(() => table.getRowModel().rows[0]?.getValue('a'))
 
-      expect(firstA()).toBe('2')
-      setSorting([{ id: 'a', desc: false }])
-      expect(firstA()).toBe('1')
+      expect(untrack(firstA)).toBe('2')
+      flush(() => setSorting([{ id: 'a', desc: false }]))
+      expect(untrack(firstA)).toBe('1')
 
       dispose()
     })
   })
 
-  it('FlexRender re-renders when its header changes', () => {
+  it('flexRender re-renders when its header changes', () => {
     // `render` creates its own root; nesting it inside `createRoot` stalls updates.
     const [headers, dispose] = createRoot((d) => {
       const table = createTable({ features, columns, data })
@@ -100,19 +98,19 @@ describe('createTable', () => {
     const { container } = render(() => <FlexRender header={headers[index()]!} />)
 
     expect(container.textContent).toBe('A')
-    setIndex(1)
+    flush(() => setIndex(1))
     expect(container.textContent).toBe('B')
 
     dispose()
   })
 
-  it('FlexRender suppresses placeholder headers and footers', () => {
+  it('flexRender suppresses placeholder headers and footers', () => {
     interface NestedRow {
       a: string
       b: string
       c: string
     }
-    const groupColumns: ColumnDef<typeof features, NestedRow>[] = [
+    const groupColumns: Array<ColumnDef<typeof features, NestedRow>> = [
       {
         header: 'Group',
         columns: [
@@ -152,16 +150,15 @@ describe('createTable', () => {
     const placeholderFooter = footerHeaders.find((h) => h.isPlaceholder)
     const realFooter = footerHeaders.find((h) => !h.isPlaceholder && h.column.columnDef.footer)
 
-    if (placeholderFooter) {
-      const { container: placeholderFooterContainer } = render(() => (
-        <FlexRender footer={placeholderFooter} />
-      ))
-      expect(placeholderFooterContainer.textContent).toBe('')
-    }
-    if (realFooter) {
-      const { container: realFooterContainer } = render(() => <FlexRender footer={realFooter} />)
-      expect(realFooterContainer.textContent).not.toBe('')
-    }
+    expect(placeholderFooter).toBeDefined()
+    const { container: placeholderFooterContainer } = render(() => (
+      <FlexRender footer={placeholderFooter!} />
+    ))
+    expect(placeholderFooterContainer.textContent).toBe('')
+
+    expect(realFooter).toBeDefined()
+    const { container: realFooterContainer } = render(() => <FlexRender footer={realFooter!} />)
+    expect(realFooterContainer.textContent).not.toBe('')
 
     dispose()
   })

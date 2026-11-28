@@ -1,7 +1,6 @@
 import { createSignal } from 'solid-js'
 
 import type { FeedbackPending } from './feedback.types'
-
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return (
     (typeof value === 'object' || typeof value === 'function') &&
@@ -33,7 +32,7 @@ export function createActionRunner(options: {
   let current: Promise<void> | undefined
 
   const run: ActionRunner['run'] = (kind, event, action) => {
-    if (options.closed() || pending()) {
+    if (options.closed() || current !== undefined || pending()) {
       return Promise.resolve()
     }
     let outcome: unknown

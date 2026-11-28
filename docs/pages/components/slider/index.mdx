@@ -103,8 +103,8 @@ Pass `children` to render extra content inside the root after the thumbs. A rend
 receives the live `value`, sorted `values`, `percentages` from `0` to `1`, `dragging` state, and the
 `startEdge` where the filled range begins.
 
-Declare the function's parameter even when you do not use it; a zero-argument function is called as
-an accessor and is not mounted as a component.
+Declare a required parameter even when you do not use it; a zero-argument function is called as
+an accessor without render props.
 
 ```tsx
 <Slider defaultValue={40}>{(state) => <output>{state.value}</output>}</Slider>

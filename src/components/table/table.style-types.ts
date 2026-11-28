@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface TableStyleSlot<T = unknown> {
   /** Outer scrollable container. */
   container?: T

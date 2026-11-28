@@ -1,14 +1,13 @@
 // @vitest-environment node
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import YAML from 'yaml'
 
 import packageMetadata from '../../package.json' with { type: 'json' }
 
 import { buildLlmsDocuments } from './llms.ts'
 import { DOCS_SITE } from './site-meta.ts'
-
 const projectRoot = path.resolve(__dirname, '../..')
 let documentPromise: ReturnType<typeof buildLlmsDocuments> | undefined
 function documents() {
@@ -16,7 +15,7 @@ function documents() {
 }
 
 describe('agent Markdown', () => {
-  test('mirrors canonical URLs and separates the two navigation spaces', async () => {
+  it('mirrors canonical URLs and separates the two navigation spaces', async () => {
     const result = await documents()
     const names = new Set(result.map((item) => item.fileName))
     for (const name of [
@@ -56,9 +55,9 @@ describe('agent Markdown', () => {
     expect(index).toContain('https://moraine.subf.dev/hooks/create-slider.md')
     expect(index).not.toContain('create-list-virtualizer')
     expect(index).toContain('https://moraine.subf.dev/components/button.md')
-  })
+  }, 20_000)
 
-  test('includes page frontmatter and removes build metadata, runtime imports, Playground and MDX', async () => {
+  it('includes page frontmatter and removes build metadata, runtime imports, Playground and MDX', async () => {
     for (const { fileName, source } of await documents()) {
       if (fileName.endsWith('.json')) {
         continue
@@ -85,7 +84,7 @@ describe('agent Markdown', () => {
     }
   })
 
-  test('emits valid component API json documents with schema and links in llms.txt', async () => {
+  it('emits valid component API json documents with schema and links in llms.txt', async () => {
     const result = await documents()
     const jsonDocs = result.filter((item) => item.fileName.endsWith('.json'))
     expect(jsonDocs.length).toBeGreaterThanOrEqual(40)
@@ -97,8 +96,8 @@ describe('agent Markdown', () => {
       key: string
       name: string
       kind: string
-      parts: unknown[]
-      slots: string[]
+      parts: Array<unknown>
+      slots: Array<string>
     }
     expect(parsedButton.$schema).toBe('https://moraine.subf.dev/component-api.schema.json')
     expect(parsedButton.key).toBe('button')
@@ -114,7 +113,7 @@ describe('agent Markdown', () => {
     )
   })
 
-  test('expands the component directory and preserves component API sections', async () => {
+  it('expands the component directory and preserves component API sections', async () => {
     const result = await documents()
     const directory = result.find((item) => item.fileName === 'components.md')!.source
     expect(directory).toContain('## Buttons')

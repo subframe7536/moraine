@@ -2,7 +2,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { ButtonT } from '../button/button.types'
 
 import type { ButtonGroupT } from './button-group.types'
-
 export interface ButtonGroupContextValue {
   readonly size?: ButtonT.Variants['size']
   readonly variant?: ButtonT.Variants['variant']

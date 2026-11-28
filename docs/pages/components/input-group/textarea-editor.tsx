@@ -1,5 +1,4 @@
 import { Button, Icon, InputGroup, Textarea } from '@src'
-
 export function TextareaEditor() {
   return (
     <InputGroup orientation="vertical" class="max-w-md w-full">

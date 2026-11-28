@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
   getDocsShikiCss,
@@ -14,7 +14,7 @@ import {
 } from './shiki.ts'
 
 describe('docs shiki code highlighter', () => {
-  test('parses code group id from meta', () => {
+  it('parses code group id from meta', () => {
     expect(parseCodeGroupId('title="bun" group-id="install"')).toBe('install')
     expect(parseCodeGroupId("group-id='install'")).toBe('install')
     expect(parseCodeGroupId('group-id=install')).toBe('install')
@@ -24,7 +24,7 @@ describe('docs shiki code highlighter', () => {
     expect(parseCodeGroupId('')).toBeUndefined()
   })
 
-  test('parses code title and filename from meta', () => {
+  it('parses code title and filename from meta', () => {
     expect(parseCodeTitle('title="button.tsx"')).toBe('button.tsx')
     expect(parseCodeTitle("title='button.tsx'")).toBe('button.tsx')
     expect(parseCodeTitle('filename="button.tsx"')).toBe('button.tsx')
@@ -33,7 +33,7 @@ describe('docs shiki code highlighter', () => {
     expect(parseCodeTitle('')).toBeUndefined()
   })
 
-  test('parses highlighted lines from meta and explicit parameter', () => {
+  it('parses highlighted lines from meta and explicit parameter', () => {
     expect([...parseHighlightedLines('{1, 3-5}')]).toEqual([1, 3, 4, 5])
     expect([...parseHighlightedLines('title="foo.tsx" {2,4}')]).toEqual([2, 4])
     expect([...parseHighlightedLines(undefined, [1, 2, 5])]).toEqual([1, 2, 5])
@@ -45,7 +45,7 @@ describe('docs shiki code highlighter', () => {
     expect([...parseHighlightedLines(undefined, [2, Number.NaN, Infinity, 2])]).toEqual([2])
   })
 
-  test('renders source code with dual themes and shiki classes', async () => {
+  it('renders source code with dual themes and shiki classes', async () => {
     const html = await renderDocsCodeHtml({
       code: 'export const value = 1',
       language: 'tsx',
@@ -59,7 +59,7 @@ describe('docs shiki code highlighter', () => {
     expect(html).toContain('value')
   })
 
-  test('renders highlighted lines with .highlighted class', async () => {
+  it('renders highlighted lines with .highlighted class', async () => {
     const html = await renderDocsCodeHtml({
       code: 'const a = 1\nconst b = 2\nconst c = 3',
       language: 'tsx',
@@ -69,7 +69,7 @@ describe('docs shiki code highlighter', () => {
     expect(html).toContain('class="line highlighted"')
   })
 
-  test('renders line numbers with .line-numbers class on pre', async () => {
+  it('renders line numbers with .line-numbers class on pre', async () => {
     const html = await renderDocsCodeHtml({
       code: 'const a = 1',
       language: 'tsx',
@@ -79,7 +79,7 @@ describe('docs shiki code highlighter', () => {
     expect(html).toContain('line-numbers')
   })
 
-  test('falls back gracefully on unknown language', async () => {
+  it('falls back gracefully on unknown language', async () => {
     const html = await renderDocsCodeHtml({
       code: 'plain text content',
       language: 'unknown-lang-12345',
@@ -89,7 +89,7 @@ describe('docs shiki code highlighter', () => {
     expect(html).toContain('shiki')
   })
 
-  test('renders pre tag with tabindex="-1" so codeblock does not receive tab focus', async () => {
+  it('renders pre tag with tabindex="-1" so codeblock does not receive tab focus', async () => {
     const html = await renderDocsCodeHtml({
       code: 'const a = 1',
       language: 'ts',
@@ -98,7 +98,7 @@ describe('docs shiki code highlighter', () => {
     expect(html).not.toContain('tabindex="0"')
   })
 
-  test('parses unified code block metadata', () => {
+  it('parses unified code block metadata', () => {
     const meta = parseCodeBlockMeta('title="example.tsx" group-id="tabs" {1,3-5} showLineNumbers')
     expect(meta).toEqual({
       title: 'example.tsx',
@@ -119,7 +119,7 @@ describe('docs shiki code highlighter', () => {
     })
   })
 
-  test('normalizes highlight languages and aliases', () => {
+  it('normalizes highlight languages and aliases', () => {
     expect(normalizeHighlightLanguage('pnpm')).toBe('bash')
     expect(normalizeHighlightLanguage('npm')).toBe('bash')
     expect(normalizeHighlightLanguage('yarn')).toBe('bash')
@@ -138,7 +138,7 @@ describe('docs shiki code highlighter', () => {
     expect(normalizeHighlightLanguage('python')).toBe('python')
   })
 
-  test('highlights code block and returns structured result', async () => {
+  it('highlights code block and returns structured result', async () => {
     const result = await highlightCodeBlock({
       code: 'pnpm add moraine',
       language: 'pnpm',

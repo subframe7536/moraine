@@ -1,8 +1,7 @@
 import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
-
-const PERMISSION_GROUPS: MultiSelectT.Entry[] = [
+const PERMISSION_GROUPS: Array<MultiSelectT.Entry> = [
   {
     label: 'User Management',
     type: 'group',

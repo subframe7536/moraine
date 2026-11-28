@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import { createRoot, createSignal, mergeProps } from 'solid-js'
+import { createRoot, createSignal, flush, merge, onCleanup } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { MoraineProvider } from '../provider'
@@ -12,7 +12,6 @@ import { DataTable } from './data-table'
 import { getDataTableFeatures } from './data-table-features'
 import type { DataTableT } from './data-table.types'
 import { createTable } from './solid-table'
-
 interface Person {
   id: string
   name: string
@@ -20,13 +19,13 @@ interface Person {
   role: string
 }
 
-const TEST_DATA: Person[] = [
+const TEST_DATA: Array<Person> = [
   { id: '1', name: 'Alice', age: 28, role: 'Engineer' },
   { id: '2', name: 'Bob', age: 34, role: 'Designer' },
   { id: '3', name: 'Charlie', age: 22, role: 'Intern' },
 ]
 
-const TEST_COLUMNS: DataTableT.Column<Person>[] = [
+const TEST_COLUMNS: Array<DataTableT.Column<Person>> = [
   {
     accessorKey: 'name',
     header: 'Name',
@@ -44,7 +43,7 @@ const TEST_COLUMNS: DataTableT.Column<Person>[] = [
   },
 ]
 
-function manyPeople(count: number): Person[] {
+function manyPeople(count: number): Array<Person> {
   return Array.from({ length: count }, (_, index) => ({
     id: String(index + 1),
     name: `Person ${index + 1}`,
@@ -59,11 +58,11 @@ function headLabel(th: Element | null | undefined): string | null | undefined {
 }
 
 function createPersonTable(options: Partial<DataTableT.Options<Person>> = {}) {
-  const merged = mergeProps({ data: TEST_DATA, columns: TEST_COLUMNS }, options)
+  const merged = merge({ data: TEST_DATA, columns: TEST_COLUMNS }, options)
   return createDataTable<Person>(merged)
 }
 
-describe('DataTable', () => {
+describe('dataTable', () => {
   it('renders data with a createDataTable instance', () => {
     render(() => {
       const table = createPersonTable()
@@ -83,12 +82,14 @@ describe('DataTable', () => {
     createRoot((dispose) => {
       const warnSpy = vi.spyOn(console, 'warn')
       const table = createPersonTable()
-      table.getColumn('name')?.setFilterValue('Alice')
+      flush(() => table.getColumn('name')?.setFilterValue('Alice'))
       expect(table.getFilteredRowModel().rows.length).toBe(1)
       expect(table.getFilteredRowModel().rows[0]?.getValue('name')).toBe('Alice')
 
-      table.getColumn('name')?.setFilterValue(undefined)
-      table.setGlobalFilter('Designer')
+      flush(() => {
+        table.getColumn('name')?.setFilterValue(undefined)
+        table.setGlobalFilter('Designer')
+      })
       expect(table.getFilteredRowModel().rows.length).toBe(1)
       expect(table.getFilteredRowModel().rows[0]?.getValue('name')).toBe('Bob')
 
@@ -258,7 +259,7 @@ describe('DataTable', () => {
   })
 
   it('resets to page 0 with the resolved state when the page size changes, and ignores data-only updates', async () => {
-    const onPaginationChange = vi.fn()
+    const onPaginationChange = vi.fn<(...args: Array<any>) => void>()
     const [data, setData] = createSignal(TEST_DATA)
     const [pagination, setPagination] = createSignal({ pageIndex: 2, pageSize: 5 })
 
@@ -276,7 +277,7 @@ describe('DataTable', () => {
           },
         },
         onPaginationChange: (next) => {
-          setPagination(next)
+          flush(() => setPagination(next))
           onPaginationChange(next)
         },
       })
@@ -291,7 +292,7 @@ describe('DataTable', () => {
     expect(onPaginationChange).toHaveBeenCalledWith({ pageIndex: 0, pageSize: 10 })
 
     onPaginationChange.mockClear()
-    setData([{ id: '99', name: 'Zoe', age: 28, role: 'Engineer' }])
+    flush(() => setData([{ id: '99', name: 'Zoe', age: 28, role: 'Engineer' }]))
     expect(onPaginationChange).not.toHaveBeenCalled()
   })
 
@@ -310,14 +311,14 @@ describe('DataTable', () => {
     expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
     expect(screen.getAllByRole('row').length).toBe(4)
 
-    setPaginated(true)
+    flush(() => setPaginated(true))
 
     await waitFor(() =>
       expect(container.querySelector('[data-slot="data-table-pagination"]')).not.toBeNull(),
     )
     expect(screen.getAllByRole('row').length).toBe(3)
 
-    setPaginated(false)
+    flush(() => setPaginated(false))
 
     await waitFor(() =>
       expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull(),
@@ -338,15 +339,15 @@ describe('DataTable', () => {
 
     expect(screen.queryAllByRole('checkbox').length).toBe(0)
 
-    setMode('multiple')
+    flush(() => setMode('multiple'))
     expect(screen.getAllByRole('checkbox').length).toBe(4)
 
-    setMode(undefined)
+    flush(() => setMode(undefined))
     expect(screen.queryAllByRole('checkbox').length).toBe(0)
   })
 
   it('keeps sorting itself when only onSortingChange is provided', () => {
-    const onSortingChange = vi.fn()
+    const onSortingChange = vi.fn<(...args: Array<any>) => void>()
     render(() => {
       const table = createPersonTable({ onSortingChange })
       return <table.DataTable />
@@ -382,6 +383,100 @@ describe('DataTable', () => {
     expect(rows[0]?.classList.contains('user-intern-row')).toBe(false)
   })
 
+  it('reacts when rowProps and headProps change and keeps hook calls single-run per index change', () => {
+    const [rowProps, setRowProps] = createSignal<DataTableT.Base<Person>['rowProps']>(undefined)
+    const [headProps, setHeadProps] = createSignal<DataTableT.Base<Person>['headProps']>(undefined)
+    const [sorting, setSorting] = createSignal<Array<{ id: string; desc: boolean }>>([])
+    const [columnOrder, setColumnOrder] = createSignal<Array<string>>(['name', 'age', 'role'])
+    const rowSetup = vi.fn<(...args: Array<any>) => void>()
+    const rowCleanup = vi.fn<(...args: Array<any>) => void>()
+    const headSetup = vi.fn<(...args: Array<any>) => void>()
+    const headCleanup = vi.fn<(...args: Array<any>) => void>()
+
+    const { container } = render(() => {
+      const table = createPersonTable({
+        getRowId: (row) => row.id,
+        state: {
+          get sorting() {
+            return sorting()
+          },
+          get columnOrder() {
+            return columnOrder()
+          },
+        },
+        onSortingChange: setSorting,
+        onColumnOrderChange: setColumnOrder,
+      })
+      return <table.DataTable rowProps={rowProps()} headProps={headProps()} />
+    })
+
+    const getRow = (name: string) =>
+      [...container.querySelectorAll('tbody > tr')].find((row) => row.textContent?.includes(name))!
+    const getHead = (label: string) =>
+      [...container.querySelectorAll('thead th')].find((th) => th.textContent?.includes(label))!
+
+    expect(getRow('Alice').getAttribute('data-row-tag')).toBeNull()
+    expect(getHead('Name').getAttribute('title')).toBeNull()
+
+    flush(() => {
+      setRowProps(() => (context) => {
+        rowSetup(context.row.id)
+        onCleanup(() => rowCleanup(context.row.id))
+        return {
+          class: 'first-row-pass',
+          get 'data-row-tag'() {
+            return `${context.row.id}:${context.index}`
+          },
+        }
+      })
+      setHeadProps(() => (context) => {
+        headSetup(context.header.column.id)
+        onCleanup(() => headCleanup(context.header.column.id))
+        return {
+          get title() {
+            return `${context.header.column.id}:${context.index}`
+          },
+        }
+      })
+    })
+
+    expect(getRow('Alice').classList.contains('first-row-pass')).toBe(true)
+    expect(getRow('Alice').getAttribute('data-row-tag')).toBe('1:0')
+    expect(getHead('Name').getAttribute('title')).toBe('name:0')
+    expect(rowSetup).toHaveBeenCalledTimes(3)
+    expect(headSetup).toHaveBeenCalledTimes(3)
+
+    // Sorting reorders rows without re-invoking row hooks; lazy `index` getters still update.
+    flush(() => setSorting([{ id: 'name', desc: true }]))
+    expect(getRow('Alice').getAttribute('data-row-tag')).toBe('1:2')
+    expect(rowSetup).toHaveBeenCalledTimes(3)
+    expect(headSetup).toHaveBeenCalledTimes(3)
+
+    // Reordering columns rebuilds TanStack Header instances, cleaning up old head hooks.
+    flush(() => setColumnOrder(['role', 'age', 'name']))
+    expect(getHead('Name').getAttribute('title')).toBe('name:2')
+    expect(headCleanup).toHaveBeenCalledTimes(3)
+    expect(headSetup).toHaveBeenCalledTimes(6)
+
+    // Swapping callbacks cleans up previous cell/row hooks and applies the new attributes.
+    flush(() => {
+      setRowProps(() => (context) => ({
+        class: 'second-row-pass',
+        'data-row-tag': `next:${context.row.id}`,
+      }))
+      setHeadProps(() => (context) => ({
+        title: `next:${context.header.column.id}`,
+      }))
+    })
+
+    expect(rowCleanup).toHaveBeenCalledTimes(3)
+    expect(headCleanup).toHaveBeenCalledTimes(6)
+    expect(getRow('Alice').classList.contains('first-row-pass')).toBe(false)
+    expect(getRow('Alice').classList.contains('second-row-pass')).toBe(true)
+    expect(getRow('Alice').getAttribute('data-row-tag')).toBe('next:1')
+    expect(getHead('Name').getAttribute('title')).toBe('next:name')
+  })
+
   it('marks only expanded body rows with data-expanded', () => {
     const { container } = render(() => {
       const table = createPersonTable({
@@ -414,7 +509,7 @@ describe('DataTable', () => {
   })
 
   it('keeps the sort button outside the column label, so its name is the label alone', () => {
-    const columns: DataTableT.Column<Person>[] = [
+    const columns: Array<DataTableT.Column<Person>> = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'age', header: 'Age', meta: { align: 'end' } },
     ]
@@ -447,7 +542,7 @@ describe('DataTable', () => {
 
     expect(screen.getAllByRole('row').length).toBe(4)
 
-    setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }])
+    flush(() => setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }]))
 
     expect(screen.getAllByRole('row').length).toBe(5)
     expect(screen.getByText('Diana')).toBeDefined()
@@ -468,8 +563,8 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row').length).toBe(4)
     expect(screen.queryByText('Role')).toBeNull()
 
-    setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }])
-    setColumns(TEST_COLUMNS)
+    flush(() => setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }]))
+    flush(() => setColumns(TEST_COLUMNS))
 
     expect(screen.getAllByRole('row').length).toBe(5)
     expect(screen.getByText('Diana')).toBeDefined()
@@ -596,7 +691,7 @@ describe('DataTable', () => {
     interface Node {
       id: string
       name: string
-      children?: Node[]
+      children?: Array<Node>
     }
     let table!: DataTableT.Instance<Node>
     render(() => {
@@ -609,7 +704,7 @@ describe('DataTable', () => {
     })
 
     expect(screen.queryByText('Child')).toBeNull()
-    table.getRowModel().rows[0]!.toggleExpanded()
+    flush(() => table.getRowModel().rows[0]!.toggleExpanded())
     expect(screen.getByText('Child')).toBeDefined()
   })
 
@@ -701,7 +796,7 @@ describe('DataTable', () => {
   })
 
   it('keeps a single-selection radio unchecked when controlled state rejects the change', () => {
-    const onRowSelectionChange = vi.fn()
+    const onRowSelectionChange = vi.fn<(...args: Array<any>) => void>()
     render(() => {
       const table = createPersonTable({
         selectionMode: 'single',
@@ -816,7 +911,7 @@ describe('DataTable', () => {
   })
 
   it('sticks the footer with sticky=true, and only the footer with sticky="footer"', () => {
-    const footerColumns: DataTableT.Column<Person>[] = [
+    const footerColumns: Array<DataTableT.Column<Person>> = [
       { accessorKey: 'name', header: 'Name', footer: 'Total' },
       { accessorKey: 'age', header: 'Age' },
     ]
@@ -846,7 +941,7 @@ describe('DataTable', () => {
   })
 
   it('pins start and end columns with sticky offsets and edge markers', () => {
-    const pinnedCols: DataTableT.Column<Person>[] = [
+    const pinnedCols: Array<DataTableT.Column<Person>> = [
       {
         accessorKey: 'name',
         header: 'Name',
@@ -890,7 +985,7 @@ describe('DataTable', () => {
   })
 
   it('only marks the innermost pinned column as the pinned edge', () => {
-    const columns: DataTableT.Column<Person>[] = [
+    const columns: Array<DataTableT.Column<Person>> = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'age', header: 'Age' },
       { accessorKey: 'role', header: 'Role' },
@@ -909,7 +1004,7 @@ describe('DataTable', () => {
   })
 
   it('stacks sticky header cells above pinned body cells', () => {
-    const columns: DataTableT.Column<Person>[] = [
+    const columns: Array<DataTableT.Column<Person>> = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'age', header: 'Age' },
       { accessorKey: 'role', header: 'Role' },
@@ -1030,7 +1125,7 @@ describe('DataTable', () => {
   })
 
   it('does not emit onRowClick when a selection checkbox is clicked', () => {
-    const onRowClick = vi.fn()
+    const onRowClick = vi.fn<(...args: Array<any>) => void>()
 
     render(() => {
       const table = createPersonTable({ selectionMode: 'multiple' })
@@ -1046,8 +1141,8 @@ describe('DataTable', () => {
   })
 
   it('emits onRowClick and onRowDoubleClick events', () => {
-    const onRowClick = vi.fn()
-    const onRowDoubleClick = vi.fn()
+    const onRowClick = vi.fn<(...args: Array<any>) => void>()
+    const onRowDoubleClick = vi.fn<(...args: Array<any>) => void>()
 
     render(() => {
       const table = createPersonTable()
@@ -1119,9 +1214,11 @@ describe('DataTable', () => {
     document.dispatchEvent(
       new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: 160 }),
     )
-    document.dispatchEvent(
-      new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
-    )
+    flush(() => {
+      document.dispatchEvent(
+        new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
+      )
+    })
 
     expect((ths[0] as HTMLElement).style.width).toBe('160px')
     expect((tds[0] as HTMLElement).style.width).toBe('160px')
@@ -1179,8 +1276,8 @@ describe('DataTable', () => {
   })
 
   it('lets top-level options win over the same settings in tableOptions', () => {
-    const onSortingChange = vi.fn()
-    const escapeHatchSortingChange = vi.fn()
+    const onSortingChange = vi.fn<(...args: Array<any>) => void>()
+    const escapeHatchSortingChange = vi.fn<(...args: Array<any>) => void>()
     render(() => {
       const table = createPersonTable({
         paginated: { pageSize: 25 },
@@ -1225,9 +1322,11 @@ describe('DataTable', () => {
     )
     // onEnd keeps the width until the drag is released.
     expect(th.style.width).toBe('100px')
-    document.dispatchEvent(
-      new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
-    )
+    flush(() => {
+      document.dispatchEvent(
+        new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
+      )
+    })
     expect(th.style.width).toBe('160px')
   })
 
@@ -1363,7 +1462,7 @@ describe('DataTable', () => {
   })
 
   it('resizes columns from the keyboard through an accessible separator', () => {
-    const onColumnSizingChange = vi.fn()
+    const onColumnSizingChange = vi.fn<(...args: Array<any>) => void>()
     const { container } = render(() => {
       const table = createPersonTable({
         resizable: true,
@@ -1464,20 +1563,20 @@ describe('DataTable', () => {
     expect(container.querySelector('[data-slot="data-table-loading"]')).not.toBeNull()
 
     // The live region stays mounted and empties, so the next loading state is announced.
-    setLoading(false)
+    flush(() => setLoading(false))
     expect(table.hasAttribute('aria-busy')).toBe(false)
     expect(screen.getByRole('status')).toBe(status)
     expect(status.textContent).toBe('')
     expect(container.querySelector('[data-slot="data-table-loading"]')).toBeNull()
 
-    setLoading(true)
+    flush(() => setLoading(true))
     expect(status.textContent).toBe('Loading')
   })
 
   it('lets callers override aria-busy', () => {
     const { container } = render(() => {
       const table = createPersonTable()
-      return <table.DataTable loading aria-busy={false} />
+      return <table.DataTable loading aria-busy={'false'} />
     })
 
     expect(container.querySelector('table')!.getAttribute('aria-busy')).toBe('false')
@@ -1542,7 +1641,7 @@ describe('DataTable', () => {
   })
 
   describe('column groups, pinned edges, and select-all', () => {
-    const GROUPED_COLUMNS: DataTableT.Column<Person>[] = [
+    const GROUPED_COLUMNS: Array<DataTableT.Column<Person>> = [
       {
         id: 'grp',
         header: 'Group',
@@ -1617,7 +1716,7 @@ describe('DataTable', () => {
         )
 
       expect(edges()).toEqual([null, 'start', null])
-      setVisibility({ age: false })
+      flush(() => setVisibility({ age: false }))
       expect(edges()).toEqual(['start', null])
     })
 
@@ -1625,7 +1724,7 @@ describe('DataTable', () => {
       interface Node {
         id: string
         name: string
-        children?: Node[]
+        children?: Array<Node>
       }
       let table!: DataTableT.Instance<Node>
       render(() => {
@@ -1679,7 +1778,7 @@ describe('DataTable', () => {
       expect(screen.getAllByRole('checkbox')[0]!.getAttribute('aria-label')).toBe(
         'Select all rows on this page',
       )
-      setPaginated(false)
+      flush(() => setPaginated(false))
       expect(screen.getAllByRole('checkbox')[0]!.getAttribute('aria-label')).toBe('Select all rows')
     })
   })
@@ -1688,7 +1787,7 @@ describe('DataTable', () => {
     type Wide = Record<string, string>
 
     const CENTER_COUNT = 20
-    const WIDE_COLUMNS: DataTableT.Column<Wide>[] = [
+    const WIDE_COLUMNS: Array<DataTableT.Column<Wide>> = [
       { accessorKey: 'id', header: 'ID', size: 60 },
       ...Array.from({ length: CENTER_COUNT }, (_, index) => ({
         accessorKey: `c${index}`,
@@ -1697,7 +1796,7 @@ describe('DataTable', () => {
       })),
       { accessorKey: 'actions', header: 'Actions', size: 80 },
     ]
-    const WIDE_ROWS: Wide[] = Array.from({ length: 30 }, (_, row) =>
+    const WIDE_ROWS: Array<Wide> = Array.from({ length: 30 }, (_, row) =>
       Object.fromEntries([
         ['id', `r${row}`],
         ['actions', `a${row}`],
@@ -1727,7 +1826,7 @@ describe('DataTable', () => {
     }
 
     function createWideTable(options: Partial<DataTableT.Options<Wide>> = {}) {
-      const merged = mergeProps(
+      const merged = merge(
         {
           data: WIDE_ROWS,
           columns: WIDE_COLUMNS,
@@ -1742,7 +1841,7 @@ describe('DataTable', () => {
       return container.querySelector<HTMLTableRowElement>('tbody tr[data-index="0"]')!
     }
 
-    function cellTexts(row: HTMLTableRowElement): string[] {
+    function cellTexts(row: HTMLTableRowElement): Array<string> {
       return [...row.cells].map((cell) =>
         cell.dataset.slot === 'data-table-cell-spacer' ? `<${cell.colSpan}>` : cell.textContent,
       )
@@ -1852,7 +1951,7 @@ describe('DataTable', () => {
 
     it('follows column size, order, and visibility changes', async () => {
       const [sizing, setSizing] = createSignal<Record<string, number>>({})
-      const [order, setOrder] = createSignal<string[]>([])
+      const [order, setOrder] = createSignal<Array<string>>([])
       const [visibility, setVisibility] = createSignal<Record<string, boolean>>({})
       const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
@@ -1876,16 +1975,16 @@ describe('DataTable', () => {
       })
       await Promise.resolve()
 
-      setSizing({ c0: 300 })
+      flush(() => setSizing({ c0: 300 }))
       await Promise.resolve()
       expect(cellTexts(firstBodyRow(container))).toEqual(['r0', 'r0c0', 'r0c1', '<18>', 'a0'])
 
-      setSizing({})
-      setOrder(['id', 'c5', 'c4'])
+      flush(() => setSizing({}))
+      flush(() => setOrder(['id', 'c5', 'c4']))
       await Promise.resolve()
       expect(cellTexts(firstBodyRow(container)).slice(0, 3)).toEqual(['r0', 'r0c5', 'r0c4'])
 
-      setVisibility({ c5: false })
+      flush(() => setVisibility({ c5: false }))
       await Promise.resolve()
       expect(cellTexts(firstBodyRow(container)).slice(0, 3)).toEqual(['r0', 'r0c4', 'r0c0'])
       expect(spanSum(firstBodyRow(container))).toBe(CENTER_COUNT + 1)
@@ -2072,13 +2171,15 @@ describe('DataTable', () => {
 
       expect(priorities(container)).toEqual({ Name: '1', Age: '2', Role: '3' })
 
-      setSorting([
-        { id: 'age', desc: true },
-        { id: 'role', desc: false },
-      ])
+      flush(() =>
+        setSorting([
+          { id: 'age', desc: true },
+          { id: 'role', desc: false },
+        ]),
+      )
       expect(priorities(container)).toEqual({ Age: '1', Role: '2' })
 
-      setSorting([{ id: 'role', desc: false }])
+      flush(() => setSorting([{ id: 'role', desc: false }]))
       expect(priorities(container)).toEqual({})
     })
 
@@ -2106,10 +2207,10 @@ describe('DataTable', () => {
       id: string
       name: string
       kind: string
-      children?: TreeNode[]
+      children?: Array<TreeNode>
     }
 
-    const TREE: TreeNode[] = [
+    const TREE: Array<TreeNode> = [
       {
         id: 'src',
         name: 'src',
@@ -2126,13 +2227,13 @@ describe('DataTable', () => {
       { id: 'readme', name: 'README.md', kind: 'file' },
     ]
 
-    const TREE_COLUMNS: DataTableT.Column<TreeNode>[] = [
+    const TREE_COLUMNS: Array<DataTableT.Column<TreeNode>> = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'kind', header: 'Kind' },
     ]
 
     function createTreeTable(options: Partial<DataTableT.Options<TreeNode>> = {}) {
-      const merged = mergeProps(
+      const merged = merge(
         {
           data: TREE,
           columns: TREE_COLUMNS,
@@ -2153,7 +2254,7 @@ describe('DataTable', () => {
       return row!
     }
 
-    function treeCells(row: HTMLTableRowElement): string[] {
+    function treeCells(row: HTMLTableRowElement): Array<string> {
       return [...row.querySelectorAll('td[data-tree]')].map((cell) => cell.textContent ?? '')
     }
 
@@ -2199,7 +2300,7 @@ describe('DataTable', () => {
     })
 
     it('moves the indent with column order and visibility', () => {
-      const [order, setOrder] = createSignal<string[]>([])
+      const [order, setOrder] = createSignal<Array<string>>([])
       const [visibility, setVisibility] = createSignal<Record<string, boolean>>({})
       const { container } = render(() => {
         const table = createTreeTable({
@@ -2219,10 +2320,10 @@ describe('DataTable', () => {
 
       expect(treeCells(bodyRow(container, 'components'))).toEqual(['components'])
 
-      setOrder(['kind', 'name'])
+      flush(() => setOrder(['kind', 'name']))
       expect(treeCells(bodyRow(container, 'components'))).toEqual(['folder'])
 
-      setVisibility({ kind: false })
+      flush(() => setVisibility({ kind: false }))
       expect(treeCells(bodyRow(container, 'components'))).toEqual(['components'])
     })
 

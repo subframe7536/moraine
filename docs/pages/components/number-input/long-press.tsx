@@ -1,6 +1,5 @@
 import { NumberInput } from '@src'
 import { createSignal } from 'solid-js'
-
 export function LongPress() {
   const [repeatValue, setRepeatValue] = createSignal(12)
   const [singleStepValue, setSingleStepValue] = createSignal(12)

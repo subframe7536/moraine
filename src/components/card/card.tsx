@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -14,7 +14,6 @@ import { CardHeader } from './card-header'
 import { CardTitle } from './card-title'
 import { cardRecipe } from './card.recipe'
 import type { CardT } from './card.types'
-
 /**
  * Static surface that groups related content and actions, composed from `Card.Header`,
  * `Card.Body`, `Card.Footer`, and other parts. The parts are structural and add no interactive
@@ -36,19 +35,13 @@ import type { CardT } from './card.types'
  * ```
  */
 export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'as',
-    'variant',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  ])
+  const rest = omit(props, 'as', 'variant', 'size', 'classes', 'styles', 'class', 'style')
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(cardRecipe, local)
+  } = useRecipe(cardRecipe, props)
+
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
 
   return (
     <CardProvider
@@ -60,11 +53,11 @@ export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): J
           return variants.size
         },
         get slotOverrides() {
-          return { classes: local.classes, styles: local.styles }
+          return { classes: props.classes, styles: props.styles }
         },
       }}
     >
-      <Dynamic component={local.as ?? 'div'} data-slot="card" {...rootSlot} {...rest} />
+      <Root data-slot="card" {...rootSlot} {...(rest as Record<string, unknown>)} />
     </CardProvider>
   )
 }

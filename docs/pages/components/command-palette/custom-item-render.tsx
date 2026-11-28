@@ -1,12 +1,11 @@
 import { Badge, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
-
 interface TeamCommand extends CommandPaletteT.Item {
   owner: string
   status: 'ready' | 'blocked'
 }
 
-const GROUPS: CommandPaletteT.Group<TeamCommand>[] = [
+const GROUPS: Array<CommandPaletteT.Group<TeamCommand>> = [
   {
     type: 'group',
     label: 'Projects',

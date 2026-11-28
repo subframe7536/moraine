@@ -1,11 +1,10 @@
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createTableVirtualizer } from '@src/virtualizer'
-
 interface MetricRow {
   id: number
   server: string
-  readings: number[]
+  readings: Array<number>
 }
 
 const ROW_HEIGHT = 37
@@ -13,13 +12,13 @@ const HOUR_COUNT = 100
 
 const REGIONS = ['eu-west', 'us-east', 'ap-south', 'sa-east'] as const
 
-const ROWS: MetricRow[] = Array.from({ length: 10_000 }, (_, row) => ({
+const ROWS: Array<MetricRow> = Array.from({ length: 10_000 }, (_, row) => ({
   id: row + 1,
   server: `${REGIONS[row % REGIONS.length]}-${String(row + 1).padStart(5, '0')}`,
   readings: Array.from({ length: HOUR_COUNT }, (_, hour) => ((row * 31 + hour * 17) % 97) + 1),
 }))
 
-const COLUMNS: DataTableT.Column<MetricRow>[] = [
+const COLUMNS: Array<DataTableT.Column<MetricRow>> = [
   {
     accessorKey: 'server',
     header: 'Server',

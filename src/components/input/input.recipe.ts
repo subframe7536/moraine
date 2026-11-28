@@ -9,7 +9,6 @@ import {
 } from '../shared/form/text-control.recipe'
 
 import type { InputRecipeVariant, InputStyleSlot } from './input.style-types'
-
 export const inputDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
 } satisfies DataAttributeContract<keyof InputStyleSlot>

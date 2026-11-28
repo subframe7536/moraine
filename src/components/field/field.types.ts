@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { FieldStyleSlot, FieldStyleVariants } from './field.style-types'
-
-type FieldPath = readonly (string | number)[]
+type FieldPath = ReadonlyArray<string | number>
 
 export namespace FieldT {
   export type Kind = 'single'

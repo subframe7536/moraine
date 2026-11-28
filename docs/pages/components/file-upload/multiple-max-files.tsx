@@ -1,7 +1,6 @@
 import { Badge, FileUpload } from '@src'
 import type { FileUploadT } from '@src'
 import { createSignal, For, Show } from 'solid-js'
-
 export function MultipleMaxFiles() {
   type FileUploadValue = FileUploadT.Value
 

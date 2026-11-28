@@ -1,5 +1,4 @@
 import { Button, Icon, Input, InputGroup, Textarea } from '@src'
-
 export function RightToLeft() {
   return (
     <div dir="rtl" class="gap-4 grid max-w-sm w-full">

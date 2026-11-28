@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal } from 'solid-js'
 
 import {
   SPLITTER_END_TARGET_ATTRIBUTE,
@@ -49,48 +49,45 @@ export interface SplitterHandleBindings {
 }
 
 export function createSplitterHandle(options: CreateSplitterHandleOptions): SplitterHandleBindings {
+  const disabled = createMemo(() => options.disabled() === true)
+  const resetOnDisabled = (): false => {
+    disabled()
+    return false
+  }
+  const resetIntersectionOnDisabled = (): SplitterHandleRegistration | null => {
+    disabled()
+    return null
+  }
   const [element, setElement] = createSignal<HTMLElement>()
-  const [hovered, setHovered] = createSignal(false)
-  const [focused, setFocused] = createSignal(false)
-  const [dragging, setDragging] = createSignal(false)
-  const [crossHovered, setCrossHovered] = createSignal(false)
+  const [hovered, setHovered] = createSignal<boolean>(resetOnDisabled)
+  const [focused, setFocused] = createSignal<boolean>(resetOnDisabled)
+  const [dragging, setDragging] = createSignal<boolean>(resetOnDisabled)
+  const [crossHovered, setCrossHovered] = createSignal<boolean>(resetOnDisabled)
   const [startIntersection, setStartIntersection] = createSignal<SplitterHandleRegistration | null>(
-    null,
+    resetIntersectionOnDisabled,
   )
   const [endIntersection, setEndIntersection] = createSignal<SplitterHandleRegistration | null>(
-    null,
+    resetIntersectionOnDisabled,
   )
 
-  const disabled = createMemo(() => options.disabled() === true)
   const active = createMemo(() => hovered() || focused() || dragging() || crossHovered())
 
   const registrationId = Symbol('splitter-handle')
   let registration: SplitterHandleRegistration | null = null
 
   createEffect(
-    on(disabled, (isDisabled) => {
-      if (isDisabled) {
-        setHovered(false)
-        setFocused(false)
-        setDragging(false)
-        setCrossHovered(false)
-        setStartIntersection(null)
-        setEndIntersection(null)
-      }
-    }),
-  )
-
-  createEffect(
-    on([element, disabled], ([currentElement, isDisabled]) => {
+    () => [element(), disabled()],
+    ([currentElement, isDisabled]) => {
       if (!currentElement || isDisabled) {
         return
       }
 
       registration = {
         id: registrationId,
-        getElement: () => element(),
+        // The registration is rebuilt whenever the element changes, so it holds this one.
+        getElement: () => currentElement,
         getRootElement: () =>
-          (element()?.closest(SPLITTER_ROOT_SELECTOR) as HTMLElement | null) ?? undefined,
+          currentElement.closest<HTMLElement>(SPLITTER_ROOT_SELECTOR) ?? undefined,
         getOrientation: options.orientation,
         getStartIntersectionEnabled: () => options.intersection() === true,
         getEndIntersectionEnabled: () => options.intersection() === true,
@@ -107,17 +104,18 @@ export function createSplitterHandle(options: CreateSplitterHandleOptions): Spli
       }
 
       const unregister = registerSplitterHandle(registration)
-      onCleanup(() => {
+      return () => {
         unregister()
         registration = null
-      })
-    }),
+      }
+    },
   )
 
   createEffect(
-    on([options.orientation, options.intersection], () => {
+    () => [options.orientation(), options.intersection()],
+    () => {
       scheduleSplitterIntersectionsRefresh()
-    }),
+    },
   )
 
   function onMouseEnter(): void {

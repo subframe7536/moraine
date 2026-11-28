@@ -1,5 +1,4 @@
 import { Icon } from '@src'
-
 // Rendered without props; Icon applies class and ARIA attributes to its own root.
 function BoltGlyph() {
   return (

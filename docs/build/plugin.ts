@@ -1,17 +1,23 @@
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+
 import path from 'pathe'
 import type { Plugin } from 'vite'
 
 import { generateApiDoc } from './api-doc/extract.ts'
+import { highlightApiTypes } from './api-doc/highlight.ts'
 import { loadApiDocIndex } from './api-doc/load.ts'
+import type { ComponentApi } from './api-doc/types.ts'
 import { writeJsonFiles } from './api-doc/write.ts'
+import { collectFiles } from './core/paths.ts'
 import { onDocsShikiClass, renderDocsCodeHtml } from './core/shiki.ts'
 import { parsePreviewCode } from './previews/ast.ts'
 import { transformPreviewModule } from './previews/module.ts'
 import { transformPreviewSourceModule } from './previews/source.ts'
 import { scanDocsPages } from './routes.ts'
-
 const VIRTUAL_API_DOC = 'virtual:api-doc'
+const VIRTUAL_API_DOC_PREFIX = 'virtual:api-doc/'
 const RESOLVED_VIRTUAL_API_DOC = '\0moraine-api-doc'
+const RESOLVED_VIRTUAL_API_DOC_PREFIX = '\0moraine-api-doc:'
 
 const DOCS_TRANSFORM_FILTER = /(?:\?preview(?:&|$)|\?preview-source(?:&|$))/
 
@@ -86,17 +92,73 @@ async function generateApiDocs(projectRoot: string): Promise<void> {
   await writeJsonFiles(path.join(projectRoot, 'docs/pages'), pages, result)
 }
 
+function getApiDocStampPath(projectRoot: string): string {
+  return path.join(projectRoot, 'docs/node_modules/.cache/moraine-api-doc.stamp')
+}
+
+function writeApiDocStamp(projectRoot: string): void {
+  const stampPath = getApiDocStampPath(projectRoot)
+  mkdirSync(path.dirname(stampPath), { recursive: true })
+  writeFileSync(stampPath, String(Date.now()), 'utf8')
+}
+
+function isApiDocsFresh(projectRoot: string): boolean {
+  const indexPath = path.join(projectRoot, 'docs/pages/_api-index.json')
+  const stampPath = getApiDocStampPath(projectRoot)
+  if (!existsSync(indexPath) || !existsSync(stampPath)) {
+    return false
+  }
+  const indexDoc = loadApiDocIndex(projectRoot)
+  if (!indexDoc || indexDoc.components.length === 0) {
+    return false
+  }
+  for (const component of indexDoc.components) {
+    if (!existsSync(path.join(projectRoot, 'docs/pages/components', component.key, 'api.json'))) {
+      return false
+    }
+  }
+  const stampMtime = statSync(stampPath).mtimeMs
+  const srcFiles = collectFiles(
+    path.join(projectRoot, 'src'),
+    (file) =>
+      (file.endsWith('.ts') || file.endsWith('.tsx')) &&
+      !file.endsWith('.test.ts') &&
+      !file.endsWith('.test.tsx'),
+  )
+  for (const file of srcFiles) {
+    if (statSync(file).mtimeMs > stampMtime) {
+      return false
+    }
+  }
+  const componentPages = collectFiles(
+    path.join(projectRoot, 'docs/pages/components'),
+    (file) => path.basename(file) === 'index.mdx',
+  )
+  for (const file of componentPages) {
+    if (statSync(file).mtimeMs > stampMtime) {
+      return false
+    }
+  }
+  return true
+}
+
 export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
   let projectRoot = ''
   let generatedForBuild = false
+  const highlightedApiCache = new Map<string, { mtimeMs: number; moduleCode: string }>()
   const ensureApiDocs = async () => {
     let promise = API_DOC_GENERATION_BY_PROJECT.get(projectRoot)
     if (!promise) {
-      promise = generateApiDocs(projectRoot).finally(() => {
-        API_DOC_GENERATION_BY_PROJECT.delete(projectRoot)
-      })
+      promise = generateApiDocs(projectRoot)
+        .then(() => {
+          writeApiDocStamp(projectRoot)
+        })
+        .finally(() => {
+          API_DOC_GENERATION_BY_PROJECT.delete(projectRoot)
+        })
       API_DOC_GENERATION_BY_PROJECT.set(projectRoot, promise)
     }
+    highlightedApiCache.clear()
     await promise
   }
 
@@ -110,9 +172,11 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
       if (config.command === 'build' && generatedForBuild) {
         return
       }
-      await ensureApiDocs()
+      if (config.command !== 'serve' || !isApiDocsFresh(projectRoot)) {
+        await ensureApiDocs()
+      }
       if (config.command === 'serve') {
-        await Promise.all([
+        void Promise.all([
           renderDocsCodeHtml({
             code: "import { createSignal } from 'solid-js'\nexport const x = 1\nconst s = 'text'\n// comment",
             language: 'tsx',
@@ -132,11 +196,14 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
 
     resolveId: {
       filter: {
-        id: /^virtual:api-doc$/,
+        id: /^virtual:api-doc(?:\/.+)?$/,
       },
       handler(id) {
         if (id === VIRTUAL_API_DOC) {
           return RESOLVED_VIRTUAL_API_DOC
+        }
+        if (id.startsWith(VIRTUAL_API_DOC_PREFIX)) {
+          return `${RESOLVED_VIRTUAL_API_DOC_PREFIX}${id.slice(VIRTUAL_API_DOC_PREFIX.length)}`
         }
         return null
       },
@@ -144,7 +211,7 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
 
     load: {
       filter: {
-        id: /moraine-api-doc$/,
+        id: /moraine-api-doc(?::.+)?$/,
       },
       async handler(id) {
         if (id === RESOLVED_VIRTUAL_API_DOC) {
@@ -155,6 +222,23 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
 
           console.warn('[api-doc] index.json not found, serving empty data')
           return 'export default { components: [] }'
+        }
+        if (id.startsWith(RESOLVED_VIRTUAL_API_DOC_PREFIX)) {
+          const key = id.slice(RESOLVED_VIRTUAL_API_DOC_PREFIX.length)
+          const jsonPath = path.join(projectRoot, 'docs/pages/components', key, 'api.json')
+          if (!existsSync(jsonPath)) {
+            return 'export default undefined'
+          }
+          const mtimeMs = statSync(jsonPath).mtimeMs
+          const cached = highlightedApiCache.get(key)
+          if (cached && cached.mtimeMs === mtimeMs) {
+            return cached.moduleCode
+          }
+          const raw = JSON.parse(readFileSync(jsonPath, 'utf8')) as ComponentApi
+          const highlighted = await highlightApiTypes(raw)
+          const moduleCode = `export default ${JSON.stringify(highlighted)}`
+          highlightedApiCache.set(key, { mtimeMs, moduleCode })
+          return moduleCode
         }
         return null
       },

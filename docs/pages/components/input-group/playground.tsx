@@ -1,7 +1,6 @@
 import { Icon, Input, InputGroup } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function InputGroupPlayground() {
   return (
     <DocsPlayground
@@ -46,7 +45,7 @@ export default function InputGroupPlayground() {
             aria-label="Account name"
             placeholder="your-name"
             disabled={props.disabled}
-            aria-invalid={props.invalid}
+            aria-invalid={props.invalid ? 'true' : 'false'}
           />
           <InputGroup.Trailing>@example.com</InputGroup.Trailing>
         </InputGroup>

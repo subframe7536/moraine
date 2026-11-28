@@ -1,5 +1,4 @@
 import { Alert } from '@src'
-
 export function Basic() {
   return (
     <div class="flex flex-col gap-3 max-w-xl w-full">

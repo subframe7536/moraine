@@ -1,6 +1,7 @@
-import type { Accessor, JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
@@ -8,7 +9,6 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 
 import { useBaseDialogContext } from './base-dialog-context'
 import type { BaseDialogT } from './base-dialog.types'
-
 /**
  * Control that closes the surrounding `BaseDialog`. Place it anywhere inside the `BaseDialog` root, usually
  * within `BaseDialog.Content`. Renders a `button`; pass `as` to render another component such as
@@ -32,7 +32,8 @@ import type { BaseDialogT } from './base-dialog.types'
 export function BaseDialogClose<T extends ValidComponent = 'button'>(
   props: BaseDialogT.CloseProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'disabled', 'ref' as any])
+  const local = props as BaseDialogT.CloseProps
+  const rest = omit(props as BaseDialogT.CloseProps, 'as', 'disabled', 'ref')
   const context = useBaseDialogContext()
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
@@ -47,6 +48,7 @@ export function BaseDialogClose<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interaction)
+  const Root = dynamic(tag)
 
-  return <Dynamic component={tag()} data-slot="base-dialog-close" {...binding} />
+  return <Root data-slot="base-dialog-close" {...binding} />
 }

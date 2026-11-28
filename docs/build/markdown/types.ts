@@ -4,7 +4,7 @@ export interface FrontmatterSidebar {
 }
 
 export interface FrontmatterSearch {
-  tags: string[]
+  tags: Array<string>
 }
 
 export interface FrontmatterApiPart {

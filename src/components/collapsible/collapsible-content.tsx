@@ -1,11 +1,9 @@
-import type { JSX } from 'solid-js'
-import { createSignal, Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { createEffect, createSignal, Show, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
 import {
@@ -15,7 +13,6 @@ import {
   collapsibleWrapperDataAttributes,
 } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
-
 /**
  * Panel inside `Collapsible` holding the expandable content, labelled by the trigger. Place it
  * inside `Collapsible`; it renders a `div` by default and `as` applies to that inner element. By
@@ -35,7 +32,8 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'ref' as any])
+  const local = props as CollapsibleT.ContentProps
+  const rest = omit(props as CollapsibleT.ContentProps, 'as', 'class', 'style', 'ref')
   const context = useCollapsibleContext()
   if (!context) {
     throw new Error('Collapsible.Content must be used within Collapsible')
@@ -56,7 +54,10 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
 
   const shouldRenderContent = () => disclosure.shouldMount()
   const [wrapper, setWrapper] = createSignal<HTMLDivElement>()
-  bindElement(wrapper, (element) => {
+  createEffect(wrapper, (element) => {
+    if (!element) {
+      return
+    }
     const releaseContent = disclosure.registerContentElement(element)
     const releaseMeasure = disclosure.registerMeasureElement(element)
     return () => {
@@ -64,6 +65,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       releaseContent()
     }
   })
+
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
 
   return (
     <div
@@ -79,7 +82,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
         closed: disclosure.closed,
       })}
       hidden={disclosure.hidden()}
-      inert={disclosure.inert()}
+      {...{ 'prop:inert': disclosure.inert() }}
       style={{
         animation: disclosure.initialOpen() ? 'none' : undefined,
         height: disclosure.initialOpen() ? 'auto' : undefined,
@@ -87,12 +90,16 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
     >
       <Show when={shouldRenderContent()}>
-        <Dynamic
-          component={local.as ?? 'div'}
+        <Root
           data-slot="collapsible-content"
           {...contentSlot}
           {...rest}
-          ref={(element: HTMLElement) => callRef(local.ref, element)}
+          ref={(element: HTMLDivElement) => {
+            const ref = untrack(() => local.ref)
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          }}
         />
       </Show>
     </div>

@@ -1,11 +1,10 @@
-import { createSignal } from 'solid-js'
-import { expect, test } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { IconHydrationFixture } from './icon.ssr.fixture'
-
-test('hydrates class, caller-controlled JSX, and component icons inside reactive host spans', () => {
+it('hydrates class, caller-controlled JSX, and component icons inside reactive host spans', () => {
   const [label, setLabel] = createSignal('Status')
   const [visible, setVisible] = createSignal(true)
   const { container } = hydrateFixture(
@@ -18,14 +17,14 @@ test('hydrates class, caller-controlled JSX, and component icons inside reactive
   const jsxIcon = container.querySelector('[data-testid="jsx-icon"]')!
   expect(jsxIcon.parentElement?.getAttribute('aria-hidden')).toBe('true')
   expect(jsxIcon.querySelector('path')).not.toBeNull()
-  setLabel('Updated status')
+  flush(() => setLabel('Updated status'))
   expect(container.querySelector('[data-testid="component-icon"]')).toBe(glyph)
   expect(glyph.parentElement?.tagName).toBe('SPAN')
   expect(glyph.parentElement?.getAttribute('aria-label')).toBe('Updated status')
   expect(glyph.parentElement?.getAttribute('role')).toBe('img')
   expect(glyph.hasAttribute('aria-label')).toBe(false)
-  setVisible(false)
+  flush(() => setVisible(false))
   expect(container.querySelector('[data-testid="jsx-icon"]')).toBeNull()
-  setVisible(true)
+  flush(() => setVisible(true))
   expect(container.querySelector('[data-testid="jsx-icon"] path')).not.toBeNull()
 })

@@ -1,6 +1,5 @@
 import { createForm, Input } from '@src'
 import * as v from 'valibot'
-
 export function LabelsMessages() {
   const form = createForm({
     schema: v.object({

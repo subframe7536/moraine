@@ -3,7 +3,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { BaseDialogStyleSlot } from './base-dialog.style-types'
-
 export const baseDialogDataAttributes = {
   overlay: /* @__PURE__ */ createDataAttributes(
     'closed',

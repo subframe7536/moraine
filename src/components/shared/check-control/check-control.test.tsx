@@ -1,11 +1,10 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { CheckControl } from './check-control'
-
-describe('CheckControl', () => {
-  test('exposes the check state through aria-checked and data attributes', () => {
+describe('checkControl', () => {
+  it('exposes the check state through aria-checked and data attributes', () => {
     const [checked, setChecked] = createSignal<boolean | 'indeterminate'>(false)
     const { getByRole } = render(() => (
       <CheckControl
@@ -21,19 +20,19 @@ describe('CheckControl', () => {
     expect(control.hasAttribute('data-unchecked')).toBe(true)
     expect(control.querySelector('[data-slot="test-check-icon"]')).toBeNull()
 
-    setChecked('indeterminate')
+    flush(() => setChecked('indeterminate'))
     expect(control.getAttribute('aria-checked')).toBe('mixed')
     expect(control.hasAttribute('data-indeterminate')).toBe(true)
     expect(control.querySelector('[data-slot="test-check-icon"]')).not.toBeNull()
 
-    setChecked(true)
+    flush(() => setChecked(true))
     expect(control.getAttribute('aria-checked')).toBe('true')
     expect(control.hasAttribute('data-checked')).toBe(true)
     expect(control.querySelector('[data-slot="test-check-icon"]')).not.toBeNull()
   })
 
-  test('reports the next value and checks an indeterminate control', () => {
-    const onCheckedChange = vi.fn()
+  it('reports the next value and checks an indeterminate control', () => {
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
     const { getByRole } = render(() => (
       <CheckControl slotName="test-check" checked={checked()} onCheckedChange={onCheckedChange} />
@@ -42,13 +41,13 @@ describe('CheckControl', () => {
     fireEvent.click(getByRole('checkbox'))
     expect(onCheckedChange).toHaveBeenLastCalledWith(true)
 
-    setChecked(true)
+    flush(() => setChecked(true))
     fireEvent.click(getByRole('checkbox'))
     expect(onCheckedChange).toHaveBeenLastCalledWith(false)
   })
 
-  test('does not report a change while disabled', () => {
-    const onCheckedChange = vi.fn()
+  it('does not report a change while disabled', () => {
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const { getByRole } = render(() => (
       <CheckControl
         slotName="test-check"
@@ -65,8 +64,8 @@ describe('CheckControl', () => {
     expect(onCheckedChange).not.toHaveBeenCalled()
   })
 
-  test('does not report a change when the onClick handler prevents default', () => {
-    const onCheckedChange = vi.fn()
+  it('does not report a change when the onClick handler prevents default', () => {
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const { getByRole } = render(() => (
       <CheckControl
         slotName="test-check"
@@ -80,8 +79,8 @@ describe('CheckControl', () => {
     expect(onCheckedChange).not.toHaveBeenCalled()
   })
 
-  test('does not let Enter activate the control', () => {
-    const onCheckedChange = vi.fn()
+  it('does not let Enter activate the control', () => {
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const { getByRole } = render(() => (
       <CheckControl slotName="test-check" checked={false} onCheckedChange={onCheckedChange} />
     ))

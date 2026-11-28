@@ -1,11 +1,10 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { FieldT } from '../field'
 
 import type { RadioGroupStyleSlot, RadioGroupStyleVariants } from './radio-group.style-types'
-
 export namespace RadioGroupT {
   export type Kind = 'single'
 
@@ -85,7 +84,7 @@ export namespace RadioGroupT {
      * />
      * ```
      */
-    items?: (string | Item)[]
+    items?: Array<string | Item>
 
     /**
      * Whether arrow-key navigation wraps from the last item to the first and back. Disabled items are skipped.

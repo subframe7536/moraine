@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface ScrollAreaStyleSlot<T = unknown> {
   /** Positioning wrapper around the viewport and scrollbars. */
   root?: T

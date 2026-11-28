@@ -54,7 +54,6 @@ import type {
 } from 'moraine'
 import type { DataTableT } from 'moraine/data-table'
 import * as v from 'valibot'
-
 type Header<Kind, Slot, Variants, Classes, Styles> = [Kind, Slot, Variants, Classes, Styles]
 
 export type ComponentNamespaceHeaders = {

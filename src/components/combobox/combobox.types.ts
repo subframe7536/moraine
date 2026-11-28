@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -23,7 +24,6 @@ import type {
 
 import type { defaultComboboxMessages } from './combobox.messages'
 import type { ComboboxStyleSlot, ComboboxStyleVariants } from './combobox.style-types'
-
 export namespace ComboboxT {
   export type Kind = 'single'
   export type Slot<T = unknown> = ComboboxStyleSlot<T>
@@ -108,7 +108,7 @@ export namespace ComboboxT {
      * />
      * ```
      */
-    items?: Entry<TItem>[]
+    items?: Array<Entry<TItem>>
     /**
      * Called with the new item `value` when the user commits a different item, or with `null`
      * when the selection is cleared. Typing alone does not call it (see `onSearchValueChange`).

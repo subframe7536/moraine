@@ -1,12 +1,11 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { HoverCard } from './hover-card'
-
-describe('HoverCard SSR Hydration', () => {
-  test('hydrates closed markup and opens it from hover', async () => {
+describe('hoverCard SSR Hydration', () => {
+  it('hydrates closed markup and opens it from hover', async () => {
     vi.useFakeTimers()
     try {
       const { container } = hydrateFixture(
@@ -39,7 +38,7 @@ describe('HoverCard SSR Hydration', () => {
     }
   })
 
-  test('hydrates force-mounted content', () => {
+  it('hydrates force-mounted content', () => {
     const { container } = hydrateFixture(
       '/src/components/hover-card/hover-card.ssr.fixture.tsx',
       'renderHoverCardForceMountFixture',

@@ -64,8 +64,8 @@ export function getActiveElement(ownerDocument: Document): Element | null {
   return activeElement
 }
 
-export function getComposedElementAncestors(element: Element): Element[] {
-  const ancestors: Element[] = []
+export function getComposedElementAncestors(element: Element): Array<Element> {
+  const ancestors: Array<Element> = []
   const visited = new Set<Node>()
   let current: Node | null = element
   while (current && !visited.has(current)) {
@@ -78,7 +78,7 @@ export function getComposedElementAncestors(element: Element): Element[] {
   return ancestors
 }
 
-export function getComposedElementChildren(element: Element): Element[] {
+export function getComposedElementChildren(element: Element): Array<Element> {
   if (element.localName === 'slot') {
     const assigned = (element as HTMLSlotElement).assignedElements({ flatten: true })
     if (assigned.length > 0) {
@@ -90,8 +90,8 @@ export function getComposedElementChildren(element: Element): Element[] {
 }
 
 /** Enumerates element descendants in composed order without visiting assigned slot content twice. */
-export function getComposedElementDescendants(container: Element): Element[] {
-  const descendants: Element[] = []
+export function getComposedElementDescendants(container: Element): Array<Element> {
+  const descendants: Array<Element> = []
   const visited = new Set<Element>()
 
   const walk = (element: Element): void => {

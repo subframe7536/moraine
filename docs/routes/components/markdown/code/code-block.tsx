@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { Show, createEffect, createSignal, on, onCleanup, onMount } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createEffect, createSignal, onSettled } from 'solid-js'
 
 import { Button, cn, Icon } from '../../../../../src/index'
 import type { IconT } from '../../../../../src/index'
@@ -13,7 +13,6 @@ import {
 } from '../markdown.recipe'
 
 import { CopyButton } from './copy-button'
-
 const COLLAPSED_HEIGHT_PX = 150
 const EXPANDED_HEIGHT_PX = 400
 
@@ -25,7 +24,7 @@ export namespace CodeBlockT {
     code?: string
     lang?: string
     title?: string
-    highlightedLines?: number[] | string | Set<number>
+    highlightedLines?: Array<number> | string | Set<number>
     variant?: Variant
     expandable?: boolean
     class?: string
@@ -113,14 +112,15 @@ export function CodeBlock(props: CodeBlockProps) {
   }
 
   createEffect(
-    on([() => props.html, () => props.code], ([html, code]) => {
+    () => [props.html, props.code],
+    ([html, code]) => {
       if (html !== undefined || code !== undefined) {
         queueMicrotask(updateExpandable)
       }
-    }),
+    },
   )
 
-  onMount(() => {
+  onSettled(() => {
     if (typeof ResizeObserver === 'undefined') {
       return
     }
@@ -128,7 +128,7 @@ export function CodeBlock(props: CodeBlockProps) {
     if (contentRef) {
       observer.observe(contentRef)
     }
-    onCleanup(() => observer.disconnect())
+    return () => observer.disconnect()
   })
 
   const hasHeader = () => Boolean(props.title && !isTabs())
@@ -178,17 +178,17 @@ export function CodeBlock(props: CodeBlockProps) {
             contentRef = el
             queueMicrotask(updateExpandable)
           }}
-          tabIndex={-1}
+          tabindex={-1}
+          inert={isExpandable() && !isExpanded()}
           class={cn(
             'outline-none overscroll-x-contain h-full overflow-x-auto scrollbar-thumb-border scrollbar-track-transparent scrollbar-thin',
             isExpandable() && !isExpanded() && 'pointer-events-none',
           )}
-          inert={isExpandable() && !isExpanded() ? true : undefined}
         >
           <Show
             when={props.html}
             fallback={
-              <pre tabIndex={-1} class={DOCS_CODE_FALLBACK_PRE_CLASS}>
+              <pre tabindex={-1} class={DOCS_CODE_FALLBACK_PRE_CLASS}>
                 <code class={props.lang ? `language-${props.lang}` : undefined}>
                   {props.code ?? props.children}
                 </code>
@@ -197,7 +197,7 @@ export function CodeBlock(props: CodeBlockProps) {
           >
             {(html) => (
               <div
-                tabIndex={-1}
+                tabindex={-1}
                 class={DOCS_CODE_CONTENT_CLASS}
                 // oxlint-disable-next-line subf/solid-no-innerhtml
                 innerHTML={html()}

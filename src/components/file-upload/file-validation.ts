@@ -1,8 +1,7 @@
 import type { FileUploadT } from './file-upload.types'
-
 interface FileSelection {
-  accepted: File[]
-  rejected: FileUploadT.Rejection[]
+  accepted: Array<File>
+  rejected: Array<FileUploadT.Rejection>
 }
 
 function createRejection(file: File, reason: FileUploadT.Reason): FileUploadT.Rejection {
@@ -53,20 +52,20 @@ export function isImageFile(file: File): boolean {
 }
 
 export function filterAcceptedFiles(
-  files: File[],
+  files: Array<File>,
   options: {
     accept: string | undefined
-    existingFiles: File[]
+    existingFiles: Array<File>
     minSize: number | undefined
     maxSize: number | undefined
   },
 ): FileSelection {
-  const accepted: File[] = []
-  const rejected: FileUploadT.Rejection[] = []
+  const accepted: Array<File> = []
+  const rejected: Array<FileUploadT.Rejection> = []
   const seenFiles = new Set(options.existingFiles.map(getFileIdentity))
 
   for (const file of files) {
-    const reasons: FileUploadT.Reason[] = []
+    const reasons: Array<FileUploadT.Reason> = []
 
     if (!isAcceptedFileType(file, options.accept)) {
       reasons.push('typeMismatch')
@@ -97,7 +96,7 @@ export function filterAcceptedFiles(
 }
 
 export function constrainFileCount(
-  accepted: File[],
+  accepted: Array<File>,
   currentCount: number,
   maxFiles: number,
 ): FileSelection {

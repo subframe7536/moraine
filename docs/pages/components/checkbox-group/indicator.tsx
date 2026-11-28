@@ -1,6 +1,5 @@
 import { CheckboxGroup } from '@src'
 import type { CheckboxGroupT } from '@src'
-
 const NOTIFICATIONS = [
   {
     value: 'mentions',
@@ -13,7 +12,7 @@ const NOTIFICATIONS = [
     label: 'Review requested',
     description: 'When your review is required on a PR',
   },
-] satisfies CheckboxGroupT.Item[]
+] satisfies Array<CheckboxGroupT.Item>
 
 export function Indicator() {
   return (

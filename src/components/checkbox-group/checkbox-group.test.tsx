@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
@@ -11,7 +11,6 @@ import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { CheckboxGroup } from './checkbox-group'
-
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
   expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
 }
@@ -20,8 +19,8 @@ function getHiddenCheckbox(container: HTMLElement, value: string): HTMLInputElem
   return container.querySelector(`input[type="checkbox"][value="${value}"]`) as HTMLInputElement
 }
 
-describe('CheckboxGroup', () => {
-  test('reads indicatorPosition from theme defaults and lets the prop override it', () => {
+describe('checkboxGroup', () => {
+  it('reads indicatorPosition from theme defaults and lets the prop override it', () => {
     const theme = defineTheme({
       checkboxGroup: { defaultVariants: { indicatorPosition: 'trailing' } },
     })
@@ -42,7 +41,7 @@ describe('CheckboxGroup', () => {
     expect(explicitItem?.className).not.toContain('flex-row-reverse')
   })
 
-  test('renders legend and primitive items', () => {
+  it('renders legend and primitive items', () => {
     const screen = render(() => <CheckboxGroup legend="Fruits" items={['Apple', 'Banana']} />)
 
     expect(screen.getByText('Fruits')).not.toBeNull()
@@ -50,7 +49,7 @@ describe('CheckboxGroup', () => {
     expect(screen.getByRole('checkbox', { name: 'Banana' })).not.toBeNull()
   })
 
-  test('forwards group styles to Checkbox-owned child slots', () => {
+  it('forwards group styles to Checkbox-owned child slots', () => {
     const screen = render(() => (
       <CheckboxGroup
         items={['One']}
@@ -68,7 +67,7 @@ describe('CheckboxGroup', () => {
     expect(label?.style.width).toBe('23px')
   })
 
-  test('maps object items using default value/label/description fields', () => {
+  it('maps object items using default value/label/description fields', () => {
     const items = [{ value: 'a', label: 'Alpha', description: 'First option' }]
     const screen = render(() => <CheckboxGroup items={items} legend="Mapped" />)
 
@@ -76,7 +75,7 @@ describe('CheckboxGroup', () => {
     expect(screen.getByText('First option')).not.toBeNull()
   })
 
-  test('supports indeterminate item state and icon for object items', async () => {
+  it('supports indeterminate item state and icon for object items', async () => {
     const screen = render(() => (
       <CheckboxGroup
         legend="Mapped"
@@ -104,8 +103,8 @@ describe('CheckboxGroup', () => {
     })
   })
 
-  test('supports uncontrolled value changes', async () => {
-    const onChange = vi.fn()
+  it('supports uncontrolled value changes', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup items={['A', 'B']} defaultValue={['A']} onValueChange={onChange} />
     ))
@@ -123,8 +122,8 @@ describe('CheckboxGroup', () => {
     expectCheckboxChecked(checkboxB, true)
   })
 
-  test('toggles item with Space key', async () => {
-    const onChange = vi.fn()
+  it('toggles item with Space key', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <CheckboxGroup items={['A', 'B']} onValueChange={onChange} />)
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
@@ -147,11 +146,11 @@ describe('CheckboxGroup', () => {
     expectCheckboxChecked(checkboxA, false)
   })
 
-  test('emits Field focus and blur only at visual group boundaries', () => {
-    const emit = vi.fn()
+  it('emits Field focus and blur only at visual group boundaries', () => {
+    const emit = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
@@ -179,9 +178,9 @@ describe('CheckboxGroup', () => {
     expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
   })
 
-  test('calls user onFocus once when focus enters the group and onBlur when it leaves', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+  it('calls user onFocus once when focus enters the group and onBlur when it leaves', () => {
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup items={['A', 'B']} onFocus={onFocus} onBlur={onBlur} />
     ))
@@ -206,7 +205,7 @@ describe('CheckboxGroup', () => {
     expect(onBlur).toHaveBeenCalledTimes(1)
   })
 
-  test('keeps Formisch validation dormant while focus moves within a group', async () => {
+  it('keeps Formisch validation dormant while focus moves within a group', async () => {
     const schema = v.object({
       choices: v.pipe(v.array(v.string()), v.minLength(1, 'Choose an option.')),
     })
@@ -239,8 +238,8 @@ describe('CheckboxGroup', () => {
     expect(second.getAttribute('aria-invalid')).toBe('true')
   })
 
-  test('does not toggle disabled group or item', async () => {
-    const onChange = vi.fn()
+  it('does not toggle disabled group or item', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup
         disabled
@@ -269,8 +268,8 @@ describe('CheckboxGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('does not toggle readonly items', async () => {
-    const onChange = vi.fn()
+  it('does not toggle readonly items', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <CheckboxGroup items={['A']} readOnly onValueChange={onChange} />)
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
@@ -284,8 +283,8 @@ describe('CheckboxGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('keeps controlled selection until parent updates', async () => {
-    const onChange = vi.fn()
+  it('keeps controlled selection until parent updates', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup items={['A', 'B']} value={['A']} onValueChange={onChange} />
     ))
@@ -304,7 +303,7 @@ describe('CheckboxGroup', () => {
     })
   })
 
-  test('passes required and links legend to the fieldset', () => {
+  it('passes required and links legend to the fieldset', () => {
     const screen = render(() => (
       <CheckboxGroup
         id="channels"
@@ -328,7 +327,7 @@ describe('CheckboxGroup', () => {
     expect(checkbox.getAttribute('aria-describedby')).toContain(description.id)
   })
 
-  test('treats required as at least one enabled selection', async () => {
+  it('treats required as at least one enabled selection', async () => {
     const screen = render(() => (
       <form>
         <CheckboxGroup name="channels" legend="Channels" items={['Email', 'SMS']} required />
@@ -355,7 +354,7 @@ describe('CheckboxGroup', () => {
     expect(form.checkValidity()).toBe(false)
   })
 
-  test('assigns required validity to the first enabled item and rejects stale selections', async () => {
+  it('assigns required validity to the first enabled item and rejects stale selections', async () => {
     const [value, setValue] = createSignal(['missing'])
     const screen = render(() => (
       <form>
@@ -377,7 +376,7 @@ describe('CheckboxGroup', () => {
     expect(enabledInput.required).toBe(true)
     expect(form.checkValidity()).toBe(false)
 
-    setValue(['enabled'])
+    flush(() => setValue(['enabled']))
 
     await waitFor(() => {
       expect(enabledInput.required).toBe(false)
@@ -385,7 +384,7 @@ describe('CheckboxGroup', () => {
     })
   })
 
-  test('warns in DEV on duplicate item values and keeps item ids unique', () => {
+  it('warns in DEV on duplicate item values and keeps item ids unique', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const first = { value: 'same', label: 'First' }
     const second = { value: 'same', label: 'Second' }
@@ -401,14 +400,14 @@ describe('CheckboxGroup', () => {
       expect.stringContaining('CheckboxGroup received duplicate item value "same"'),
     )
 
-    setItems([second, first])
+    flush(() => setItems([second, first]))
     expect(screen.getByRole('checkbox', { name: 'First' }).id).toBe(firstId)
     expect(screen.getByRole('checkbox', { name: 'Second' }).id).toBe(secondId)
 
     warnSpy.mockRestore()
   })
 
-  test('warns in DEV on duplicate primitive values and keeps item ids unique', () => {
+  it('warns in DEV on duplicate primitive values and keeps item ids unique', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const screen = render(() => <CheckboxGroup items={['', '']} />)
     const controls = Array.from(
@@ -424,13 +423,13 @@ describe('CheckboxGroup', () => {
     warnSpy.mockRestore()
   })
 
-  test('renders one checkbox per item', () => {
+  it('renders one checkbox per item', () => {
     const screen = render(() => <CheckboxGroup items={['A', 'B']} variant="table" />)
 
     expect(screen.getAllByRole('checkbox')).toHaveLength(2)
   })
 
-  test.each([
+  it.each([
     ['table', true],
     ['list', false],
   ] as const)(
@@ -446,12 +445,12 @@ describe('CheckboxGroup', () => {
       fireEvent.click(items[0]!)
 
       await waitFor(() => {
-        expectCheckboxChecked(checkboxA, toggles)
+        expect(checkboxA.getAttribute('aria-checked')).toBe(String(toggles))
       })
     },
   )
 
-  test('applies item and checkbox class overrides to their slots', () => {
+  it('applies item and checkbox class overrides to their slots', () => {
     const screen = render(() => (
       <CheckboxGroup
         items={['A']}
@@ -473,7 +472,7 @@ describe('CheckboxGroup', () => {
     expect(label?.classList.contains('label-override')).toBe(true)
   })
 
-  test('applies style overrides to item and checkbox slots', () => {
+  it('applies style overrides to item and checkbox slots', () => {
     const screen = render(() => (
       <CheckboxGroup
         items={['A']}
@@ -497,7 +496,7 @@ describe('CheckboxGroup', () => {
     expect(label?.style.width).toBe('200px')
   })
 
-  test('associates the hidden inputs with an external form through the form prop', async () => {
+  it('associates the hidden inputs with an external form through the form prop', async () => {
     const screen = render(() => (
       <>
         <form id="external-form" />
@@ -529,7 +528,7 @@ describe('CheckboxGroup', () => {
     })
   })
 
-  test('submits selected item values and resets to default selection', async () => {
+  it('submits selected item values and resets to default selection', async () => {
     const screen = render(() => (
       <form>
         <CheckboxGroup name="choices" items={['A', 'B']} defaultValue={['A']} />
@@ -559,10 +558,10 @@ describe('CheckboxGroup', () => {
     })
   })
 
-  test('uses the initial default snapshot and preserves a controlled value on reset', async () => {
+  it('uses the initial default snapshot and preserves a controlled value on reset', async () => {
     const [defaultValue, setDefaultValue] = createSignal(['A'])
-    const [controlledValue, setControlledValue] = createSignal<string[] | undefined>()
-    const onChange = vi.fn()
+    const [controlledValue, setControlledValue] = createSignal<Array<string> | undefined>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <CheckboxGroup
@@ -578,14 +577,14 @@ describe('CheckboxGroup', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'B' }))
     expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), true)
 
-    setDefaultValue(['B'])
+    flush(() => setDefaultValue(['B']))
     form.reset()
     await waitFor(() => {
       expectCheckboxChecked(screen.getByRole('checkbox', { name: 'A' }), true)
       expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), false)
     })
 
-    setControlledValue(['B'])
+    flush(() => setControlledValue(['B']))
     form.reset()
     await waitFor(() => {
       expectCheckboxChecked(screen.getByRole('checkbox', { name: 'A' }), false)
@@ -594,9 +593,9 @@ describe('CheckboxGroup', () => {
     expect(onChange).toHaveBeenCalledTimes(1)
   })
 
-  test('synchronizes external controlled values into Field submission', async () => {
-    const [value, setValue] = createSignal<string[]>([])
-    const onSubmit = vi.fn()
+  it('synchronizes external controlled values into Field submission', async () => {
+    const [value, setValue] = createSignal<Array<string>>([])
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -612,14 +611,14 @@ describe('CheckboxGroup', () => {
       ),
     )
 
-    setValue(['B'])
+    flush(() => setValue(['B']))
     fireEvent.submit(screen.container.querySelector('form')!)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ choices: ['B'] })
   })
 
-  test('renders JSX icons for indeterminate items', () => {
+  it('renders JSX icons for indeterminate items', () => {
     const screen = render(() => (
       <CheckboxGroup
         legend="Options"
@@ -633,7 +632,7 @@ describe('CheckboxGroup', () => {
     expect(screen.getByText('Mixed')).not.toBeNull()
   })
 
-  test('renders the group checked icon only inside checked items', () => {
+  it('renders the group checked icon only inside checked items', () => {
     const screen = render(() => (
       <CheckboxGroup
         items={['A', 'B']}
@@ -647,8 +646,8 @@ describe('CheckboxGroup', () => {
     expect(screen.getByRole('checkbox', { name: 'A' }).contains(checkedIcons[0]!)).toBe(true)
   })
 
-  test('clicking an indeterminate item selects its value', () => {
-    const onChange = vi.fn()
+  it('clicking an indeterminate item selects its value', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <CheckboxGroup
         items={[{ value: 'a', label: 'Alpha', indeterminate: true }]}

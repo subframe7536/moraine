@@ -68,7 +68,7 @@
         {
           "name": "items",
           "optional": true,
-          "type": "(string | Item)[]",
+          "type": "Array<string | Item>",
           "typeDetails": "(string | {\n  /** Value of the radio item, submitted with the form and passed to `onValueChange`. Must be\nunique within the group. */\n  value: string;\n  /** Label for the radio item. It names the radio input for assistive technology. */\n  label?: JSX.Element;\n  /** Description for the radio item. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. It cannot be selected or focused with the keyboard, and the\nother items stay interactive. */\n  disabled?: boolean;\n})[]",
           "description": "Items to render, either plain strings (used as both `value` and `label`) or `Item` objects.",
           "examples": [

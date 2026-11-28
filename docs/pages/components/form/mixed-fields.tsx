@@ -1,7 +1,6 @@
 import { Button, Checkbox, createForm, Input, Select, Textarea } from '@src'
 import { Show, createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const schema = v.object({
   name: v.pipe(v.string(), v.nonEmpty('A project name is required.')),
   description: v.pipe(v.string(), v.nonEmpty('A project description is required.')),

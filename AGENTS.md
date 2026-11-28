@@ -38,12 +38,13 @@ render props (such as `itemRender`) instead of component props.
   - `moraine/no-slots-class-style-in-jsx` (spread the slot binding; do not pass its `class` / `style` to JSX attributes)
   - `moraine/data-attributes-in-slot-binding` (call `*DataAttributes` only as a `data` entry of `useRecipe` or `slotWith`)
   - `moraine/slot-binding-order` (destructure slot bindings to `<slot>Slot` and spread them before `{...rest}`)
-  - `moraine/require-create-effect-on` (wrap `createEffect` in `on()`)
-  - `moraine/ref-callback-assign-only` (no `onCleanup`, `onMount`, effects, event-listener helpers, or `register*` calls inside ref callbacks; use `bindElement`)
+  - `moraine/require-create-effect-on` (use the two-argument `createEffect(compute, apply)` signature)
+  - `moraine/ref-callback-assign-only` (no `onCleanup`, `onSettled`, effects, event-listener helpers, or `register*` calls inside ref callbacks; store the element in a signal and react via `createEffect`/`createRenderEffect`)
   - `moraine/no-emitted-extensions-in-imports` (disallow `.js`/`.jsx` extensions)
   - `moraine/no-string-style-prop` (prohibit string `style` in JSX)
   - `moraine/no-direct-component-call` (call components with `<Component />`, not function calls; require JSX-returning functions to be PascalCase components)
   - `moraine/no-re-export` (disallow "export { x }", require inline exports and disallow component re-exports)
+  - `moraine/no-redundant-compute-iife` (disallow zero-argument arrow IIFEs `(() => expr)()`)
   - `moraine/no-default-param-render-children` (children functions whose first parameter has a default or is a rest element run as accessors and never receive render props)
 - `pnpm run format` - Format code using oxfmt.
 - Run the fix-capable `lint` and `format` commands first; manually fix only issues they cannot resolve.
@@ -54,6 +55,7 @@ render props (such as `itemRender`) instead of component props.
 - `pnpm run test:lib` - Build the library, check consumer type fixtures, and run library and consumer tests.
 - `pnpm run test:docs` - Run documentation build logic tests.
 - `pnpm run test` - Run both test suites.
+- `pnpm run test:diagnostics` - Verify Solid 2.0 dev diagnostics stay at or below `test/solid-diagnostics-baseline.json`.
 - `pnpm vitest run <test-file>` - Run a single test file after building if it reads `dist/`.
 - **Note:** Tests use `jsdom` environment.
 
@@ -171,11 +173,11 @@ Component directories normally contain implementation (`{component}.tsx` and any
   5. `enforced` — functional, must not be user-overridable (positioning, virtual scroll, visually-hidden, flex sizes).
 - `own` and `enforced` are per-slot accessor maps only: `own: { leading: () => ({ class: ... }) }`. Return `undefined` from an accessor to contribute nothing.
 - Prefer `enforced` for layout / position / virtualization and `own` for visual cosmetics. For per-item hosts inside `<For>`, call `const itemSlot = slotWith(slot, { own?, enforced?, data? })` once in the item callback (under the item owner): `own` / `enforced` are accessors returning `{ class?, style? }` merged on top of the parent slot memo, and `data` adds item `data-*` after the parent slot's `data`. Without `own` / `enforced`, the item binding reuses the parent slot memos.
-- **Fine-grained reactivity:** `compileRecipe()` flattens the recipe and its Theme layers into ordered per-slot entry lists (`{ when?, value }`), cached per Theme and recipe. Each slot's recipe class, `.class`, and `.style` are lazy memos created on first read under the `useRecipe` owner; unread slots create nothing. Entries read variants through per-key memos while matching, so a slot memo tracks only the variants its own entries test. Each `context`, `own`, and `enforced` slot is a separate memo with equality checks, so an update to one slot does not invalidate others. Class memos use string equality; style memos use shallow equality and reuse the previous object when equal. On the server (`isServer`) the same computations run directly on every read, without memos or caches, and a binding omits an empty `class` / `style` key so `ssrElement` does not print `style=""`. On the client a binding has a fixed key set (`class`, `style`, then each `data-*`), so a plain-object `mergeProps` keeps every key reactive.
+- **Fine-grained reactivity:** `compileRecipe()` flattens the recipe and its Theme layers into ordered per-slot entry lists (`{ when?, value }`), cached per Theme and recipe. Each slot's recipe class, `.class`, and `.style` are lazy memos created on first read under the `useRecipe` owner; unread slots create nothing. Entries read variants through per-key memos while matching, so a slot memo tracks only the variants its own entries test. Each `context`, `own`, and `enforced` slot is a separate memo with equality checks, so an update to one slot does not invalidate others. Class memos use string equality; style memos use shallow equality and reuse the previous object when equal. On the server (`isServer`) the same computations run directly on every read, without memos or caches, and a binding omits an empty `class` / `style` key so `ssrElement` does not print `style=""`. On the client a binding has a fixed key set (`class`, `style`, then each `data-*`), so a plain-object `merge` keeps every key reactive.
 - **Component CSS variables:** Define component-specific custom properties as recipe style keys, never as `[--name:value]` class utilities:
   1. Declare defaults on `base` / `variants` / `compoundVariants` as `'--name': value`.
   2. Consume them in slot or colocated classes with `prop-(--name)`.
-  3. `useRecipe()` applies recipe keys to `varsSlot` (default `root`, or `slot` when the recipe has no root). Pass instance values through `own` on that slot (`own: { root: () => ({ style: { '--name': value } }) }`) so the slot `style` binding already includes them. Do not rebuild that binding with `mergeProps` or a later `style={{ ...slots.<slot>.style, '--name': value }}`.
+  3. `useRecipe()` applies recipe keys to `varsSlot` (default `root`, or `slot` when the recipe has no root). Pass instance values through `own` on that slot (`own: { root: () => ({ style: { '--name': value } }) }`) so the slot `style` binding already includes them. Do not rebuild that binding with `merge` or a later `style={{ ...slots.<slot>.style, '--name': value }}`.
   4. Merge order on `varsSlot` is recipe keys, then `context`, `own`, caller `styles` / `style`, then `enforced`. Per-item hosts (Accordion content) call `useRecipe` for that host with `varsSlot` set to the host slot. Private wrappers may inherit a root `own` variable instead of adding a public slot. `element.style.setProperty` is only for imperative geometry on a node that is not updated through that binding (Floating UI).
      Theme engine variables (`--mo-enter-*`, `--mo-exit-*`, `--mo-anim-*`, `--mo-mix-*`, `--mo-*-ink`) stay in `src/theme`. Do not add a public recipe slot solely to hold a private wrapper variable.
 - Put truly reusable static class values in a `*.recipe.ts` file and export constants in `UPPER_SNAKE_CASE` (for example, `TEXT_CONTROL_CLASS`). Do not create a recipe for static-only styling.
@@ -191,7 +193,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 
 - **Components:** PascalCase (`Button`, `CollapsibleContent`).
 - **Files:** kebab-case (`button.tsx`, `collapsible-content.tsx`).
-- **Functions:** camelCase (`createCollapsible`, `mergeProps`).
+- **Functions:** camelCase (`createCollapsible`, `merge`).
 - **Constants:** UPPER_SNAKE_CASE (`DEFAULT_TIMEOUT`).
 - **Types:** PascalCase (`CollapsibleProps`, `CollapsibleRoot`).
 - **Private:** Prefix with `_` (`_internalState`, `_handleClick`).
@@ -244,40 +246,35 @@ Component, prop, and type JSDoc is the documentation coding agents read first: t
 
 ### SolidJS Best Practices
 
-- Always wrap `createEffect` callbacks with Solid's `on()`. Read non-triggering state inside the callback untracked.
+Solid is not React, and 2.0 is not 1.x. Pattern-matching from either is the
+dominant bug source. Every name below is a `solid-js` export unless noted;
+DOM APIs (`render`, `hydrate`, `Portal`, `dynamic`) are in `@solidjs/web`.
 
-- **Memos and accessors:** Use a plain accessor for a cheap primitive. Use `createMemo` when the derivation needs caching, reactive isolation, or a stable identity.
-  1. A hook return, context value, or accessor passed to another reader is shared. Keep `createMemo` when that shared value is an object, array, JSX value, or a non-trivial computation.
-  2. A cheap primitive with one consumer in the same owner is a plain accessor (`const closed = () => !open()`), not `createMemo`.
-  3. Keep `createMemo` for a JSX prop read more than once, such as a condition and its render. A single render site reads the prop directly. Do not read a JSX-producing getter for a branch that is absent from the tree; that evaluation creates hydration keys for nodes that were never serialized.
-  4. Do not read one field out of an object accessor through another accessor (`() => bag()['data-expanded']`) when a primitive accessor already exists (`open`, `closed`). Keep object bags such as `dataAttrs()` and `ariaAttrs()` when callers spread them.
-  5. Read an object accessor once when several of its fields are used. Do not keep `createMemo` for an object that is only spread at one site: inline a short expression there, and use a plain accessor for a longer one-site derivation.
-  6. `useRecipe` callbacks (`context` and each `own` / `enforced` slot entry) stay as accessors that return their contract object.
+#### Three rules
 
-- Call components using JSX syntax (`<Component />`), never as direct functions.
+1. **Props are read, not destructured; pass values, not accessors.**
+   - Wrong: `function C({ name }) {}` and `<C value={count} />`
+   - Right: `function C(props) { return <p>{props.name}</p>; }` and `<C value={count()} />`
+2. **`createEffect` takes two functions: compute (tracks), then apply (side effects).**
+   - Wrong: `createEffect(() => { el.title = count(); });`
+   - Right: `createEffect(() => count(), v => { el.title = v; });`
+3. **Stores are written through the draft.**
+   - Wrong: `setStore("user", "name", "B")` or `setStore(produce(s => ...))`
+   - Right: `setStore(s => { s.user.name = "B"; });`
 
-- **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity).
-- **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
-- **Events:** Use UpperCase event names (`onClick`, `onInput`) on HTML elements.
-- **DOM listeners:** Prefer `createEventListener` / `createEventListenerMap` from `src/shared/event-listener.ts` over raw `addEventListener`.
-  1. Call them inside the Solid owner that should own the lifetime (`createEffect`, `onMount`, component setup, or a `bindElement` callback), never in a ref callback. They are not reactive: re-run them from `createEffect(on(target, ...))` or `bindElement` when the target or options change.
-  2. Use `createEventListenerMap` when attaching multiple events to the same target with the same options.
-  3. Use `attachEventListener` / `attachEventListenerMap` only when the caller must hold or return the cleanup function (imperative register APIs, drag sessions, helpers that return `() => void`).
-  4. Do not use either helper for JSX host events (`onClick`, `onInput`) or in tests that simulate or spy on the DOM. Do not call `addEventListener` / `removeEventListener` in library production code except inside `src/shared/event-listener.ts` and feature detects such as `typeof media.addEventListener === 'function'`.
-- **Refs:** Use `ref={el => ...}` callback form or assignments, avoiding React-style ref objects where possible.
-  1. A ref callback only stores the element (a local variable or a signal setter) and forwards it with `callRef`. Do not call `onCleanup`, `onMount`, `createEffect`, event-listener helpers, `register*` APIs, or write to the DOM inside it.
-  2. Put element lifecycle work in the owner that renders the element with `bindElement(element, (el) => cleanup)` from `src/shared/element-binding.ts`. For an element inside `<Show>` / `<For>`, create its signal and `bindElement` inside that callback so the branch owns the binding.
-  3. Publish an element to a longer-lived signal (a parent context) with `bindElement(element, publishElement(ctx.element, ctx.setElement))`; it clears the signal only while it still holds that element.
-  4. Ref callbacks receive an element only. Never call a ref with `undefined` to signal unmount.
-- **`{...rest}` attribute overload:** Solid JSX uses later-wins. On every public host, apply attributes in this order:
-  1. Default attributes the component generates (`data-slot`, default `role`, generated `aria-*`).
-  2. The slot binding (`{...rootSlot}` or a `slotWith(...)` result), which carries merged `class` / `style` and generated `data-*`. Always split `class`, `style`, `classes`, and `styles` out of rest, so rest cannot replace the merged presentation; callers can still overload `data-*`. Non-recipe hosts put `class` / `style` from `useCn` after rest instead.
-  3. `{...rest}` so callers overload those defaults.
-  4. Owned wiring rest must not replace: composed `ref`, form `id` / `name` / `value` / `checked` / `disabled` / `required` / `readOnly`, value-derived ARIA (`aria-valuenow`, `aria-checked`, `aria-pressed` when bound to the control value), and event handlers composed with `callHandler`.
-     Split `??` fallback props such as i18n `aria-label` out of rest and assign `local['aria-label'] ?? messages().label` after rest. Do not reconstruct `data-slot` from rest after spreading it; put the default before rest. `mergeProps(defaults, rest, composedHandlers)` is the same rule.
-- **`<Dynamic>`:** `component` must be the first attribute. Apply the `{...rest}` attribute overload order after it.
-- **Imports:** Organize imports: external lib -> internal shared -> component files.
-- **Internal Import Extensions:** Use explicit source extensions (`.ts` or `.tsx`) in `docs/build/**` and `**/*.config.ts`; omit extensions in `src/**` and `docs/**`.
+#### Reference
+
+- Full reference: `node_modules/solid-js/CHEATSHEET.md`; the same text is
+  the `solid-2.0-cheatsheet` skill in `node_modules/solid-js/skills/`.
+- Diagnostics: dev builds print `[CODE] message` plus an `in <App> › …`
+  owner line. The first report of each code ends with a footer naming
+  `node_modules/solid-js/skills/reactivity-diagnostics/SKILL.md`, one section
+  per code (`STRICT_READ_UNTRACKED`, `REACTIVE_WRITE_IN_OWNED_SCOPE`,
+  `LOADING_ON_OUTSIDE_HOLD`, …). Fix the cause; never suppress a code.
+- Evidence loops: `node_modules/@solidjs/diagnostics/skills/agent-loops/SKILL.md`
+  (`captureArtifact`). With `@solidjs/vite-plugin`'s `diagnostics` option the
+  dev server answers `POST /__solid/diagnostics` (`begin`, `active`, `whyDidRun`,
+  `costs`, `end`).
 
 ### Styling (UnoCSS)
 
@@ -289,7 +286,7 @@ Component, prop, and type JSDoc is the documentation coding agents read first: t
 ### Error Handling
 
 - **Async:** Use `try/catch` block within async event handlers.
-- **Boundaries:** Use `<ErrorBoundary>` for component-level error containment.
+- **Boundaries:** Use `<Errored>` for component-level error containment and `<Loading>` for pending async derivations.
 - **Types:** Avoid `any`. Use `unknown` if type is truly uncertain, then narrow it.
 - Never use `recipe()` for static-only classes.
 

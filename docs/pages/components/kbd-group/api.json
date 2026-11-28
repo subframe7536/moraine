@@ -30,7 +30,7 @@
         {
           "name": "items",
           "optional": false,
-          "type": "Item[]",
+          "type": "Array<Item>",
           "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** The key to display, resolved like `Kbd` `value`. */\n  value: KbdT.Key;\n  /** Accessible label for this keycap. Overrides the spoken name of a key alias. */\n  ariaLabel?: string;\n  /** Whether to resolve a known key alias to its symbol and spoken name, like `Kbd` `symbol`. */\n  symbol?: boolean;\n})[]",
           "description": "Keys displayed in order as one simultaneous shortcut. Each item is a key string, resolved\nlike `Kbd` `value`, or an object with `value` and optional `ariaLabel` and `symbol` to\ncustomize one key. The group `size` and `variant` apply to every key. The group renders\nnothing when empty.",
           "examples": [

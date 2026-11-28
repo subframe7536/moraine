@@ -1,6 +1,5 @@
 import { Button, Icon, Input, InputGroup } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function InputWithIcons() {
   const [showPassword, setShowPassword] = createSignal(false)
   const [query, setQuery] = createSignal('SolidJS reactive components')

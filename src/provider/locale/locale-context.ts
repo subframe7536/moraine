@@ -5,7 +5,6 @@ import { useMoraineContext } from '../moraine-context'
 import { FALLBACK_LOCALE } from './default-locale'
 import { mergeMessagesInput } from './merge-messages'
 import type { MoraineMessages, MoraineMessagesInput } from './messages.types'
-
 export interface ResolvedLocale {
   locale: string
   dir?: 'ltr' | 'rtl'
@@ -44,9 +43,10 @@ function mergeGroup<T extends object>(defaults: T, custom: Partial<T> | undefine
     return cached
   }
   const result = { ...defaults }
-  for (const key of Object.keys(custom) as (keyof T)[]) {
-    if (custom[key] !== undefined) {
-      result[key] = custom[key]!
+  for (const key of Object.keys(custom) as Array<keyof T>) {
+    const value = custom[key]
+    if (value !== undefined) {
+      result[key] = value
     }
   }
   const merged = Object.freeze(result)

@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -12,7 +12,6 @@ import { EmptyMedia } from './empty-media'
 import { EmptyTitle } from './empty-title'
 import { emptyRecipe } from './empty.recipe'
 import type { EmptyT } from './empty.types'
-
 /**
  * Empty-state presentation that composes `Empty.Media`, `Empty.Title`, `Empty.Description`, and
  * `Empty.Actions` and shares its `size` with them. Use it when a collection or search result is
@@ -36,11 +35,13 @@ import type { EmptyT } from './empty.types'
  * ```
  */
 export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'size', 'classes', 'styles', 'class', 'style'])
+  const rest = omit(props, 'as', 'size', 'classes', 'styles', 'class', 'style')
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(emptyRecipe, local)
+  } = useRecipe(emptyRecipe, props)
+
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'div')
 
   return (
     <EmptyProvider
@@ -49,11 +50,11 @@ export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>):
           return variants.size
         },
         get slotOverrides() {
-          return { classes: local.classes, styles: local.styles }
+          return { classes: props.classes, styles: props.styles }
         },
       }}
     >
-      <Dynamic component={local.as ?? 'div'} data-slot="empty" {...rootSlot} {...rest} />
+      <Root data-slot="empty" {...rootSlot} {...(rest as Record<string, unknown>)} />
     </EmptyProvider>
   )
 }

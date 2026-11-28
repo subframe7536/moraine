@@ -1,5 +1,7 @@
-import type { Component, JSX } from 'solid-js'
-import { createStore, produce } from 'solid-js/store'
+import { isServer } from '@solidjs/web'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { createRoot, createStore, runWithOwner, flush } from 'solid-js'
 
 import type { FeedbackCloseReason } from '../shared/overlay/feedback/feedback.types'
 import { createCloseResult } from '../shared/overlay/feedback/handle'
@@ -8,7 +10,6 @@ import type { FeedbackHost, HostRegistry } from '../shared/overlay/feedback/host
 import { mergeDefined, pickDefined } from '../shared/overlay/feedback/merge-defined'
 
 import type { ToastT } from './toast.types'
-
 export interface ToastHostDefaults {
   type?: ToastT.Variants['type'] | null
   size?: ToastT.Variants['size'] | null
@@ -133,7 +134,7 @@ function isSameToastContent(first: ToastT.Options, second: ToastT.Options): bool
 }
 
 export interface ToastStore {
-  readonly toasts: ToastRecord[]
+  readonly toasts: Array<ToastRecord>
   registry: HostRegistry<ToastHost>
   add: (
     options: ToastT.Options,
@@ -145,9 +146,12 @@ export interface ToastStore {
   abandonHost: (hostId: string | undefined) => void
 }
 
+// Public mutators are called from unowned contexts (timers, promises, event
+// handlers); `settle` commits their staged writes like a Solid 1 `batch`.
+
 export function createToastStore(): ToastStore {
   const registry = createHostRegistry<ToastHost>('Toast')
-  const [toasts, setToasts] = createStore<ToastRecord[]>([])
+  const [toasts, setToasts] = createStore<Array<ToastRecord>>([])
   const sessions = new Map<ToastT.Id, ToastSession>()
   let counter = 1
 
@@ -164,32 +168,28 @@ export function createToastStore(): ToastStore {
     registry.entries().some((host) => host.id() === hostId)
 
   const update = (id: ToastT.Id, options: ToastT.UpdateOptions): void => {
-    setToasts(
-      produce((draft) => {
-        const item = draft.find((entry) => entry.id === id)
-        if (!item || item.closed) {
-          return
-        }
-        item.options = mergeDefined(item.options, options)
-        item.bump = (item.bump ?? 0) + 1
-        const session = sessions.get(id)
-        if (session && options.onClose) {
-          session.onClose = options.onClose
-        }
-      }),
-    )
+    setToasts((draft) => {
+      const item = draft.find((entry) => entry.id === id)
+      if (!item || item.closed) {
+        return
+      }
+      item.options = mergeDefined(item.options, options)
+      item.bump = (item.bump ?? 0) + 1
+      const session = sessions.get(id)
+      if (session && options.onClose) {
+        session.onClose = options.onClose
+      }
+    })
   }
 
   const remove = (id: ToastT.Id): void => {
     sessions.delete(id)
-    setToasts(
-      produce((draft) => {
-        const index = draft.findIndex((item) => item.id === id)
-        if (index !== -1) {
-          draft.splice(index, 1)
-        }
-      }),
-    )
+    setToasts((draft) => {
+      const index = draft.findIndex((item) => item.id === id)
+      if (index !== -1) {
+        draft.splice(index, 1)
+      }
+    })
   }
 
   const close = (id: ToastT.Id | undefined, reason: FeedbackCloseReason = 'api'): void => {
@@ -204,14 +204,12 @@ export function createToastStore(): ToastStore {
         remove(item.id)
         continue
       }
-      setToasts(
-        produce((draft) => {
-          const match = draft.find((entry) => entry.id === item.id)
-          if (match && !match.closed) {
-            match.closed = true
-          }
-        }),
-      )
+      setToasts((draft) => {
+        const match = draft.find((entry) => entry.id === item.id)
+        if (match && !match.closed) {
+          match.closed = true
+        }
+      })
     }
   }
 
@@ -219,8 +217,8 @@ export function createToastStore(): ToastStore {
     const result = createCloseResult()
     const handle: ToastT.Handle = {
       id,
-      update: (options) => update(id, options),
-      close: () => close(id, 'api'),
+      update: (options) => flush(() => update(id, options)),
+      close: () => flush(() => close(id, 'api')),
       result: result.result,
     }
     sessions.set(id, { handle, settle: result.settle, onClose })
@@ -272,16 +270,19 @@ export function createToastStore(): ToastStore {
         const resolved = resolveToastOptions(item.options, defaults)
         return resolved.placement === candidate.placement && resolved.align === candidate.align
       })
-      if (front && isSameToastContent(resolveToastOptions(front.options, defaults), candidate)) {
-        setToasts(
-          produce((draft) => {
-            const item = draft.find((entry) => entry.id === front.id)
-            if (item) {
-              item.bump = (item.bump ?? 0) + 1
-            }
-          }),
-        )
-        return sessions.get(front.id)!.handle
+      const frontSession = front ? sessions.get(front.id) : undefined
+      if (
+        front &&
+        frontSession &&
+        isSameToastContent(resolveToastOptions(front.options, defaults), candidate)
+      ) {
+        setToasts((draft) => {
+          const item = draft.find((entry) => entry.id === front.id)
+          if (item) {
+            item.bump = (item.bump ?? 0) + 1
+          }
+        })
+        return frontSession.handle
       }
     }
 
@@ -293,7 +294,9 @@ export function createToastStore(): ToastStore {
       closed: false,
     }
     const handle = createHandle(id, options.onClose)
-    setToasts(produce((draft) => draft.unshift(record)))
+    setToasts((draft) => {
+      draft.unshift(record)
+    })
     return handle
   }
 
@@ -302,10 +305,10 @@ export function createToastStore(): ToastStore {
       return toasts
     },
     registry,
-    add,
-    update,
-    close,
-    remove,
+    add: (options, render) => flush(() => add(options, render)),
+    update: (id, options) => flush(() => update(id, options)),
+    close: (id, reason) => flush(() => close(id, reason)),
+    remove: (id) => flush(() => remove(id)),
     abandonHost,
   }
 }
@@ -313,8 +316,11 @@ export function createToastStore(): ToastStore {
 let defaultStore: ToastStore | undefined
 
 export function getDefaultToastStore(): ToastStore {
+  if (isServer) {
+    return createToastStore()
+  }
   if (!defaultStore) {
-    defaultStore = createToastStore()
+    defaultStore = runWithOwner(null, () => createRoot(() => createToastStore()))
   }
   return defaultStore
 }

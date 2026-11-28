@@ -1,4 +1,9 @@
-const scheduled = new WeakMap<Event, { controls: VoidFunction[]; forms: VoidFunction[] }>()
+import { flush } from 'solid-js'
+
+const scheduled = new WeakMap<
+  Event,
+  { controls: Array<VoidFunction>; forms: Array<VoidFunction> }
+>()
 
 export function scheduleFormReset(
   event: Event,
@@ -13,12 +18,16 @@ export function scheduleFormReset(
     queueMicrotask(() => {
       scheduled.delete(event)
       if (!event.defaultPrevented) {
-        for (const callback of pending.controls) {
-          callback()
-        }
-        for (const callback of pending.forms) {
-          callback()
-        }
+        // Writes stage outside a flush scope in Solid 2 — unflushed control resets would
+        // drop `setFormValue` while direct DOM writes (such as `input.checked`) still land.
+        flush(() => {
+          for (const callback of pending.controls) {
+            callback()
+          }
+          for (const callback of pending.forms) {
+            callback()
+          }
+        })
       }
     })
   }

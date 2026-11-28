@@ -1,6 +1,5 @@
 import { Button, Icon, BaseDialog } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Draggable() {
   const [position, setPosition] = createSignal({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = createSignal(false)

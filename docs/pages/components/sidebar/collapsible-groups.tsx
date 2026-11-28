@@ -1,6 +1,5 @@
 import { Badge, Breadcrumb, Button, Icon, Separator, Sidebar } from '@src'
 import { For, createSignal } from 'solid-js'
-
 export function CollapsibleGroups() {
   const [activePage, setActivePage] = createSignal('Pages and Layouts')
 

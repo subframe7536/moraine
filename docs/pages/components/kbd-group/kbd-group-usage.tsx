@@ -1,5 +1,4 @@
 import { KbdGroup } from '@src'
-
 export function KbdGroupUsage() {
   return (
     <div class="flex flex-col gap-3">

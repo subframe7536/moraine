@@ -1,5 +1,4 @@
 import { Button, ButtonGroup } from '@src'
-
 export function Vertical() {
   return (
     <ButtonGroup orientation="vertical" variant="outline" aria-label="Zoom">

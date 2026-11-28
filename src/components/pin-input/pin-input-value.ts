@@ -1,5 +1,4 @@
 import type { PinInputT } from './pin-input.types'
-
 export interface ValidationConfig {
   charPattern: RegExp
   slotPattern: string
@@ -10,7 +9,7 @@ export interface ValidationConfig {
 export const VALIDATION_CONFIG: Record<PinInputT.ValidationType, ValidationConfig> = {
   number: {
     charPattern: /^\d$/,
-    slotPattern: '\\d{1}',
+    slotPattern: String.raw`\d{1}`,
     getRootPattern: (length) => `\\d{${length}}`,
     inputMode: 'numeric',
   },
@@ -28,7 +27,7 @@ export const VALIDATION_CONFIG: Record<PinInputT.ValidationType, ValidationConfi
   },
   text: {
     charPattern: /^\S$/,
-    slotPattern: '\\S{1}',
+    slotPattern: String.raw`\S{1}`,
     getRootPattern: (length) => `\\S{${length}}`,
     inputMode: 'text',
   },
@@ -38,7 +37,7 @@ export function isValidChar(char: string, type: PinInputT.ValidationType): boole
   return VALIDATION_CONFIG[type]?.charPattern.test(char) ?? (char.length === 1 && !/\s/.test(char))
 }
 
-export function areCharArraysEqual(a: readonly string[], b: readonly string[]): boolean {
+export function areCharArraysEqual(a: ReadonlyArray<string>, b: ReadonlyArray<string>): boolean {
   if (a === b) {
     return true
   }
@@ -53,7 +52,7 @@ export function areCharArraysEqual(a: readonly string[], b: readonly string[]): 
   return true
 }
 
-export function createEmptyChars(length: number): string[] {
+export function createEmptyChars(length: number): Array<string> {
   return new Array(length).fill('')
 }
 
@@ -61,15 +60,15 @@ export function createEmptyChars(length: number): string[] {
  * Normalizes a list of slot characters through `normalizeValue`, then re-filters it.
  */
 export function applyNormalizeValue(
-  chars: string[],
+  chars: Array<string>,
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
-): string[] {
+): Array<string> {
   if (!normalizeValue) {
     return chars
   }
   const normalized = normalizeValue(chars.join(''))
-  const result: string[] = []
+  const result: Array<string> = []
   for (const char of normalized) {
     if (isValidChar(char, type)) {
       result.push(char)
@@ -83,7 +82,7 @@ export function applyNormalizeValue(
  * cancels one equal input character. Empty while no character was lost, so a `normalizeValue`
  * that only transforms characters (such as upper-casing) reports nothing.
  */
-function droppedChars(before: string[], after: string[]): string {
+function droppedChars(before: Array<string>, after: Array<string>): string {
   if (after.length >= before.length) {
     return ''
   }
@@ -106,8 +105,8 @@ export function filterInputText(
   text: string,
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
-): [chars: string[], rejected: string] {
-  const stripped = Array.from(text.replace(/[\s-]+/g, ''))
+): [chars: Array<string>, rejected: string] {
+  const stripped = Array.from(text.replaceAll(/[\s-]+/g, ''))
   const valid = stripped.filter((char) => isValidChar(char, type))
   const normalized = applyNormalizeValue(valid, type, normalizeValue)
   return [normalized, droppedChars(stripped, normalized)]
@@ -121,15 +120,15 @@ export function filterTypedChars(
   typed: string,
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
-): [chars: string[], rejected: string] {
+): [chars: Array<string>, rejected: string] {
   const nonWhitespace = Array.from(typed).filter((char) => !/\s/.test(char))
   const valid = nonWhitespace.filter((char) => isValidChar(char, type))
   const normalized = applyNormalizeValue(valid, type, normalizeValue)
   return [normalized, droppedChars(nonWhitespace, normalized)]
 }
 
-export function extractValidChars(val: string, type: PinInputT.ValidationType): string[] {
-  const result: string[] = []
+export function extractValidChars(val: string, type: PinInputT.ValidationType): Array<string> {
+  const result: Array<string> = []
   for (const char of val) {
     if (isValidChar(char, type)) {
       result.push(char)
@@ -143,7 +142,7 @@ export function normalizeChars(
   length: number,
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
-): string[] {
+): Array<string> {
   const result = createEmptyChars(length)
   if (val === undefined || val === null) {
     return result
@@ -151,18 +150,21 @@ export function normalizeChars(
   const valid = applyNormalizeValue(extractValidChars(val, type), type, normalizeValue)
   const limit = Math.min(valid.length, length)
   for (let i = 0; i < limit; i++) {
-    result[i] = valid[i]!
+    const char = valid[i]
+    if (char !== undefined) {
+      result[i] = char
+    }
   }
   return result
 }
 
 /** Splices characters into the current slot array, clamping to `maxLength` and filling voids. */
 export function spliceChars(
-  current: readonly string[],
+  current: ReadonlyArray<string>,
   startIndex: number,
-  insert: readonly string[],
+  insert: ReadonlyArray<string>,
   maxLength: number,
-): string[] {
+): Array<string> {
   const next = [...current]
   next.splice(startIndex, insert.length, ...insert)
   next.length = maxLength

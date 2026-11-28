@@ -1,11 +1,11 @@
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor, Component } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { ResizableOrientation } from './hook'
 import type { ResizableStyleSlot, ResizableStyleVariants } from './resizable.style-types'
-
 export namespace ResizableT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = ResizableStyleSlot<T>

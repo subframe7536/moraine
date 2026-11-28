@@ -1,31 +1,35 @@
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onSettled } from 'solid-js'
 
 import { createObjectUrl, revokeObjectUrl } from './file-input-sync'
 import { isImageFile } from './file-validation'
-
 export function createFilePreviews(options: {
-  files: Accessor<File[]>
+  files: Accessor<Array<File>>
   enabled: Accessor<boolean>
 }): Accessor<Map<File, string>> {
   const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
+  let activeUrls = new Map<File, string>()
 
   createEffect(
-    on([options.files, options.enabled], ([files, previewsEnabled]) => {
-      setPreviewUrls((previous) => {
-        const next = new Map(previous)
+    () => [options.files(), options.enabled()] as const,
+    ([files, previewsEnabled]) => {
+      if (isServer) {
+        return
+      }
 
-        for (const [file, url] of previous.entries()) {
-          if (!previewsEnabled || !files.includes(file) || !isImageFile(file)) {
-            revokeObjectUrl(url)
-            next.delete(file)
-          }
+      let changed = false
+      const next = new Map(activeUrls)
+
+      for (const [file, url] of activeUrls.entries()) {
+        if (!previewsEnabled || !files.includes(file) || !isImageFile(file)) {
+          revokeObjectUrl(url)
+          next.delete(file)
+          changed = true
         }
+      }
 
-        if (!previewsEnabled) {
-          return next
-        }
-
+      if (previewsEnabled) {
         for (const file of files) {
           if (!isImageFile(file) || next.has(file)) {
             continue
@@ -34,18 +38,23 @@ export function createFilePreviews(options: {
           const url = createObjectUrl(file)
           if (url) {
             next.set(file, url)
+            changed = true
           }
         }
+      }
 
-        return next
-      })
-    }),
+      if (changed) {
+        activeUrls = next
+        setPreviewUrls(next)
+      }
+    },
   )
 
-  onCleanup(() => {
-    for (const url of previewUrls().values()) {
+  onSettled(() => () => {
+    for (const url of activeUrls.values()) {
       revokeObjectUrl(url)
     }
+    activeUrls.clear()
   })
 
   return previewUrls

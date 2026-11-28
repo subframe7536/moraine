@@ -1,7 +1,6 @@
 import { Button, Dialog, Drawer, Field, Input } from '@src'
 import { createMediaQuery } from '@src/utils'
 import { Show } from 'solid-js'
-
 function ProfileFields() {
   return (
     <div class="gap-4 grid">

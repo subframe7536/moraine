@@ -1,7 +1,6 @@
 import { CheckboxGroup } from '@src'
 import type { CheckboxGroupT } from '@src'
 import { createSignal } from 'solid-js'
-
 export function ControlledDisabledItems() {
   const ROLES = [
     { value: 'viewer', label: 'Viewer', description: 'Read-only access to repositories' },
@@ -13,9 +12,9 @@ export function ControlledDisabledItems() {
       description: 'Primary organization administrator',
       disabled: true,
     },
-  ] satisfies CheckboxGroupT.Item[]
+  ] satisfies Array<CheckboxGroupT.Item>
 
-  const [value, setValue] = createSignal<string[]>(['developer', 'owner'])
+  const [value, setValue] = createSignal<Array<string>>(['developer', 'owner'])
 
   return (
     <div class="p-4 b-1 b-border rounded-xl max-w-xl space-y-4">

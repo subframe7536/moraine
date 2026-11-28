@@ -1,8 +1,7 @@
+import { renderToString } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { Table } from './table'
-
 export function TableHydrationFixture(props: { title?: string; extraRow?: boolean }) {
   return (
     <Table>

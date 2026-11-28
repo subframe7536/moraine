@@ -1,21 +1,20 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createSignal, mergeProps } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { For, createSignal, flush, merge, untrack } from 'solid-js'
+import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { createListVirtualizer } from '../../virtualizer'
 
 import { createTree } from './tree'
 import type { TreeT } from './tree.types'
-
 interface Node {
   id: string
   name: string
-  children?: Node[]
+  children?: Array<Node>
   disabled?: boolean
 }
 
-const DATA: Node[] = [
+const DATA: Array<Node> = [
   {
     id: 'src',
     name: 'src',
@@ -37,15 +36,14 @@ const DATA: Node[] = [
 ]
 
 interface HarnessProps {
-  items?: () => readonly Node[]
+  items?: () => ReadonlyArray<Node>
   options?: Partial<TreeT.Options<Node>>
   treeProps?: Partial<TreeT.Props<Node>>
   onTree?: (tree: TreeT.Instance<Node>) => void
 }
 
 function Harness(props: HarnessProps) {
-  /* oxlint-disable subf/solid-reactivity -- Fixture options are fixed; controlled keys are getter-backed. */
-  const options = mergeProps(
+  const options = merge(
     {
       items: () => props.items?.() ?? DATA,
       getKey: (node: Node) => node.id,
@@ -53,11 +51,10 @@ function Harness(props: HarnessProps) {
       getItemLabel: (node: Node) => node.name,
       isItemDisabled: (node: Node) => Boolean(node.disabled),
     },
-    props.options,
+    untrack(() => props.options),
   )
   const tree = createTree<Node>(options)
-  props.onTree?.(tree)
-  /* oxlint-enable subf/solid-reactivity */
+  untrack(() => props.onTree?.(tree))
   return <tree.Tree aria-label="Files" {...props.treeProps} />
 }
 
@@ -67,7 +64,7 @@ function guideList(element: HTMLElement): HTMLElement | null {
   )
 }
 
-function guides(element: HTMLElement): HTMLElement[] {
+function guides(element: HTMLElement): Array<HTMLElement> {
   return [...(guideList(element)?.querySelectorAll<HTMLElement>('[data-slot="tree-guide"]') ?? [])]
 }
 
@@ -79,7 +76,7 @@ function item(container: HTMLElement, label: string): HTMLElement {
   return element
 }
 
-function labels(container: HTMLElement): string[] {
+function labels(container: HTMLElement): Array<string> {
   return Array.from(container.querySelectorAll('[role="treeitem"]')).map(
     (element) => element.getAttribute('aria-label') ?? '',
   )
@@ -103,7 +100,7 @@ function clickTrigger(element: HTMLElement): void {
 
 describe('createTree', () => {
   describe('structure and aria', () => {
-    test('renders a tree with levels, positions, and expansion state', () => {
+    it('renders a tree with levels, positions, and expansion state', () => {
       const { container, getByRole } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['src'] }} />
       ))
@@ -135,7 +132,7 @@ describe('createTree', () => {
       expect(components.parentElement?.closest('[role="group"]')).not.toBeNull()
     })
 
-    test('exposes a flat list of visible items on the instance', () => {
+    it('exposes a flat list of visible items on the instance', () => {
       let tree!: TreeT.Instance<Node>
       render(() => (
         <Harness onTree={(value) => (tree = value)} options={{ defaultExpandedKeys: ['docs'] }} />
@@ -153,7 +150,7 @@ describe('createTree', () => {
       expect(tree.getItem('docs')?.children.map((child) => child.key)).toEqual(['guide'])
     })
 
-    test('marks multiselectable trees and disabled items', () => {
+    it('marks multiselectable trees and disabled items', () => {
       const { container, getByRole } = render(() => (
         <Harness options={{ selectionMode: 'multiple' }} />
       ))
@@ -163,16 +160,16 @@ describe('createTree', () => {
       expect(item(container, 'README.md').hasAttribute('aria-disabled')).toBe(false)
     })
 
-    test('omits aria-selected when selection is disabled', () => {
+    it('omits aria-selected when selection is disabled', () => {
       const { container } = render(() => <Harness options={{ selectionMode: 'none' }} />)
       expect(item(container, 'README.md').hasAttribute('aria-selected')).toBe(false)
     })
 
-    test('reacts to item changes', () => {
-      const [items, setItems] = createSignal<readonly Node[]>(DATA)
+    it('reacts to item changes', () => {
+      const [items, setItems] = createSignal<ReadonlyArray<Node>>(DATA)
       const { container } = render(() => <Harness items={items} />)
 
-      setItems([{ id: 'only', name: 'only.md' }])
+      flush(() => setItems([{ id: 'only', name: 'only.md' }]))
       expect(labels(container)).toEqual(['only.md'])
     })
   })
@@ -182,7 +179,7 @@ describe('createTree', () => {
       vi.restoreAllMocks()
     })
 
-    test('toggles on row click by default', () => {
+    it('toggles on row click by default', () => {
       const { container } = render(() => <Harness treeProps={{ transition: false }} />)
       const src = item(container, 'src')
 
@@ -196,7 +193,7 @@ describe('createTree', () => {
       expect(labels(container)).not.toContain('components')
     })
 
-    test('selects on row click and toggles only from the trigger when expandOnClick is false', () => {
+    it('selects on row click and toggles only from the trigger when expandOnClick is false', () => {
       const { container } = render(() => (
         <Harness options={{ expandOnClick: false }} treeProps={{ transition: false }} />
       ))
@@ -217,7 +214,7 @@ describe('createTree', () => {
       expect(labels(container)).not.toContain('components')
     })
 
-    test('renders no trigger in the default item and still toggles on row click when expandIcon is false', () => {
+    it('renders no trigger in the default item and still toggles on row click when expandIcon is false', () => {
       const { container } = render(() => <Harness treeProps={{ expandIcon: false }} />)
       const src = item(container, 'src')
 
@@ -229,7 +226,7 @@ describe('createTree', () => {
       expect(src.getAttribute('aria-expanded')).toBe('false')
     })
 
-    test('does not toggle on row click without a trigger when expandOnClick is false', () => {
+    it('does not toggle on row click without a trigger when expandOnClick is false', () => {
       const { container } = render(() => (
         <Harness options={{ expandOnClick: false }} treeProps={{ expandIcon: null }} />
       ))
@@ -242,7 +239,7 @@ describe('createTree', () => {
       expect(labels(container)).not.toContain('components')
     })
 
-    test('an explicit ItemTrigger still renders the default chevron when expandIcon is false', () => {
+    it('an explicit ItemTrigger still renders the default chevron when expandIcon is false', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -272,7 +269,7 @@ describe('createTree', () => {
       expect(labels(container)).toContain('components')
     })
 
-    test('renders the getItemIcon icon in the default item', () => {
+    it('renders the getItemIcon icon in the default item', () => {
       const { container } = render(() => (
         <Harness
           treeProps={{
@@ -289,7 +286,7 @@ describe('createTree', () => {
       ).toContain('icon-file')
     })
 
-    test('getItemIcon can react to expansion state', () => {
+    it('getItemIcon can react to expansion state', () => {
       const { container } = render(() => (
         <Harness
           treeProps={{
@@ -307,13 +304,13 @@ describe('createTree', () => {
       expect(icon()?.className).toContain('icon-open')
     })
 
-    test('renders no icon without getItemIcon', () => {
+    it('renders no icon without getItemIcon', () => {
       const { container } = render(() => <Harness />)
 
       expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
     })
 
-    test('nested trigger clicks do not toggle their ancestors', () => {
+    it('nested trigger clicks do not toggle their ancestors', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
 
       clickTrigger(item(container, 'components'))
@@ -321,7 +318,7 @@ describe('createTree', () => {
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
     })
 
-    test('keeps a child mounted and selected after a row click', () => {
+    it('keeps a child mounted and selected after a row click', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
 
       fireEvent.click(item(container, 'guide.md'))
@@ -330,7 +327,7 @@ describe('createTree', () => {
       expect(labels(container)).toContain('guide.md')
     })
 
-    test('keeps the trigger visible while a branch expands', () => {
+    it('keeps the trigger visible while a branch expands', () => {
       const { container } = render(() => <Harness />)
       const src = item(container, 'src')
       const trigger = triggerOf(src)
@@ -342,9 +339,9 @@ describe('createTree', () => {
       expect(trigger.querySelector('[data-slot="tree-trigger-icon"]')).not.toBeNull()
     })
 
-    test('supports controlled expanded keys and retains focus when a subtree collapses', () => {
-      const [keys, setKeys] = createSignal<string[]>([])
-      const onExpandedKeysChange = vi.fn((next: string[]) => setKeys(next))
+    it('supports controlled expanded keys and retains focus when a subtree collapses', () => {
+      const [keys, setKeys] = createSignal<Array<string>>([])
+      const onExpandedKeysChange = vi.fn<(next: Array<string>) => any>((next) => setKeys(next))
       const { container } = render(() => (
         <Harness
           options={{
@@ -360,36 +357,37 @@ describe('createTree', () => {
       expect(onExpandedKeysChange).toHaveBeenCalledWith(['docs'])
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
 
-      item(container, 'guide.md').focus()
+      flush(() => item(container, 'guide.md').focus())
       expect(document.activeElement).toBe(item(container, 'guide.md'))
 
-      setKeys([])
+      flush(() => setKeys([]))
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('false')
       expect(document.activeElement).toBe(item(container, 'docs'))
     })
 
-    test('focus expands collapsed ancestors before focusing the item', async () => {
+    it('focus expands collapsed ancestors before focusing the item', async () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => <Harness onTree={(value) => (tree = value)} />)
 
-      tree.focus('button')
+      flush(() => tree.focus('button'))
+      flush()
       expect([...tree.expandedKeys].sort()).toEqual(['components', 'src'])
       await waitFor(() => expect(document.activeElement).toBe(item(container, 'button.tsx')))
       expect(tree.focusedKey).toBe('button')
     })
 
-    test('expandAll, collapseAll, and expandTo update visible items', () => {
+    it('expandAll, collapseAll, and expandTo update visible items', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => <Harness onTree={(value) => (tree = value)} />)
 
-      tree.expandTo('button')
+      flush(() => tree.expandTo('button'))
       expect([...tree.expandedKeys].sort()).toEqual(['components', 'src'])
       expect(labels(container)).toContain('button.tsx')
 
-      tree.collapseAll()
+      flush(() => tree.collapseAll())
       expect(tree.expandedKeys).toEqual([])
 
-      tree.expandAll()
+      flush(() => tree.expandAll())
       expect(labels(container)).toEqual([
         'src',
         'components',
@@ -403,7 +401,7 @@ describe('createTree', () => {
       ])
     })
 
-    test('marks the group as closed when collapsed but kept mounted', () => {
+    it('marks the group as closed when collapsed but kept mounted', () => {
       const { container } = render(() => (
         <Harness
           options={{ defaultExpandedKeys: ['docs'] }}
@@ -418,7 +416,7 @@ describe('createTree', () => {
       expect(group.hasAttribute('data-transition')).toBe(false)
     })
 
-    test('omits height transition styles when transition is false', () => {
+    it('omits height transition styles when transition is false', () => {
       const { container } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['docs'] }} treeProps={{ transition: false }} />
       ))
@@ -427,7 +425,7 @@ describe('createTree', () => {
       expect(group.hasAttribute('data-transition')).toBe(false)
     })
 
-    test('omits height transition styles on default-expanded nested content', async () => {
+    it('omits height transition styles on default-expanded nested content', async () => {
       vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
       await Promise.resolve()
@@ -440,7 +438,7 @@ describe('createTree', () => {
       expect(group.style.animation).toBe('none')
     })
 
-    test('keeps sibling items mounted when a nested branch expands', async () => {
+    it('keeps sibling items mounted when a nested branch expands', async () => {
       vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
       await Promise.resolve()
@@ -486,7 +484,7 @@ describe('createTree', () => {
       expect(nestedGroup.style.height).not.toBe('auto')
     })
 
-    test('keeps a collapsed group ready for height motion', () => {
+    it('keeps a collapsed group ready for height motion', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
       const group = item(container, 'components').querySelector<HTMLElement>(
         '[data-slot="tree-content"]',
@@ -498,7 +496,7 @@ describe('createTree', () => {
       expect(group.hasAttribute('hidden')).toBe(false)
     })
 
-    test('keeps the group visually closed until nested content has been measured', () => {
+    it('keeps the group visually closed until nested content has been measured', () => {
       const { container } = render(() => <Harness />)
 
       clickTrigger(item(container, 'src'))
@@ -508,7 +506,7 @@ describe('createTree', () => {
       expect(group.hasAttribute('data-closed')).toBe(true)
     })
 
-    test('enables height motion after a collapsed branch is measured', async () => {
+    it('enables height motion after a collapsed branch is measured', async () => {
       vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness />)
 
@@ -521,7 +519,7 @@ describe('createTree', () => {
       expect(group.style.height).not.toBe('auto')
     })
 
-    test('clips the expanded group only while its height animation runs', async () => {
+    it('clips the expanded group only while its height animation runs', async () => {
       vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness />)
 
@@ -536,7 +534,7 @@ describe('createTree', () => {
       expect(group.hasAttribute('data-transitioning')).toBe(false)
     })
 
-    test('keeps a settled group at rest when its content height changes', async () => {
+    it('keeps a settled group at rest when its content height changes', async () => {
       const resizeCallbacks: Array<() => void> = []
       vi.stubGlobal('ResizeObserver', function ResizeObserver(callback: () => void) {
         resizeCallbacks.push(callback)
@@ -559,6 +557,7 @@ describe('createTree', () => {
         for (const callback of resizeCallbacks) {
           callback()
         }
+        flush()
         expect(group.style.getPropertyValue('--mo-collapsible-content-height')).toBe('96px')
         expect(group.hasAttribute('data-transitioning')).toBe(false)
       } finally {
@@ -566,9 +565,9 @@ describe('createTree', () => {
       }
     })
 
-    test('expandAll, *, and expandTo do not expand disabled branches and collapseAll preserves them', () => {
+    it('expandAll, *, and expandTo do not expand disabled branches and collapseAll preserves them', () => {
       let tree!: TreeT.Instance<Node>
-      const nodes: Node[] = [
+      const nodes: Array<Node> = [
         {
           id: 'enabled-branch',
           name: 'enabled-branch',
@@ -589,23 +588,23 @@ describe('createTree', () => {
         />
       ))
 
-      tree.expandAll()
+      flush(() => tree.expandAll())
       expect(tree.expandedKeys).toEqual(['disabled-branch', 'enabled-branch'])
 
-      tree.collapseAll()
+      flush(() => tree.collapseAll())
       expect(tree.expandedKeys).toEqual(['disabled-branch'])
 
       const eb = item(container, 'enabled-branch')
-      eb.focus()
+      flush(() => eb.focus())
       press(eb, '*')
       expect(tree.expandedKeys).toEqual(['disabled-branch', 'enabled-branch'])
 
-      tree.collapseAll()
-      tree.expandTo('d1')
+      flush(() => tree.collapseAll())
+      flush(() => tree.expandTo('d1'))
       expect(tree.expandedKeys).toEqual(['disabled-branch'])
     })
 
-    test('trigger click prevents default and does not stop propagation', () => {
+    it('trigger click prevents default and does not stop propagation', () => {
       let tree!: TreeT.Instance<Node>
       let parentClickReceived = false
       const { container } = render(() => (
@@ -635,7 +634,7 @@ describe('createTree', () => {
       return screen
     }
 
-    test('uses a roving tab stop that starts at the first item', () => {
+    it('uses a roving tab stop that starts at the first item', () => {
       const { container } = setup()
 
       const tabbable = Array.from(container.querySelectorAll('[role="treeitem"]')).filter(
@@ -643,15 +642,15 @@ describe('createTree', () => {
       )
       expect(tabbable.map((element) => element.getAttribute('aria-label'))).toEqual(['src'])
 
-      item(container, 'button.tsx').focus()
+      flush(() => item(container, 'button.tsx').focus())
       expect(item(container, 'button.tsx').getAttribute('tabindex')).toBe('0')
       expect(item(container, 'src').getAttribute('tabindex')).toBe('-1')
     })
 
-    test('moves focus with arrow keys, Home, and End while skipping disabled items', () => {
+    it('moves focus with arrow keys, Home, and End while skipping disabled items', () => {
       const { container } = setup()
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'ArrowDown')
       expect(document.activeElement).toBe(item(container, 'components'))
@@ -669,10 +668,10 @@ describe('createTree', () => {
       expect(document.activeElement).toBe(item(container, 'src'))
     })
 
-    test('expands with ArrowRight, enters children, and collapses with ArrowLeft', () => {
+    it('expands with ArrowRight, enters children, and collapses with ArrowLeft', () => {
       const { container } = render(() => <Harness />)
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'ArrowRight')
       expect(src.getAttribute('aria-expanded')).toBe('true')
@@ -688,14 +687,14 @@ describe('createTree', () => {
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
     })
 
-    test('swaps horizontal arrows in right-to-left locales', () => {
+    it('swaps horizontal arrows in right-to-left locales', () => {
       const { container } = render(() => (
         <MoraineProvider dir="rtl">
           <Harness />
         </MoraineProvider>
       ))
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'ArrowRight')
       expect(src.getAttribute('aria-expanded')).toBe('false')
@@ -703,74 +702,74 @@ describe('createTree', () => {
       expect(src.getAttribute('aria-expanded')).toBe('true')
     })
 
-    test('keeps focus on the nearest visible ancestor when its subtree collapses', () => {
+    it('keeps focus on the nearest visible ancestor when its subtree collapses', () => {
       const { container } = setup()
-      item(container, 'button.tsx').focus()
+      flush(() => item(container, 'button.tsx').focus())
 
       clickTrigger(item(container, 'src'))
       expect(document.activeElement).toBe(item(container, 'src'))
       expect(item(container, 'src').getAttribute('tabindex')).toBe('0')
     })
 
-    test('expands every sibling with *', () => {
+    it('expands every sibling with *', () => {
       const { container } = render(() => <Harness />)
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, '*')
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
     })
 
-    test('moves to the next match while typing', () => {
+    it('moves to the next match while typing', () => {
       const { container } = setup()
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'r')
       expect(document.activeElement).toBe(item(container, 'README.md'))
     })
 
-    test('does not run typeahead when disabled', () => {
+    it('does not run typeahead when disabled', () => {
       const { container } = setup({ typeahead: false })
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'r')
       expect(document.activeElement).toBe(src)
     })
 
-    test('selects with Enter and also calls onAction when provided', () => {
-      const onAction = vi.fn()
+    it('selects with Enter and also calls onAction when provided', () => {
+      const onAction = vi.fn<(...args: Array<any>) => void>()
       const { container, unmount } = setup()
       const readme = item(container, 'README.md')
-      readme.focus()
+      flush(() => readme.focus())
       press(readme, 'Enter')
       expect(item(container, 'README.md').getAttribute('aria-selected')).toBe('true')
       unmount()
 
       const second = setup({ onAction })
       const index = item(second.container, 'index.ts')
-      index.focus()
+      flush(() => index.focus())
       press(index, 'Enter')
       expect(onAction).toHaveBeenCalledTimes(1)
       expect(onAction.mock.calls[0]?.[0].key).toBe('index')
       expect(item(second.container, 'index.ts').getAttribute('aria-selected')).toBe('true')
     })
 
-    test('ignores keys from nested items and interactive descendants', () => {
+    it('ignores keys from nested items and interactive descendants', () => {
       const { container } = setup()
-      item(container, 'button.tsx').focus()
+      flush(() => item(container, 'button.tsx').focus())
 
       press(item(container, 'button.tsx'), 'ArrowLeft')
       expect(document.activeElement).toBe(item(container, 'components'))
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
     })
 
-    test('ignores keyboard navigation during IME composition and keyCode 229', () => {
+    it('ignores keyboard navigation during IME composition and keyCode 229', () => {
       const { container } = setup()
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       fireEvent.keyDown(src, { key: 'ArrowDown', isComposing: true })
       expect(document.activeElement).toBe(src)
@@ -779,8 +778,8 @@ describe('createTree', () => {
       expect(document.activeElement).toBe(src)
     })
 
-    test('skips disabled ancestors on Left arrow', () => {
-      const nodes: Node[] = [
+    it('skips disabled ancestors on Left arrow', () => {
+      const nodes: Array<Node> = [
         {
           id: 'root',
           name: 'root',
@@ -798,16 +797,16 @@ describe('createTree', () => {
         <Harness items={() => nodes} options={{ defaultExpandedKeys: ['root', 'parent'] }} />
       ))
       const child = item(container, 'child')
-      child.focus()
+      flush(() => child.focus())
 
       press(child, 'ArrowLeft')
       expect(document.activeElement).toBe(item(container, 'root'))
     })
 
-    test('does not collapse, check, or activate disabled items from keyboard or focus', () => {
+    it('does not collapse, check, or activate disabled items from keyboard or focus', () => {
       let tree!: TreeT.Instance<Node>
-      const onAction = vi.fn()
-      const nodes: Node[] = [
+      const onAction = vi.fn<(...args: Array<any>) => void>()
+      const nodes: Array<Node> = [
         {
           id: 'branch',
           name: 'branch',
@@ -837,7 +836,7 @@ describe('createTree', () => {
       expect(onAction).not.toHaveBeenCalled()
     })
 
-    test('clears focusedKey and isFocused when focus leaves the tree', () => {
+    it('clears focusedKey and isFocused when focus leaves the tree', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <>
@@ -846,12 +845,12 @@ describe('createTree', () => {
         </>
       ))
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
       expect(tree.focusedKey).toBe('src')
       expect(tree.getItem('src')?.focused).toBe(true)
 
       const outside = container.querySelector('button')!
-      outside.focus()
+      flush(() => outside.focus())
       fireEvent.focusOut(src, { relatedTarget: outside })
       expect(tree.focusedKey).toBeUndefined()
       expect(tree.getItem('src')?.focused).toBe(false)
@@ -860,8 +859,8 @@ describe('createTree', () => {
   })
 
   describe('selection', () => {
-    test('single selection replaces the selected item and reports changes', () => {
-      const onSelectedKeysChange = vi.fn()
+    it('single selection replaces the selected item and reports changes', () => {
+      const onSelectedKeysChange = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => <Harness options={{ onSelectedKeysChange }} />)
 
       fireEvent.click(item(container, 'README.md'))
@@ -874,14 +873,14 @@ describe('createTree', () => {
       expect(item(container, 'src').hasAttribute('data-selected')).toBe(true)
     })
 
-    test('does not select disabled items', () => {
+    it('does not select disabled items', () => {
       const { container } = render(() => <Harness />)
 
       fireEvent.click(item(container, 'LICENSE'))
       expect(item(container, 'LICENSE').getAttribute('aria-selected')).toBe('false')
     })
 
-    test('multiple selection supports ctrl toggle, shift ranges, and select all', () => {
+    it('multiple selection supports ctrl toggle, shift ranges, and select all', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -905,16 +904,16 @@ describe('createTree', () => {
       fireEvent.click(item(container, 'README.md'), { shiftKey: true })
       expect(tree.selectedKeys).toEqual(['docs', 'guide', 'readme'])
 
-      item(container, 'README.md').focus()
+      flush(() => item(container, 'README.md').focus())
       press(item(container, 'README.md'), 'a', { ctrlKey: true })
       expect(tree.selectedKeys).toHaveLength(8)
       expect(tree.selectedKeys).not.toContain('license')
 
-      tree.clearSelection()
+      flush(() => tree.clearSelection())
       expect(tree.selectedKeys).toEqual([])
     })
 
-    test('extends the range with Shift+ArrowDown', () => {
+    it('extends the range with Shift+ArrowDown', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -928,8 +927,8 @@ describe('createTree', () => {
       expect(tree.selectedKeys).toEqual(['docs', 'readme'])
     })
 
-    test('supports controlled selection', () => {
-      const [keys, setKeys] = createSignal<string[]>(['docs'])
+    it('supports controlled selection', () => {
+      const [keys, setKeys] = createSignal<Array<string>>(['docs'])
       const { container } = render(() => (
         <Harness
           options={{
@@ -943,11 +942,10 @@ describe('createTree', () => {
 
       expect(item(container, 'docs').getAttribute('aria-selected')).toBe('true')
       fireEvent.click(item(container, 'README.md'))
-      // oxlint-disable-next-line subf/solid-reactivity -- Assert the controlled signal after the click.
-      expect(keys()).toEqual(['readme'])
+      expect(untrack(keys)).toEqual(['readme'])
     })
 
-    test('selectionMode none ignores clicks', () => {
+    it('selectionMode none ignores clicks', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness onTree={(value) => (tree = value)} options={{ selectionMode: 'none' }} />
@@ -957,7 +955,7 @@ describe('createTree', () => {
       expect(tree.selectedKeys).toEqual([])
     })
 
-    test('shrinks the range toward anchor with Shift+ArrowUp and preserves rangeSnapshot', () => {
+    it('shrinks the range toward anchor with Shift+ArrowUp and preserves rangeSnapshot', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -984,7 +982,7 @@ describe('createTree', () => {
       expect(tree.selectedKeys).not.toContain('index')
     })
 
-    test('skips disabled nodes in range selection and does not resurrect ctrl-deselected items', () => {
+    it('skips disabled nodes in range selection and does not resurrect ctrl-deselected items', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -1039,44 +1037,44 @@ describe('createTree', () => {
       )
     }
 
-    test('cascades checks down and derives indeterminate states upward', () => {
+    it('cascades checks down and derives indeterminate states upward', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => <CheckableHarness onTree={(value) => (tree = value)} />)
       expect(container.querySelectorAll('[data-slot="tree-checkbox"]').length).toBeGreaterThan(0)
 
-      tree.check('button')
+      flush(() => tree.check('button'))
       expect(tree.getItem('button')?.checkedState).toBe('checked')
       expect(tree.getItem('components')?.checkedState).toBe('indeterminate')
       expect(tree.getItem('src')?.checkedState).toBe('indeterminate')
 
-      tree.check('checkbox')
+      flush(() => tree.check('checkbox'))
       expect(tree.getItem('components')?.checkedState).toBe('checked')
       expect(tree.getItem('src')?.checkedState).toBe('indeterminate')
 
-      tree.check('index')
+      flush(() => tree.check('index'))
       expect(tree.getItem('src')?.checkedState).toBe('checked')
       expect(tree.checkedKeys).toEqual(
         expect.arrayContaining(['src', 'components', 'button', 'checkbox', 'index']),
       )
 
-      tree.uncheck('components')
+      flush(() => tree.uncheck('components'))
       expect(tree.getItem('button')?.checkedState).toBe('unchecked')
       expect(tree.getItem('src')?.checkedState).toBe('indeterminate')
       expect(tree.checkedKeys).toEqual(['index'])
     })
 
-    test('toggles a branch from an indeterminate state to checked', () => {
+    it('toggles a branch from an indeterminate state to checked', () => {
       let tree!: TreeT.Instance<Node>
       render(() => <CheckableHarness onTree={(value) => (tree = value)} />)
 
-      tree.check('button')
-      tree.toggleCheck('components')
+      flush(() => tree.check('button'))
+      flush(() => tree.toggleCheck('components'))
       expect(tree.getItem('components')?.checkedState).toBe('checked')
-      tree.toggleCheck('components')
+      flush(() => tree.toggleCheck('components'))
       expect(tree.getItem('components')?.checkedState).toBe('unchecked')
     })
 
-    test('binds the check state through ItemCheckbox and keeps it out of the tab order', () => {
+    it('binds the check state through ItemCheckbox and keeps it out of the tab order', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -1103,9 +1101,9 @@ describe('createTree', () => {
       expect(tree.getItem('button')?.checkedState).toBe('checked')
     })
 
-    test('ItemCheckbox composes its onClick handler and can cancel the toggle', () => {
+    it('itemCheckbox composes its onClick handler and can cancel the toggle', () => {
       let tree!: TreeT.Instance<Node>
-      const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+      const onClick = vi.fn<(event: MouseEvent) => any>((event) => event.preventDefault())
       const { container } = render(() => (
         <Harness
           onTree={(value) => (tree = value)}
@@ -1129,9 +1127,9 @@ describe('createTree', () => {
       expect(tree.getItem('src')?.checkedState).toBe('unchecked')
     })
 
-    test('checkedKeys matches onCheckedKeysChange for keys of unloaded items', () => {
+    it('checkedKeys matches onCheckedKeysChange for keys of unloaded items', () => {
       let tree!: TreeT.Instance<Node>
-      const onCheckedKeysChange = vi.fn()
+      const onCheckedKeysChange = vi.fn<(...args: Array<any>) => void>()
       render(() => (
         <Harness
           onTree={(value) => (tree = value)}
@@ -1140,17 +1138,17 @@ describe('createTree', () => {
       ))
 
       expect(tree.checkedKeys).toContain('not-loaded')
-      tree.check('readme')
+      flush(() => tree.check('readme'))
       expect(onCheckedKeysChange).toHaveBeenLastCalledWith(tree.checkedKeys)
       expect(tree.checkedKeys).toEqual(expect.arrayContaining(['readme', 'not-loaded']))
     })
 
-    test('exposes aria-checked on treeitems and toggles with Space', () => {
+    it('exposes aria-checked on treeitems and toggles with Space', () => {
       const { container } = render(() => (
         <Harness options={{ checkable: true, defaultExpandedKeys: ['docs'] }} />
       ))
       const docs = item(container, 'docs')
-      docs.focus()
+      flush(() => docs.focus())
 
       expect(docs.getAttribute('aria-checked')).toBe('false')
       press(docs, ' ')
@@ -1159,12 +1157,12 @@ describe('createTree', () => {
       expect(item(container, 'docs').hasAttribute('data-checked')).toBe(true)
     })
 
-    test('renders the default checkbox in the row when checkable', () => {
+    it('renders the default checkbox in the row when checkable', () => {
       const { container } = render(() => <Harness options={{ checkable: true }} />)
       expect(container.querySelectorAll('[data-slot="tree-checkbox"]')).toHaveLength(4)
     })
 
-    test('does not cascade when checkCascade is false', () => {
+    it('does not cascade when checkCascade is false', () => {
       let tree!: TreeT.Instance<Node>
       render(() => (
         <Harness
@@ -1173,15 +1171,15 @@ describe('createTree', () => {
         />
       ))
 
-      tree.check('docs')
+      flush(() => tree.check('docs'))
       expect(tree.getItem('docs')?.checkedState).toBe('checked')
       expect(tree.getItem('guide')?.checkedState).toBe('unchecked')
     })
 
-    test('reports checked keys changes and ignores disabled items in check and cascade', () => {
-      const onCheckedKeysChange = vi.fn()
+    it('reports checked keys changes and ignores disabled items in check and cascade', () => {
+      const onCheckedKeysChange = vi.fn<(...args: Array<any>) => void>()
       let tree!: TreeT.Instance<Node>
-      const nodes: Node[] = [
+      const nodes: Array<Node> = [
         {
           id: 'folder',
           name: 'folder',
@@ -1201,16 +1199,16 @@ describe('createTree', () => {
         />
       ))
 
-      tree.check('license')
+      flush(() => tree.check('license'))
       expect(tree.checkedKeys).toEqual([])
       expect(onCheckedKeysChange).not.toHaveBeenCalled()
 
-      tree.check('folder')
+      flush(() => tree.check('folder'))
       expect(tree.checkedKeys).toEqual(['folder', 'active'])
       expect(tree.getItem('locked')?.checkedState).toBe('unchecked')
       expect(tree.getItem('folder')?.checkedState).toBe('checked')
 
-      tree.check('readme')
+      flush(() => tree.check('readme'))
       expect(onCheckedKeysChange).toHaveBeenLastCalledWith(['folder', 'active', 'readme'])
     })
   })
@@ -1220,16 +1218,15 @@ describe('createTree', () => {
       id: string
       name: string
       lazy?: boolean
-      children?: LazyNode[]
+      children?: Array<LazyNode>
     }
 
     function LazyHarness(props: {
-      loadChildren: (node: LazyNode) => Promise<readonly LazyNode[]>
+      loadChildren: (node: LazyNode) => Promise<ReadonlyArray<LazyNode>>
       onTree?: (tree: TreeT.Instance<LazyNode>) => void
       options?: Partial<TreeT.Options<LazyNode>>
     }) {
-      /* oxlint-disable subf/solid-reactivity -- Fixture options are fixed; loadChildren is supplied per test. */
-      const options = mergeProps(
+      const options = merge(
         {
           items: () => [
             { id: 'remote', name: 'remote', lazy: true },
@@ -1239,25 +1236,24 @@ describe('createTree', () => {
           getChildren: (node: LazyNode) => node.children,
           getItemLabel: (node: LazyNode) => node.name,
           isLeaf: (node: LazyNode) => !node.lazy && !node.children,
-          loadChildren: props.loadChildren,
+          loadChildren: untrack(() => props.loadChildren),
         },
-        props.options,
+        untrack(() => props.options),
       )
       const tree = createTree<LazyNode>(options)
-      props.onTree?.(tree)
-      /* oxlint-enable subf/solid-reactivity */
+      untrack(() => props.onTree?.(tree))
       return <tree.Tree aria-label="Remote" />
     }
 
-    test('treats unloaded items as branches and loads them on expand', async () => {
-      let resolve!: (children: LazyNode[]) => void
-      const loadChildren = vi.fn(
+    it('treats unloaded items as branches and loads them on expand', async () => {
+      let resolve!: (children: Array<LazyNode>) => void
+      const loadChildren = vi.fn<() => any>(
         () =>
-          new Promise<LazyNode[]>((done) => {
+          new Promise<Array<LazyNode>>((done) => {
             resolve = done
           }),
       )
-      const onLoadChildrenSuccess = vi.fn()
+      const onLoadChildrenSuccess = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => (
         <LazyHarness loadChildren={loadChildren} options={{ onLoadChildrenSuccess }} />
       ))
@@ -1282,9 +1278,9 @@ describe('createTree', () => {
       expect(onLoadChildrenSuccess).toHaveBeenCalledTimes(1)
     })
 
-    test('reports load failures and stays collapsed', async () => {
+    it('reports load failures and stays collapsed', async () => {
       const error = new Error('offline')
-      const onLoadChildrenError = vi.fn()
+      const onLoadChildrenError = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => (
         <LazyHarness loadChildren={() => Promise.reject(error)} options={{ onLoadChildrenError }} />
       ))
@@ -1296,8 +1292,8 @@ describe('createTree', () => {
       expect(item(container, 'remote').hasAttribute('aria-busy')).toBe(false)
     })
 
-    test('loads children of branches expanded by default', async () => {
-      const loadChildren = vi.fn(async () => [{ id: 'child', name: 'child.txt' }])
+    it('loads children of branches expanded by default', async () => {
+      const loadChildren = vi.fn<() => any>(async () => [{ id: 'child', name: 'child.txt' }])
       const { container } = render(() => (
         <LazyHarness loadChildren={loadChildren} options={{ defaultExpandedKeys: ['remote'] }} />
       ))
@@ -1306,7 +1302,7 @@ describe('createTree', () => {
       expect(loadChildren).toHaveBeenCalledTimes(1)
     })
 
-    test('checked branches pass their state to lazily loaded children', async () => {
+    it('checked branches pass their state to lazily loaded children', async () => {
       let tree!: TreeT.Instance<LazyNode>
       const loadChildren = () => Promise.resolve([{ id: 'child', name: 'child.txt' }])
       const { container } = render(() => (
@@ -1317,14 +1313,14 @@ describe('createTree', () => {
         />
       ))
 
-      tree.expand('remote')
+      flush(() => tree.expand('remote'))
       await waitFor(() => expect(item(container, 'child.txt')).toBeTruthy())
       expect(tree.getItem('child')?.checkedState).toBe('checked')
     })
 
-    test('collapses lazy branches expanded in bulk when loading fails', async () => {
+    it('collapses lazy branches expanded in bulk when loading fails', async () => {
       let tree!: TreeT.Instance<LazyNode>
-      const onLoadChildrenError = vi.fn()
+      const onLoadChildrenError = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => (
         <LazyHarness
           onTree={(value) => (tree = value)}
@@ -1333,7 +1329,7 @@ describe('createTree', () => {
         />
       ))
 
-      tree.expandAll()
+      flush(() => tree.expandAll())
       await waitFor(() => expect(onLoadChildrenError).toHaveBeenCalledTimes(1))
       await waitFor(() =>
         expect(item(container, 'remote').getAttribute('aria-expanded')).toBe('false'),
@@ -1341,11 +1337,11 @@ describe('createTree', () => {
       expect(tree.expandedKeys).toEqual([])
     })
 
-    test('drops cached lazy children when a key gets a new source item', async () => {
-      const [items, setItems] = createSignal<readonly LazyNode[]>([
+    it('drops cached lazy children when a key gets a new source item', async () => {
+      const [items, setItems] = createSignal<ReadonlyArray<LazyNode>>([
         { id: 'remote', name: 'remote', lazy: true },
       ])
-      const loadChildren = vi.fn((node: LazyNode) =>
+      const loadChildren = vi.fn<(node: LazyNode) => any>((node) =>
         Promise.resolve([{ id: `${node.name}-child`, name: `${node.name}.txt` }]),
       )
       const { container } = render(() => (
@@ -1356,13 +1352,13 @@ describe('createTree', () => {
       ))
 
       await waitFor(() => expect(labels(container)).toEqual(['remote', 'remote.txt']))
-      setItems([{ id: 'remote', name: 'replaced', lazy: true }])
+      flush(() => setItems([{ id: 'remote', name: 'replaced', lazy: true }]))
       await waitFor(() => expect(labels(container)).toEqual(['replaced', 'replaced.txt']))
       expect(loadChildren).toHaveBeenCalledTimes(2)
     })
 
-    test('prefers getChildren over cached lazy children when items update', async () => {
-      const [items, setItems] = createSignal<readonly LazyNode[]>([
+    it('prefers getChildren over cached lazy children when items update', async () => {
+      const [items, setItems] = createSignal<ReadonlyArray<LazyNode>>([
         { id: 'remote', name: 'remote', lazy: true },
       ])
       const loadChildren = () => Promise.resolve([{ id: 'loaded', name: 'loaded.txt' }])
@@ -1374,14 +1370,18 @@ describe('createTree', () => {
       ))
 
       await waitFor(() => expect(labels(container)).toEqual(['remote', 'loaded.txt']))
-      setItems([{ id: 'remote', name: 'remote', children: [{ id: 'fresh', name: 'fresh.txt' }] }])
+      flush(() =>
+        setItems([
+          { id: 'remote', name: 'remote', children: [{ id: 'fresh', name: 'fresh.txt' }] },
+        ]),
+      )
       expect(labels(container)).toEqual(['remote', 'fresh.txt'])
     })
   })
 
   describe('rendering', () => {
-    test('renders actionRender inside a trailing action slot that never selects the item', () => {
-      const onAction = vi.fn()
+    it('renders actionRender inside a trailing action slot that never selects the item', () => {
+      const onAction = vi.fn<(...args: Array<any>) => void>()
       const { container } = render(() => (
         <Harness
           options={{ selectionMode: 'single' }}
@@ -1407,7 +1407,7 @@ describe('createTree', () => {
       expect(readme.getAttribute('aria-selected')).toBe('false')
     })
 
-    test('composes tree.ItemAction in custom items', () => {
+    it('composes tree.ItemAction in custom items', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -1427,7 +1427,7 @@ describe('createTree', () => {
       expect(action.className).toContain('custom-action')
     })
 
-    test('supports custom item renderers composed from bound parts', () => {
+    it('supports custom item renderers composed from bound parts', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -1448,14 +1448,14 @@ describe('createTree', () => {
       expect(labels(container)).toContain('guide.md')
     })
 
-    test('renders a trigger without a prefix icon by default', () => {
+    it('renders a trigger without a prefix icon by default', () => {
       const { container } = render(() => <Harness />)
 
       expect(container.querySelector('[data-slot="tree-trigger"]')).not.toBeNull()
       expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
     })
 
-    test('applies trigger icons, variants, and slot classes', () => {
+    it('applies trigger icons, variants, and slot classes', () => {
       let tree!: TreeT.Instance<Node>
       const { container, getByRole } = render(() => (
         <Harness
@@ -1492,7 +1492,7 @@ describe('createTree', () => {
       ).toContain('icon-file')
     })
 
-    test('renders trees as lists', () => {
+    it('renders trees as lists', () => {
       const { container, getByRole } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['src'] }} />
       ))
@@ -1505,14 +1505,14 @@ describe('createTree', () => {
       expect(item(container, 'components').parentElement).toBe(group)
     })
 
-    test('sets the nesting level variable on every item', () => {
+    it('sets the nesting level variable on every item', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
 
       expect(item(container, 'src').style.getPropertyValue('--mo-tree-level')).toBe('0')
       expect(item(container, 'components').style.getPropertyValue('--mo-tree-level')).toBe('1')
     })
 
-    test('lets tree.Tree style override geometry for every item', () => {
+    it('lets tree.Tree style override geometry for every item', () => {
       const { container, getByRole } = render(() => (
         <Harness
           options={{ defaultExpandedKeys: ['src'] }}
@@ -1545,7 +1545,7 @@ describe('createTree', () => {
       }
     })
 
-    test('renders one hidden guide per ancestor level inside the row', () => {
+    it('renders one hidden guide per ancestor level inside the row', () => {
       const { container } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['src', 'components'] }} />
       ))
@@ -1560,7 +1560,7 @@ describe('createTree', () => {
       expect(item(container, 'button.tsx').getAttribute('aria-label')).toBe('button.tsx')
     })
 
-    test('toggles indent guides with the indentGuide variant', () => {
+    it('toggles indent guides with the indentGuide variant', () => {
       const [indentGuide, setIndentGuide] = createSignal<boolean | undefined>(undefined)
       const { container } = render(() => (
         <Harness
@@ -1575,14 +1575,14 @@ describe('createTree', () => {
 
       expect(guides(item(container, 'guide.md'))).toHaveLength(1)
 
-      setIndentGuide(false)
+      flush(() => setIndentGuide(false))
       expect(container.querySelector('[data-slot="tree-guides"]')).toBeNull()
 
-      setIndentGuide(true)
+      flush(() => setIndentGuide(true))
       expect(guides(item(container, 'guide.md'))).toHaveLength(1)
     })
 
-    test('applies classes.guide to every guide', () => {
+    it('applies classes.guide to every guide', () => {
       const { container } = render(() => (
         <Harness
           options={{ defaultExpandedKeys: ['src', 'components'] }}
@@ -1597,7 +1597,7 @@ describe('createTree', () => {
       }
     })
 
-    test('renders item data attributes for state', () => {
+    it('renders item data attributes for state', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
 
       expect(item(container, 'docs').hasAttribute('data-expanded')).toBe(true)
@@ -1605,17 +1605,17 @@ describe('createTree', () => {
       expect(item(container, 'LICENSE').hasAttribute('data-disabled')).toBe(true)
     })
 
-    test('keeps item handles stable across rerenders', () => {
+    it('keeps item handles stable across rerenders', () => {
       let tree!: TreeT.Instance<Node>
-      const [items, setItems] = createSignal<readonly Node[]>(DATA)
+      const [items, setItems] = createSignal<ReadonlyArray<Node>>(DATA)
       render(() => <Harness items={items} onTree={(value) => (tree = value)} />)
 
       const before = tree.getItem('docs')
-      setItems([...DATA])
+      flush(() => setItems([...DATA]))
       expect(tree.getItem('docs')).toBe(before)
     })
 
-    test('renders every row through For without keys colliding', () => {
+    it('renders every row through For without keys colliding', () => {
       const { container } = render(() => (
         <Harness
           items={() => [
@@ -1629,7 +1629,7 @@ describe('createTree', () => {
   })
 
   describe('virtual mode', () => {
-    const MANY: Node[] = Array.from({ length: 200 }, (_, index) => ({
+    const MANY: Array<Node> = Array.from({ length: 200 }, (_, index) => ({
       id: `file-${index}`,
       name: `file-${index}`,
     }))
@@ -1657,7 +1657,7 @@ describe('createTree', () => {
       vi.restoreAllMocks()
     })
 
-    test('renders a windowed flat list with aria positions', async () => {
+    it('renders a windowed flat list with aria positions', async () => {
       const treeProps = createVirtualTreeProps(2)
       const { container, getByRole } = render(() => (
         <Harness items={() => MANY} treeProps={treeProps} />
@@ -1676,7 +1676,7 @@ describe('createTree', () => {
       expect(getByRole('tree').className).toContain('overflow-auto')
     })
 
-    test('flattens expanded branches into the virtual list', async () => {
+    it('flattens expanded branches into the virtual list', async () => {
       const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['src'] }} treeProps={treeProps} />
@@ -1687,7 +1687,7 @@ describe('createTree', () => {
       expect(item(container, 'components').parentElement?.closest('[role="group"]')).toBeNull()
     })
 
-    test('renders indent guides on flattened rows', async () => {
+    it('renders indent guides on flattened rows', async () => {
       const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['src', 'components'] }} treeProps={treeProps} />
@@ -1699,7 +1699,7 @@ describe('createTree', () => {
       expect(guides(item(container, 'button.tsx'))).toHaveLength(2)
     })
 
-    test('collapses a flattened branch back out of the virtual list', async () => {
+    it('collapses a flattened branch back out of the virtual list', async () => {
       const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['src'] }} treeProps={treeProps} />
@@ -1713,13 +1713,13 @@ describe('createTree', () => {
       })
     })
 
-    test('keeps keyboard navigation and selection working', async () => {
+    it('keeps keyboard navigation and selection working', async () => {
       const treeProps = createVirtualTreeProps()
       const { container } = render(() => <Harness items={() => MANY} treeProps={treeProps} />)
       await waitFor(() => expect(labels(container)).toContain('file-0'))
 
       const first = item(container, 'file-0')
-      first.focus()
+      flush(() => first.focus())
       press(first, 'ArrowDown')
       await waitFor(() => expect(document.activeElement).toBe(item(container, 'file-1')))
 
@@ -1727,7 +1727,7 @@ describe('createTree', () => {
       expect(item(container, 'file-1').getAttribute('aria-selected')).toBe('true')
     })
 
-    test('focusing an item outside the window moves the tab stop to it', async () => {
+    it('focusing an item outside the window moves the tab stop to it', async () => {
       let tree!: TreeT.Instance<Node>
       const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
@@ -1735,12 +1735,12 @@ describe('createTree', () => {
       ))
       await waitFor(() => expect(labels(container)).toContain('file-0'))
 
-      tree.focus('file-150')
+      flush(() => tree.focus('file-150'))
       expect(tree.focusedKey).toBe('file-150')
       expect(item(container, 'file-0').getAttribute('tabindex')).toBe('-1')
     })
 
-    test('lists every item in the instance while rendering a subset', async () => {
+    it('lists every item in the instance while rendering a subset', async () => {
       let tree!: TreeT.Instance<Node>
       const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
@@ -1754,8 +1754,8 @@ describe('createTree', () => {
     })
   })
 
-  describe('For compatibility', () => {
-    test('item instances can be rendered by consumers directly', () => {
+  describe('for compatibility', () => {
+    it('item instances can be rendered by consumers directly', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <>
@@ -1769,7 +1769,7 @@ describe('createTree', () => {
       expect(container.querySelectorAll('[data-testid="outside"] li')).toHaveLength(4)
     })
 
-    test('allows clicking and focusing text inputs inside tree items without suppressing mousedown', () => {
+    it('allows clicking and focusing text inputs inside tree items without suppressing mousedown', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -1794,7 +1794,7 @@ describe('createTree', () => {
       expect(tree.selectedKeys).toEqual([])
     })
 
-    test('applies data attributes before rest and retains roving tabstop and checked state', () => {
+    it('applies data attributes before rest and retains roving tabstop and checked state', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -1805,8 +1805,8 @@ describe('createTree', () => {
               <tree.Item
                 item={context}
                 data-testid={`custom-${context.key}`}
-                tabIndex={99}
-                aria-checked={false}
+                tabindex={99}
+                aria-checked={'false'}
               >
                 <tree.ItemTrigger data-testid={`trigger-${context.key}`} />
                 <tree.ItemLabel />

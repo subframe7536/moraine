@@ -1,6 +1,15 @@
-import type { Component, JSX } from 'solid-js'
-import { For, createSignal, getOwner, onCleanup, runWithOwner } from 'solid-js'
-import { isServer } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import {
+  For,
+  createEffect,
+  createRoot,
+  createSignal,
+  getOwner,
+  runWithOwner,
+  flush,
+} from 'solid-js'
 
 import { inertFeedbackHandle } from '../shared/overlay/feedback/handle'
 import { createHostRegistry } from '../shared/overlay/feedback/host-registry'
@@ -10,7 +19,6 @@ import { AlertDialogEntry } from './alert-dialog-entry'
 import { createAlertDialogRecord } from './alert-dialog-record'
 import type { AlertDialogHostDefaults, AlertDialogRecord } from './alert-dialog-record'
 import type { AlertDialogProps, AlertDialogT } from './alert-dialog.types'
-
 interface AlertDialogController extends FeedbackHost {
   defaults: () => AlertDialogHostDefaults
   dialogRender: () => Component<AlertDialogT.DialogRenderProps> | undefined
@@ -24,24 +32,6 @@ interface AlertDialogController extends FeedbackHost {
 }
 
 const registry = createHostRegistry<AlertDialogController>('AlertDialog')
-
-/* oxlint-disable subf/solid-reactivity -- Host defaults are read when a dialog renders so later prop changes stay live. */
-function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
-  return {
-    closable: props.closable,
-    transition: props.transition,
-    closeOnEscape: props.closeOnEscape,
-    closeOnOutsideClick: props.closeOnOutsideClick,
-    align: props.align,
-    variant: props.variant,
-    type: props.type ?? undefined,
-    maxWidth: props.maxWidth,
-    classes: props.classes,
-    styles: props.styles,
-    translations: props.translations,
-  }
-}
-/* oxlint-enable subf/solid-reactivity */
 
 function openAlertDialog(
   mode: 'confirm' | 'standard',
@@ -91,7 +81,7 @@ function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): Alert
  */
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const owner = getOwner()
-  const [dialogs, setDialogs] = createSignal<AlertDialogRecord[]>([])
+  const [dialogs, setDialogs] = createSignal<Array<AlertDialogRecord>>([])
   const removeDialog = (record: AlertDialogRecord): void => {
     setDialogs((current) => current.filter((item) => item !== record))
   }
@@ -99,7 +89,19 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
     dialogs().find((item) => item.id === id && item.open())
   const controller: AlertDialogController = {
     id: () => props.id,
-    defaults: () => readHostDefaults(props),
+    defaults: () => ({
+      closable: props.closable,
+      transition: props.transition,
+      closeOnEscape: props.closeOnEscape,
+      closeOnOutsideClick: props.closeOnOutsideClick,
+      align: props.align,
+      variant: props.variant,
+      type: props.type ?? undefined,
+      maxWidth: props.maxWidth,
+      classes: props.classes,
+      styles: props.styles,
+      translations: props.translations,
+    }),
     dialogRender: () => props.dialogRender,
     open(mode, options, render) {
       if (options.id !== undefined) {
@@ -111,12 +113,20 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
         // A different method or render cannot be applied in place, so replace the dialog.
         existing?.handle.close()
       }
-      return runWithOwner(owner, () => {
-        const created = createAlertDialogRecord(mode, options, () => controller.defaults(), render)
-        created.remove = () => removeDialog(created)
-        setDialogs((current) => [...current, created])
-        return created.handle
-      })!
+      let disposeRecord: VoidFunction | undefined
+      const created = runWithOwner(owner, () =>
+        createRoot((dispose) => {
+          disposeRecord = dispose
+          return createAlertDialogRecord(mode, options, () => controller.defaults(), render)
+        }),
+      )
+      created.remove = () => {
+        removeDialog(created)
+        disposeRecord?.()
+      }
+      // The caller's owner may already be disposed; write the host-owned list unowned.
+      runWithOwner(null, () => flush(() => setDialogs((current) => [...current, created])))
+      return created.handle
     },
     update(id, options) {
       const match = findOpen(id)
@@ -134,13 +144,18 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
       }
     },
   }
-  const unregister = registry.register(controller)
-  onCleanup(() => {
-    unregister()
-    for (const item of dialogs()) {
-      item.abandon()
-    }
-  })
+  createEffect(
+    () => props.id,
+    () => {
+      const unregister = registry.register(controller)
+      return () => {
+        unregister()
+        for (const item of dialogs()) {
+          item.abandon()
+        }
+      }
+    },
+  )
 
   return (
     <For each={dialogs()}>

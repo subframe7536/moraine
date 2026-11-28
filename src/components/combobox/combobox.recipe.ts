@@ -12,7 +12,6 @@ import {
 } from '../shared/form/select/select-field.recipe'
 
 import type { ComboboxStyleSlot, ComboboxStyleVariants } from './combobox.style-types'
-
 export const comboboxDataAttributes = {
   control: /* @__PURE__ */ createDataAttributes(
     'closed',

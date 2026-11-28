@@ -1,5 +1,4 @@
 import { Avatar, Badge, Button, Popover } from '@src'
-
 export function TriggerModes() {
   return (
     <div class="flex flex-wrap gap-4 items-center">

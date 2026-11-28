@@ -70,7 +70,7 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | Placement[]",
+          "type": "boolean | Array<Placement>",
           "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. An array is an ordered list of fallback `Placement`\nvalues tried in order (each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`).",
           "default": {
             "kind": "literal",
@@ -384,7 +384,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Disables the link: it loses its `href`, gets `aria-disabled` and `tabIndex={-1}`, and clicks\nare prevented. A link is also disabled when its `NavigationMenu` or `NavigationMenu.Item` is.",
+          "description": "Disables the link: it loses its `href`, gets `aria-disabled` and `tabindex={-1}`, and clicks\nare prevented. A link is also disabled when its `NavigationMenu` or `NavigationMenu.Item` is.",
           "default": {
             "kind": "literal",
             "value": false

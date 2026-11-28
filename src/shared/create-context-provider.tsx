@@ -11,18 +11,26 @@ export function createContextProvider<T>(
   name: string,
   defaultValue?: T,
 ): readonly [FlowComponent<{ value: T }>, () => T] {
-  const context = createContext<T>(defaultValue as T, { name })
+  const context =
+    defaultValue !== undefined
+      ? createContext<T>(defaultValue, { name })
+      : createContext<T>(undefined, { name })
 
   const useContextHook =
     defaultValue !== undefined
-      ? () => useContext(context) ?? defaultValue
+      ? () => useContext(context)
       : () => {
-          const ctx = useContext(context)
-          if (!ctx) {
-            throw new Error(`use${name}Context must be used within <${name}Provider />`)
+          try {
+            return useContext(context)
+          } catch (error) {
+            if (error instanceof Error) {
+              throw new TypeError(`use${name}Context must be used within <${name}Provider />`, {
+                cause: error,
+              })
+            }
+            throw error
           }
-          return ctx
         }
 
-  return [context.Provider, useContextHook] as const
+  return [context, useContextHook] as const
 }

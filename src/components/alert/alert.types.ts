@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -7,7 +7,6 @@ import type { IconT } from '../icon'
 
 import type { defaultAlertMessages } from './alert.messages'
 import type { AlertStyleSlot, AlertStyleVariants } from './alert.style-types'
-
 export namespace AlertT {
   export type Kind = 'single'
   export type Slot<T = unknown> = AlertStyleSlot<T>

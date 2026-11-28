@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createMemo, For, Show, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, For, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { Kbd } from '../kbd/kbd'
@@ -7,7 +7,6 @@ import type { KbdT } from '../kbd/kbd.types'
 
 import { kbdGroupRecipe } from './kbd-group.recipe'
 import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'
-
 interface NormalizedKbdItem {
   item: KbdGroupT.Item
   key: string
@@ -36,7 +35,8 @@ function toItemProps(item: KbdGroupT.Item): KbdT.Props {
  * ```
  */
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'items',
     'separator',
     'size',
@@ -45,14 +45,14 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
+  )
   const {
     slots: { root: rootSlot, item: itemSlot },
     variants,
-  } = useRecipe(kbdGroupRecipe, local)
+  } = useRecipe(kbdGroupRecipe, props)
 
-  const normalizedItems = createMemo<NormalizedKbdItem[]>((previous = []) => {
-    const rawItems = local.items ?? []
+  const normalizedItems = createMemo<Array<NormalizedKbdItem>>((previous = []) => {
+    const rawItems = props.items ?? []
     const occurrences = new Map<KbdGroupT.Item, number>()
     const prevMap = new Map<string, NormalizedKbdItem>()
     for (const p of previous) {
@@ -86,13 +86,18 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                 data-slot="kbd-group-item"
               />
               <Show when={index() < normalizedItems().length - 1}>
-                <Show
-                  when={typeof local.separator === 'function' && local.separator}
-                  fallback={(local.separator as JSX.Element) ?? '+'}
-                  keyed
-                >
-                  {(Separator) => <Separator index={index()} />}
-                </Show>
+                {(_show) => {
+                  const separator = createMemo(() => props.separator)
+                  return (
+                    <Show
+                      when={typeof separator() === 'function' && separator()}
+                      fallback={(separator() as JSX.Element) ?? '+'}
+                      keyed
+                    >
+                      {(Separator) => <Separator index={index()} />}
+                    </Show>
+                  )
+                }}
               </Show>
             </>
           )}

@@ -1,15 +1,14 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createSignal } from 'solid-js'
-import { Portal } from 'solid-js/web'
-import { describe, expect, test, vi } from 'vitest'
+import { Portal } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { finishMenuExitMotion } from '../../test-util/overlay-test'
 
 import { ContextMenu } from './context-menu'
-
-describe('ContextMenu', () => {
-  test('keeps ordinary Enter and Space inert while supporting the ContextMenu key', () => {
-    const onOpenChange = vi.fn()
+describe('contextMenu', () => {
+  it('keeps ordinary Enter and Space inert while supporting the ContextMenu key', () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ContextMenu onOpenChange={onOpenChange}>
         <ContextMenu.Trigger>Target</ContextMenu.Trigger>
@@ -27,7 +26,7 @@ describe('ContextMenu', () => {
     expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
   })
 
-  test('opens and dismisses in a foreign Document', async () => {
+  it('opens and dismisses in a foreign Document', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = iframe.contentDocument!
@@ -56,7 +55,7 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('opens from a right-click after the trigger moves into another Document', () => {
+  it('opens from a right-click after the trigger moves into another Document', () => {
     const firstFrame = document.createElement('iframe')
     const secondFrame = document.createElement('iframe')
     document.body.append(firstFrame, secondFrame)
@@ -81,7 +80,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
     try {
-      setSecond(true)
+      flush(() => setSecond(true))
       expect(firstDocument.body.querySelector('[data-slot="context-menu-trigger"]')).toBeNull()
       const trigger = secondDocument.body.querySelector<HTMLElement>(
         '[data-slot="context-menu-trigger"]',
@@ -96,7 +95,7 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('opens after a touch long press on a trigger that moved into another Document', async () => {
+  it('opens after a touch long press on a trigger that moved into another Document', async () => {
     const frame = document.createElement('iframe')
     document.body.append(frame)
     const frameDocument = frame.contentDocument!
@@ -119,7 +118,7 @@ describe('ContextMenu', () => {
         clientY: 30,
       })
       await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'), {
-        timeout: 2_000,
+        timeout: 2000,
       })
       fireEvent.pointerUp(trigger, { pointerId: 42, pointerType: 'touch' })
     } finally {
@@ -127,7 +126,7 @@ describe('ContextMenu', () => {
       frame.remove()
     }
   })
-  test('renders a div trigger root by default', () => {
+  it('renders a div trigger root by default', () => {
     render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -141,7 +140,7 @@ describe('ContextMenu', () => {
     expect(trigger.querySelector('button')).toBeNull()
   })
 
-  test('uses explicit id as id base', async () => {
+  it('uses explicit id as id base', async () => {
     const screen = render(() => (
       <ContextMenu id="custom-menu">
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -159,7 +158,7 @@ describe('ContextMenu', () => {
     expect(ids.some((id) => id.startsWith('custom-menu'))).toBe(true)
   })
 
-  test('updates the content side when placement flips without remounting it', async () => {
+  it('updates the content side when placement flips without remounting it', async () => {
     const [placement, setPlacement] = createSignal<'right' | 'left'>('right')
 
     render(() => (
@@ -176,7 +175,7 @@ describe('ContextMenu', () => {
     })
     expect(initialContent.getAttribute('data-align')).toBe('start')
 
-    setPlacement('left')
+    flush(() => setPlacement('left'))
 
     await waitFor(() => {
       expect(initialContent.getAttribute('data-side')).toBe('left')
@@ -185,7 +184,7 @@ describe('ContextMenu', () => {
     expect(initialContent.getAttribute('data-align')).toBe('start')
   })
 
-  test('generates contextmenu-prefixed id when id prop is missing', async () => {
+  it('generates contextmenu-prefixed id when id prop is missing', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -203,8 +202,8 @@ describe('ContextMenu', () => {
     expect(ids.some((id) => id.startsWith('contextmenu-'))).toBe(true)
   })
 
-  test('opens on context menu event and supports keyboard selection', async () => {
-    const onSelect = vi.fn()
+  it('opens on context menu event and supports keyboard selection', async () => {
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu>
@@ -238,7 +237,7 @@ describe('ContextMenu', () => {
     expect(onSelect).toHaveBeenCalledTimes(1)
   })
 
-  test('opens from keyboard context menu shortcut at trigger center', async () => {
+  it('opens from keyboard context menu shortcut at trigger center', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="button" type="button">
@@ -273,7 +272,7 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('exposes trigger data state while opened, closed, and disabled', async () => {
+  it('exposes trigger data state while opened, closed, and disabled', async () => {
     const screen = render(() => (
       <ContextMenu disabled>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -317,13 +316,13 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('allows callers to override generated trigger ARIA attributes', () => {
+  it('allows callers to override generated trigger ARIA attributes', () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger
           as="div"
           aria-controls="caller-content"
-          aria-expanded={false}
+          aria-expanded={'false'}
           aria-haspopup="dialog"
         >
           Row Item
@@ -338,7 +337,7 @@ describe('ContextMenu', () => {
     expect(trigger?.getAttribute('aria-haspopup')).toBe('dialog')
   })
 
-  test('exposes disabled semantics for native and non-native triggers with caller overrides', () => {
+  it('exposes disabled semantics for native and non-native triggers with caller overrides', () => {
     render(() => (
       <>
         <ContextMenu disabled>
@@ -352,7 +351,7 @@ describe('ContextMenu', () => {
           <ContextMenu.Content items={[]} />
         </ContextMenu>
         <ContextMenu disabled>
-          <ContextMenu.Trigger as="div" aria-disabled="false" tabIndex={2}>
+          <ContextMenu.Trigger as="div" aria-disabled="false" tabindex={2}>
             Overridden div
           </ContextMenu.Trigger>
           <ContextMenu.Content items={[]} />
@@ -378,9 +377,9 @@ describe('ContextMenu', () => {
     expect(overriddenDiv.tabIndex).toBe(2)
   })
 
-  test('calls the trigger contextmenu handler for native right-clicks', async () => {
-    const onContextMenu = vi.fn((event: MouseEvent) => event.preventDefault())
-    const onOpenChange = vi.fn()
+  it('calls the trigger contextmenu handler for native right-clicks', async () => {
+    const onContextMenu = vi.fn<(event: MouseEvent) => any>((event) => event.preventDefault())
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ContextMenu onOpenChange={onOpenChange}>
         <ContextMenu.Trigger as="div" onContextMenu={onContextMenu}>
@@ -396,11 +395,11 @@ describe('ContextMenu', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('clears a touch long press when contextmenu is prevented', async () => {
+  it('clears a touch long press when contextmenu is prevented', async () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger
@@ -432,8 +431,8 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('focuses content on open, supports typeahead, and restores trigger wrapper focus on escape', async () => {
-    const triggerRef = vi.fn()
+  it('focuses content on open, supports typeahead, and restores trigger wrapper focus on escape', async () => {
+    const triggerRef = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger
@@ -476,7 +475,7 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('does not open on left click', async () => {
+  it('does not open on left click', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -491,8 +490,8 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('fires onOpenChange when opened and blocks opening when disabled', async () => {
-    const onOpenChange = vi.fn()
+  it('fires onOpenChange when opened and blocks opening when disabled', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const enabledScreen = render(() => (
       <ContextMenu onOpenChange={onOpenChange}>
@@ -515,7 +514,7 @@ describe('ContextMenu', () => {
 
     enabledScreen.unmount()
 
-    const disabledOnOpenChange = vi.fn()
+    const disabledOnOpenChange = vi.fn<(...args: Array<any>) => void>()
     const disabledScreen = render(() => (
       <ContextMenu disabled onOpenChange={disabledOnOpenChange}>
         <ContextMenu.Trigger as="div" data-testid="disabled-row">
@@ -538,8 +537,8 @@ describe('ContextMenu', () => {
     disabledScreen.unmount()
   })
 
-  test('supports controlled open state and reports right-click open attempts', async () => {
-    const onOpenChange = vi.fn()
+  it('supports controlled open state and reports right-click open attempts', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu open={false} onOpenChange={onOpenChange}>
@@ -556,7 +555,7 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('opens with defaultOpen and no anchor coordinates', async () => {
+  it('opens with defaultOpen and no anchor coordinates', async () => {
     render(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -576,7 +575,7 @@ describe('ContextMenu', () => {
     expect(content.getAttribute('data-align')).toBe('start')
   })
 
-  test('uses a centered origin without a placement alignment', async () => {
+  it('uses a centered origin without a placement alignment', async () => {
     render(() => (
       <ContextMenu placement="bottom" align="center" defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -594,11 +593,11 @@ describe('ContextMenu', () => {
     expect(content.getAttribute('data-align')).toBe('center')
   })
 
-  test('opens after 700ms touch long press', async () => {
+  it('opens after 700ms touch long press', async () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -623,11 +622,11 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('cancels a pending long press when a second pointer joins the gesture', async () => {
+  it('cancels a pending long press when a second pointer joins the gesture', async () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -657,14 +656,14 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('uses live controlled state and open handler when the long press completes', async () => {
+  it('uses live controlled state and open handler when the long press completes', async () => {
     vi.useFakeTimers()
 
     try {
-      const firstHandler = vi.fn()
-      const secondHandler = vi.fn()
+      const firstHandler = vi.fn<(...args: Array<any>) => void>()
+      const secondHandler = vi.fn<(...args: Array<any>) => void>()
       const [controlledOpen, setControlledOpen] = createSignal<boolean | undefined>(undefined)
-      const [onOpenChange, setOnOpenChange] = createSignal(firstHandler)
+      const [onOpenChange, setOnOpenChange] = createSignal(() => firstHandler)
       const screen = render(() => (
         <ContextMenu open={controlledOpen()} onOpenChange={onOpenChange()}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -678,8 +677,8 @@ describe('ContextMenu', () => {
         clientX: 21,
         clientY: 34,
       })
-      setControlledOpen(false)
-      setOnOpenChange(() => secondHandler)
+      flush(() => setControlledOpen(false))
+      flush(() => setOnOpenChange(() => secondHandler))
       await vi.advanceTimersByTimeAsync(700)
 
       expect(firstHandler).not.toHaveBeenCalled()
@@ -691,7 +690,7 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('guards the completing long-press pointer but allows the next independent outside press', async () => {
+  it('guards the completing long-press pointer but allows the next independent outside press', async () => {
     vi.useFakeTimers()
 
     try {
@@ -745,11 +744,11 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('consumes only the matching follow-up contextmenu and expires stale suppression', async () => {
+  it('consumes only the matching follow-up contextmenu and expires stale suppression', async () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -784,7 +783,7 @@ describe('ContextMenu', () => {
       })
       await vi.advanceTimersByTimeAsync(700)
       fireEvent.pointerUp(row, { pointerId: 11, pointerType: 'touch' })
-      await vi.advanceTimersByTimeAsync(1_000)
+      await vi.advanceTimersByTimeAsync(1000)
       fireEvent.contextMenu(row, { clientX: 40, clientY: 50 })
 
       expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true, false])
@@ -793,11 +792,11 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('does not consume a contextmenu from a different observable point', async () => {
+  it('does not consume a contextmenu from a different observable point', async () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -821,12 +820,12 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('does not open when disabled during a touch long press', async () => {
+  it('does not open when disabled during a touch long press', async () => {
     vi.useFakeTimers()
 
     try {
       const [disabled, setDisabled] = createSignal(false)
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu disabled={disabled()} onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -841,7 +840,7 @@ describe('ContextMenu', () => {
         clientY: 34,
       })
 
-      setDisabled(true)
+      flush(() => setDisabled(true))
       await vi.advanceTimersByTimeAsync(700)
 
       expect(onOpenChange).not.toHaveBeenCalled()
@@ -851,11 +850,11 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('clears a touch long press when pointerup is prevented', async () => {
+  it('clears a touch long press when pointerup is prevented', async () => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger
@@ -889,14 +888,14 @@ describe('ContextMenu', () => {
     }
   })
 
-  test.each([
+  it.each([
     ['keeps the long press through a small touch movement', { x: 26, y: 37 }, true],
     ['cancels the long press when touch movement exceeds tolerance', { x: 40, y: 34 }, false],
   ])('%s', async (_name, move, opens) => {
     vi.useFakeTimers()
 
     try {
-      const onOpenChange = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -925,7 +924,7 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('dismisses menu when right-clicking opened menu content', async () => {
+  it('dismisses menu when right-clicking opened menu content', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -947,6 +946,7 @@ describe('ContextMenu', () => {
       clientY: 24,
     })
     const notCanceled = content.dispatchEvent(event)
+    flush()
 
     expect(notCanceled).toBe(false)
     expect(event.defaultPrevented).toBe(true)
@@ -975,7 +975,7 @@ describe('ContextMenu', () => {
     expect(positioner.isConnected).toBe(false)
   })
 
-  test('dismisses menu when right-clicking trigger again while open', async () => {
+  it('dismisses menu when right-clicking trigger again while open', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -998,6 +998,7 @@ describe('ContextMenu', () => {
       clientY: 22,
     })
     const notCanceled = row.dispatchEvent(event)
+    flush()
 
     expect(notCanceled).toBe(false)
     expect(event.defaultPrevented).toBe(true)
@@ -1016,7 +1017,7 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-slot="context-menu-content"]')).toBeNull()
   })
 
-  test('dismisses menu when pressing the trigger again with a different pointer button', async () => {
+  it('dismisses menu when pressing the trigger again with a different pointer button', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1049,7 +1050,7 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-slot="context-menu-content"]')).toBeNull()
   })
 
-  test('locks body scroll without rendering an overlay layer by default while open', async () => {
+  it('locks body scroll without rendering an overlay layer by default while open', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1073,13 +1074,13 @@ describe('ContextMenu', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
-  test('renders item matrix, nested submenu, and content slots', async () => {
-    const contentTop = vi.fn((props: { sub: boolean }) => (
+  it('renders item matrix, nested submenu, and content slots', async () => {
+    const contentTop = vi.fn<(props: { sub: boolean }) => any>((props) => (
       <div data-testid={props.sub ? 'content-top-sub' : 'content-top-root'}>
         {props.sub ? 'Top Sub' : 'Top Root'}
       </div>
     ))
-    const contentBottom = vi.fn((props: { sub: boolean }) => (
+    const contentBottom = vi.fn<(props: { sub: boolean }) => any>((props) => (
       <div data-testid={props.sub ? 'content-bottom-sub' : 'content-bottom-root'}>
         {props.sub ? 'Bottom Sub' : 'Bottom Root'}
       </div>
@@ -1163,7 +1164,7 @@ describe('ContextMenu', () => {
     expect(contentBottom).toHaveBeenCalledWith({ sub: true })
   })
 
-  test('opens a submenu on the trailing side from the keyboard', async () => {
+  it('opens a submenu on the trailing side from the keyboard', async () => {
     render(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1204,7 +1205,7 @@ describe('ContextMenu', () => {
     expect(submenuContent.getAttribute('data-align')).toBe('start')
   })
 
-  test('opens a submenu on the trailing side when hovered with the mouse', async () => {
+  it('opens a submenu on the trailing side when hovered with the mouse', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1249,7 +1250,7 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('keeps nested submenus mounted through recursive exit motion', async () => {
+  it('keeps nested submenus mounted through recursive exit motion', async () => {
     render(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1278,7 +1279,7 @@ describe('ContextMenu', () => {
     const [rootContent, middleContent, deepestContent] = Array.from(
       document.body.querySelectorAll<HTMLElement>('[data-slot="context-menu-content"]'),
     ) as [HTMLElement, HTMLElement, HTMLElement]
-    const closeOrder: HTMLElement[] = []
+    const closeOrder: Array<HTMLElement> = []
     const observer = new MutationObserver((records) => {
       for (const record of records) {
         const content = record.target as HTMLElement
@@ -1317,7 +1318,7 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('cancels submenu exit motion when the context menu reopens', async () => {
+  it('cancels submenu exit motion when the context menu reopens', async () => {
     const [open, setOpen] = createSignal(true)
 
     render(() => (
@@ -1339,7 +1340,7 @@ describe('ContextMenu', () => {
       expect(document.body.querySelectorAll('[data-slot="context-menu-content"]')).toHaveLength(2)
     })
 
-    setOpen(false)
+    flush(() => setOpen(false))
 
     await waitFor(() => {
       expect(
@@ -1347,7 +1348,7 @@ describe('ContextMenu', () => {
       ).toHaveLength(2)
     })
 
-    setOpen(true)
+    flush(() => setOpen(true))
 
     await waitFor(() => {
       expect(
@@ -1368,8 +1369,8 @@ describe('ContextMenu', () => {
     expect(document.body.textContent).toContain('Nested action')
   })
 
-  test('passes itemRender context for root and nested items', async () => {
-    const itemRender = vi.fn((props: any) => (
+  it('passes itemRender context for root and nested items', async () => {
+    const itemRender = vi.fn<(props: any) => any>((props) => (
       <span data-testid={`custom-${String(props.item.label)}-${props.depth}`}>
         {String(props.item.label)}:{props.depth}:{String(props.hasChildren)}:
         {String(props.item.type === 'checkbox')}
@@ -1415,7 +1416,7 @@ describe('ContextMenu', () => {
     expect(itemRender).toHaveBeenCalled()
   })
 
-  test('renders into portal by default', async () => {
+  it('renders into portal by default', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1431,7 +1432,7 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('renders controlled overlay without a trigger', async () => {
+  it('renders controlled overlay without a trigger', async () => {
     render(() => (
       <ContextMenu open>
         <ContextMenu.Content items={[{ label: 'Open item' }]} />
@@ -1445,7 +1446,7 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('does not open when context menu trigger is disabled', async () => {
+  it('does not open when context menu trigger is disabled', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1476,9 +1477,9 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('supports checkbox toggle and keeps disabled item from selecting', async () => {
-    const onCheckedChange = vi.fn()
-    const onDisabledSelect = vi.fn()
+  it('supports checkbox toggle and keeps disabled item from selecting', async () => {
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
+    const onDisabledSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu>
@@ -1520,8 +1521,8 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-slot="context-menu-content"]')).not.toBeNull()
   })
 
-  test('keeps context menu open when clicking or pressing on a disabled item', async () => {
-    const onSelect = vi.fn()
+  it('keeps context menu open when clicking or pressing on a disabled item', async () => {
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu>
@@ -1565,9 +1566,9 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-slot="context-menu-content"]')).not.toBeNull()
   })
 
-  test('supports radio items with grouped keyboard selection and disabled prevention', async () => {
-    const onValueChange = vi.fn()
-    const onDisabledSelect = vi.fn()
+  it('supports radio items with grouped keyboard selection and disabled prevention', async () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onDisabledSelect = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <ContextMenu>
@@ -1618,7 +1619,7 @@ describe('ContextMenu', () => {
     expect(onDisabledSelect).not.toHaveBeenCalled()
   })
 
-  test('keeps submenu open while pointer moves through the submenu grace area', async () => {
+  it('keeps submenu open while pointer moves through the submenu grace area', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1672,7 +1673,7 @@ describe('ContextMenu', () => {
     expect(document.body.textContent).toContain('Nested action')
   })
 
-  test('restores submenu selection after pointer grace when moving toward another submenu', async () => {
+  it('restores submenu selection after pointer grace when moving toward another submenu', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1745,7 +1746,7 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('applies styles override to content', async () => {
+  it('applies styles override to content', async () => {
     const screen = render(() => (
       <ContextMenu
         styles={{
@@ -1777,7 +1778,7 @@ describe('ContextMenu', () => {
     expect(content?.style.getPropertyValue('--mo-exit-translate-y')).toBe('4rem')
   })
 
-  test('exposes disabled a11y state and data attributes on trigger when trigger-level disabled is set', () => {
+  it('exposes disabled a11y state and data attributes on trigger when trigger-level disabled is set', () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger disabled data-testid="trigger-disabled">
@@ -1792,8 +1793,8 @@ describe('ContextMenu', () => {
     expect(trigger.hasAttribute('data-disabled')).toBe(true)
   })
 
-  test('does not invoke root onContentPointerDown or onContextMenu on submenu content interactions', async () => {
-    const onOpenChange = vi.fn()
+  it('does not invoke root onContentPointerDown or onContextMenu on submenu content interactions', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <ContextMenu defaultOpen onOpenChange={onOpenChange}>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>

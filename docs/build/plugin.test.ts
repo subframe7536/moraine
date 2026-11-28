@@ -6,12 +6,11 @@ import { tmpdir } from 'node:os'
 import path from 'pathe'
 import { createServer, parseSync } from 'vite'
 import type { ViteDevServer } from 'vite'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { getDocsShikiCss } from './core/shiki.ts'
 import { docsBuildPlugin } from './plugin.ts'
 import { PREVIEW_PARSE_OPTIONS } from './previews/ast.ts'
-
 const TRANSFORM_CONTEXT = {
   parse(code: string) {
     return parseSync('example.tsx', code, PREVIEW_PARSE_OPTIONS).program
@@ -25,6 +24,13 @@ async function createTempProject(): Promise<string> {
 async function seedDocsProject(projectRoot: string): Promise<void> {
   await mkdir(path.join(projectRoot, 'src/components/button'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/pages/components/button'), { recursive: true })
+  await mkdir(path.join(projectRoot, 'docs/routes/components/markdown'), { recursive: true })
+
+  await writeFile(
+    path.join(projectRoot, 'docs/routes/components/markdown/preview-block.tsx'),
+    'export function DocsPreview() { return null }\n',
+    'utf8',
+  )
 
   await writeFile(
     path.join(projectRoot, 'src/index.ts'),
@@ -87,7 +93,7 @@ api:
 }
 
 describe('docsBuildPlugin', () => {
-  test('regenerates after source changes and preserves docs on invalid source', async () => {
+  it('regenerates after source changes and preserves docs on invalid source', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
     try {
@@ -129,14 +135,16 @@ export type ButtonProps = ButtonT.Props
       const generated = await readFile(apiPath, 'utf8')
       expect(JSON.parse(generated).parts[0].props[0].name).toBe('second')
       await writeFile(sourceFile, 'export function Button(')
-      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow()
+      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow(
+        /Failed to parse/,
+      )
       expect(await readFile(apiPath, 'utf8')).toBe(generated)
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
   })
 
-  test('generates api docs, virtual api data and transforms content', async () => {
+  it('generates api docs, virtual api data and transforms content', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
 
@@ -190,7 +198,7 @@ export type ButtonProps = ButtonT.Props
         await readFile(path.join(projectRoot, 'docs/pages/components/button/api.json'), 'utf8'),
       ).toContain('"button"')
 
-      await expect(access(path.join(projectRoot, 'docs/.generated'))).rejects.toThrow()
+      await expect(access(path.join(projectRoot, 'docs/.generated'))).rejects.toThrow(/ENOENT/)
 
       const resolvedApiId =
         typeof resolveId === 'function'
@@ -208,7 +216,9 @@ export type ButtonProps = ButtonT.Props
         'export const BasicExample = () => <button>Basic</button>\n',
         path.join(projectRoot, 'docs/pages/components/button/basic-example.tsx?preview'),
       )
-      expect(previewModule).toContain('export default { component, source: __PreviewSource }')
+      expect(previewModule).toContain(
+        'return createComponent(DocsPreview, { component, source: __PreviewSource })',
+      )
       expect(previewModule).toContain('?preview-source')
 
       const markdownModule = await transform?.handler.call(
@@ -230,7 +240,7 @@ export type ButtonProps = ButtonT.Props
       await rm(projectRoot, { recursive: true, force: true })
     }
   })
-  test('runs transforms through a real Vite dev server', async () => {
+  it('runs transforms through a real Vite dev server', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
     let server: ViteDevServer | undefined
@@ -242,6 +252,11 @@ export type ButtonProps = ButtonT.Props
         logLevel: 'silent',
         appType: 'custom',
         server: { middlewareMode: true },
+        resolve: {
+          alias: {
+            'solid-js': path.resolve(__dirname, '../../node_modules/solid-js'),
+          },
+        },
         plugins: [docsBuildPlugin({ projectRoot })],
       })
 
@@ -253,7 +268,7 @@ export type ButtonProps = ButtonT.Props
       const unoMod = await server.moduleGraph.ensureEntryFromUrl('/uno.css')
       unoMod.id = '/project/docs/uno.css'
 
-      const hotUpdates: unknown[] = []
+      const hotUpdates: Array<unknown> = []
       server.hot.send = (payload: unknown) => {
         hotUpdates.push(payload)
       }
@@ -270,6 +285,12 @@ export type ButtonProps = ButtonT.Props
         'export const reg = /abc[0-9]+/g;\nexport const big = 999999999999999999n;\n',
         'utf8',
       )
+      const cachedSourceMod = await server.moduleGraph.getModuleByUrl(
+        '/pages/components/button/basic-example.tsx?preview-source',
+      )
+      if (cachedSourceMod) {
+        server.moduleGraph.invalidateModule(cachedSourceMod)
+      }
 
       const previewSourceModule = await server.transformRequest(
         '/pages/components/button/basic-example.tsx?preview-source',
@@ -277,7 +298,9 @@ export type ButtonProps = ButtonT.Props
       expect(previewSourceModule?.code).toMatch(/["']?html["']?:/)
       expect(previewSourceModule?.code).toMatch(/["']?code["']?:/)
 
-      await new Promise((resolve) => setTimeout(resolve, 50))
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 50)
+      })
 
       expect(hotUpdates).toContainEqual({
         type: 'update',

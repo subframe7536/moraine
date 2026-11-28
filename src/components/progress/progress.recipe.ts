@@ -3,7 +3,6 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
 import type { ProgressStyleSlot, ProgressStyleVariants } from './progress.style-types'
-
 export const progressDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('indeterminate', 'progress'),
   indicator: /* @__PURE__ */ createDataAttributes('indeterminate', 'progress'),

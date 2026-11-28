@@ -1,8 +1,8 @@
-import type { Accessor, JSX } from 'solid-js'
-import { createMemo, createSignal } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createMemo, createSignal, flush, onCleanup } from 'solid-js'
 
 import { callHandler } from './utils'
-
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return (
     (typeof value === 'object' || typeof value === 'function') &&
@@ -24,10 +24,21 @@ export function useAutoLoadingClick<T, E extends Event = MouseEvent>(
   onClick: JSX.EventHandler<T, E>
 } {
   const [pendingActionCount, setPendingActionCount] = createSignal(0)
+  let disposed = false
+
+  onCleanup(() => {
+    disposed = true
+  })
 
   const isLoading = createMemo(() =>
     Boolean(options.loading?.() || (options.autoLoading?.() && pendingActionCount() > 0)),
   )
+
+  const decrement = (): void => {
+    if (!disposed) {
+      setPendingActionCount((count) => Math.max(0, count - 1))
+    }
+  }
 
   const onClick: JSX.EventHandler<T, E> = (event) => {
     const { defaultPrevented, result: handlerResult } = callHandler<E>(event, options.onClick)
@@ -36,11 +47,8 @@ export function useAutoLoadingClick<T, E extends Event = MouseEvent>(
       return
     }
 
-    setPendingActionCount((count) => count + 1)
-    const settle = (): void => {
-      setPendingActionCount((count) => Math.max(0, count - 1))
-    }
-    void Promise.resolve(handlerResult).then(settle, settle)
+    flush(() => setPendingActionCount((count) => count + 1))
+    void Promise.resolve(handlerResult).then(decrement, decrement)
   }
 
   return {

@@ -2,12 +2,11 @@ import { CommandPalette, Combobox, List, MultiSelect, Select, createTree } from 
 import type { CommandPaletteT, ComboboxT, ListT, MultiSelectT, SelectT, TreeT } from 'moraine'
 import type { DataTableT, createDataTable } from 'moraine/data-table'
 import { createListVirtualizer, createTableVirtualizer } from 'moraine/virtualizer'
-
 // Every virtualizing component takes the whole virtualizer through one `virtualizer` prop. Only the entry type is passed; row and scroll element types never need to
 // match a host by hand.
 
 type Item = { id: number; label: string }
-const items: Item[] = []
+const items: Array<Item> = []
 
 ;<List
   items={items}
@@ -24,7 +23,7 @@ const tree = createTree<Item>({
   virtualizer={createListVirtualizer<TreeT.ItemInstance<Item>>({ estimateSize: () => 32 })}
 />
 
-const options: SelectT.Item<string>[] = []
+const options: Array<SelectT.Item<string>> = []
 // Select has no virtualizer; use Combobox for collections large enough to need one.
 ;<Select<SelectT.Item<string>>
   items={options}

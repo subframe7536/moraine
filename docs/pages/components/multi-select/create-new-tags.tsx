@@ -1,8 +1,7 @@
 import { Button, MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
-
-const INITIAL_TOPICS: MultiSelectT.Item[] = [
+const INITIAL_TOPICS: Array<MultiSelectT.Item> = [
   { label: 'React', value: 'react' },
   { label: 'SolidJS', value: 'solid' },
   { label: 'Vue.js', value: 'vue' },
@@ -10,7 +9,7 @@ const INITIAL_TOPICS: MultiSelectT.Item[] = [
 ]
 
 export function CreateNewTags() {
-  const [tags, setTags] = createSignal<MultiSelectT.Item['value'][]>(['solid'])
+  const [tags, setTags] = createSignal<Array<MultiSelectT.Item['value']>>(['solid'])
 
   return (
     <div class="max-w-md w-full space-y-2">

@@ -1,8 +1,8 @@
-import { getInput } from '@formisch/solid'
+import { getInput } from '@formisch/solid/v2'
 import { fireEvent, render, within } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { renderWithOwner } from '../../test-util/owner-render'
@@ -10,15 +10,14 @@ import { Field } from '../field'
 import { createForm } from '../index'
 
 import { Select } from './select'
-
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
   { label: 'Cherry', value: 'cherry', disabled: true },
 ]
 
-describe('Select', () => {
-  test('renders Control, primary Trigger, and Value anatomy', () => {
+describe('select', () => {
+  it('renders Control, primary Trigger, and Value anatomy', () => {
     const screen = render(() => <Select items={ITEMS} defaultValue="apple" />)
     const control = screen.container.querySelector('[data-slot="select-control"]')!
     const trigger = screen.getByRole('combobox')
@@ -29,8 +28,8 @@ describe('Select', () => {
     expect(control.querySelector('input[data-slot="input"]')).toBeNull()
   })
 
-  test('clear renders an accessible button outside the trigger and supports keyboard clear', () => {
-    const onClear = vi.fn()
+  it('clear renders an accessible button outside the trigger and supports keyboard clear', () => {
+    const onClear = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Select items={ITEMS} defaultValue="apple" clearable onClear={onClear} />
     ))
@@ -48,7 +47,7 @@ describe('Select', () => {
     expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('')
 
     // Test keyboard clearing via Backspace on trigger
-    const onClearKey = vi.fn()
+    const onClearKey = vi.fn<(...args: Array<any>) => void>()
     const screenKey = render(() => (
       <Select items={ITEMS} defaultValue="banana" clearable onClear={onClearKey} />
     ))
@@ -58,8 +57,8 @@ describe('Select', () => {
     expect(screenKey.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('')
   })
 
-  test('selects values, closes, and restores trigger focus', async () => {
-    const onChange = vi.fn()
+  it('selects values, closes, and restores trigger focus', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Select items={ITEMS} defaultOpen onValueChange={onChange} />)
     fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[1]!)
     expect(onChange).toHaveBeenLastCalledWith('banana')
@@ -68,12 +67,12 @@ describe('Select', () => {
     expect(document.activeElement).toBe(screen.getByRole('combobox'))
   })
 
-  test('scrolls the selected option within the listbox without moving the page', async () => {
+  it('scrolls the selected option within the listbox without moving the page', async () => {
     const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
     const page = document.documentElement
     const pageScroll = page.scrollTop
     page.scrollTop = 320
-    HTMLElement.prototype.scrollIntoView = vi.fn(() => {
+    HTMLElement.prototype.scrollIntoView = vi.fn<() => any>(() => {
       page.scrollTop = 0
     })
 
@@ -100,7 +99,7 @@ describe('Select', () => {
     }
   })
 
-  test('inherits read-only listbox semantics', () => {
+  it('inherits read-only listbox semantics', () => {
     const screen = render(() => <Select items={ITEMS} defaultOpen readOnly />)
     expect(screen.getByRole('combobox').getAttribute('aria-readonly')).toBe('true')
     expect(
@@ -108,14 +107,14 @@ describe('Select', () => {
     ).toBe('true')
   })
 
-  test('keeps typeahead without exposing search state', () => {
-    const onChange = vi.fn()
+  it('keeps typeahead without exposing search state', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Select items={ITEMS} onValueChange={onChange} />)
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' })
     expect(onChange).toHaveBeenLastCalledWith('banana')
   })
 
-  test('renders unresolved, empty-string, and numeric values', () => {
+  it('renders unresolved, empty-string, and numeric values', () => {
     const [value, setValue] = createSignal<string | number | undefined>('missing')
     const screen = render(() => (
       <Select
@@ -130,13 +129,13 @@ describe('Select', () => {
     const displayed = () =>
       screen.container.querySelector('[data-slot="select-value"]')?.textContent
     expect(displayed()).toBe('missing')
-    setValue('')
+    flush(() => setValue(''))
     expect(displayed()).toBe('Empty')
-    setValue(1)
+    flush(() => setValue(1))
     expect(displayed()).toBe('One')
   })
 
-  test('treats a selected empty string as present for required validation', () => {
+  it('treats a selected empty string as present for required validation', () => {
     const screen = render(() => (
       <form>
         <Select
@@ -152,7 +151,7 @@ describe('Select', () => {
     expect(new FormData(form).getAll('choice')).toEqual([''])
   })
 
-  test('renders groups and separators while navigating only enabled options', () => {
+  it('renders groups and separators while navigating only enabled options', () => {
     const screen = render(() => (
       <Select
         defaultOpen
@@ -184,7 +183,7 @@ describe('Select', () => {
     expect(trigger.textContent).toContain('Carrot')
   })
 
-  test('moves the highlight by a page on PageUp and PageDown', () => {
+  it('moves the highlight by a page on PageUp and PageDown', () => {
     const items = Array.from({ length: 25 }, (_, index) => `Item ${index + 1}`)
     const screen = render(() => <Select defaultOpen items={items} />)
     const trigger = screen.getByRole('combobox')
@@ -203,14 +202,14 @@ describe('Select', () => {
     expect(activeOption()?.textContent).toContain('Item 11')
   })
 
-  test('omits the empty state for an empty collection', () => {
+  it('omits the empty state for an empty collection', () => {
     render(() => <Select defaultOpen items={[]} />)
     expect(within(document.body).getByRole('listbox')).toBeTruthy()
     expect(document.body.querySelector('[data-slot="select-empty"]')).toBeNull()
     expect(within(document.body).queryByText('No items')).toBeNull()
   })
 
-  test('renders custom emptyRender with static JSX and Component', () => {
+  it('renders custom emptyRender with static JSX and Component', () => {
     const screen1 = render(() => (
       <Select defaultOpen items={[]} emptyRender={<span>No options</span>} />
     ))
@@ -248,28 +247,28 @@ describe('Select', () => {
     screen3.unmount()
   })
 
-  test('keeps the trigger structure while loading', () => {
+  it('keeps the trigger structure while loading', () => {
     const screen = render(() => <Select items={ITEMS} defaultValue="apple" clearable loading />)
     expect(screen.getByRole('combobox')).toBeTruthy()
     expect(screen.container.querySelector('[data-loading]')).toBeTruthy()
     expect(screen.container.querySelector('[data-slot="select-clear"]')).toBeNull()
   })
 
-  test('exposes loading state on the trailing slot', () => {
+  it('exposes loading state on the trailing slot', () => {
     const [loading, setLoading] = createSignal(false)
     const screen = render(() => <Select items={ITEMS} loading={loading()} />)
     const trailing = screen.container.querySelector('[data-slot="select-trailing"]')!
     expect(trailing).not.toBeNull()
     expect(trailing.hasAttribute('data-loading')).toBe(false)
-    setLoading(true)
+    flush(() => setLoading(true))
     expect(screen.container.querySelector('[data-slot="select-trailing"]')).toBe(trailing)
     expect(trailing.hasAttribute('data-loading')).toBe(true)
-    setLoading(false)
+    flush(() => setLoading(false))
     expect(trailing.hasAttribute('data-loading')).toBe(false)
   })
 
-  test('forwards shared content behavior through the reactive local props proxy', async () => {
-    const onBottomReached = vi.fn()
+  it('forwards shared content behavior through the reactive local props proxy', async () => {
+    const onBottomReached = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -298,7 +297,7 @@ describe('Select', () => {
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('serializes and resets one logical value', async () => {
+  it('serializes and resets one logical value', async () => {
     const screen = render(() => (
       <form>
         <Select name="fruit" items={ITEMS} defaultValue="apple" defaultOpen />
@@ -312,7 +311,7 @@ describe('Select', () => {
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
   })
 
-  test('updates Form.Field and shows a placeholder for a null selection', () => {
+  it('updates Form.Field and shows a placeholder for a null selection', () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -344,7 +343,7 @@ describe('Select', () => {
     expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('Banana')
   })
 
-  test('keeps falsey and null Form.Field values scalar through changes and reset', async () => {
+  it('keeps falsey and null Form.Field values scalar through changes and reset', async () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -381,7 +380,7 @@ describe('Select', () => {
     expect(getInput(form)).toEqual({ choice: null })
   })
 
-  test('synchronizes controlled scalar Form.Field values without array projection', () => {
+  it('synchronizes controlled scalar Form.Field values without array projection', () => {
     const [controlled, setControlled] = createSignal<string | number | undefined>('apple')
     const { value: form } = renderWithOwner(
       () =>
@@ -402,16 +401,16 @@ describe('Select', () => {
     )
 
     expect(getInput(form)).toEqual({ choice: 'apple' })
-    setControlled(0)
+    flush(() => setControlled(0))
     expect(getInput(form)).toEqual({ choice: 0 })
-    setControlled('')
+    flush(() => setControlled(''))
     expect(getInput(form)).toEqual({ choice: '' })
-    setControlled(undefined)
+    flush(() => setControlled(undefined))
     expect(getInput(form)).toEqual({ choice: '' })
   })
 
-  test('treats value undefined as uncontrolled and applies defaultValue', () => {
-    const onChange = vi.fn()
+  it('treats value undefined as uncontrolled and applies defaultValue', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -430,9 +429,9 @@ describe('Select', () => {
     expect(displayed()).toBe('Apple')
   })
 
-  test('keeps a defined value authoritative over defaultValue and user selection', () => {
+  it('keeps a defined value authoritative over defaultValue and user selection', () => {
     const [value, setValue] = createSignal<string | undefined>('apple')
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -449,13 +448,13 @@ describe('Select', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(onChange).toHaveBeenLastCalledWith('banana')
     expect(displayed()).toBe('Apple')
-    setValue('banana')
+    flush(() => setValue('banana'))
     expect(displayed()).toBe('Banana')
   })
 
-  test('treats value null as a controlled empty selection', () => {
+  it('treats value null as a controlled empty selection', () => {
     const [value, setValue] = createSignal<string | null | undefined>('banana')
-    const onChange = vi.fn((next: string | null | undefined) => setValue(next))
+    const onChange = vi.fn<(next: string | null | undefined) => any>((next) => setValue(next))
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -469,14 +468,14 @@ describe('Select', () => {
       screen.container.querySelector('[data-slot="select-value"]')?.textContent
 
     expect(displayed()).toBe('Banana')
-    setValue(null)
+    flush(() => setValue(null))
     expect(displayed()).toBe('')
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(onChange).toHaveBeenLastCalledWith('apple')
     expect(displayed()).toBe('Apple')
   })
 
-  test('stays uncontrolled with defaultValue inside a standalone Field without a binding', () => {
+  it('stays uncontrolled with defaultValue inside a standalone Field without a binding', () => {
     const screen = render(() => (
       <Field name="role" label="Role">
         <Select items={ITEMS} defaultValue="apple" defaultOpen />
@@ -493,7 +492,7 @@ describe('Select', () => {
     )
   })
 
-  test('shows defaultValue inside Form.Field before the binding writes the initial value', async () => {
+  it('shows defaultValue inside Form.Field before the binding writes the initial value', async () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -516,7 +515,7 @@ describe('Select', () => {
     expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('Apple')
   })
 
-  test('hands back to the initial default when a defined value becomes undefined', () => {
+  it('hands back to the initial default when a defined value becomes undefined', () => {
     const [value, setValue] = createSignal<string | undefined>('apple')
     const screen = render(() => (
       <Select items={ITEMS} value={value()} defaultValue="banana" defaultOpen />
@@ -525,13 +524,13 @@ describe('Select', () => {
       screen.container.querySelector('[data-slot="select-value"]')?.textContent
 
     expect(displayed()).toBe('Apple')
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(displayed()).toBe('Banana')
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(displayed()).toBe('Apple')
   })
 
-  test('falls back to the Form.Field value while value is undefined', () => {
+  it('falls back to the Form.Field value while value is undefined', () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -555,7 +554,7 @@ describe('Select', () => {
     expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('Apple')
   })
 
-  test('routes classes, styles, and class to their slots', () => {
+  it('routes classes, styles, and class to their slots', () => {
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -576,8 +575,8 @@ describe('Select', () => {
   })
 })
 
-test('selects, submits, clears, and resets string shorthand values', async () => {
-  const onChange = vi.fn()
+it('selects, submits, clears, and resets string shorthand values', async () => {
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <form>
       <Select
@@ -601,10 +600,10 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
   expect(new FormData(form).getAll('string-fruit')).toEqual(['Apple'])
 })
 
-test('updates mixed string groups and passes normalized objects to row callbacks', () => {
+it('updates mixed string groups and passes normalized objects to row callbacks', () => {
   const object = { value: 1, label: 'One', extra: true }
   const [keys, setKeys] = createSignal(['Apple', 'Banana'])
-  const seen: unknown[] = []
+  const seen: Array<unknown> = []
   const screen = render(() => (
     <Select<string | typeof object>
       items={[object, { type: 'group', label: 'Fruit', children: keys() }]}
@@ -624,7 +623,7 @@ test('updates mixed string groups and passes normalized objects to row callbacks
       .getByRole('option', { name: 'Banana', hidden: true })
       .getAttribute('aria-disabled'),
   ).toBe('true')
-  setKeys(['Cherry'])
+  flush(() => setKeys(['Cherry']))
   expect(within(document.body).queryByRole('option', { name: 'Apple', hidden: true })).toBeNull()
   expect(
     within(document.body)
@@ -634,8 +633,8 @@ test('updates mixed string groups and passes normalized objects to row callbacks
   expect(screen.getByRole('combobox')).toBeTruthy()
 })
 
-test('supports typeahead with string shorthand', () => {
-  const onChange = vi.fn()
+it('supports typeahead with string shorthand', () => {
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => <Select items={['Apple', 'Banana']} onValueChange={onChange} />)
   fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' })
   expect(onChange).toHaveBeenLastCalledWith('Banana')

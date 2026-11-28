@@ -62,7 +62,7 @@
         {
           "name": "items",
           "optional": true,
-          "type": "Item[]",
+          "type": "Array<Item>",
           "typeDetails": "({\n  /** Label to display on the tab trigger. It is also the tab's accessible name unless `ariaLabel`\nis set, so give icon-only tabs an `ariaLabel`. */\n  label?: JSX.Element;\n  /** Accessible name of the tab trigger, set as its `aria-label`. It replaces the name computed\nfrom `label` and also names the tab panel, which is labelled by the trigger. Use it for\nicon-only tabs. */\n  ariaLabel?: string;\n  /** Icon to display before the label. */\n  icon?: IconT.Name;\n  /** Unique value identifying the tab in `value` and `onValueChange`. A tab that repeats an earlier\ntab's value is disabled. */\n  value: string;\n  /** Content of the tab panel. Only the active tab's panel is mounted; switching tabs unmounts the\nprevious one. Accepts static JSX or a component receiving `{ value }`, which defers building the panel until it is shown. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the tab is disabled: it cannot be selected and is skipped by arrow-key navigation. */\n  disabled?: boolean;\n})[]",
           "description": "Array of tabs to display, in order.",
           "examples": [

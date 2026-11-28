@@ -1,17 +1,16 @@
-import { onMount } from 'solid-js'
+import { onSettled } from 'solid-js'
 
-import { createEventListener } from '../../../shared/event-listener'
+import { attachEventListener } from '../../../shared/event-listener'
 
 import { scheduleFormReset } from './form-reset-scheduler'
-
 export function useFormReset(
   getForm: () => HTMLFormElement | null | undefined,
   onReset: () => void,
 ): void {
-  onMount(() => {
+  onSettled(() => {
     const form = getForm()
     if (form) {
-      createEventListener(form, 'reset', (event) => {
+      return attachEventListener(form, 'reset', (event) => {
         scheduleFormReset(event, onReset, 'control')
       })
     }

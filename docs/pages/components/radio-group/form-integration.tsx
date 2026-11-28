@@ -2,12 +2,11 @@ import { Button, createForm, RadioGroup } from '@src'
 import type { RadioGroupT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const ENV_OPTIONS = [
   { label: 'Development', value: 'dev' },
   { label: 'Staging', value: 'staging' },
   { label: 'Production', value: 'prod' },
-] satisfies RadioGroupT.Item[]
+] satisfies Array<RadioGroupT.Item>
 
 export function FormIntegration() {
   const [submittedEnv, setSubmittedEnv] = createSignal('staging')

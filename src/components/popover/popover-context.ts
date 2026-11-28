@@ -2,7 +2,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { createPopper } from '../shared/overlay/popper'
 
 import type { PopoverProps, PopoverT } from './popover.types'
-
 export interface PopoverContextValue {
   options: PopoverProps
   popper: ReturnType<typeof createPopper>

@@ -6,13 +6,12 @@ import { createRequire } from 'node:module'
 import { promisify } from 'node:util'
 
 import path from 'pathe'
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { validateAnatomy } from './anatomy.ts'
 import { loadComponentApiDoc } from './api-doc/load.ts'
 import { collectMarkdownFiles } from './core/paths.ts'
 import { resolvePreviewFile } from './markdown/previews.ts'
-
 const execFileAsync = promisify(execFile)
 
 const PAGES_ROOT = path.resolve(__dirname, '../pages/components')
@@ -20,7 +19,7 @@ const PROJECT_ROOT = path.resolve(__dirname, '../..')
 const CACHE_DIR = path.resolve(__dirname, '../node_modules/.cache/moraine/usage-check')
 const ALLOWED_HEADINGS = new Set(['Usage', 'Anatomy', 'Examples'])
 
-function componentPages(): string[] {
+function componentPages(): Array<string> {
   return collectMarkdownFiles(PAGES_ROOT).filter(
     (file) => file.endsWith('/index.mdx') && file !== path.join(PAGES_ROOT, 'index.mdx'),
   )
@@ -75,7 +74,7 @@ function extractUsageSnippet(page: string, source: string): UsageSnippet | undef
   }
 }
 
-test('copyable Usage examples compile against the public component API', async () => {
+it('copyable Usage examples compile against the public component API', async () => {
   mkdirSync(CACHE_DIR, { recursive: true })
 
   const snippets = new Map<string, UsageSnippet>()
@@ -125,6 +124,7 @@ test('copyable Usage examples compile against the public component API', async (
   const require = createRequire(import.meta.url)
   const compiler = path.join(path.dirname(require.resolve('tsrs/package.json')), 'bin/tsrs')
 
+  let compilationFailure: string | undefined
   try {
     // Fence code is displayed to readers, so the MDX build alone cannot typecheck it.
     await execFileAsync(process.execPath, [compiler, '-p', configPath, '--pretty', 'false'], {
@@ -136,7 +136,7 @@ test('copyable Usage examples compile against the public component API', async (
     const rawOutput =
       (execError.stdout ?? '') + (execError.stderr ?? '') || execError.message || String(error)
 
-    const remapped = rawOutput.replace(
+    const remapped = rawOutput.replaceAll(
       /(?:[\\/][^()]+[\\/])?([a-zA-Z0-9_-]+\.tsx)\((\d+),(\d+)\):/g,
       (match, fileName, line, col) => {
         const snippet = snippets.get(fileName)
@@ -148,12 +148,13 @@ test('copyable Usage examples compile against the public component API', async (
       },
     )
 
-    expect.fail(`Usage examples failed compilation:\n${remapped}`)
+    compilationFailure = `Usage examples failed compilation:\n${remapped}`
   }
+  expect(compilationFailure, compilationFailure).toBeUndefined()
 }, 30_000)
 
-test('component pages follow the shared content and anatomy contract', async () => {
-  const failures: string[] = []
+it('component pages follow the shared content and anatomy contract', async () => {
+  const failures: Array<string> = []
   for (const page of componentPages()) {
     const source = readFileSync(page, 'utf8')
     const name = path.relative(PAGES_ROOT, page)
@@ -235,4 +236,4 @@ test('component pages follow the shared content and anatomy contract', async () 
     }
   }
   expect(failures).toEqual([])
-})
+}, 20_000)

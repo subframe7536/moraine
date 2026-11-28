@@ -11,7 +11,6 @@ import {
 } from '../shared/overlay/trigger.recipe'
 
 import type { DropdownMenuStyleSlot, DropdownMenuStyleVariants } from './dropdown-menu.style-types'
-
 export const dropdownMenuDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   content: overlayMenuDataAttributes.content,

@@ -4,7 +4,6 @@ import type { Orientation } from '../theme/style-types'
 
 import type { KeyBindingOptions } from './keyboard'
 import { createKeyDownHandler } from './keyboard'
-
 type ActivationMode = 'automatic' | 'manual'
 
 /**
@@ -18,7 +17,7 @@ export interface CreateSelectableCollectionNavigationOptions<
   TValue extends NonNullable<unknown>,
 > {
   /** Accessor returning the items in the collection. */
-  items: Accessor<TItem[]>
+  items: Accessor<Array<TItem>>
   /** Returns the unique value that identifies an item. */
   getValue: (item: TItem) => TValue
   /** Returns whether an item is disabled. */
@@ -103,7 +102,7 @@ export interface CreateSelectableCollectionNavigationOptions<
 export function createSelectableCollectionNavigation<TItem, TValue extends NonNullable<unknown>>(
   options: CreateSelectableCollectionNavigationOptions<TItem, TValue>,
 ) {
-  function getEnabledItems(): TItem[] {
+  function getEnabledItems(): Array<TItem> {
     return options.items().filter((item) => !options.isDisabled?.(item))
   }
 
@@ -126,7 +125,7 @@ export function createSelectableCollectionNavigation<TItem, TValue extends NonNu
     }
 
     if (currentIndex < 0) {
-      const boundaryItem = offset >= 0 ? enabledItems[0] : enabledItems[enabledItems.length - 1]
+      const boundaryItem = offset >= 0 ? enabledItems[0] : enabledItems.at(-1)
 
       if (boundaryItem) {
         applySelection(options.getValue(boundaryItem))
@@ -155,7 +154,7 @@ export function createSelectableCollectionNavigation<TItem, TValue extends NonNu
 
   function moveToBoundary(kind: 'first' | 'last', currentValue?: TValue): void {
     const enabledItems = getEnabledItems()
-    const nextItem = kind === 'first' ? enabledItems[0] : enabledItems[enabledItems.length - 1]
+    const nextItem = kind === 'first' ? enabledItems[0] : enabledItems.at(-1)
 
     if (!nextItem) {
       return

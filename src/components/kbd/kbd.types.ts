@@ -4,7 +4,6 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { defaultKbdMessages } from './kbd.messages'
 import type { KbdStyleSlot, KbdStyleVariants } from './kbd.style-types'
-
 export const KBD_KEY_ALIASES = {
   alt: { text: 'Alt' },
   arrowdown: { text: '↓' },

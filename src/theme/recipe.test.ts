@@ -1,5 +1,5 @@
-import { createMemo, createRoot, createSignal } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { createMemo, createRoot, createSignal, flush, untrack } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { cn } from './cn'
 import type { RecipeConfig, RecipeVariantSelection } from './recipe'
@@ -130,7 +130,7 @@ describe('recipe', () => {
       },
     })
 
-    test('applies defaults to multi-slot structure and resolves class strings', () => {
+    it('applies defaults to multi-slot structure and resolves class strings', () => {
       const slots = card()
       expect(slots.classes.root).toBe('rounded-lg border border-border p-4 bg-muted')
       expect(slots.classes.header).toBe('font-semibold text-card-foreground mb-2')
@@ -139,7 +139,7 @@ describe('recipe', () => {
       expect(slots.classes.icon).toBeUndefined()
     })
 
-    test('uses defaults for undefined and suppresses them for null', () => {
+    it('uses defaults for undefined and suppresses them for null', () => {
       const slots = card({ variant: undefined })
       expect(slots.classes.root).toBe('rounded-lg border border-border p-4 bg-muted')
 
@@ -147,7 +147,7 @@ describe('recipe', () => {
       expect(slotsNull.classes.root).toBe('rounded-lg border border-border bg-card p-4')
     })
 
-    test('applies cross-slot compound variants and array matchers', () => {
+    it('applies cross-slot compound variants and array matchers', () => {
       const slots = card({ variant: 'ghost', bordered: true, size: 'lg' })
       // ghost + bordered: true -> root gets border-2 and border-border, content gets italic
       // ghost + size: lg -> footer gets justify-end
@@ -158,7 +158,7 @@ describe('recipe', () => {
       expect(slots.classes.footer).toBe('mt-4 flex items-center justify-end')
     })
 
-    test('resolves declared slots without a runtime slots array', () => {
+    it('resolves declared slots without a runtime slots array', () => {
       const inferred = testRecipe<InferredSlot>('inferred', {
         base: {
           root: 'flex flex-col',
@@ -173,9 +173,11 @@ describe('recipe', () => {
       expect(res.classes.body).toBe('p-4')
     })
 
-    test('derives classes from reactive getter variants in caller memos', () => {
+    it('derives classes from reactive getter variants in caller memos', () => {
       createRoot((dispose) => {
-        const [slotVariant, setSlotVariant] = createSignal<'solid' | 'ghost'>('solid')
+        const [slotVariant, setSlotVariant] = createSignal<'solid' | 'ghost'>('solid', {
+          ownedWrite: true,
+        })
         const slotClass = createMemo(
           () =>
             card({
@@ -185,20 +187,18 @@ describe('recipe', () => {
             }).classes.root,
         )
 
-        // oxlint-disable-next-line subf/solid-reactivity
-        expect(slotClass()).toContain('bg-muted')
+        expect(untrack(slotClass)).toContain('bg-muted')
 
-        setSlotVariant('ghost')
+        flush(() => setSlotVariant('ghost'))
 
-        // oxlint-disable-next-line subf/solid-reactivity
-        expect(slotClass()).toContain('border-transparent')
+        expect(untrack(slotClass)).toContain('border-transparent')
         dispose()
       })
     })
   })
 })
 
-test('matches sparse compound-only keys and preserves false, zero, empty string, and null', () => {
+it('matches sparse compound-only keys and preserves false, zero, empty string, and null', () => {
   const sparse = testRecipe<RootSlot, SparseVariant>('sparse', {
     base: { root: '' },
     defaultVariants: { enabled: false, count: 0, label: '' },
@@ -209,7 +209,7 @@ test('matches sparse compound-only keys and preserves false, zero, empty string,
   expect(sparse({ count: null })).toEqual({ classes: {}, style: {} })
 })
 
-test('resolves base, variant, and compound classes with an explicit merger', async () => {
+it('resolves base, variant, and compound classes with an explicit merger', async () => {
   const { cn, createCn } = await import('./cn')
   const customCn = createCn({ override: { classGroups: { p: [] } } })
   const slots = testRecipe<RootSlot, { active?: boolean }>('slots', {
@@ -226,7 +226,7 @@ test('resolves base, variant, and compound classes with an explicit merger', asy
   expect(slots()).toEqual({ classes: { root: 'p-2' }, style: {} })
 })
 
-test('resolves classes and variables from the same matched branches', () => {
+it('resolves classes and variables from the same matched branches', () => {
   const recipe = testRecipe<RootSlot, { size: 'sm' | 'lg'; enabled: boolean; count: 0 | 1 }>(
     'vars',
     {
@@ -265,7 +265,7 @@ test('resolves classes and variables from the same matched branches', () => {
   expect(recipe({ size: null }).style['--size']).toBe('4px')
 })
 
-test('supports variable-only recipes and scoped merging without changing style output', async () => {
+it('supports variable-only recipes and scoped merging without changing style output', async () => {
   const { createCn } = await import('./cn')
   const recipe = testRecipe<RootSlot>('root', {
     base: { root: '', '--zero': 0, '--length': '20px' },
@@ -286,7 +286,7 @@ const invalidVariable = testRecipe<RootSlot>('root', {
 })
 void invalidVariable
 
-test.each([
+it.each([
   [1, true, 'block grid-cols-1 opacity-100'],
   [2, true, 'block grid-cols-2 opacity-100 gap-4'],
   [2, false, 'block grid-cols-2 opacity-50'],

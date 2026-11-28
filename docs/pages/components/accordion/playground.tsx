@@ -2,7 +2,6 @@ import { Accordion } from '@src'
 import type { AccordionT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const FAQ_ITEMS = [
   {
     value: 'install',
@@ -25,7 +24,7 @@ const FAQ_ITEMS = [
     content:
       'Components expose root class/style props and named slot classes/styles where applicable.',
   },
-] satisfies AccordionT.Item[]
+] satisfies Array<AccordionT.Item>
 
 export default function AccordionPlayground() {
   return (

@@ -1,11 +1,10 @@
 import { CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createListVirtualizer } from '@src/virtualizer'
-
-const GROUPS: CommandPaletteT.Group[] = ['Files', 'Symbols'].map((label) => ({
+const GROUPS: Array<CommandPaletteT.Group> = ['Files', 'Symbols'].map((label) => ({
   type: 'group',
   label,
-  children: Array.from({ length: 5_000 }, (_, index) => ({
+  children: Array.from({ length: 5000 }, (_, index) => ({
     value: `${label.toLowerCase()}-${index}`,
     label: `${label.slice(0, -1)} ${index + 1}`,
   })),

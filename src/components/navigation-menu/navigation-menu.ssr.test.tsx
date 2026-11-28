@@ -1,12 +1,11 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { NavigationMenuFixture } from './navigation-menu.ssr.fixture'
-
-describe('NavigationMenu SSR hydration', () => {
-  test.each([false, true])(
+describe('navigationMenu SSR hydration', () => {
+  it.each([false, true])(
     'reuses server navigation and lazily mounts portaled content (initiallyOpen=%s)',
     async (initiallyOpen) => {
       const { container } = hydrateFixture(

@@ -1,16 +1,16 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { resolvePropsChildren } from '../../shared/utils'
 
 import { createBaseDialogContentBinding } from './base-dialog-content-binding'
 import { useBaseDialogContext } from './base-dialog-context'
 import { baseDialogDataAttributes, baseDialogRecipe } from './base-dialog.recipe'
 import type { BaseDialogT } from './base-dialog.types'
-
 /**
  * Surface of a `BaseDialog` that holds the modal's content and carries the `dialog` role. Place it
  * inside `BaseDialog.Portal`, next to `BaseDialog.Overlay`; one `BaseDialog` root owns one active content. Give
@@ -35,16 +35,18 @@ import type { BaseDialogT } from './base-dialog.types'
 export function BaseDialogContent<T extends ValidComponent = 'div'>(
   props: BaseDialogT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as BaseDialogT.ContentProps<T> & { ref?: unknown }, [
+  const local = props as BaseDialogT.ContentProps<T> & { ref?: unknown }
+  const rest = omit(
+    props as BaseDialogT.ContentProps<T> & { ref?: unknown },
     'as',
     'ref',
     'children',
     'class',
     'style',
-  ])
+  )
   const context = useBaseDialogContext()
   const binding = createBaseDialogContentBinding(context, {
-    ref: () => local.ref,
+    ref: () => local.ref as ((element: HTMLDivElement) => void) | HTMLDivElement | undefined,
     onKeyDown: () =>
       rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
   })
@@ -62,22 +64,21 @@ export function BaseDialogContent<T extends ValidComponent = 'div'>(
     context: () => context.slotOverrides,
   })
 
-  const child = resolveChildren(() => local.children)
+  const child = resolvePropsChildren(local as { children?: JSX.Element })
   const body = createMemo(() =>
     renderWithProps(child(), {
       close: () => context.updateOpen(false),
     }),
   )
 
-  const tag = (): ValidComponent => local.as ?? 'div'
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
 
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="base-dialog-content"
       role="dialog"
       id={context.contentId()}
-      tabIndex={binding.tabIndex}
+      tabindex={binding.tabIndex}
       aria-modal={binding.ariaModal()}
       {...contentSlot}
       {...rest}
@@ -85,6 +86,6 @@ export function BaseDialogContent<T extends ValidComponent = 'div'>(
       onKeyDown={binding.onKeyDown}
     >
       {body()}
-    </Dynamic>
+    </Root>
   )
 }

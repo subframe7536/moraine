@@ -2,7 +2,6 @@ import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { SeparatorStyleSlot, SeparatorStyleVariants } from './separator.style-types'
-
 export namespace SeparatorT {
   export type Kind = 'single'
 

@@ -2,7 +2,6 @@ import { Button, Input, Select } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createSignal } from 'solid-js'
-
 interface Employee {
   id: string
   name: string
@@ -14,14 +13,14 @@ const ROLES = ['Engineer', 'Designer', 'Manager', 'Analyst'] as const
 const DEPARTMENTS = ['Platform', 'Product', 'Security', 'Growth', 'Finance'] as const
 const NAMES = ['Alice', 'Bob', 'Carmen', 'Dmitri', 'Elena', 'Farah', 'Gus', 'Hana', 'Ivan']
 
-const DATA: Employee[] = Array.from({ length: 36 }, (_, index) => ({
+const DATA: Array<Employee> = Array.from({ length: 36 }, (_, index) => ({
   id: String(index + 1),
   name: `${NAMES[index % NAMES.length]} ${String.fromCodePoint(65 + (index % 26))}.`,
-  role: ROLES[index % ROLES.length]!,
-  department: DEPARTMENTS[index % DEPARTMENTS.length]!,
+  role: ROLES[index % ROLES.length] ?? ROLES[0],
+  department: DEPARTMENTS[index % DEPARTMENTS.length] ?? DEPARTMENTS[0],
 }))
 
-const COLUMNS: DataTableT.Column<Employee>[] = [
+const COLUMNS: Array<DataTableT.Column<Employee>> = [
   { accessorKey: 'name', header: 'Name' },
   // `equals` matches the role exactly, so "Engineer" does not also match "Engineering".
   { accessorKey: 'role', header: 'Role', filterFn: 'equals' },

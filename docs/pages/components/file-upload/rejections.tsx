@@ -1,7 +1,6 @@
 import { FileUpload } from '@src'
 import type { FileUploadT } from '@src'
 import { For, createSignal } from 'solid-js'
-
 const REJECTION_LABELS: Record<FileUploadT.Reason, string> = {
   duplicate: 'already selected',
   typeMismatch: 'type is not accepted',
@@ -11,7 +10,7 @@ const REJECTION_LABELS: Record<FileUploadT.Reason, string> = {
 }
 
 export function Rejections() {
-  const [rejections, setRejections] = createSignal<{ name: string; reason: string }[]>([])
+  const [rejections, setRejections] = createSignal<Array<{ name: string; reason: string }>>([])
 
   return (
     <div class="max-w-lg space-y-3">

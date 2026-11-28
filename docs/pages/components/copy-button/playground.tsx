@@ -2,7 +2,6 @@ import { CopyButton } from '@src'
 import { Show } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function CopyButtonPlayground() {
   return (
     <DocsPlayground

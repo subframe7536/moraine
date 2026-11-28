@@ -1,7 +1,6 @@
 import type { Placement } from '@floating-ui/dom'
 
 import type { OverlayAlign, OverlayPlacement } from '../../../theme/style-types'
-
 /** Shared open/close lifecycle props for interactive overlay roots. */
 export interface OverlayDisclosureProps {
   /**
@@ -59,7 +58,7 @@ export interface OverlayPortalProps {
    * DOM node the portal mounts into. Defaults to `document.body` (resolved from the trigger's
    * document when available).
    */
-  mount?: Node
+  mount?: Element | ShadowRoot
 }
 
 /** Shared floating positioning props for anchored overlays. */
@@ -94,7 +93,7 @@ export interface OverlayPositionProps {
    * of fallback placements to constrain which sides it tries.
    * @default true
    */
-  flip?: boolean | Placement[]
+  flip?: boolean | Array<Placement>
 
   /**
    * Whether the content slides along the trigger edge to stay within the viewport.

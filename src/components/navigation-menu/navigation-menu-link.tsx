@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { Show, mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createKeyDownHandler } from '../../shared/keyboard'
@@ -13,7 +13,6 @@ import {
   navigationMenuRecipe,
 } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
-
 /**
  * Navigation destination, rendered as an `a`. Place it inside `NavigationMenu.Content` or
  * directly inside a `NavigationMenu.Item`. `active` marks the current page with
@@ -38,7 +37,8 @@ import type { NavigationMenuT } from './navigation-menu.types'
 export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Element {
   const context = useNavigationMenuContext()
   const item = useNavigationMenuItemContext()
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'active',
     'disabled',
@@ -47,24 +47,24 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     'href',
     'class',
     'style',
-  ])
+  )
   const {
     slots: { link: linkSlot },
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     slot: 'link',
     data: {
-      link: navigationMenuDataAttributes.link(() => ({ active: () => local.active, disabled })),
+      link: navigationMenuDataAttributes.link(() => ({ active: () => props.active, disabled })),
     },
     context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
-  const disabled = () => Boolean(context.options.disabled || item?.disabled() || local.disabled)
-  const attributes = mergeProps(
+  const disabled = () => Boolean(context.options.disabled || item?.disabled() || props.disabled)
+  const attributes = merge(
     mergePopperElementProps<HTMLAnchorElement>(
       {
         onClick: (event) => {
           if (disabled()) {
             event.preventDefault()
-          } else if (local.closeOnSelect !== false) {
+          } else if (props.closeOnSelect !== false) {
             context.close()
           }
         },
@@ -77,27 +77,27 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     ),
     {
       get href() {
-        return disabled() ? undefined : local.href
+        return disabled() ? undefined : props.href
       },
-      get tabIndex() {
-        return disabled() ? -1 : rest.tabIndex
+      get tabindex() {
+        return disabled() ? -1 : rest.tabindex
       },
     },
   )
-  const linkProps = mergeProps(
+  const linkProps = merge(
     attributes,
     {
       get id() {
-        return local.id
+        return props.id
       },
       get role() {
         return disabled() ? 'link' : rest.role
       },
       get 'aria-disabled'() {
-        return disabled() ? true : undefined
+        return disabled() ? 'true' : undefined
       },
       get 'aria-current'() {
-        return local.active ? 'page' : rest['aria-current']
+        return props.active ? 'page' : rest['aria-current']
       },
       'data-slot': 'navigation-menu-link',
       ...navigationMenuControlData,
@@ -105,8 +105,8 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     linkSlot,
   )
   return (
-    <Show when={local.linkRender} keyed fallback={<a {...linkProps} />}>
-      {(linkRender) => renderWithProps(linkRender, linkProps)}
+    <Show when={props.linkRender} keyed fallback={<a {...linkProps} />}>
+      {(linkRender) => renderWithProps(linkRender, linkProps as NavigationMenuT.LinkRenderProps)}
     </Show>
   )
 }

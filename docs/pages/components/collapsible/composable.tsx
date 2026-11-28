@@ -1,5 +1,4 @@
 import { Button, Card, Collapsible, Icon } from '@src'
-
 export function Composable() {
   return (
     <div class="max-w-md w-full">

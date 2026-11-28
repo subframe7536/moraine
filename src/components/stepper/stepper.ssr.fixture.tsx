@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Stepper } from './stepper'
-
 export function StepperHydrationFixture(props: { onContentRead?: () => void; vertical?: boolean }) {
   return (
     <Stepper

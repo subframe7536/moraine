@@ -1,5 +1,4 @@
 import { CopyButton, Input } from '@src'
-
 export function CopyButtonUsage() {
   const code = 'pnpm add moraine'
 

@@ -1,9 +1,7 @@
-import { A } from '@solidjs/router'
 import { NavigationMenu } from '@src'
 import type { NavigationMenuT } from '@src'
-
 const RouterLink = (props: NavigationMenuT.LinkRenderProps) => (
-  <A {...props} href={props.href ?? '#'} />
+  <a {...props} href={props.href ?? '#'} />
 )
 
 export function RouterLinkExample() {

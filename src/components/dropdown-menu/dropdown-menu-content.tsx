@@ -1,13 +1,13 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { mergeDefinedProps } from '../../shared/utils'
 import { OverlayMenu } from '../shared/overlay/menu'
 
 import { useDropdownMenuContext } from './dropdown-menu-context'
 import { dropdownMenuRecipe } from './dropdown-menu.recipe'
 import type { DropdownMenuT } from './dropdown-menu.types'
-
 /**
  * Popup list of actions for the surrounding `DropdownMenu`, described by the `items` model: items,
  * groups, separators, checkbox and radio items, and nested submenus. Place it inside
@@ -32,7 +32,8 @@ import type { DropdownMenuT } from './dropdown-menu.types'
  * ```
  */
 export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'items',
     'itemRender',
     'headerRender',
@@ -41,11 +42,14 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
     'expandIcon',
     'class',
     'style',
-  ])
+  )
   const context = useDropdownMenuContext()
 
-  const merged = mergeProps({ checkedIcon: 'icon-check', expandIcon: 'icon-chevron-right' }, local)
-  const { slots } = useRecipe(dropdownMenuRecipe, local, {
+  const merged = mergeDefinedProps(
+    { checkedIcon: 'icon-check', expandIcon: 'icon-chevron-right' },
+    props,
+  )
+  const { slots } = useRecipe(dropdownMenuRecipe, props, {
     slot: 'content',
     context: () => ({ variants: { size: context.size?.() }, ...context.slotOverrides }),
   })

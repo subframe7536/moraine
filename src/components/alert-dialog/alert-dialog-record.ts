@@ -1,5 +1,6 @@
-import type { Component, JSX } from 'solid-js'
-import { createMemo, createSignal, createUniqueId } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { createMemo, createSignal, createUniqueId, flush } from 'solid-js'
 
 import { createActionRunner } from '../shared/overlay/feedback/action-runner'
 import type { FeedbackAction, FeedbackCloseReason } from '../shared/overlay/feedback/feedback.types'
@@ -7,7 +8,6 @@ import { createCloseResult } from '../shared/overlay/feedback/handle'
 import { mergeDefined, pickDefined } from '../shared/overlay/feedback/merge-defined'
 
 import type { AlertDialogT } from './alert-dialog.types'
-
 export interface AlertDialogHostDefaults {
   closable?: boolean
   transition?: boolean
@@ -93,10 +93,10 @@ export function createAlertDialogRecord(
         return icon()
       },
       get action() {
-        return call.action
+        return current().action
       },
       get cancel() {
-        return call.cancel
+        return current().cancel
       },
       ariaLabel: call.ariaLabel,
       onClose: call.onClose,
@@ -116,12 +116,16 @@ export function createAlertDialogRecord(
     }
   }
 
-  const finish = (reason: FeedbackCloseReason): boolean => {
+  const finish = (reason: FeedbackCloseReason, sync = true): boolean => {
     if (!result.settle(reason)) {
       return false
     }
     const notify = options().onClose
-    setOpen(false)
+    if (sync) {
+      flush(() => setOpen(false))
+    } else {
+      setOpen(false)
+    }
     notify?.(reason)
     return true
   }
@@ -137,7 +141,7 @@ export function createAlertDialogRecord(
     if (!open()) {
       return
     }
-    setCurrent((call) => mergeDefined(call, next))
+    flush(() => setCurrent((call) => mergeDefined(call, next)))
   }
 
   const presentation: AlertDialogT.DialogRenderProps = {
@@ -173,7 +177,7 @@ export function createAlertDialogRecord(
       result: result.result,
     },
     abandon: () => {
-      finish('api')
+      finish('api', false)
     },
     remove: () => undefined,
   }

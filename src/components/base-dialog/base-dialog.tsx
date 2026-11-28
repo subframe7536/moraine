@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -25,7 +25,6 @@ import { BaseDialogOverlay } from './base-dialog-overlay'
 import { BaseDialogPortal } from './base-dialog-portal'
 import { BaseDialogTrigger } from './base-dialog-trigger'
 import type { BaseDialogProps } from './base-dialog.types'
-
 /**
  * Low-level modal primitive that renders no element and shares open state, focus containment, and
  * dismissal between its parts. Use `BaseDialog` when you compose the trigger, backdrop, and content
@@ -72,6 +71,8 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   })
   const closeOnOutsideClick = () => props.closeOnOutsideClick !== false
   const closeOnEscape = () => props.closeOnEscape !== false
+  // Plain accessor (not a memo) so post-disposal checks in `onDeactivate` see the cleared
+  // `contentElement()` instead of a disposed memo's stale cached `true`.
   const isPresent = () => Boolean(contentElement() && presence.present())
   const isModal = () => props.modal !== false
   const transition = () => props.transition !== false
@@ -128,72 +129,78 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   }
 
   createEffect(
-    on([open, isPresent], ([isOpen, present]) => {
-      if (isOpen && present) {
+    () => open() && isPresent(),
+    (active) => {
+      if (active) {
         hadOpenContent = true
       }
+    },
+  )
+
+  const scrollLockTarget = createMemo(
+    () => ({
+      content: isPresent() ? contentElement() : undefined,
+      preventScroll: props.preventScroll ?? isModal(),
+      scrollableOverlay: overlayScroll(),
     }),
+    {
+      equals: (prev, next) =>
+        prev.content === next.content &&
+        prev.preventScroll === next.preventScroll &&
+        prev.scrollableOverlay === next.scrollableOverlay,
+    },
   )
 
   createEffect(
-    on(
-      [isPresent, () => props.preventScroll ?? isModal(), overlayScroll],
-      ([present, preventScroll]) => {
-        if (!present || !preventScroll) {
-          return
-        }
-        const currentContent = contentElement()
-        if (!currentContent) {
-          return
-        }
-        const scrollContainer = currentContent.parentElement
-        const releaseScrollLock = acquireBodyScrollLock(
-          scrollContainer?.hasAttribute('data-overlay-scroll') ? scrollContainer : currentContent,
-        )
-        onCleanup(releaseScrollLock)
+    scrollLockTarget,
+    ({ content: currentContent, preventScroll, scrollableOverlay }) => {
+      if (!currentContent || !preventScroll) {
+        return
+      }
+      const scrollContainer = currentContent.parentElement
+      const releaseScrollLock = acquireBodyScrollLock(
+        scrollableOverlay && scrollContainer ? scrollContainer : currentContent,
+      )
+      return releaseScrollLock
+    },
+  )
+
+  createEffect(triggerElement, (trigger) => {
+    if (!trigger) {
+      return
+    }
+    return createEventListenerMap(trigger, {
+      pointerdown: (event) => {
+        pendingOpenInteraction = event.pointerType === 'touch' ? 'touch' : null
       },
-    ),
-  )
+      keydown: () => {
+        pendingOpenInteraction = null
+      },
+    })
+  })
 
-  createEffect(
-    on(triggerElement, (trigger) => {
-      if (!trigger) {
-        return
+  const modalContent = createMemo(() => (isPresent() && isModal() ? contentElement() : undefined))
+
+  createEffect(modalContent, (currentContent) => {
+    if (!currentContent) {
+      return
+    }
+    let active = true
+    let release: (() => void) | undefined
+    const openByTouch = pendingOpenInteraction === 'touch'
+    pendingOpenInteraction = null
+    queueMicrotask(() => {
+      if (active && currentContent.isConnected) {
+        release = acquireAriaHideOutside(currentContent)
+        focusInto(currentContent, openByTouch)
       }
-      createEventListenerMap(trigger, {
-        pointerdown: (event) => {
-          pendingOpenInteraction = event.pointerType === 'touch' ? 'touch' : null
-        },
-        keydown: () => {
-          pendingOpenInteraction = null
-        },
-      })
-    }),
-  )
+    })
 
-  createEffect(
-    on([isPresent, isModal], ([present, modal]) => {
-      const currentContent = contentElement()
-      if (!present || !modal || !currentContent) {
-        return
-      }
-      let active = true
-      let release: (() => void) | undefined
-      const openByTouch = pendingOpenInteraction === 'touch'
-      pendingOpenInteraction = null
-      queueMicrotask(() => {
-        if (active && currentContent.isConnected) {
-          release = acquireAriaHideOutside(currentContent)
-          focusInto(currentContent, openByTouch)
-        }
-      })
-
-      onCleanup(() => {
-        active = false
-        release?.()
-      })
-    }),
-  )
+    return () => {
+      active = false
+      release?.()
+    }
+  })
 
   function syncModalRestoreFocus(modal: boolean, ownerDocument: Document) {
     if (modal && !restoreFocusOnDeactivate) {
@@ -208,13 +215,12 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
 
   // Handles dynamic changes to the `modal` prop while the overlay is already present.
   createEffect(
-    on(isModal, (modal) => {
-      const currentContent = contentElement()
-      if (!isPresent() || !currentContent) {
-        return
+    () => [isModal(), isPresent() ? contentElement() : undefined] as const,
+    ([modal, currentContent]) => {
+      if (currentContent) {
+        syncModalRestoreFocus(modal, currentContent.ownerDocument)
       }
-      syncModalRestoreFocus(modal, currentContent.ownerDocument)
-    }),
+    },
   )
 
   useOverlayInteraction({
@@ -224,7 +230,9 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
     // Initial activation capture when the overlay opens and enters the stack.
     onActivate: (context) => {
       restoreFocusOnDeactivate = false
-      syncModalRestoreFocus(isModal(), context.entry.ownerDocument!)
+      if (context.entry.ownerDocument) {
+        syncModalRestoreFocus(untrack(isModal), context.entry.ownerDocument)
+      }
       lastFocusedElement = undefined
     },
     onPointerDownInside: (event, context) => {
@@ -272,7 +280,10 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
       }
       const currentContent = contentElement()
       queueMicrotask(() => {
-        if (lastFocusedElement?.isConnected && currentContent?.contains(lastFocusedElement)) {
+        if (!isPresent() || !currentContent?.isConnected) {
+          return
+        }
+        if (lastFocusedElement?.isConnected && currentContent.contains(lastFocusedElement)) {
           focusWithoutScrolling(lastFocusedElement)
         } else {
           focusInto(currentContent)
@@ -323,7 +334,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
       present: presence.present,
       // Untracked surfaces let the presence end on close without waiting for an animation.
       registerElement: (element) =>
-        transition() ? presence.registerElement(element) : () => undefined,
+        untrack(transition) ? presence.registerElement(element) : () => undefined,
     },
     transition,
     contentId,

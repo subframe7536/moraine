@@ -84,7 +84,7 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "readonly TItem['value'][]",
+          "type": "ReadonlyArray<TItem['value']>",
           "description": "Initial selection when `value` is not set. Read once on creation; a native form reset\nrestores it.",
           "default": {
             "kind": "expression",
@@ -104,7 +104,7 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | Placement[]",
+          "type": "boolean | Array<Placement>",
           "description": "Whether to flip placement when the preferred side lacks space. `false` disables flipping. An\narray is an ordered list of fallback `Placement` values tried in order, each `top`,\n`bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example\n`['top', 'bottom-end']`).",
           "default": {
             "kind": "literal",
@@ -151,7 +151,7 @@
         {
           "name": "isItemDisabled",
           "optional": true,
-          "type": "(item: TItem, values: readonly TItem['value'][]) => boolean",
+          "type": "(item: TItem, values: ReadonlyArray<TItem['value']>) => boolean",
           "description": "Extra disabled rule, evaluated for every item together with the current selected values;\nreturn `true` to disable the item in addition to `item.disabled`. Disabled items cannot be\nselected, highlighted, or reached by typeahead. In `MultiSelect`, a selected disabled item\nkeeps its tag (it cannot be removed) and survives clearing. In `Select` and `Combobox`,\nstring items arrive as `{ value, label }`.",
           "examples": [
             "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Admin', value: 'admin' },\n    { label: 'Guest', value: 'guest' },\n  ]}\n  isItemDisabled={(item, values) => item.value === 'guest' && values.includes('admin')}\n/>"
@@ -160,7 +160,7 @@
         {
           "name": "items",
           "optional": true,
-          "type": "readonly TItem[]",
+          "type": "ReadonlyArray<TItem>",
           "typeDetails": "readonly ({\n  /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */\n  value: string | number;\n  /** Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\nfiltering) fall back to `String(value)` unless `getItemLabel` is set. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. A disabled item is also left out of form submission. */\n  disabled?: boolean;\n})[]",
           "description": "Flat list of items available for keyboard navigation, typeahead, and selection. It must\nlist the same items you render as `BaseSelect.Item`: an item whose value is not here cannot\nbe selected. Values must be unique (duplicates log an error in development). Groups and\nseparators are rendering concerns and do not belong here."
         },
@@ -213,7 +213,7 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: TItem['value'][]) => void",
+          "type": "(value: Array<TItem['value']>) => void",
           "description": "Called with the new array of selected values when the user changes the selection. Not\ncalled for prop updates, when the selection is unchanged, or while disabled or read-only."
         },
         {
@@ -317,7 +317,7 @@
         {
           "name": "value",
           "optional": true,
-          "type": "readonly TItem['value'][]",
+          "type": "ReadonlyArray<TItem['value']>",
           "description": "Controlled selection, always an array. `undefined` keeps it uncontrolled; `[]` keeps it\ncontrolled and empty. Single mode uses at most the first value."
         }
       ]

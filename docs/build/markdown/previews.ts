@@ -8,10 +8,10 @@ import type { MdastNode } from 'satteri'
 import { resolveDocsPageContext, toImportPath } from '../core/paths.ts'
 
 import { asObjectRecord, getStaticStringAttribute } from './mdx.ts'
-
 export interface ScannedMdxPreview {
   path: string
   importPath: string
+  ident: string
 }
 
 export type MdxPreviewsPlugin = ReturnType<typeof defineMdastPlugin>
@@ -91,6 +91,7 @@ export function createMdxPreviewsPlugin(id?: string): MdxPreviewsPlugin {
         const nextPreview = {
           path: previewPath,
           importPath: `${toImportPath(documentId, sourcePath)}?preview`,
+          ident: `__morainePreview${previews.size}`,
         }
         previews.set(previewPath, nextPreview)
         return nextPreview
@@ -100,10 +101,10 @@ export function createMdxPreviewsPlugin(id?: string): MdxPreviewsPlugin {
       ...(Array.isArray(record.attributes) ? record.attributes : []),
       {
         type: 'mdxJsxAttribute',
-        name: 'load',
+        name: 'component',
         value: {
           type: 'mdxJsxAttributeValueExpression',
-          value: `() => import(${JSON.stringify(preview.importPath)})`,
+          value: preview.ident,
         },
       },
     ]
@@ -114,5 +115,17 @@ export function createMdxPreviewsPlugin(id?: string): MdxPreviewsPlugin {
     name: 'moraine-previews',
     mdxJsxFlowElement: visitJsxNode,
     mdxJsxTextElement: visitJsxNode,
+    after(root, ctx) {
+      if (previews.size === 0) {
+        return
+      }
+      ctx.prependChild(
+        root,
+        [...previews.values()].map((preview) => ({
+          type: 'mdxjsEsm' as const,
+          value: `import ${preview.ident} from ${JSON.stringify(preview.importPath)}`,
+        })),
+      )
+    },
   })
 }

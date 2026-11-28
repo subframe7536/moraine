@@ -1,5 +1,4 @@
 import { Field, Input } from '@src'
-
 export function HiddenLabel() {
   return (
     <div class="flex flex-col gap-4">

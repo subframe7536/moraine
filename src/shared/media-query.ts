@@ -1,7 +1,7 @@
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onFlush } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import { createEventListener } from './event-listener'
+import { attachEventListener } from './event-listener'
 
 export function createMediaQuery(
   query: string | Accessor<string>,
@@ -9,40 +9,31 @@ export function createMediaQuery(
 ): Accessor<boolean> {
   const [matches, setMatches] = createSignal(defaultValue)
   const queryAccessor = typeof query === 'function' ? query : () => query
-  createEffect(
-    on(queryAccessor, (query) => {
-      const resolvedQuery = query.replace(/^@media( ?)/m, '')
 
-      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-        return
+  createEffect(queryAccessor, (currentQuery) => {
+    const resolvedQuery = currentQuery.replace(/^@media( ?)/m, '')
+
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return
+    }
+
+    const media = window.matchMedia(resolvedQuery)
+    let active = true
+    onFlush(() => {
+      if (active) {
+        setMatches(media.matches)
       }
+    })
 
-      const media = window.matchMedia(resolvedQuery)
-      let active = true
+    const detach = attachEventListener(media, 'change', (event) => {
+      setMatches(event.matches)
+    })
 
-      queueMicrotask(() => {
-        if (active) {
-          setMatches(media.matches)
-        }
-      })
+    return () => {
+      active = false
+      detach()
+    }
+  })
 
-      const onChange = (event: MediaQueryListEvent): void => {
-        setMatches(event.matches)
-      }
-
-      if (typeof media.addEventListener === 'function') {
-        createEventListener(media, 'change', onChange)
-      } else {
-        media.addListener(onChange)
-        onCleanup(() => {
-          media.removeListener(onChange)
-        })
-      }
-
-      onCleanup(() => {
-        active = false
-      })
-    }),
-  )
   return matches
 }

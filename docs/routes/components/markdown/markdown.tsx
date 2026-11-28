@@ -1,17 +1,13 @@
-import type { JSX } from 'solid-js'
-import { createMemo, onMount, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { useRouteInfo } from 'solid-file-router'
 
-import { getApiReferenceTocEntries } from '../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../build/api-doc/types'
-import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
-import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
 import { DocsApiReference } from './api-reference'
 import { ComponentDocContext } from './component-doc.context'
 import { DocsPageHeader } from './docs-page-header'
 import { DocsPageNavigation } from './navigation'
 import { CompactOnThisPage, OnThisPage } from './toc'
-
 export type ExamplePageApiDoc = ComponentApi
 
 export interface DocsMdxCodeTabItem {
@@ -21,96 +17,45 @@ export interface DocsMdxCodeTabItem {
 }
 
 export interface RenderExampleMarkdownPageInput {
-  pageKey: string
-  surface: string
-  section: string
   routePath: string
-  markdownPath: string
   apiDoc?: ExamplePageApiDoc
-  frontmatter: FrontmatterData
-  onThisPageEntries?: OnThisPageEntry[]
-  metadata?: DocsRouteMetadata
+  sourcePath?: string
+  upstreamHref?: string
   children?: JSX.Element
 }
 
-function updateMetaTag(attribute: 'name' | 'property', value: string, content: string): void {
-  const meta = [...document.querySelectorAll<HTMLMetaElement>('meta')].find(
-    (element) => element.getAttribute(attribute) === value,
-  )
-  if (meta) {
-    meta.setAttribute('content', content)
-    return
-  }
-
-  const nextMeta = document.createElement('meta')
-  nextMeta.setAttribute(attribute, value)
-  nextMeta.setAttribute('content', content)
-  document.head.append(nextMeta)
-}
-
-function updateCanonical(href: string): void {
-  const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
-  if (canonical) {
-    canonical.setAttribute('href', href)
-    return
-  }
-
-  const nextCanonical = document.createElement('link')
-  nextCanonical.setAttribute('rel', 'canonical')
-  nextCanonical.setAttribute('href', href)
-  document.head.append(nextCanonical)
-}
-
-export function useDocsPage(metadata?: DocsRouteMetadata): void {
-  onMount(() => {
-    if (!metadata) {
-      return
-    }
-
-    document.title = metadata.title
-    updateCanonical(metadata.canonical)
-    updateMetaTag('name', 'description', metadata.description)
-    for (const tag of metadata.meta) {
-      const attribute = tag.name !== undefined ? 'name' : 'property'
-      const value = tag.name ?? tag.property
-      if (value !== undefined) {
-        updateMetaTag(attribute, value, tag.content)
-      }
-    }
-  })
-}
-
 export function Markdown(input: RenderExampleMarkdownPageInput) {
-  useDocsPage(untrack(() => input.metadata))
-
-  const onThisPageEntries = createMemo(() => [
-    ...(input.onThisPageEntries ?? []),
-    ...getApiReferenceTocEntries(input.apiDoc),
-  ])
+  const routeInfo = useRouteInfo()
+  // Index routes in solid-file-router's routeInfo carry a trailing slash (e.g. `/components/accordion/`).
+  const info = () =>
+    routeInfo[input.routePath] ??
+    (input.routePath === '/' ? undefined : routeInfo[`${input.routePath}/`])
+  const onThisPageEntries = () => info()?.sections ?? []
 
   return (
     <article class="text-foreground px-5 flex gap-8 min-h-screen w-full items-start sm:px-8">
       <div class="mx-auto flex-1 max-w-4xl min-w-0 w-full">
         <DocsPageHeader
-          pageKey={input.pageKey}
-          surface={input.surface}
-          section={input.section}
-          markdownPath={input.markdownPath}
+          title={info()?.title ?? ''}
+          description={info()?.description ?? ''}
+          surface={info()?.surface ?? 'docs'}
+          markdownPath={info()?.markdownPath ?? ''}
           apiDoc={input.apiDoc}
-          frontmatter={input.frontmatter}
+          sourcePath={input.sourcePath}
+          upstreamHref={input.upstreamHref}
         />
 
         <CompactOnThisPage entries={onThisPageEntries()} />
 
         <div class="mb-24 mt-8 min-w-0 w-full">
-          <ComponentDocContext.Provider
+          <ComponentDocContext
             value={{
-              name: input.apiDoc?.parts[0]?.name ?? input.frontmatter.title,
+              name: input.apiDoc?.parts[0]?.name ?? info()?.title ?? '',
               api: input.apiDoc,
             }}
           >
             {input.children}
-          </ComponentDocContext.Provider>
+          </ComponentDocContext>
           <DocsApiReference apiDoc={input.apiDoc} />
           <DocsPageNavigation currentPagePath={input.routePath} />
         </div>

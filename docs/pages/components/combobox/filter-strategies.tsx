@@ -1,8 +1,7 @@
 import { Button, Combobox } from '@src'
 import type { ComboboxT } from '@src'
 import { createSignal } from 'solid-js'
-
-const CITIES: ComboboxT.Item[] = [
+const CITIES: Array<ComboboxT.Item> = [
   { label: 'San Francisco', value: 'sf' },
   { label: 'San Jose', value: 'sj' },
   { label: 'Santa Clara', value: 'sc' },

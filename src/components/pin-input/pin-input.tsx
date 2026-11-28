@@ -1,22 +1,23 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import {
   createEffect,
   createMemo,
   createSignal,
-  For,
-  on,
-  onCleanup,
-  onMount,
+  Repeat,
+  onSettled,
   Show,
-  splitProps,
+  untrack,
+  omit,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
-import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
+import { callHandler, createId, isAndroidUserAgent } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
@@ -32,6 +33,9 @@ import {
 import { defaultPinInputMessages } from './pin-input.messages'
 import { pinInputDataAttributes, pinInputRecipe } from './pin-input.recipe'
 import type { PinInputProps } from './pin-input.types'
+function hasBoundaryModifier(event: KeyEvent<HTMLInputElement>): boolean {
+  return (event.ctrlKey || event.metaKey) && !event.altKey
+}
 
 /**
  * Row of single-character inputs for verification codes, OTPs, and numeric PINs. `validationType`
@@ -54,7 +58,8 @@ import type { PinInputProps } from './pin-input.types'
  * ```
  */
 export function PinInput(props: PinInputProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'name',
     'form',
@@ -91,12 +96,12 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
+  )
 
-  const length = () => Math.max(1, local.length ?? 5)
-  const validationType = () => local.validationType ?? 'text'
-  const generatedId = createId(() => local.id, 'pin-input')
-  const field = useFormField(local, {
+  const length = () => Math.max(1, props.length ?? 5)
+  const validationType = () => props.validationType ?? 'text'
+  const generatedId = createId(() => props.id, 'pin-input')
+  const field = useFormField(props, {
     bind: false,
     focus: true,
     labelFor: true,
@@ -104,14 +109,14 @@ export function PinInput(props: PinInputProps): JSX.Element {
       return generatedId()
     },
     get initialValue() {
-      return local.value ?? local.defaultValue ?? ''
+      return props.value ?? props.defaultValue ?? ''
     },
   })
   const themeField = useFieldContext()
-  const messages = useMessages('pinInput', defaultPinInputMessages, () => local.translations)
+  const messages = useMessages('pinInput', defaultPinInputMessages, () => props.translations)
   const providerLocale = useLocale()
 
-  const inputEls: (HTMLInputElement | null)[] = []
+  const inputEls: Array<HTMLInputElement | null> = []
   let rootEl: HTMLDivElement | undefined
   let hiddenInputEl: HTMLInputElement | undefined
 
@@ -119,10 +124,22 @@ export function PinInput(props: PinInputProps): JSX.Element {
     hiddenInputEl?.form ?? inputEls[0]?.form ?? rootEl?.closest('form') ?? null
 
   function completeValue(joined: string): void {
-    local.onComplete?.(joined)
-    if (local.autoSubmit) {
+    props.onComplete?.(joined)
+    if (props.autoSubmit) {
       const formElement = getOwningForm()
       if (formElement && typeof formElement.requestSubmit === 'function') {
+        // The deferred completion drain can run before the inputs' `value`
+        // bindings apply; requestSubmit validates synchronously, so write them first.
+        if (hiddenInputEl) {
+          hiddenInputEl.value = joined
+        }
+        const slotChars = state.chars()
+        for (let i = 0; i < inputEls.length; i++) {
+          const el = inputEls[i]
+          if (el) {
+            el.value = slotChars[i] ?? ''
+          }
+        }
         formElement.requestSubmit()
       }
     }
@@ -135,14 +152,14 @@ export function PinInput(props: PinInputProps): JSX.Element {
   const state = createPinInput({
     length,
     validationType,
-    normalizeValue: () => local.normalizeValue,
-    value: () => local.value,
-    defaultValue: local.defaultValue,
+    normalizeValue: () => props.normalizeValue,
+    value: () => props.value,
+    defaultValue: untrack(() => props.defaultValue),
     fieldValue: field.value,
     setFormFieldValue: field.setFormValue,
     disabled: field.disabled,
     readOnly: field.readOnly,
-    onValueChange: () => local.onValueChange,
+    onValueChange: () => props.onValueChange,
     completeValue,
     resetNativeInvalid,
     emitChange: () => field.emit('change'),
@@ -166,11 +183,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
     resetChars,
   } = state
 
-  createEffect(
-    on(getTargetIndex, (index) => {
-      field.setControlRef(inputEls[index] ?? undefined)
-    }),
-  )
+  createEffect(getTargetIndex, (index) => {
+    field.setControlRef(inputEls[index] ?? undefined)
+  })
 
   const fieldDataState = {
     disabled: field.disabled,
@@ -182,7 +197,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
   const {
     slots: { root: rootSlot, separator: separatorSlot },
     slotWith,
-  } = useRecipe(pinInputRecipe, local, {
+  } = useRecipe(pinInputRecipe, props, {
     data: {
       root: pinInputDataAttributes.root({
         ...fieldDataState,
@@ -195,58 +210,52 @@ export function PinInput(props: PinInputProps): JSX.Element {
   })
 
   function updateInputsRef(): void {
-    if (!local.inputsRef) {
+    if (!props.inputsRef) {
       return
     }
     const len = length()
-    const filtered: HTMLInputElement[] = []
+    const filtered: Array<HTMLInputElement> = []
     for (let i = 0; i < len; i++) {
       const el = inputEls[i]
       if (el) {
         filtered.push(el)
       }
     }
-    if (filtered.length > 0) {
-      callRef(local.inputsRef, filtered)
+    if (filtered.length > 0 && typeof props.inputsRef === 'function') {
+      props.inputsRef(filtered)
     }
   }
 
-  onMount(() => {
+  onSettled(() => {
     updateInputsRef()
+    return () => {
+      inputEls.length = 0
+    }
   })
 
   createEffect(
-    on(
-      length,
-      (len) => {
-        inputEls.length = len
-        updateInputsRef()
-      },
-      { defer: true },
-    ),
+    length,
+    (len) => {
+      inputEls.length = len
+      updateInputsRef()
+    },
+    { defer: true },
   )
 
-  onCleanup(() => {
-    inputEls.length = 0
-  })
-
   createEffect(
-    on(
-      chars,
-      (currentChars) => {
-        const focused = focusedIndex()
-        if (focused !== null) {
-          const firstEmpty = currentChars.indexOf('')
-          const isSelectable =
-            focused < currentChars.length &&
-            (currentChars[focused] !== '' || focused === firstEmpty)
-          if (!isSelectable) {
-            focusInput(getTargetIndex())
-          }
+    chars,
+    (currentChars) => {
+      const focused = untrack(focusedIndex)
+      if (focused !== null) {
+        const firstEmpty = currentChars.indexOf('')
+        const isSelectable =
+          focused < currentChars.length && (currentChars[focused] !== '' || focused === firstEmpty)
+        if (!isSelectable) {
+          focusInput(untrack(getTargetIndex))
         }
-      },
-      { defer: true },
-    ),
+      }
+    },
+    { defer: true },
   )
 
   /**
@@ -272,17 +281,17 @@ export function PinInput(props: PinInputProps): JSX.Element {
       }
     }
 
-    const [validChars, rejected] = filterTypedChars(typed, validationType(), local.normalizeValue)
+    const [validChars, rejected] = filterTypedChars(typed, validationType(), props.normalizeValue)
     if (rejected !== '') {
-      local.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
+      props.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
     }
 
     if (validChars.length === 0) {
       if (raw === '') {
         const next = [...chars()]
         next[idx] = ''
+        element.value = props.value === undefined ? '' : currentSlotChar
         setChars(next)
-        element.value = chars()[idx] ?? ''
       } else {
         // Restore the rejected character and keep the slot selected, matching focus behavior.
         element.value = currentSlotChar
@@ -296,8 +305,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
     if (validChars.length > 1) {
       const next = spliceChars(chars(), idx, validChars, length())
       const nextJoined = next.join('')
+      element.value = props.value === undefined ? (next[idx] ?? '') : currentSlotChar
       setChars(next)
-      element.value = chars()[idx] ?? ''
       queueAction(nextJoined, Math.min(idx + validChars.length, length() - 1))
       return
     }
@@ -305,8 +314,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
     const next = [...chars()]
     next[idx] = validChars[0] ?? ''
     const nextJoined = next.join('')
+    element.value = props.value === undefined ? (next[idx] ?? '') : currentSlotChar
     setChars(next)
-    element.value = chars()[idx] ?? ''
 
     if (idx < length() - 1) {
       queueAction(nextJoined, idx + 1)
@@ -317,7 +326,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   // Separators sit after the last input of every group except the final one.
   const separatorPositions = createMemo<ReadonlySet<number> | null>(() => {
-    const size = local.groupSize
+    const size = props.groupSize
     const len = length()
     const positions = new Set<number>()
     if (typeof size === 'number' && Number.isInteger(size) && size > 0) {
@@ -343,29 +352,26 @@ export function PinInput(props: PinInputProps): JSX.Element {
     return separatorPositions()?.has(index + 1) ?? false
   }
 
-  let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
-
-  onMount(() => {
-    if (local.autoFocus) {
+  onSettled(() => {
+    let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
+    if (props.autoFocus) {
       autoFocusTimeoutId = setTimeout(() => {
         if (!field.disabled()) {
           focusInput(getTargetIndex())
         }
-      }, local.autoFocusDelay ?? 0)
+      }, props.autoFocusDelay ?? 0)
     }
-  })
-
-  onCleanup(() => {
-    if (autoFocusTimeoutId !== undefined) {
-      clearTimeout(autoFocusTimeoutId)
+    return () => {
+      if (autoFocusTimeoutId !== undefined) {
+        clearTimeout(autoFocusTimeoutId)
+      }
     }
   })
 
   useFormReset(getOwningForm, resetChars)
 
-  const indices = createMemo(() => Array.from({ length: length() }, (_, i) => i))
   const validationConfig = () => VALIDATION_CONFIG[validationType()]
-  const inputMode = () => local.inputMode ?? validationConfig()?.inputMode ?? 'text'
+  const inputMode = () => props.inputMode ?? validationConfig()?.inputMode ?? 'text'
 
   /** The single tabbable slot: the focused one, or the first editable target otherwise. */
   function tabbableIndex(): number {
@@ -377,8 +383,23 @@ export function PinInput(props: PinInputProps): JSX.Element {
   // as an accumulating string; committing per event would fill too many slots.
   const [composing, setComposing] = createSignal(false)
 
-  const hasBoundaryModifier = (event: KeyEvent<HTMLInputElement>) =>
-    (event.ctrlKey || event.metaKey) && !event.altKey
+  // Sync slot input DOM values on the client without a JSX `value` binding, which
+  // Solid 2 re-applies on any spread/attribute update and would overwrite IME drafts.
+  createEffect(
+    () => [chars(), composing()] as const,
+    ([currentChars, isComposing]) => {
+      if (isComposing) {
+        return
+      }
+      for (let i = 0; i < inputEls.length; i++) {
+        const el = inputEls[i]
+        const nextVal = currentChars[i] ?? ''
+        if (el && el.value !== nextVal) {
+          el.value = nextVal
+        }
+      }
+    },
+  )
 
   const moveToStart = (event: KeyEvent<HTMLInputElement>) => {
     event.stopPropagation()
@@ -454,29 +475,31 @@ export function PinInput(props: PinInputProps): JSX.Element {
       {...rest}
       id={`${field.id()}-root`}
       {...field.ariaAttrs()}
-      ref={(element) => {
-        rootEl = element
-        callRef(local.ref, element)
-      }}
+      ref={[
+        (element) => {
+          rootEl = element
+        },
+        props.ref,
+      ]}
       onFocusIn={(event) => {
         if (
-          callHandler(event, local.onFocusIn).defaultPrevented ||
+          callHandler(event, props.onFocusIn).defaultPrevented ||
           (event.relatedTarget && event.currentTarget.contains(event.relatedTarget as Node))
         ) {
           return
         }
-        if (!callHandler(event, local.onFocus).defaultPrevented) {
+        if (!callHandler(event, props.onFocus).defaultPrevented) {
           field.emit('focus', event)
         }
       }}
       onFocusOut={(event) => {
         if (
-          callHandler(event, local.onFocusOut).defaultPrevented ||
+          callHandler(event, props.onFocusOut).defaultPrevented ||
           (event.relatedTarget && event.currentTarget.contains(event.relatedTarget as Node))
         ) {
           return
         }
-        if (!callHandler(event, local.onBlur).defaultPrevented) {
+        if (!callHandler(event, props.onBlur).defaultPrevented) {
           field.emit('blur', event)
         }
       }}
@@ -503,17 +526,17 @@ export function PinInput(props: PinInputProps): JSX.Element {
         <HiddenInput
           type="text"
           name={field.name()}
-          form={local.form}
+          form={props.form}
           value={joinedValue()}
-          autocomplete={local.otp ? 'one-time-code' : 'off'}
-          inputMode={inputMode()}
-          minLength={length()}
-          maxLength={length()}
+          autocomplete={props.otp ? 'one-time-code' : 'off'}
+          inputmode={inputMode()}
+          minlength={length()}
+          maxlength={length()}
           pattern={validationConfig()?.getRootPattern(length())}
           disabled={field.disabled()}
-          readOnly={field.readOnly()}
+          readonly={field.readOnly()}
           required={field.required()}
-          tabIndex={-1}
+          tabindex={-1}
           aria-hidden="true"
           onInvalid={onInvalid}
           ref={(element) => {
@@ -534,16 +557,16 @@ export function PinInput(props: PinInputProps): JSX.Element {
             const [validChars, rejected] = filterInputText(
               raw,
               validationType(),
-              local.normalizeValue,
+              props.normalizeValue,
             )
             if (rejected !== '') {
-              local.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
+              props.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
             }
 
             const next = spliceChars(createEmptyChars(length()), 0, validChars, length())
             const nextJoined = next.join('')
             setChars(next)
-            event.currentTarget.value = joinedValue()
+            event.currentTarget.value = props.value === undefined ? nextJoined : joinedValue()
             if (nextJoined !== '') {
               queueAction(nextJoined, Math.min(validChars.length, length()) - 1)
             }
@@ -551,7 +574,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
         />
       </Show>
 
-      <For each={indices()}>
+      <Repeat count={length()}>
         {(idx) => {
           const itemSlot = slotWith('input', {
             data: pinInputDataAttributes.input({
@@ -571,22 +594,22 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 ref={(element) => {
                   inputEls[idx] = element
                 }}
-                type={local.mask ? 'password' : 'text'}
-                inputMode={inputMode()}
+                type={props.mask ? 'password' : 'text'}
+                inputmode={inputMode()}
                 pattern={validationConfig()?.slotPattern}
-                autocomplete={idx === 0 && local.otp ? 'one-time-code' : 'off'}
+                autocomplete={idx === 0 && props.otp ? 'one-time-code' : 'off'}
                 autocorrect="off"
                 autocapitalize="off"
-                spellcheck={false}
+                spellcheck="false"
                 enterkeyhint={idx === length() - 1 ? 'done' : 'next'}
-                maxLength={idx === 0 ? length() : undefined}
-                tabIndex={idx === tabbableIndex() ? 0 : -1}
-                form={local.form}
-                placeholder={focusedIndex() === idx ? '' : (local.placeholder ?? '')}
+                maxlength={idx === 0 ? length() : undefined}
+                tabindex={idx === tabbableIndex() ? 0 : -1}
+                form={props.form}
+                placeholder={focusedIndex() === idx ? '' : (props.placeholder ?? '')}
                 disabled={field.disabled()}
-                readOnly={field.readOnly()}
+                readonly={field.readOnly()}
                 required={field.required()}
-                value={chars()[idx] ?? ''}
+                {...(isServer ? { value: chars()[idx] ?? '' } : {})}
                 aria-label={messages().input({ index: idx + 1, length: length() })}
                 aria-invalid={
                   field.ariaAttrs()['aria-invalid'] || (nativeInvalid() ? 'true' : undefined)
@@ -664,13 +687,13 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   const [validChars, rejected] = filterInputText(
                     pastedText,
                     validationType(),
-                    local.normalizeValue,
+                    props.normalizeValue,
                   )
                   if (rejected !== '') {
-                    local.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
+                    props.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
                   }
                   if (validChars.length > length()) {
-                    local.onValueInvalid?.({
+                    props.onValueInvalid?.({
                       value: validChars.slice(length()).join(''),
                       reason: 'tooLong',
                     })
@@ -687,25 +710,30 @@ export function PinInput(props: PinInputProps): JSX.Element {
               />
 
               <Show when={hasSeparator(idx)}>
-                <span
-                  data-slot="pin-input-separator"
-                  role="presentation"
-                  aria-hidden="true"
-                  {...separatorSlot}
-                >
-                  <Show
-                    when={typeof local.separator === 'function' && local.separator}
-                    fallback={(local.separator as JSX.Element) ?? '•'}
-                    keyed
-                  >
-                    {(Separator) => <Separator index={idx} />}
-                  </Show>
-                </span>
+                {(_shown) => {
+                  const separator = createLazyMemo(() => props.separator)
+                  return (
+                    <span
+                      data-slot="pin-input-separator"
+                      role="presentation"
+                      aria-hidden="true"
+                      {...separatorSlot}
+                    >
+                      <Show
+                        when={typeof separator() === 'function' && separator()}
+                        fallback={(separator() as JSX.Element) ?? '•'}
+                        keyed
+                      >
+                        {(Separator) => <Separator index={idx} />}
+                      </Show>
+                    </span>
+                  )
+                }}
               </Show>
             </>
           )
         }}
-      </For>
+      </Repeat>
     </div>
   )
 }

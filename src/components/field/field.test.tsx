@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { Show, createRoot, createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { Show, createRoot, createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme/create-theme'
@@ -15,10 +15,18 @@ import { Field } from './field'
 import type { FieldBinding } from './field-context'
 import { FieldProvider, useFormField } from './field-context'
 import type { FieldT } from './field.types'
-
 function HookProbe(props: { binding?: FieldBinding }) {
   return (
-    <FieldProvider value={{ binding: props.binding, error: props.binding?.error }}>
+    <FieldProvider
+      value={{
+        get binding() {
+          return props.binding
+        },
+        get error() {
+          return props.binding?.error
+        },
+      }}
+    >
       <Probe />
     </FieldProvider>
   )
@@ -56,8 +64,8 @@ function DynamicProbe(props: { replacement: boolean }) {
   )
 }
 
-describe('Field', () => {
-  test.each([
+describe('field', () => {
+  it.each([
     { label: 'Visible', hiddenLabel: 'Hidden', name: 'Visible' },
     { label: '', hiddenLabel: 'Hidden', name: 'Hidden' },
     { label: undefined, hiddenLabel: 'Hidden', name: 'Hidden' },
@@ -74,7 +82,7 @@ describe('Field', () => {
     expect(input.getAttribute('aria-labelledby')).toBe(element.id)
   })
 
-  test('prevents text selection when the label is clicked rapidly', () => {
+  it('prevents text selection when the label is clicked rapidly', () => {
     const screen = render(() => (
       <Field label="Username">
         <Input />
@@ -99,7 +107,7 @@ describe('Field', () => {
     expect(singleClick.defaultPrevented).toBe(false)
   })
 
-  test('updates visible and hidden labels without replacing the control or obeying theme defaults', () => {
+  it('updates visible and hidden labels without replacing the control or obeying theme defaults', () => {
     const [label, setLabel] = createSignal<string>()
     const [hiddenLabel, setHiddenLabel] = createSignal('Filter')
     const theme = defineTheme({ field: { defaultVariants: { labelHidden: true } } })
@@ -113,21 +121,21 @@ describe('Field', () => {
     const input = screen.getByRole('textbox', { name: 'Filter' })
     const container = screen.container.querySelector('[data-slot="field-container"]')!
     expect(container.hasAttribute('data-has-text')).toBe(false)
-    setHiddenLabel('Search')
+    flush(() => setHiddenLabel('Search'))
     expect(screen.getByRole('textbox', { name: 'Search' })).toBe(input)
-    setLabel('Visible')
+    flush(() => setLabel('Visible'))
     expect(screen.getByRole('textbox', { name: 'Visible' })).toBe(input)
     expect(container.hasAttribute('data-has-text')).toBe(true)
-    setLabel('')
+    flush(() => setLabel(''))
     expect(screen.getByRole('textbox', { name: 'Search' })).toBe(input)
     expect(container.hasAttribute('data-has-text')).toBe(false)
-    setHiddenLabel('')
+    flush(() => setHiddenLabel(''))
     expect(screen.container.querySelector('[data-slot="field-label"]')).toBeNull()
     expect(input.hasAttribute('aria-labelledby')).toBe(false)
     expect(screen.getByRole('textbox')).toBe(input)
   })
 
-  test('keeps guidance, validation, and inherited disabled state with a hidden label', () => {
+  it('keeps guidance, validation, and inherited disabled state with a hidden label', () => {
     const [error, setError] = createSignal<string>()
     const [disabled, setDisabled] = createSignal(true)
     const screen = render(() => (
@@ -155,15 +163,15 @@ describe('Field', () => {
         ?.hasAttribute('data-has-text'),
     ).toBe(true)
     expect(describedBy()).toEqual(['Optional', 'Find commands', 'Search by name'])
-    setError('No matching commands')
+    flush(() => setError('No matching commands'))
     expect(screen.queryByText('Search by name')).toBeNull()
     expect(describedBy()).toEqual(['Optional', 'Find commands', 'No matching commands'])
     expect(input.getAttribute('aria-invalid')).toBe('true')
-    setDisabled(false)
+    flush(() => setDisabled(false))
     expect(input.disabled).toBe(false)
   })
 
-  test('renders standalone presentation and accessibility state', () => {
+  it('renders standalone presentation and accessibility state', () => {
     const screen = render(() => (
       <Field
         label="Email"
@@ -183,18 +191,18 @@ describe('Field', () => {
     expect(screen.getByText('Never shared')).not.toBeNull()
   })
 
-  test('supports explicit error, suppression, and render-function error state', () => {
+  it('supports explicit error, suppression, and render-function error state', () => {
     const [error, setError] = createSignal<string | false | undefined>('Broken')
     const screen = render(() => (
       <Field error={error()}>{(state) => <span data-testid="state">{state.error}</span>}</Field>
     ))
     expect(screen.getAllByText('Broken')).toHaveLength(2)
     expect(screen.getByTestId('state').textContent).toBe('Broken')
-    setError(false)
+    flush(() => setError(false))
     expect(screen.queryAllByText('Broken')).toHaveLength(0)
   })
 
-  test('keeps explicit control false values above inherited state', () => {
+  it('keeps explicit control false values above inherited state', () => {
     const screen = render(() => (
       <Field label="Message" required disabled readOnly>
         <Input required={false} disabled={false} readOnly={false} />
@@ -206,8 +214,8 @@ describe('Field', () => {
     expect(input.readOnly).toBe(false)
   })
 
-  test('applies readOnly to embedded choice controls and blocks interaction', () => {
-    const onCheckedChange = vi.fn()
+  it('applies readOnly to embedded choice controls and blocks interaction', () => {
+    const onCheckedChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <Field readOnly label="Accept">
@@ -257,7 +265,7 @@ describe('Field', () => {
     expect(item.getAttribute('aria-checked')).toBe('false')
   })
 
-  test('lets an explicit control readOnly={false} override the Field readOnly', () => {
+  it('lets an explicit control readonly={false} override the Field readOnly', () => {
     const screen = render(() => (
       <>
         <Field readOnly label="Accept">
@@ -302,7 +310,7 @@ describe('Field', () => {
     expect(item.getAttribute('aria-checked')).toBe('true')
   })
 
-  test('lets an explicit Switch disabled={false} override the Field disabled', () => {
+  it('lets an explicit Switch disabled={false} override the Field disabled', () => {
     const screen = render(() => (
       <>
         <Field disabled label="Alerts">
@@ -323,7 +331,7 @@ describe('Field', () => {
     expect(toggle.getAttribute('aria-checked')).toBe('true')
   })
 
-  test('targets the last registered bound control while bind:false stays non-primary', () => {
+  it('targets the last registered bound control while bind:false stays non-primary', () => {
     const screen = render(() => (
       <Field label="Values">
         <Input id="first" />
@@ -333,10 +341,10 @@ describe('Field', () => {
     expect(screen.getByText<HTMLLabelElement>('Values').htmlFor).toBe('second')
   })
 
-  test('uses a generic binding without Formisch', () => {
+  it('uses a generic binding without Formisch', () => {
     const [value, setValue] = createSignal<unknown>(undefined)
-    const setFormValue = vi.fn((next: unknown) => setValue(next))
-    const emit = vi.fn()
+    const setFormValue = vi.fn<(next: unknown) => any>((next) => setValue(next))
+    const emit = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       name: 'message',
       path: ['message'],
@@ -358,34 +366,34 @@ describe('Field', () => {
     expect(emit).toHaveBeenCalledWith('change', expect.any(Event))
   })
 
-  test('works without a binding', () => {
+  it('works without a binding', () => {
     const screen = render(() => <HookProbe />)
     expect(screen.getByRole('button').dataset.value).toBe('undefined')
   })
 
-  test('delivers the mounted control element to a binding', () => {
-    const controlRef = vi.fn()
+  it('delivers the mounted control element to a binding', () => {
+    const controlRef = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       controlRef,
-      setValue: vi.fn(),
-      emit: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
+      emit: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => <HookProbe binding={binding} />)
 
     expect(controlRef).toHaveBeenCalledWith(screen.getByRole('button'))
   })
 
-  test('updates a binding when its mounted control is replaced', () => {
-    const controlRef = vi.fn()
+  it('updates a binding when its mounted control is replaced', () => {
+    const controlRef = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       controlRef,
-      setValue: vi.fn(),
-      emit: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
+      emit: vi.fn<(...args: Array<any>) => void>(),
     }
     let replace!: () => void
     const screen = render(() => {
-      const [replacement, setReplacement] = createSignal(false)
-      replace = () => setReplacement(true)
+      const [replacement, setReplacement] = createSignal(false, { ownedWrite: true })
+      replace = () => flush(() => setReplacement(true))
       return (
         <FieldProvider value={{ binding }}>
           <DynamicProbe replacement={replacement()} />
@@ -398,12 +406,12 @@ describe('Field', () => {
     expect(controlRef).toHaveBeenLastCalledWith(screen.getByTestId('second-control'))
   })
 
-  test('delivers a control in a shadow root instead of a same-ID light-DOM element', () => {
-    const controlRef = vi.fn()
+  it('delivers a control in a shadow root instead of a same-ID light-DOM element', () => {
+    const controlRef = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       controlRef,
-      setValue: vi.fn(),
-      emit: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
+      emit: vi.fn<(...args: Array<any>) => void>(),
     }
     const lightControl = document.createElement('button')
     lightControl.id = 'probe-control'
@@ -423,12 +431,12 @@ describe('Field', () => {
     host.remove()
   })
 
-  test('delivers a control in another document instead of a same-ID light-DOM element', () => {
-    const controlRef = vi.fn()
+  it('delivers a control in another document instead of a same-ID light-DOM element', () => {
+    const controlRef = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       controlRef,
-      setValue: vi.fn(),
-      emit: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
+      emit: vi.fn<(...args: Array<any>) => void>(),
     }
     const lightControl = document.createElement('button')
     lightControl.id = 'probe-control'
@@ -448,7 +456,7 @@ describe('Field', () => {
     frame.remove()
   })
 
-  test('updates conditional children and render props', () => {
+  it('updates conditional children and render props', () => {
     const [visible, setVisible] = createSignal(true)
     const [error, setError] = createSignal<string | undefined>('Missing')
     const screen = render(() => (
@@ -467,14 +475,14 @@ describe('Field', () => {
     expect(screen.getByText('Visible')).toBeTruthy()
     expect(screen.getByTestId('rendered-error').textContent).toBe('Missing')
 
-    setVisible(false)
-    setError('Updated')
+    flush(() => setVisible(false))
+    flush(() => setError('Updated'))
 
     expect(screen.queryByText('Visible')).toBeNull()
     expect(screen.getByTestId('rendered-error').textContent).toBe('Updated')
   })
 
-  test('keeps reactive reads inside a zero-argument render function', () => {
+  it('keeps reactive reads inside a zero-argument render function', () => {
     const [label, setLabel] = createSignal('first')
     const screen = render(() => (
       <Field label="Value">{() => <span data-testid="accessor-child">{label()}</span>}</Field>
@@ -482,12 +490,12 @@ describe('Field', () => {
 
     expect(screen.getByTestId('accessor-child').textContent).toBe('first')
 
-    setLabel('second')
+    flush(() => setLabel('second'))
 
     expect(screen.getByTestId('accessor-child').textContent).toBe('second')
   })
 
-  test('passes the latest field error to a render function', () => {
+  it('passes the latest field error to a render function', () => {
     const [error, setError] = createSignal<string | undefined>('Missing')
     const screen = render(() => (
       <Field label="Value" error={error()}>
@@ -499,16 +507,16 @@ describe('Field', () => {
 
     expect(screen.getByTestId('render-child').textContent).toBe('Missing')
 
-    setError('Updated')
+    flush(() => setError('Updated'))
 
     expect(screen.getByTestId('render-child').textContent).toBe('Updated')
   })
 })
 
 describe('useFormField', () => {
-  test('reads the control id and disabled state reactively', () => {
-    const [id, setId] = createSignal('first')
-    const [disabled, setDisabled] = createSignal(false)
+  it('reads the control id and disabled state reactively', () => {
+    const [id, setId] = createSignal('first', { ownedWrite: true })
+    const [disabled, setDisabled] = createSignal(false, { ownedWrite: true })
 
     createRoot((dispose) => {
       const field = useFormField(
@@ -526,10 +534,10 @@ describe('useFormField', () => {
       expect(field.id()).toBe('first')
       expect(field.disabled()).toBe(false)
 
-      setId('second')
+      flush(() => setId('second'))
       expect(field.id()).toBe('second')
 
-      setDisabled(true)
+      flush(() => setDisabled(true))
       expect(field.disabled()).toBe(true)
 
       dispose()

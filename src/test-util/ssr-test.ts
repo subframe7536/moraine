@@ -1,8 +1,7 @@
-import type { JSX } from 'solid-js'
-import { sharedConfig } from 'solid-js'
-import { hydrate } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { hydrate } from '@solidjs/web'
+import { sharedConfig } from 'solid-js/internal'
 import { expect, inject, onTestFinished } from 'vitest'
-
 const ssrFixtures = (): Record<string, string> => inject('ssrFixtures')
 
 interface HydrationState {
@@ -51,7 +50,7 @@ export function installHydrationState(): () => void {
 
     queueMicrotask(() => {
       if (hydrationGlobal._$HY === state) {
-        delete hydrationGlobal._$HY
+        Reflect.deleteProperty(hydrationGlobal, '_$HY')
       }
     })
   }
@@ -91,8 +90,10 @@ export function hydrateFixture(
       return
     }
     unmounted = true
+    const runDispose = dispose
+    dispose = undefined
     try {
-      dispose?.()
+      runDispose?.()
     } finally {
       container.remove()
       restoreHydrationState()

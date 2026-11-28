@@ -1,4 +1,4 @@
-import { onCleanup } from 'solid-js'
+import { getOwner, onCleanup } from 'solid-js'
 
 type EventMapForTarget<TTarget extends EventTarget> = TTarget extends Window
   ? WindowEventMap
@@ -99,14 +99,24 @@ export function createEventListener<
   type: TType,
   listener: (event: EventMapForTarget<TTarget>[TType]) => void,
   options?: boolean | AddEventListenerOptions,
-): void {
-  onCleanup(attachEventListener(target, type, listener, options))
+): VoidFunction {
+  const detach = attachEventListener(target, type, listener, options)
+  // Effect callbacks and element binds run ownerless in Solid 2; only scopes
+  // with an owner get automatic cleanup — callers there return `detach`.
+  if (getOwner() !== null) {
+    onCleanup(detach)
+  }
+  return detach
 }
 
 export function createEventListenerMap<TTarget extends EventTarget>(
   target: TTarget | null | undefined,
   listeners: EventListenerMap<TTarget>,
   options?: boolean | AddEventListenerOptions,
-): void {
-  onCleanup(attachEventListenerMap(target, listeners, options))
+): VoidFunction {
+  const detach = attachEventListenerMap(target, listeners, options)
+  if (getOwner() !== null) {
+    onCleanup(detach)
+  }
+  return detach
 }

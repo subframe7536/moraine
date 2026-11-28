@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -24,7 +25,6 @@ import type {
 
 import type { defaultMultiSelectMessages } from './multi-select.messages'
 import type { MultiSelectStyleSlot, MultiSelectStyleVariants } from './multi-select.style-types'
-
 export namespace MultiSelectT {
   export type Kind = 'single'
   export type Slot<T = unknown> = MultiSelectStyleSlot<T>
@@ -74,14 +74,14 @@ export namespace MultiSelectT {
     /** Number of selected tags hidden by `maxVisible`. */
     count: number
     /** Hidden tags in selection order. */
-    tags: readonly TagOverflowEntry<TItem>[]
+    tags: ReadonlyArray<TagOverflowEntry<TItem>>
   }
 
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
     /** Current search text. */
     searchValue: string
     /** Currently selected values. */
-    selectedValues: readonly NormalizedItem<TItem>['value'][]
+    selectedValues: ReadonlyArray<NormalizedItem<TItem>['value']>
     /** Whether the maximum selection count has been reached. */
     atMaxValues: boolean
     /**
@@ -107,12 +107,12 @@ export namespace MultiSelectT {
      * selection uncontrolled; `[]` keeps it controlled and empty. In controlled mode the
      * selection changes only when you update this prop in `onValueChange`.
      */
-    value?: NormalizedItem<TItem>['value'][]
+    value?: Array<NormalizedItem<TItem>['value']>
     /**
      * Initial selected values when `value` is not set. Read once on creation; a native form reset
      * restores it.
      */
-    defaultValue?: NormalizedItem<TItem>['value'][]
+    defaultValue?: Array<NormalizedItem<TItem>['value']>
     /**
      * Overrides the built-in messages for this instance, merged over the messages from the
      * provider and locale: `clear`, `loading`, `toggle`, `empty`, `placeholder`, `overflow`,
@@ -159,13 +159,13 @@ export namespace MultiSelectT {
      * />
      * ```
      */
-    items?: Entry<TItem>[]
+    items?: Array<Entry<TItem>>
     /**
      * Called with the full new array of selected values when the user adds or removes an item
      * (clicking an option, `Enter`, removing a tag, or clearing). The search text is cleared
      * just before it is called. Not called for prop updates or while disabled or read-only.
      */
-    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'][]>) => void
+    onValueChange?: (value: NoInfer<Array<NormalizedItem<TItem>['value']>>) => void
     /**
      * Shows a clear button while there are selected values or search text. Clearing removes every
      * selected value except those of disabled items, empties the search text, calls `onClear`,
@@ -212,7 +212,7 @@ export namespace MultiSelectT {
      * overlapping separators prefer the longest match.
      * @default [',']
      */
-    tokenSeparators?: string[]
+    tokenSeparators?: Array<string>
     /**
      * Replaces the default tag (label plus remove button) of each visible tag. Receives
      * `{ item, value, label, remove }`; `item` is `undefined` for a selected value that matches

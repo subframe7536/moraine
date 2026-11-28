@@ -1,6 +1,6 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { createSignal, Show } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { Show, createSignal, flush } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import { Icon } from '../icon/index'
@@ -8,9 +8,8 @@ import { Input } from '../input/input'
 import { Textarea } from '../textarea/textarea'
 
 import { InputGroup } from './input-group'
-
-describe('InputGroup SSR hydration', () => {
-  test('reuses group, control and part nodes through hydration and reactive replacement', () => {
+describe('inputGroup SSR hydration', () => {
+  it('reuses group, control and part nodes through hydration and reactive replacement', () => {
     const [show, setShow] = createSignal(true)
     const [compact, setCompact] = createSignal(true)
     const [value, setValue] = createSignal('Server value')
@@ -42,19 +41,19 @@ describe('InputGroup SSR hydration', () => {
         '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
       ),
     ).toHaveLength(2)
-    setCompact(false)
+    flush(() => setCompact(false))
     expect(leading.hasAttribute('data-compact')).toBe(false)
     expect(container.querySelector('[data-slot="input-group-leading"]')).toBe(leading)
     input.focus()
     fireEvent.input(input, { target: { value: 'Client edit' } })
     expect(input.value).toBe('Client edit')
-    setShow(false)
+    flush(() => setShow(false))
     expect(
       group.querySelectorAll(
         '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
       ),
     ).toHaveLength(1)
-    setShow(true)
+    flush(() => setShow(true))
     expect(
       group.querySelectorAll(
         '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
@@ -65,7 +64,7 @@ describe('InputGroup SSR hydration', () => {
     expect(document.activeElement).toBe(input)
   })
 
-  test('hydrates a textarea with vertical parts and reactive native boolean attributes', () => {
+  it('hydrates a textarea with vertical parts and reactive native boolean attributes', () => {
     const [readOnly, setReadOnly] = createSignal(false)
     const { container } = hydrateFixture(
       '/src/components/input-group/input-group.ssr.fixture.tsx',
@@ -96,9 +95,9 @@ describe('InputGroup SSR hydration', () => {
       container.querySelector('[data-slot="input-group-leading"][data-orientation="vertical"]')
         ?.textContent,
     ).toBe('0')
-    setReadOnly(true)
+    flush(() => setReadOnly(true))
     expect(textarea.readOnly).toBe(true)
-    setReadOnly(false)
+    flush(() => setReadOnly(false))
     expect(textarea.readOnly).toBe(false)
     fireEvent.input(textarea, { target: { value: 'Client edit' } })
     expect(textarea.value).toBe('Client edit')

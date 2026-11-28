@@ -1,8 +1,8 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, within } from '@solidjs/testing-library'
-import { createSignal, For, untrack } from 'solid-js'
+import { For, createSignal, flush, untrack } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { renderWithOwner } from '../../test-util/owner-render'
@@ -11,15 +11,14 @@ import { createForm } from '../index'
 
 import { MultiSelect } from './multi-select'
 import type { MultiSelectT } from './multi-select.types'
-
-const ITEMS: MultiSelectT.Item[] = [
+const ITEMS: Array<MultiSelectT.Item> = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
   { label: 'Cherry', value: 'cherry', disabled: true },
 ]
 
-describe('MultiSelect', () => {
-  test('uses BaseSelect.Trigger as the non-editable focus owner without a physical input', () => {
+describe('multiSelect', () => {
+  it('uses BaseSelect.Trigger as the non-editable focus owner without a physical input', () => {
     const screen = render(() => <MultiSelect items={ITEMS} defaultValue={['apple']} />)
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const trigger = screen.getByRole('combobox')
@@ -32,8 +31,8 @@ describe('MultiSelect', () => {
     expect(control.querySelector('[data-slot="multi-select-tag"]')?.textContent).toContain('Apple')
   })
 
-  test('accepts string shorthand items', () => {
-    const onChange = vi.fn()
+  it('accepts string shorthand items', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={['Apple', 'Pear']}
@@ -49,7 +48,7 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenCalledWith(['Apple', 'Pear'])
   })
 
-  test('non-editable BaseSelect.Trigger owns focus and disclosure', () => {
+  it('non-editable BaseSelect.Trigger owns focus and disclosure', () => {
     const screen = render(() => (
       <>
         <button type="button">Outside</button>
@@ -75,7 +74,7 @@ describe('MultiSelect', () => {
     ).toBe('Banana')
   })
 
-  test('keeps typeahead navigation on the non-editable trigger', () => {
+  it('keeps typeahead navigation on the non-editable trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} defaultSearchValue="hidden" />)
     const trigger = screen.getByRole('combobox')
     fireEvent.keyDown(trigger, { key: 'b' })
@@ -84,7 +83,7 @@ describe('MultiSelect', () => {
     ).toBe('Banana')
   })
 
-  test.each([
+  it.each([
     { searchable: true, createItem: undefined },
     { searchable: false, createItem: (value: string) => ({ value, label: value }) },
   ])('is editable when search or createItem enables it', (props) => {
@@ -93,7 +92,7 @@ describe('MultiSelect', () => {
     expect(input.readOnly).toBe(false)
   })
 
-  test('matches autocomplete semantics to editable read-only state', () => {
+  it('matches autocomplete semantics to editable read-only state', () => {
     const editable = render(() => <MultiSelect items={ITEMS} searchable />)
     const editableInput = editable.getByRole<HTMLInputElement>('combobox')
     expect(editableInput.getAttribute('aria-autocomplete')).toBe('list')
@@ -107,13 +106,13 @@ describe('MultiSelect', () => {
     expect(readOnlyInput.getAttribute('autocomplete')).toBe('off')
   })
 
-  test('supports custom autocomplete attribute on editable input', () => {
+  it('supports custom autocomplete attribute on editable input', () => {
     const screen = render(() => <MultiSelect items={ITEMS} searchable autoComplete="off email" />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     expect(input.getAttribute('autocomplete')).toBe('off email')
   })
 
-  test('control click opens by default and the non-editable trigger toggles', () => {
+  it('control click opens by default and the non-editable trigger toggles', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const trigger = screen.getByRole('combobox')
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
@@ -124,7 +123,7 @@ describe('MultiSelect', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('control click does not open by default when editable', () => {
+  it('control click does not open by default when editable', () => {
     const screen = render(() => <MultiSelect items={ITEMS} searchable />)
     const input = screen.getByRole('combobox')
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
@@ -133,7 +132,7 @@ describe('MultiSelect', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('openOnControlClick explicitly overrides default behavior', () => {
+  it('openOnControlClick explicitly overrides default behavior', () => {
     // Non-editable with openOnControlClick={false} -> does not open
     const screenDisabled = render(() => <MultiSelect items={ITEMS} openOnControlClick={false} />)
     const controlDisabled = screenDisabled.container.querySelector(
@@ -153,8 +152,8 @@ describe('MultiSelect', () => {
     expect(inputEnabled.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('clear and trigger coexist without accidental opening', () => {
-    const onClear = vi.fn()
+  it('clear and trigger coexist without accidental opening', () => {
+    const onClear = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple']} clearable onClear={onClear} />
     ))
@@ -164,20 +163,19 @@ describe('MultiSelect', () => {
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('tag removal changes once and does not open', () => {
-    const onChange = vi.fn()
+  it('tag removal changes once and does not open', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple', 'banana']} onValueChange={onChange} />
     ))
     fireEvent.click(screen.getByRole('button', { name: 'Remove Apple' }))
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith(['banana'])
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(['banana'])
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('normal selection stays open and clears query', () => {
-    const onSearchValueChange = vi.fn()
-    const onChange = vi.fn()
+  it('normal selection stays open and clears query', () => {
+    const onSearchValueChange = vi.fn<(...args: Array<any>) => void>()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         searchable
@@ -195,12 +193,12 @@ describe('MultiSelect', () => {
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('createItem adds a canonical item and selects its value', () => {
-    const createItem = vi.fn((input: string) => ({
+  it('createItem adds a canonical item and selects its value', () => {
+    const createItem = vi.fn<(input: string) => any>((input) => ({
       label: input.toUpperCase(),
       value: input,
     }))
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
@@ -214,9 +212,12 @@ describe('MultiSelect', () => {
     ).toBe('DRAGONFRUIT')
   })
 
-  test('active existing option wins Enter over createItem', () => {
-    const createItem = vi.fn((input: string) => ({ label: input, value: input }))
-    const onChange = vi.fn()
+  it('active existing option wins Enter over createItem', () => {
+    const createItem = vi.fn<(input: string) => any>((input) => ({
+      label: input,
+      value: input,
+    }))
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
@@ -227,9 +228,9 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith(['banana'])
   })
 
-  test('reuses a canonical value returned by createItem', () => {
-    const createItem = vi.fn(() => ({ label: 'Duplicate', value: 'apple' }))
-    const onChange = vi.fn()
+  it('reuses a canonical value returned by createItem', () => {
+    const createItem = vi.fn<() => any>(() => ({ label: 'Duplicate', value: 'apple' }))
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
@@ -242,8 +243,8 @@ describe('MultiSelect', () => {
     ).toBe('Apple')
   })
 
-  test('rejects an invalid item returned by an untyped createItem implementation', () => {
-    const onChange = vi.fn()
+  it('rejects an invalid item returned by an untyped createItem implementation', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={ITEMS}
@@ -258,8 +259,8 @@ describe('MultiSelect', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('maxValues blocks additions but allows removal', () => {
-    const onChange = vi.fn()
+  it('maxValues blocks additions but allows removal', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         searchable
@@ -277,7 +278,7 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith([])
   })
 
-  test('renders the default overflow count without changing the field description', () => {
+  it('renders the default overflow count without changing the field description', () => {
     const items = [
       { label: 'Apple', value: 'apple' },
       { label: 'Banana', value: 'banana' },
@@ -318,14 +319,14 @@ describe('MultiSelect', () => {
     fireEvent.keyDown(input, { key: 'Backspace' })
     expect(untrack(values)).toEqual(['apple', 'banana'])
     expect(overflow()?.textContent).toBe('+1')
-    setMaxVisible(2)
+    flush(() => setMaxVisible(2))
     expect(overflow()).toBeNull()
     expect(input.getAttribute('aria-describedby')).toBe('fruits-description')
-    setMaxVisible(1)
+    flush(() => setMaxVisible(1))
     expect(overflow()?.textContent).toBe('+1')
   })
 
-  test('exposes reactive hidden tags to a custom overflow renderer', () => {
+  it('exposes reactive hidden tags to a custom overflow renderer', () => {
     const [items, setItems] = createSignal([
       { label: 'Apple', value: 'apple' },
       { label: 'Banana', value: 'banana' },
@@ -355,20 +356,22 @@ describe('MultiSelect', () => {
     expect(overflow().textContent).toBe('2:Banana/Banana/banana;Cherry/Cherry/cherry;')
     expect(screen.container.querySelector('[data-slot="multi-select-tag-overflow"]')).toBeNull()
 
-    setItems([
-      { label: 'Apple', value: 'apple' },
-      { label: 'Plantain', value: 'banana' },
-      { label: 'Cherry', value: 'cherry' },
-    ])
+    flush(() =>
+      setItems([
+        { label: 'Apple', value: 'apple' },
+        { label: 'Plantain', value: 'banana' },
+        { label: 'Cherry', value: 'cherry' },
+      ]),
+    )
     expect(overflow().textContent).toBe('2:Plantain/Plantain/banana;Cherry/Cherry/cherry;')
 
-    setMaxVisible(2)
+    flush(() => setMaxVisible(2))
     expect(overflow().textContent).toBe('1:Cherry/Cherry/cherry;')
-    setMaxVisible(3)
+    flush(() => setMaxVisible(3))
     expect(screen.queryByTestId('custom-overflow')).toBeNull()
   })
 
-  test('loading keeps the non-editable trigger mounted', () => {
+  it('loading keeps the non-editable trigger mounted', () => {
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple']} clearable loading />
     ))
@@ -378,7 +381,7 @@ describe('MultiSelect', () => {
     expect(trigger.getAttribute('aria-busy')).toBe('true')
   })
 
-  test('keeps a read-only field browsable through its non-editable trigger', () => {
+  it('keeps a read-only field browsable through its non-editable trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} readOnly />)
     const trigger = screen.getByRole('combobox')
     fireEvent.click(trigger)
@@ -388,8 +391,8 @@ describe('MultiSelect', () => {
     ).toBe('true')
   })
 
-  test('creates free-form items with Enter and the default comma separator', () => {
-    const onChange = vi.fn()
+  it('creates free-form items with Enter and the default comma separator', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -405,8 +408,8 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith(['alpha', 'beta'])
   })
 
-  test('tokenizes duplicate, multiple, and overlapping multi-character separators', () => {
-    const onChange = vi.fn()
+  it('tokenizes duplicate, multiple, and overlapping multi-character separators', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -419,8 +422,8 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith(['alpha', 'beta'])
   })
 
-  test('deduplicates token commits and applies maxValues to created items', () => {
-    const onChange = vi.fn()
+  it('deduplicates token commits and applies maxValues to created items', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         defaultValue={['alpha']}
@@ -437,8 +440,8 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith(['alpha', 'beta'])
   })
 
-  test('pastes multiple tokens and leaves ordinary paste to the input', () => {
-    const onChange = vi.fn()
+  it('pastes multiple tokens and leaves ordinary paste to the input', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -454,8 +457,8 @@ describe('MultiSelect', () => {
     expect(fireEvent.paste(input, { clipboardData: { getData: () => 'ordinary text' } })).toBe(true)
   })
 
-  test('defers tokenization until IME composition ends', () => {
-    const onChange = vi.fn()
+  it('defers tokenization until IME composition ends', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -472,9 +475,12 @@ describe('MultiSelect', () => {
     expect((input as HTMLInputElement).value).toBe('完')
   })
 
-  test('resolves exact existing items before creation and rejects disabled items', () => {
-    const createItem = vi.fn((input: string) => ({ value: input, label: input }))
-    const onChange = vi.fn()
+  it('resolves exact existing items before creation and rejects disabled items', () => {
+    const createItem = vi.fn<(input: string) => any>((input) => ({
+      value: input,
+      label: input,
+    }))
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} />
     ))
@@ -487,7 +493,7 @@ describe('MultiSelect', () => {
     expect(createItem).not.toHaveBeenCalled()
   })
 
-  test('keeps controlled and uncontrolled query state on the shared input', () => {
+  it('keeps controlled and uncontrolled query state on the shared input', () => {
     const [query, setQuery] = createSignal('controlled')
     const controlled = render(() => (
       <MultiSelect
@@ -511,7 +517,7 @@ describe('MultiSelect', () => {
     expect(uncontrolledInput.value).toBe('draft')
   })
 
-  test('shares custom tag removal and keyboard focus behavior', async () => {
+  it('shares custom tag removal and keyboard focus behavior', async () => {
     const screen = render(() => (
       <MultiSelect
         items={ITEMS}
@@ -541,7 +547,7 @@ describe('MultiSelect', () => {
     expect(keyboard.queryByRole('button', { name: 'Remove Apple' })).toBeNull()
   })
 
-  test('renders a non-editable placeholder and hides it after a tag is committed', () => {
+  it('renders a non-editable placeholder and hides it after a tag is committed', () => {
     const empty = render(() => <MultiSelect items={ITEMS} placeholder="Choose fruit" />)
     expect(
       empty.container.querySelector('[data-slot="multi-select-placeholder"]')?.textContent,
@@ -553,7 +559,7 @@ describe('MultiSelect', () => {
     expect(selected.container.querySelector('[data-slot="multi-select-placeholder"]')).toBeNull()
   })
 
-  test('shows the placeholder translation when no placeholder is set', () => {
+  it('shows the placeholder translation when no placeholder is set', () => {
     const fallback = render(() => <MultiSelect items={ITEMS} />)
     expect(
       fallback.container.querySelector('[data-slot="multi-select-placeholder"]')?.textContent,
@@ -588,7 +594,7 @@ describe('MultiSelect', () => {
     ).toBe('Choose fruit')
   })
 
-  test('serializes created values and restores uncontrolled values on form reset', async () => {
+  it('serializes created values and restores uncontrolled values on form reset', async () => {
     const screen = render(() => (
       <form>
         <MultiSelect
@@ -606,22 +612,22 @@ describe('MultiSelect', () => {
     expect(new FormData(form).getAll('tag')).toEqual(['alpha'])
   })
 
-  test('keeps controlled values authoritative', () => {
-    const [value, setValue] = createSignal<string[]>(['missing'])
+  it('keeps controlled values authoritative', () => {
+    const [value, setValue] = createSignal<Array<string>>(['missing'])
     const screen = render(() => (
       <MultiSelect items={ITEMS} value={value()} onValueChange={setValue} />
     ))
     expect(
       screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
     ).toBe('missing')
-    setValue(['apple'])
+    flush(() => setValue(['apple']))
     expect(
       screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
     ).toBe('Apple')
   })
 
-  test('treats value undefined as uncontrolled and applies defaultValue', () => {
-    const onChange = vi.fn()
+  it('treats value undefined as uncontrolled and applies defaultValue', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={ITEMS}
@@ -642,9 +648,9 @@ describe('MultiSelect', () => {
     expect(tagLabels()).toEqual(['Banana', 'Apple'])
   })
 
-  test('keeps a defined value authoritative over defaultValue and user selection', () => {
-    const [value, setValue] = createSignal<string[] | undefined>(['apple'])
-    const onChange = vi.fn()
+  it('keeps a defined value authoritative over defaultValue and user selection', () => {
+    const [value, setValue] = createSignal<Array<string> | undefined>(['apple'])
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={ITEMS}
@@ -663,12 +669,12 @@ describe('MultiSelect', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(onChange).toHaveBeenLastCalledWith(['apple', 'banana'])
     expect(tagLabels()).toEqual(['Apple'])
-    setValue(['apple', 'banana'])
+    flush(() => setValue(['apple', 'banana']))
     expect(tagLabels()).toEqual(['Apple', 'Banana'])
   })
 
-  test('hands back to the initial default when a defined value becomes undefined', () => {
-    const [value, setValue] = createSignal<string[] | undefined>(['apple'])
+  it('hands back to the initial default when a defined value becomes undefined', () => {
+    const [value, setValue] = createSignal<Array<string> | undefined>(['apple'])
     const screen = render(() => (
       <MultiSelect items={ITEMS} value={value()} defaultValue={['banana']} defaultOpen />
     ))
@@ -678,13 +684,13 @@ describe('MultiSelect', () => {
       )
 
     expect(tagLabels()).toEqual(['Apple'])
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(tagLabels()).toEqual(['Banana'])
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(tagLabels()).toEqual(['Banana', 'Apple'])
   })
 
-  test('falls back to the Form.Field value while value is undefined', () => {
+  it('falls back to the Form.Field value while value is undefined', () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -709,7 +715,7 @@ describe('MultiSelect', () => {
     expect(getInput(form)).toEqual({ choices: ['banana', 'apple'] })
   })
 
-  test('clears the selection when the Form.Field value is reset to null or undefined', () => {
+  it('clears the selection when the Form.Field value is reset to null or undefined', () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -729,15 +735,15 @@ describe('MultiSelect', () => {
     const tags = () => screen.container.querySelectorAll('[data-slot="multi-select-tag"]')
 
     expect(tags()).toHaveLength(1)
-    setInput(form, { path: ['choices'], input: null })
+    flush(() => setInput(form, { path: ['choices'], input: null }))
     expect(tags()).toHaveLength(0)
-    setInput(form, { path: ['choices'], input: ['banana'] })
+    flush(() => setInput(form, { path: ['choices'], input: ['banana'] }))
     expect(tags()).toHaveLength(1)
-    setInput(form, { path: ['choices'], input: undefined })
+    flush(() => setInput(form, { path: ['choices'], input: undefined }))
     expect(tags()).toHaveLength(0)
   })
 
-  test('updates a collection array owned by Form.Field', () => {
+  it('updates a collection array owned by Form.Field', () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -763,7 +769,7 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(2)
   })
 
-  test('a pointer press on the non-editable control focuses its trigger', () => {
+  it('a pointer press on the non-editable control focuses its trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const trigger = screen.getByRole('combobox')
@@ -777,7 +783,7 @@ describe('MultiSelect', () => {
     expect(document.activeElement).toBe(trigger)
   })
 
-  test('an editable MultiSelect is a single text input inside the control', () => {
+  it('an editable MultiSelect is a single text input inside the control', () => {
     const screen = render(() => <MultiSelect items={ITEMS} searchable />)
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const input = screen.getByRole('combobox')
@@ -787,8 +793,8 @@ describe('MultiSelect', () => {
     expect(control.querySelectorAll('input[data-slot="multi-select-input"]')).toHaveLength(1)
   })
 
-  test('pressing Enter on a duplicate tag does not delete previously created tag', () => {
-    const onChange = vi.fn()
+  it('pressing Enter on a duplicate tag does not delete previously created tag', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -809,8 +815,8 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
   })
 
-  test('pressing Enter on a duplicate item from items collection does not delete the tag', () => {
-    const onChange = vi.fn()
+  it('pressing Enter on a duplicate item from items collection does not delete the tag', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect searchable items={ITEMS} defaultValue={['apple']} onValueChange={onChange} />
     ))
@@ -822,8 +828,8 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
   })
 
-  test('entering duplicate tag via delimiter does not duplicate or delete existing tag', () => {
-    const onChange = vi.fn()
+  it('entering duplicate tag via delimiter does not duplicate or delete existing tag', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
@@ -837,8 +843,8 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
   })
 
-  test('pressing Enter on a highlighted already-selected option does not deselect it', () => {
-    const onChange = vi.fn()
+  it('pressing Enter on a highlighted already-selected option does not deselect it', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         searchable
@@ -856,8 +862,8 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
   })
 
-  test('clear-all preserves selected items that are currently disabled', () => {
-    const onChange = vi.fn()
+  it('clear-all preserves selected items that are currently disabled', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MultiSelect
         items={[
@@ -879,7 +885,7 @@ describe('MultiSelect', () => {
     ).toBe('Locked')
   })
 
-  test('keeps existing tag DOM nodes stable when adding a new value', () => {
+  it('keeps existing tag DOM nodes stable when adding a new value', () => {
     const [value, setValue] = createSignal(['apple'])
     const screen = render(() => (
       <MultiSelect
@@ -894,13 +900,13 @@ describe('MultiSelect', () => {
     const firstTag = screen.container.querySelector('[data-slot="multi-select-tag"]')
     expect(firstTag).not.toBeNull()
 
-    setValue(['apple', 'banana'])
+    flush(() => setValue(['apple', 'banana']))
     const tags = screen.container.querySelectorAll('[data-slot="multi-select-tag"]')
     expect(tags).toHaveLength(2)
     expect(tags[0]).toBe(firstTag)
   })
 
-  test('clear button is non-tabbable with no focus ring', () => {
+  it('clear button is non-tabbable with no focus ring', () => {
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple']} searchable clearable />
     ))

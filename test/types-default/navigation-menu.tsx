@@ -1,7 +1,6 @@
 import { NavigationMenu } from 'moraine'
 import type { NavigationMenuT } from 'moraine'
 import { defineTheme } from 'moraine/theme'
-
 const RouterLink = (props: NavigationMenuT.LinkRenderProps) => <a {...props} />
 
 ;<NavigationMenu

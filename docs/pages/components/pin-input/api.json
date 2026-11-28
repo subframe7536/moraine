@@ -81,7 +81,7 @@
         {
           "name": "groupSize",
           "optional": true,
-          "type": "number | readonly number[]",
+          "type": "number | ReadonlyArray<number>",
           "description": "Group inputs by inserting a separator between groups: a number for groups of that size\n(`3` gives `[X][X][X] • [X][X][X]`), or an array of consecutive group sizes (`[3, 1, 3]`\ngives `[X][X][X] • [X] • [X][X][X]`). Sizes that do not fit inside `length` add no\nseparator."
         },
         {
@@ -93,13 +93,13 @@
         {
           "name": "inputMode",
           "optional": true,
-          "type": "JSX.HTMLAttributes<HTMLInputElement>['inputMode']",
+          "type": "JSX.HTMLAttributes<HTMLInputElement>['inputmode']",
           "description": "The virtual keyboard hint applied to the inputs and hidden input.\nOverrides the `inputMode` derived from `validationType`."
         },
         {
           "name": "inputsRef",
           "optional": true,
-          "type": "Ref<HTMLInputElement[]>",
+          "type": "Ref<Array<HTMLInputElement>>",
           "description": "Receives the array of the slot `<input>` elements, in order, after mount and whenever\n`length` changes."
         },
         {

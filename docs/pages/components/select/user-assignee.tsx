@@ -1,7 +1,6 @@
 import { Select } from '@src'
 import type { SelectT } from '@src'
-
-const ROLES: SelectT.Item[] = [
+const ROLES: Array<SelectT.Item> = [
   {
     label: 'Owner',
     value: 'owner',

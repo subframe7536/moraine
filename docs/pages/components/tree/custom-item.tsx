@@ -1,14 +1,13 @@
 import { Badge, createTree } from '@src'
 import { Show } from 'solid-js'
-
 interface Workspace {
   id: string
   name: string
   count?: number
-  children?: Workspace[]
+  children?: Array<Workspace>
 }
 
-const WORKSPACES: Workspace[] = [
+const WORKSPACES: Array<Workspace> = [
   {
     id: 'acme',
     name: 'Acme',

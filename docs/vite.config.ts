@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'node:url'
-
+import solid from '@solidjs/vite-plugin'
 import uno from '@subf/unocss/vite'
 import path from 'pathe'
-import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
+import { fileRouter } from 'solid-file-router/plugin'
 import { defineConfig } from 'vite'
-import solid from 'vite-plugin-solid'
 
 import { variantGroupPlugin } from '../build/vite-plugin-variant-group.ts'
 
@@ -12,59 +10,57 @@ import {
   createDocsMdxOptions,
   DOCS_SITE,
   docsBuildPlugin,
+  docsDevBarrelPlugin,
   llmsTxtPlugin,
-  siteMetaPlugin,
 } from './build/index.ts'
 import unocfg from './unocss.config.ts'
-
-const docsRoot = fileURLToPath(new URL('.', import.meta.url))
+const docsRoot = import.meta.dirname
 const projectRoot = path.resolve(docsRoot, '..')
 const sourceRoot = path.resolve(projectRoot, 'src')
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     variantGroupPlugin(),
     docsBuildPlugin({ projectRoot }),
-    uno(unocfg),
-    solid({ ssr: true, extensions: ['.mdx'] }),
-    fileRouter({
-      pagesDir: 'routes',
-      // MDX pages live under pages/components; ignore only route UI source files.
-      ignore: [
-        ...DEFAULT_IGNORES.filter((pattern) => pattern !== '**/components/**'),
-        '**/components/**/*.{ts,tsx}',
-        'routes/hooks/**',
-        '**/*.test.tsx',
-      ],
-      mdx: createDocsMdxOptions(projectRoot),
-      output: 'routes.d.ts',
-      ssg: {
-        id: 'app',
-        concurrency: 4,
+    docsDevBarrelPlugin({ projectRoot }),
+    uno(
+      command === 'serve'
+        ? {
+            ...unocfg,
+            content: {
+              filesystem: ['build/markdown/shared.recipe.ts'],
+              pipeline: unocfg.content?.pipeline,
+            },
+          }
+        : unocfg,
+    ),
+    solid({
+      start: {
+        app: 'App.tsx',
+        document: 'Document.tsx',
       },
-      infoDts: {
-        key: 'string',
-        title: 'string',
-        description: 'string',
-        order: 'number',
-        tags: 'string[]',
-        surface: "'docs' | 'components' | 'hooks'",
-        section: 'string',
-        routePath: 'string',
-        markdownPath: 'string',
-        badge: 'string',
-        api: 'string',
-        sections: '{ id: string; label: string; level: number }[]',
-      },
+      ssr: true,
+      extensions: ['.mdx'],
     }),
-    siteMetaPlugin({
-      ...DOCS_SITE,
-      title: 'Moraine Docs',
-      imagePath: '/og-image.png',
-      imageAlt: 'Moraine Docs brand cover image',
-      imageWidth: 1200,
-      imageHeight: 630,
-      twitterCard: 'summary_large_image',
+    fileRouter({
+      // The docs site routes two trees: app route modules under routes/ and
+      // Markdown/MDX content pages under pages/.
+      pagesDir: [
+        {
+          dir: 'routes',
+          extensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+          ignore: ['components/**', 'hooks/**', 'docs-route.ts', 'router.ts', '**/*.test.tsx'],
+        },
+        {
+          dir: 'pages',
+          extensions: ['md', 'mdx'],
+          ignore: ['**/*.test.tsx'],
+        },
+      ],
+      eager: ['/(app)', '/'],
+      mdx: createDocsMdxOptions(projectRoot, { lazyApiDoc: true }),
+      output: 'routes.d.ts',
+      ssg: { enable: 'build-only' },
     }),
     llmsTxtPlugin({ projectRoot, ...DOCS_SITE }),
   ],
@@ -73,26 +69,15 @@ export default defineConfig({
       '@src': sourceRoot,
       moraine: sourceRoot,
     },
-    dedupe: ['solid-js', 'solid-js/store', '@solidjs/router'],
+    dedupe: ['solid-js', '@solidjs/web', '@solidjs/router'],
   },
   optimizeDeps: {
-    entries: ['index.html', 'routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
-  },
-  build: {
-    rolldownOptions: {
-      checks: { pluginTimings: false },
-    },
+    entries: ['routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
   },
   environments: {
     client: {
       build: {
         rolldownOptions: {
-          // devtools: { mode: 'report' },
-          treeshake: {
-            // Route modules keep the page's MDX imports; without this every playground (and the
-            // components it demos) stays in the eagerly loaded route table.
-            moduleSideEffects: [{ test: /[\\/]docs[\\/]pages[\\/].*\.tsx$/, sideEffects: false }],
-          },
           output: {
             // Do not group the other library modules: they read each other's recipe constants at
             // load time, and manual chunks create import cycles that run a recipe before its
@@ -101,7 +86,7 @@ export default defineConfig({
               groups: [
                 {
                   name: 'solid-vendor',
-                  test: /[\\/]node_modules[\\/]solid-js[\\/]/,
+                  test: /[\\/]node_modules[\\/](?:solid-js|@solidjs)[\\/]/,
                   priority: 30,
                   includeDependenciesRecursively: true,
                 },
@@ -111,6 +96,13 @@ export default defineConfig({
                   priority: 20,
                   includeDependenciesRecursively: true,
                 },
+                {
+                  name: 'moraine-ui',
+                  test: /[\\/]src[\\/](?:components|provider|shared)[\\/]/,
+                  priority: 10,
+                  entriesAware: true,
+                  entriesAwareMergeThreshold: 20_000,
+                },
               ],
             },
           },
@@ -118,4 +110,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))

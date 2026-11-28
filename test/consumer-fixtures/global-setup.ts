@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential fixture scanning keeps collection order deterministic.
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -8,7 +9,6 @@ import type { ESTree } from 'vite'
 import type { RecipeConfig } from '../../src/theme/recipe'
 
 import { ensureBuild, PROJECT_ROOT } from './helpers'
-
 export async function setup(): Promise<void> {
   ensureBuild()
   const distDir = join(PROJECT_ROOT, 'dist')
@@ -120,5 +120,5 @@ export async function setup(): Promise<void> {
 
   mkdirSync(dirname(outputPath), { recursive: true })
   writeFileSync(outputPath, `${JSON.stringify([...tokens].sort(), null, 2)}\n`)
-  console.log(`Collected ${tokens.size} class tokens in ${outputPath}`)
+  process.stdout.write(`Collected ${tokens.size} class tokens in ${outputPath}\n`)
 }

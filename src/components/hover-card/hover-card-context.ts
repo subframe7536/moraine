@@ -5,7 +5,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { createPopper } from '../shared/overlay/popper'
 
 import type { HoverCardProps, HoverCardT } from './hover-card.types'
-
 export interface HoverCardContextValue {
   options: HoverCardProps
   popper: ReturnType<typeof createPopper>

@@ -1,10 +1,8 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, untrack, omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
-import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { TreeItemProvider, TreeProvider } from './tree-context'
@@ -19,9 +17,9 @@ import { createTreeState } from './tree-state'
 import type { TreeState } from './tree-state'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'state',
     'itemRender',
     'actionRender',
@@ -39,42 +37,45 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     'class',
     'style',
     'ref',
-  ])
+  )
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(treeRecipe, local)
-  const state = untrack(() => local.state)
+  } = useRecipe(treeRecipe, props)
+  const state = untrack(() => props.state)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
   createEffect(
-    on(
-      () => local.virtualizer,
-      (virtualizer) => {
-        // Items outside the virtual window have no element to scroll into view.
-        state.navigation.registerScroller(
-          virtualizer
-            ? (key) => {
-                const index = state.flattenedKeys().indexOf(key)
-                if (index >= 0) {
-                  virtualizer.scrollToIndex(index)
-                }
+    () => props.virtualizer,
+    (virtualizer) => {
+      // Items outside the virtual window have no element to scroll into view.
+      state.navigation.registerScroller(
+        virtualizer
+          ? (key) => {
+              const index = state.flattenedKeys().indexOf(key)
+              if (index >= 0) {
+                virtualizer.scrollToIndex(index)
               }
-            : undefined,
-        )
-      },
-    ),
+            }
+          : undefined,
+      )
+      return () => {
+        state.navigation.registerScroller(undefined)
+      }
+    },
   )
-  bindElement(scrollElement, (element) => state.navigation.registerRoot(element))
-  onCleanup(() => {
-    state.navigation.registerScroller(undefined)
+  createEffect(scrollElement, (element) => {
+    if (!element) {
+      return
+    }
+    return state.navigation.registerRoot(element)
   })
 
   function RenderItem(itemProps: TreeItemContext): JSX.Element {
     return (
       <TreeItemProvider value={itemProps}>
         {renderWithProps(
-          local.itemRender ?? TreeDefaultItem,
+          props.itemRender ?? TreeDefaultItem,
           itemProps.item as TreeT.ItemRenderProps<T>,
         )}
       </TreeItemProvider>
@@ -82,9 +83,9 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
   }
 
   const context: TreeContext = {
-    state,
-    options: state.options,
-    props: local,
+    state: state as unknown as TreeContext['state'],
+    options: state.options as unknown as TreeContext['options'],
+    props: props as unknown as TreeContext['props'],
     get variants() {
       return {
         size: variants.size,
@@ -93,32 +94,29 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
         transition: variants.transition,
       }
     },
-    slotOverrides: pickSlotOverrides(local),
+    slotOverrides: pickSlotOverrides(props),
     RenderItem,
   }
 
   return (
-    <TreeProvider value={context}>
-      <ul
-        data-slot="tree"
-        role="tree"
-        aria-multiselectable={state.selectionMode() === 'multiple' ? true : undefined}
-        {...rootSlot}
-        {...rest}
-        ref={(element: HTMLElement) => {
-          setScrollElement(element)
-          callRef(local.ref, element)
-        }}
-      >
+    <ul
+      data-slot="tree"
+      role="tree"
+      aria-multiselectable={state.selectionMode() === 'multiple' ? 'true' : undefined}
+      {...rootSlot}
+      {...rest}
+      ref={[setScrollElement, props.ref]}
+    >
+      <TreeProvider value={context}>
         <VirtualContent<TreeT.ItemInstance<T>>
-          virtualizer={local.virtualizer}
+          virtualizer={props.virtualizer}
           entries={state.flattenedItems()}
           scrollElement={scrollElement()}
           render={(item, _index, rowProps) => <RenderItem item={item} row={rowProps} />}
           fallback={<TreeItemList items={state.rootItems()} />}
         />
-      </ul>
-    </TreeProvider>
+      </TreeProvider>
+    </ul>
   )
 }
 

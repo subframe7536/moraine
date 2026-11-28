@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useTablePart } from './table-part'
 import { TABLE_TEXT_ALIGN_CLASS } from './table.recipe'
 import type { TableT } from './table.types'
-
 /**
  * Column or row header cell of the surrounding `Table`; renders a `th`. Place it in a
  * `Table.Row` inside `Table.Header`, or use `scope="row"` in a body row to label that row. Text
@@ -25,12 +24,12 @@ import type { TableT } from './table.types'
  * ```
  */
 export function TableHead(props: TableT.HeadProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['align', 'class', 'style'])
+  const rest = omit(props, 'align', 'class', 'style')
   // Always set the alignment: a `th` outside `thead` would otherwise fall back to the
   // browser's centered default.
-  const { head: headSlot } = useTablePart('head', local, {
+  const { head: headSlot } = useTablePart('head', props, {
     own: () => ({
-      class: TABLE_TEXT_ALIGN_CLASS[local.align ?? 'start'],
+      class: TABLE_TEXT_ALIGN_CLASS[props.align ?? 'start'],
     }),
   })
 

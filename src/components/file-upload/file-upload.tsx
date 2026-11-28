@@ -1,13 +1,12 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, mergeProps, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, Show, createMemo, createSignal, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
-import { bindElement } from '../../shared/element-binding'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { Icon } from '../icon'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -21,7 +20,6 @@ import { FileUploadItem } from './file-upload-item'
 import { defaultFileUploadMessages } from './file-upload.messages'
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
-
 function isSameFileValue(a: unknown, b: unknown): boolean {
   if (Array.isArray(a) && Array.isArray(b)) {
     return a.length === b.length && a.every((file, i) => file === b[i])
@@ -55,7 +53,8 @@ function isSameFileValue(a: unknown, b: unknown): boolean {
 export function FileUpload<TMultiple extends boolean = false>(
   props: FileUploadProps<TMultiple>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'name',
     'form',
@@ -94,8 +93,8 @@ export function FileUpload<TMultiple extends boolean = false>(
     'style',
     'aria-label',
     'translations',
-  ])
-  const messages = useMessages('fileUpload', defaultFileUploadMessages, () => local.translations)
+  )
+  const messages = useMessages('fileUpload', defaultFileUploadMessages, () => props.translations)
   const themeField = useFieldContext()
   const {
     slots: {
@@ -114,7 +113,7 @@ export function FileUpload<TMultiple extends boolean = false>(
       fileRemove: fileRemoveSlot,
     },
     variants,
-  } = useRecipe(fileUploadRecipe, local, {
+  } = useRecipe(fileUploadRecipe, props, {
     data: {
       root: fileUploadDataAttributes.root(() => ({
         disabled: field.disabled,
@@ -130,7 +129,7 @@ export function FileUpload<TMultiple extends boolean = false>(
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       accept: '*',
       multiple: false,
@@ -139,7 +138,7 @@ export function FileUpload<TMultiple extends boolean = false>(
       icon: 'icon-upload' as const,
       fileIcon: 'icon-file' as const,
     },
-    local,
+    props,
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
@@ -147,8 +146,8 @@ export function FileUpload<TMultiple extends boolean = false>(
   const fileList = createMemo(() => merged.fileList)
 
   const initialDefaultValue = untrack(() => {
-    if (local.defaultValue !== undefined) {
-      return local.defaultValue
+    if (props.defaultValue !== undefined) {
+      return props.defaultValue
     }
     return (merged.multiple ? [] : null) as FileUploadT.Value<TMultiple>
   })
@@ -169,7 +168,7 @@ export function FileUpload<TMultiple extends boolean = false>(
         return merged.disabled
       },
       get required() {
-        return local.required
+        return props.required
       },
       get readOnly() {
         return merged.readOnly
@@ -184,20 +183,15 @@ export function FileUpload<TMultiple extends boolean = false>(
   )
 
   const [formValue, setFormValue, resetFormValue] = useFormValue<FileUploadT.Value<TMultiple>>({
-    value: () => local.value,
+    value: () => props.value,
     defaultValue: () => initialDefaultValue,
     onValueChange: (val) => merged.onValueChange?.(val),
     field,
     isEqual: isSameFileValue,
   })
 
-  const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement>()
-  const [controlElement, setControlElement] = createSignal<HTMLElement>()
-
-  bindElement(controlElement, (element) => {
-    field.setControlRef(element)
-    return () => field.setControlRef(undefined)
-  })
+  const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement | undefined>(undefined)
+  const [controlElement, setControlElement] = createSignal<HTMLElement | undefined>(undefined)
 
   const { nativeInvalid, resetNativeInvalid, onInvalid } = useHiddenInputValidation({
     focusTarget: controlElement,
@@ -249,27 +243,42 @@ export function FileUpload<TMultiple extends boolean = false>(
   const labelId = () => `${field.id()}-label`
   const descriptionId = () => (description() ? `${field.id()}-description` : undefined)
   const invalid = createMemo(() => field.invalid() || nativeInvalid())
-  const labelling = createMemo<{ 'aria-labelledby'?: string; 'aria-label'?: string }>(() => {
-    const labelledBy = field.ariaAttrs()['aria-labelledby'] || (label() ? labelId() : undefined)
+  const labelling = createMemo<{ 'aria-labelledby'?: string; 'aria-label'?: string }>(
+    () => {
+      const labelledBy = field.ariaAttrs()['aria-labelledby'] || (label() ? labelId() : undefined)
 
-    return labelledBy
-      ? { 'aria-labelledby': labelledBy }
-      : { 'aria-label': local['aria-label'] ?? messages().label }
-  })
-  const controlAriaAttrs = createMemo(() => {
-    const attrs = { ...field.ariaAttrs() }
-    const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
+      return labelledBy
+        ? { 'aria-labelledby': labelledBy }
+        : { 'aria-label': props['aria-label'] || messages().label }
+    },
+    {
+      equals: (prev, next) =>
+        prev['aria-labelledby'] === next['aria-labelledby'] &&
+        prev['aria-label'] === next['aria-label'],
+    },
+  )
+  const controlAriaAttrs = createMemo(
+    () => {
+      const attrs = { ...field.ariaAttrs() }
+      const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
 
-    if (describedBy) {
-      attrs['aria-describedby'] = describedBy
-    }
-    Object.assign(attrs, labelling())
-    if (invalid()) {
-      attrs['aria-invalid'] = 'true'
-    }
+      if (describedBy) {
+        attrs['aria-describedby'] = describedBy
+      }
+      Object.assign(attrs, labelling())
+      if (invalid()) {
+        attrs['aria-invalid'] = 'true'
+      }
 
-    return attrs
-  })
+      return attrs
+    },
+    {
+      equals: (prev, next) => {
+        const keys = Object.keys(next) as Array<keyof typeof next>
+        return Object.keys(prev).length === keys.length && keys.every((k) => prev[k] === next[k])
+      },
+    },
+  )
 
   const itemSlots = {
     file: fileSlot,
@@ -309,21 +318,21 @@ export function FileUpload<TMultiple extends boolean = false>(
       id={`${field.id()}-root`}
       aria-labelledby={labelling()['aria-labelledby']}
       aria-label={labelling()['aria-label']}
-      aria-disabled={field.disabled() ? true : undefined}
+      aria-disabled={field.disabled() ? 'true' : undefined}
     >
       <button
         type="button"
         data-slot="file-upload-control"
         {...controlAriaAttrs()}
         {...controlSlot}
-        ref={setControlElement}
+        ref={[setControlElement, field.setControlRef]}
         disabled={field.disabled()}
         onFocus={(event) => {
-          callHandler(event, local.onFocus)
+          callHandler(event, props.onFocus)
           field.emit('focus', event)
         }}
         onBlur={(event) => {
-          callHandler(event, local.onBlur)
+          callHandler(event, props.onBlur)
           field.emit('blur', event)
         }}
         onClick={onControlClick}
@@ -352,18 +361,15 @@ export function FileUpload<TMultiple extends boolean = false>(
       <HiddenInput
         type="file"
         id={field.id()}
-        ref={(element) => {
-          setHiddenInput(element)
-          callRef(local.inputRef, element)
-        }}
-        form={local.form}
+        ref={[setHiddenInput, props.inputRef]}
+        form={props.form}
         name={field.name()}
         accept={merged.accept}
         multiple={merged.multiple}
         required={field.required()}
         disabled={field.disabled()}
         readonly={field.readOnly()}
-        tabIndex={-1}
+        tabindex={-1}
         aria-hidden="true"
         onChange={(event) => {
           addFiles(Array.from(event.currentTarget.files ?? []))
@@ -389,21 +395,23 @@ export function FileUpload<TMultiple extends boolean = false>(
                   />
                 }
               >
-                {(renderer) =>
-                  renderWithProps(renderer(), {
-                    file,
-                    get index() {
-                      return index()
-                    },
-                    get previewUrl() {
-                      return previewUrls().get(file)
-                    },
-                    remove: () => removeFileAt(index()),
-                    get disabled() {
-                      return !interactive()
-                    },
-                  })
-                }
+                {(renderer) => (
+                  <>
+                    {renderWithProps(renderer(), {
+                      file,
+                      get index() {
+                        return index()
+                      },
+                      get previewUrl() {
+                        return previewUrls().get(file)
+                      },
+                      remove: () => removeFileAt(index()),
+                      get disabled() {
+                        return !interactive()
+                      },
+                    })}
+                  </>
+                )}
               </Show>
             )}
           </For>

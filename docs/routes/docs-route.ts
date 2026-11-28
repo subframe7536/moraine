@@ -1,20 +1,19 @@
-import { routeInfo } from 'virtual:routes'
+import { getRouteInfo } from 'solid-file-router'
 
 import { DOCS_SECTION_ORDER } from '../shared/docs-route'
 import type { DocsRouteInfo, DocsRouteSection, DocsSurface } from '../shared/docs-route'
-
 export interface DocsPageEntry {
   key: string
   label: string
   description: string
   order: number
-  tags: string[]
+  tags: Array<string>
   surface: DocsSurface
   section: string
   markdownPath: string
   badge?: string
   path: string
-  sections: DocsRouteSection[]
+  sections: Array<DocsRouteSection>
 }
 
 function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
@@ -36,7 +35,7 @@ function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
   )
 }
 
-function normalizeSections(value: unknown): DocsRouteSection[] {
+function normalizeSections(value: unknown): Array<DocsRouteSection> {
   if (!Array.isArray(value)) {
     return []
   }
@@ -61,8 +60,10 @@ function normalizeSections(value: unknown): DocsRouteSection[] {
   })
 }
 
-export function getDocsPages(): DocsPageEntry[] {
-  return Object.entries(routeInfo)
+export function getDocsPages(
+  info: Readonly<Record<string, unknown>> = getRouteInfo(),
+): Array<DocsPageEntry> {
+  return Object.entries(info)
     .map(([, info]) => {
       if (!isDocsRouteInfo(info)) {
         return null

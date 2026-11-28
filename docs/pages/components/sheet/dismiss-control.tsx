@@ -1,6 +1,5 @@
 import { Button, Sheet } from '@src'
 import { createSignal } from 'solid-js'
-
 export function DismissControl() {
   const [open, setOpen] = createSignal(false)
   const [preventedCloseCount, setPreventedCloseCount] = createSignal(0)

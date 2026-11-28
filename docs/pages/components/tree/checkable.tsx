@@ -1,13 +1,12 @@
 import { createTree } from '@src'
 import { createSignal } from 'solid-js'
-
 interface Permission {
   id: string
   label: string
-  children?: Permission[]
+  children?: Array<Permission>
 }
 
-const PERMISSIONS: Permission[] = [
+const PERMISSIONS: Array<Permission> = [
   {
     id: 'billing',
     label: 'Billing',
@@ -28,7 +27,7 @@ const PERMISSIONS: Permission[] = [
 ]
 
 export function Checkable() {
-  const [checked, setChecked] = createSignal<string[]>(['members-read'])
+  const [checked, setChecked] = createSignal<Array<string>>(['members-read'])
   const tree = createTree<Permission>({
     items: () => PERMISSIONS,
     getKey: (node) => node.id,

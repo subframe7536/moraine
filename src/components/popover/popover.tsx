@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createEffect, mergeProps, on } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, merge } from 'solid-js'
 
 import { createHoverDelay } from '../shared/overlay/hover-delay'
 import { createPopper } from '../shared/overlay/popper'
@@ -10,7 +10,6 @@ import type { usePopoverContext } from './popover-context'
 import { PopoverProvider } from './popover-context'
 import { PopoverTrigger } from './popover-trigger'
 import type { PopoverProps } from './popover.types'
-
 /**
  * Floating panel of interactive content anchored to a trigger. Use it for anchored content that
  * does not need a labeled modal surface; use `Tooltip` for a brief non-interactive hint,
@@ -30,44 +29,45 @@ import type { PopoverProps } from './popover.types'
  * ```
  */
 export function Popover(props: PopoverProps): JSX.Element {
-  const merged = mergeProps(
-    {
-      openOnHover: false,
-      openDelay: 100,
-      closeDelay: 100,
-      gutter: 4,
-      overflowPadding: 4,
-    },
-    props,
+  const popper = createPopper(
+    merge(props, {
+      get gutter() {
+        return props.gutter ?? 4
+      },
+      get overflowPadding() {
+        return props.overflowPadding ?? 4
+      },
+    }),
+    'popover',
   )
 
-  const popper = createPopper(merged, 'popover')
-
   const hoverDelay = createHoverDelay({
-    openDelay: () => merged.openDelay,
-    closeDelay: () => merged.closeDelay,
-    enabled: () => merged.openOnHover && !merged.disabled,
+    openDelay: () => props.openDelay ?? 100,
+    closeDelay: () => props.closeDelay ?? 100,
+    enabled: () => Boolean(props.openOnHover) && !props.disabled,
     setOpen: (open) => popper.setOpen(open),
   })
 
   createEffect(
-    on([() => merged.openOnHover, () => merged.disabled], () => {
+    () => (props.openOnHover ? 1 : 0) | (props.disabled ? 2 : 0),
+    () => {
       hoverDelay.invalidate()
-    }),
+    },
+    { defer: true },
   )
 
   const behavior: ReturnType<typeof usePopoverContext> = {
-    options: merged,
+    options: props,
     popper,
     scheduleOpen: hoverDelay.scheduleOpen,
     scheduleClose: hoverDelay.scheduleClose,
     clearCloseTimer: hoverDelay.cancelClose,
     invalidateHoverTimers: hoverDelay.invalidate,
     get slotOverrides() {
-      return { classes: merged.classes, styles: merged.styles }
+      return { classes: props.classes, styles: props.styles }
     },
   }
-  return <PopoverProvider value={behavior}>{merged.children}</PopoverProvider>
+  return <PopoverProvider value={behavior}>{props.children}</PopoverProvider>
 }
 
 Popover.Trigger = PopoverTrigger

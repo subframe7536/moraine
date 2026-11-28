@@ -1,26 +1,16 @@
-import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createRenderEffect,
-  createSignal,
-  on,
-  onCleanup,
-  splitProps,
-} from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, createEffect, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
-import { bindElement, publishElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
+import { resolvePropsChildren, publishElement } from '../../shared/utils'
 import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
 import { defaultSidebarMessages } from './sidebar.messages'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * Container for the sidebar's regions. Renders an `aside` inline on desktop and moves the same
  * content into a mobile `Drawer` on smaller viewports, so keep one navigation tree inside it. Place
@@ -42,7 +32,9 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(props as SidebarT.PanelProps, [
+  const local = props as SidebarT.PanelProps
+  const rest = omit(
+    props as SidebarT.PanelProps,
     'as',
     'aria-label',
     'children',
@@ -50,16 +42,23 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     'id',
     'style',
     'ref',
-  ])
-  // Registered during setup so `Trigger` and `Rail` reference the same id in `aria-controls`.
-  createRenderEffect(on(() => local.id, context.setPanelId))
-  onCleanup(() => context.setPanelId(undefined))
-  const content = resolveChildren(() => local.children)
+  )
+  // Register the panel id on the client so `Trigger` and `Rail` reference it in `aria-controls`.
+  createEffect(
+    () => local.id,
+    (id) => {
+      context.setPanelId(id)
+      return () => context.setPanelId(undefined)
+    },
+  )
+  const content = resolvePropsChildren(props)
   const { slotWith } = useSidebarStyles('panel', local)
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
 
   const mobileAriaLabel = () =>
     local['aria-label'] ?? (rest as { title?: string }).title ?? messages().label
+
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'aside')
 
   // The mobile Drawer owns presence, so only the inline desktop panel reflects the closed state.
   const PanelContent = (contentProps: { mobile: boolean }) => {
@@ -67,7 +66,12 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     const [element, setElement] = createSignal<HTMLElement>()
     // Publish only the inline panel so `Rail` can measure it, even while closed.
     const publishedElement = () => (contentProps.mobile ? undefined : element())
-    bindElement(publishedElement, publishElement(context.panelElement, context.setPanelElement))
+    createEffect(publishedElement, (node) => {
+      if (!node) {
+        return
+      }
+      return publishElement(context.panelElement, context.setPanelElement)(node)
+    })
     const panelSlot = slotWith('panel', {
       data: sidebarDataAttributes.panel({
         closed,
@@ -79,22 +83,18 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
       }),
     })
     return (
-      <Dynamic
-        component={(local.as ?? 'aside') as ValidComponent}
+      <Root
         data-slot="sidebar-panel"
         {...panelSlot}
-        ref={(node: HTMLElement) => {
-          setElement(node)
-          callRef(local.ref, node)
-        }}
-        aria-hidden={closed() ? true : undefined}
-        inert={closed() ? true : undefined}
+        ref={[setElement, local.ref]}
+        aria-hidden={closed() ? 'true' : undefined}
+        {...{ 'prop:inert': closed() ? true : undefined }}
         aria-label={local['aria-label']}
         {...(rest as object)}
-        id={context.panelId()}
+        id={local.id ?? context.panelId()}
       >
         {content()}
-      </Dynamic>
+      </Root>
     )
   }
 

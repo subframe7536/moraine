@@ -9,7 +9,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { CheckboxStyleSlot, CheckboxStyleVariants } from './checkbox.style-types'
-
 export const checkboxDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
     'checked',

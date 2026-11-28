@@ -1,7 +1,6 @@
 import { Button, ScrollArea } from '@src'
 import type { ScrollAreaT } from '@src'
 import { For, Show, createSignal } from 'solid-js'
-
 export function Overflow() {
   const [overflow, setOverflow] = createSignal<ScrollAreaT.Overflow>()
   let viewport: HTMLDivElement | undefined

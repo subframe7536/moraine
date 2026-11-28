@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { RadioGroup } from './radio-group'
-
 export function renderRadioGroupFixture(): string {
   return renderToString(() => (
     <RadioGroup

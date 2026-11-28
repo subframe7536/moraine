@@ -1,5 +1,4 @@
 import { RadioGroup } from '@src'
-
 export function IndicatorPositions() {
   return (
     <div class="max-w-md w-full">

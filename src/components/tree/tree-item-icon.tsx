@@ -1,13 +1,12 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItemContext } from './tree-context'
+import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 /**
  * Prefix icon of the surrounding `tree.Item`, for custom `itemRender` content. The default item
  * renders it from `getItemIcon` instead.
@@ -30,21 +29,21 @@ import type { TreeT } from './tree.types'
  * ```
  */
 export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['icon', 'class', 'style'])
-  const item = useTreeItemContext()!.item
+  const rest = omit(props, 'icon', 'class', 'style')
+  const itemContext = requireTreeItemContext()
   const context = useTreeContext()
   const {
     slots: { icon: iconSlot },
-  } = useRecipe(treeRecipe, local, {
+  } = useRecipe(treeRecipe, props, {
     slot: 'icon',
     data: {
       icon: treeDataAttributes.icon({
-        expanded: () => item.expanded,
-        leaf: () => item.leaf,
+        expanded: () => itemContext.item.expanded,
+        leaf: () => itemContext.item.leaf,
       }),
     },
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
-  return <Icon name={local.icon} data-slot="tree-icon" {...iconSlot} {...rest} />
+  return <Icon name={props.icon} data-slot="tree-icon" {...iconSlot} {...rest} />
 }

@@ -1,7 +1,7 @@
-import type { JSX } from 'solid-js'
-import { createSignal, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createSignal, onCleanup, omit, untrack } from 'solid-js'
 
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, createId } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
 
 import { clamp, fixToPrecision } from './hook'
@@ -13,7 +13,6 @@ import {
 import type { ResizableItem, ResizablePanelRegistration } from './resizable-context'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableT } from './resizable.types'
-
 /**
  * Imperative panel API. Only valid inside `Resizable.Panel` content; throws
  * when called outside a panel.
@@ -45,7 +44,8 @@ export function useResizablePanel(): ResizableT.PanelContext {
  */
 export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
   const ctx = useResizableContext()
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'min',
     'max',
@@ -60,24 +60,24 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
     'ref',
     'onTransitionEnd',
     'onTransitionCancel',
-  ])
+  )
 
   const [element, setElement] = createSignal<HTMLElement>()
-  const panelId = createId(() => local.id, 'resizable-panel')
-  const min = () => clamp(local.min ?? 0, 0, 100)
-  const max = () => Math.max(min(), clamp(local.max ?? 100, 0, 100))
-  const collapsedSize = () => clamp(local.collapsedSize ?? 0, 0, min())
+  const panelId = createId(() => props.id, 'resizable-panel')
+  const min = () => clamp(props.min ?? 0, 0, 100)
+  const max = () => Math.max(min(), clamp(props.max ?? 100, 0, 100))
+  const collapsedSize = () => clamp(props.collapsedSize ?? 0, 0, min())
 
   const registration: ResizablePanelRegistration = {
     id: panelId,
     element,
     min,
     max,
-    resizable: () => local.resizable !== false,
-    collapsible: () => local.collapsible === true,
+    resizable: () => props.resizable !== false,
+    collapsible: () => props.collapsible === true,
     collapsedSize,
-    onCollapse: () => local.onCollapse?.(),
-    onExpand: () => local.onExpand?.(),
+    onCollapse: () => untrack(() => props.onCollapse)?.(),
+    onExpand: () => untrack(() => props.onExpand)?.(),
   }
   const item: ResizableItem = { kind: 'panel', seq: 0, panel: registration }
   onCleanup(ctx.registerItem(item))
@@ -103,7 +103,7 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
 
   const {
     slots: { panel: panelSlot },
-  } = useRecipe(resizableRecipe, local, {
+  } = useRecipe(resizableRecipe, props, {
     slot: 'panel',
     context: () => ({ variants: { orientation: ctx.orientation() }, ...ctx.slotOverrides }),
     enforced: { panel: () => ({ style: flexStyle() }) },
@@ -133,13 +133,18 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
       data-slot="resizable-panel"
       {...panelSlot}
       {...rest}
-      ref={(node) => {
-        setElement(node)
-        callRef(local.ref, node)
-      }}
+      ref={[
+        setElement,
+        (node) => {
+          const ref = untrack(() => props.ref)
+          if (typeof ref === 'function') {
+            ref(node)
+          }
+        },
+      ]}
       id={panelId()}
       onTransitionEnd={(event) => {
-        const result = callHandler(event, local.onTransitionEnd)
+        const result = callHandler(event, props.onTransitionEnd)
         if (
           !result.defaultPrevented &&
           event.propertyName === 'flex-basis' &&
@@ -149,13 +154,13 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
         }
       }}
       onTransitionCancel={(event) => {
-        const result = callHandler(event, local.onTransitionCancel)
+        const result = callHandler(event, props.onTransitionCancel)
         if (!result.defaultPrevented && event.target === event.currentTarget) {
           ctx.clearPanelTransition(panelId())
         }
       }}
     >
-      <ResizablePanelProvider value={panelContext}>{local.children}</ResizablePanelProvider>
+      <ResizablePanelProvider value={panelContext}>{props.children}</ResizablePanelProvider>
     </div>
   )
 }

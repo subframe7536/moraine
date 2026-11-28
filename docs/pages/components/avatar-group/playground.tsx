@@ -2,7 +2,6 @@ import { AvatarGroup } from '@src'
 import type { AvatarGroupT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const MEMBERS = [
   {
     src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
@@ -29,7 +28,7 @@ const MEMBERS = [
     alt: 'Jane Wilson',
     text: 'JW',
   },
-] satisfies AvatarGroupT.Item[]
+] satisfies Array<AvatarGroupT.Item>
 
 export default function AvatarGroupPlayground() {
   return (

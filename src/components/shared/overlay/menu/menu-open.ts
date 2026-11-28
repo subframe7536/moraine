@@ -1,10 +1,9 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, on } from 'solid-js'
+import { createEffect, createSignal, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 
 import type { OverlayMenuFocusStrategy } from './menu.utils'
-
 export interface CreateOverlayMenuOpenOptions {
   open?: Accessor<boolean | undefined>
   defaultOpen?: Accessor<boolean | undefined>
@@ -37,18 +36,17 @@ export function createOverlayMenuOpen(options: CreateOverlayMenuOpenOptions): Ov
   )
 
   createEffect(
-    on(
-      () => Boolean(options.disabled?.()) && isOpen(),
-      (shouldClose) => {
-        if (shouldClose) {
-          commitOpen(false)
-        }
-      },
-    ),
+    () => Boolean(options.disabled?.()),
+    (disabled) => {
+      if (disabled && untrack(isOpen)) {
+        setAutoFocusStrategy('none')
+        setOpenState(false)
+      }
+    },
   )
 
   function commitOpen(nextOpen: boolean): void {
-    if (nextOpen === isOpen() || (nextOpen && options.disabled?.())) {
+    if (nextOpen === openState() || (nextOpen && options.disabled?.())) {
       return
     }
 

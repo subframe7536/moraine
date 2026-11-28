@@ -2,17 +2,16 @@ import { readFileSync, readdirSync } from 'node:fs'
 
 import path from 'pathe'
 import { parse } from 'vite'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { PREVIEW_PARSE_OPTIONS } from './ast.ts'
 import { transformPreviewModule } from './module.ts'
 import { resolvePreviewComponentSource, transformPreviewSourceModule } from './source.ts'
-
 async function parsePreviewCode(code: string) {
   return (await parse('preview.tsx', code, PREVIEW_PARSE_OPTIONS)).program
 }
 
-function collectTsxFiles(directory: string): string[] {
+function collectTsxFiles(directory: string): Array<string> {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const filePath = path.join(directory, entry.name)
     return entry.isDirectory()
@@ -23,9 +22,9 @@ function collectTsxFiles(directory: string): string[] {
   })
 }
 
-test('documentation previews are self-contained in one file', async () => {
+it('documentation previews are self-contained in one file', async () => {
   const pagesRoot = path.resolve(__dirname, '../../pages')
-  const localImports: string[] = []
+  const localImports: Array<string> = []
 
   // `playground.tsx` hosts the docs-only Playground UI and is never a Preview source.
   const previewFiles = collectTsxFiles(pagesRoot).filter(
@@ -56,11 +55,10 @@ test('documentation previews are self-contained in one file', async () => {
 })
 
 describe('resolvePreviewComponentSource', () => {
-  test('reads the whole code and converts @src imports to moraine', async () => {
+  it('reads the whole code and converts @src imports to moraine', async () => {
     const source = `import { Button } from '@src'
 import type { ButtonT } from '@src'
-import { For, createSignal } from 'solid-js'
-
+import {For, createSignal} from 'solid-js'
 export function BasicExample() {
   const [count, setCount] = createSignal(0)
   return <Button onClick={() => setCount(c => c + 1)}>Count: {count()}</Button>
@@ -70,8 +68,7 @@ export function BasicExample() {
     expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { Button } from 'moraine'
 import type { ButtonT } from 'moraine'
-import { For, createSignal } from 'solid-js'
-
+import {For, createSignal} from 'solid-js'
 export function BasicExample() {
   const [count, setCount] = createSignal(0)
   return <Button onClick={() => setCount(c => c + 1)}>Count: {count()}</Button>
@@ -79,13 +76,12 @@ export function BasicExample() {
     )
   })
 
-  test('converts subpath imports (@src/utils.ts, @src/theme/unocss, @src/element/...)', async () => {
+  it('converts subpath imports (@src/utils.ts, @src/theme/unocss, @src/element/...)', async () => {
     const source = `import { createListVirtualizer } from '@src/virtualizer/index.ts'
 import { DataTable } from '@src/data-table'
 import { presetMoraine } from '@src/theme/unocss'
 import { Button } from '@src/element/button/button.tsx'
 import '@src/icon.css'
-
 export const VirtualList = () => <div />
 `
 
@@ -95,15 +91,13 @@ import { DataTable } from 'moraine/data-table'
 import { presetMoraine } from 'moraine/unocss'
 import { Button } from 'moraine'
 import 'moraine/icon.css'
-
 export const VirtualList = () => <div />`,
     )
   })
 
-  test('preserves double quotes when rewriting imports', async () => {
+  it('preserves double quotes when rewriting imports', async () => {
     const source = `import { Button } from "@src"
 import type { ButtonT } from "@src"
-
 export function Example() {
   return <Button />
 }
@@ -112,16 +106,15 @@ export function Example() {
     expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { Button } from "moraine"
 import type { ButtonT } from "moraine"
-
 export function Example() {
   return <Button />
 }`,
     )
   })
 
-  test('preserves top-level helper functions, types, and comments outside component', async () => {
+  it('preserves top-level helper functions, types, and comments outside component', async () => {
     const source = `import { Button } from '@src'
-import { createSignal } from 'solid-js'
+
 
 // Helper function
 function wait(ms: number) {
@@ -137,7 +130,7 @@ export function LoadingExample() {
 
     expect(await resolvePreviewComponentSource(source, parsePreviewCode))
       .toBe(`import { Button } from 'moraine'
-import { createSignal } from 'solid-js'
+
 
 // Helper function
 function wait(ms: number) {
@@ -151,14 +144,14 @@ export function LoadingExample() {
 }`)
   })
 
-  test('returns null for empty or whitespace-only source', async () => {
+  it('returns null for empty or whitespace-only source', async () => {
     expect(await resolvePreviewComponentSource('', parsePreviewCode)).toBeNull()
     expect(await resolvePreviewComponentSource('   \n  \t  ', parsePreviewCode)).toBeNull()
   })
 })
 
 describe('transformPreviewModule', () => {
-  test('creates a default descriptor for one named component export', async () => {
+  it('renders the preview block for one named component export', async () => {
     const transformed = await transformPreviewModule(
       'export function Variants() { return <div /> }',
       '/tmp/docs/pages/general/button/variants.tsx',
@@ -168,10 +161,12 @@ describe('transformPreviewModule', () => {
     expect(transformed).toContain("import { Variants as __Preview } from './variants.tsx'")
     expect(transformed).toContain("import __PreviewSource from './variants.tsx?preview-source'")
     expect(transformed).toContain('const component = __Preview')
-    expect(transformed).toContain('export default { component, source: __PreviewSource }')
+    expect(transformed).toContain(
+      'return createComponent(DocsPreview, { component, source: __PreviewSource })',
+    )
   })
 
-  test('creates a default descriptor for one default component export', async () => {
+  it('renders the preview block for one default component export', async () => {
     const transformed = await transformPreviewModule(
       'export default function Basic() { return <div /> }',
       '/tmp/docs/pages/general/button/basic.tsx',
@@ -182,7 +177,7 @@ describe('transformPreviewModule', () => {
     expect(transformed).toContain("import __PreviewSource from './basic.tsx?preview-source'")
   })
 
-  test('ignores type-only exports when validating the component export', async () => {
+  it('ignores type-only exports when validating the component export', async () => {
     const transformed = await transformPreviewModule(
       'export interface BasicProps { label: string }\nexport function Basic() { return <div /> }',
       '/tmp/docs/pages/general/button/basic.tsx',
@@ -192,7 +187,7 @@ describe('transformPreviewModule', () => {
     expect(transformed).toContain("import { Basic as __Preview } from './basic.tsx'")
   })
 
-  test('does not import the preview component during SSR', async () => {
+  it('does not import the preview component during SSR', async () => {
     const transformed = await transformPreviewModule(
       'export function Variants() { return <div /> }',
       '/tmp/docs/pages/general/button/variants.tsx',
@@ -205,7 +200,7 @@ describe('transformPreviewModule', () => {
     expect(transformed).toContain('?preview-source')
   })
 
-  test.each([
+  it.each([
     ['no component exports', 'const Basic = () => <div />', 0],
     [
       'multiple component exports',
@@ -220,7 +215,7 @@ describe('transformPreviewModule', () => {
     )
   })
 
-  test('rejects component re-exports', async () => {
+  it('rejects component re-exports', async () => {
     await expect(
       transformPreviewModule(
         "export { Basic } from './basic-impl'",
@@ -232,12 +227,14 @@ describe('transformPreviewModule', () => {
 })
 
 describe('transformPreviewSourceModule', () => {
-  test('transforms ?preview-source requests to highlighted html module with converted imports', async () => {
+  it('transforms ?preview-source requests to highlighted html module with converted imports', async () => {
     const source = `import { Button } from '@src'
 
 export const BasicExample = () => <Button>basic</Button>
 `
-    const toHtml = vi.fn(async (value: string, lang: 'tsx') => `<pre ${lang}>${value}</pre>`)
+    const toHtml = vi.fn<(value: string, lang: 'tsx') => any>(
+      async (value, lang) => `<pre ${lang}>${value}</pre>`,
+    )
 
     const transformed = await transformPreviewSourceModule(source, parsePreviewCode, toHtml)
 
@@ -252,8 +249,8 @@ export const BasicExample = () => <Button>basic</Button>`,
     )
   })
 
-  test('returns empty html module when source is empty', async () => {
-    const toHtml = vi.fn(async () => '<pre>code</pre>')
+  it('returns empty html module when source is empty', async () => {
+    const toHtml = vi.fn<() => any>(async () => '<pre>code</pre>')
 
     const transformed = await transformPreviewSourceModule('   \n\t  ', parsePreviewCode, toHtml)
 

@@ -1,6 +1,7 @@
 import type { ReferenceElement } from '@floating-ui/dom'
+import type { JSX } from '@solidjs/web'
 import type { ClassValue } from 'cn'
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { Accessor, Component } from 'solid-js'
 
 import type { OverlayAlign, OverlayPlacement } from '../../../../theme/style-types'
 import type { SlotBinding as ComponentSlotBinding } from '../../../../theme/use-recipe'
@@ -15,7 +16,6 @@ import type {
   OverlayMenuLayerState,
 } from './menu.utils'
 import type { OverlayMenuStyleSlot } from './style-types'
-
 export interface OverlayMenuContentSlotProps {
   /** `true` when the content is rendered inside a submenu, `false` for the root menu. */
   sub: boolean
@@ -47,7 +47,7 @@ export interface OverlayMenuBaseItem {
    * like `Kbd` `value`, so names such as `meta` or `shift` render as symbols. Display only: it does
    * not register a keyboard shortcut. Not shown on items that open a submenu.
    */
-  kbds?: KbdT.Key[]
+  kbds?: Array<KbdT.Key>
 
   /**
    * Custom CSS class applied to the item element.
@@ -115,7 +115,7 @@ export interface OverlayMenuActionItem extends OverlayMenuBaseItem {
    * </DropdownMenu>
    * ```
    */
-  children?: OverlayMenuItem[]
+  children?: Array<OverlayMenuItem>
 
   /**
    * Called when the item is activated by click, Enter or Space, before the whole menu closes and
@@ -172,7 +172,7 @@ export interface OverlayMenuRadioGroupItem extends OverlayMenuBaseItem {
    * Child items in this group, each a radio item (`type: 'radio'`). Selecting one unchecks the
    * others. The group's `label`, when set, is rendered as its heading.
    */
-  children?: OverlayMenuRadioItem[]
+  children?: Array<OverlayMenuRadioItem>
 
   /**
    * Controlled selected value, matched against each radio item's `value`. Leave it `undefined`
@@ -198,7 +198,7 @@ export interface OverlayMenuGroupItem extends OverlayMenuBaseItem {
    * Child items in this group. The group's `label`, when set, is rendered as a non-interactive
    * heading above the items.
    */
-  children?: OverlayMenuItem[]
+  children?: Array<OverlayMenuItem>
 }
 
 /** Divider line between items. It takes no content or presentation options. */
@@ -240,7 +240,7 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
   /**
    * Items rendered in the menu body. Supports flat items, explicit group objects, or array-of-arrays.
    */
-  items?: (TItem | TItem[])[]
+  items?: Array<TItem | Array<TItem>>
 
   /**
    * Whether the overlay menu is open.

@@ -1,7 +1,8 @@
-import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { resolvePropsChildren } from '../../shared/utils'
 import { KbdGroup } from '../kbd-group'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
@@ -14,7 +15,6 @@ import {
   tooltipRecipe,
 } from './tooltip.recipe'
 import type { TooltipT } from './tooltip.types'
-
 /**
  * Floating panel of the surrounding `Tooltip`; renders a `div` with `role="tooltip"` in a
  * portaled positioner. Place it inside `Tooltip`, next to `Tooltip.Trigger`. String children
@@ -32,7 +32,7 @@ import type { TooltipT } from './tooltip.types'
  * ```
  */
 export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['kbds', 'children', 'class', 'style'])
+  const rest = omit(props, 'kbds', 'children', 'class', 'style')
 
   const behavior = useTooltipContext()
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
@@ -51,7 +51,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     slots: { text: textSlot, kbds: kbdsSlot },
     slotWith,
     variants,
-  } = useRecipe(tooltipRecipe, local, {
+  } = useRecipe(tooltipRecipe, props, {
     slot: 'content',
     context: () => ({ variants: { variant: behavior.options.variant }, ...behavior.slotOverrides }),
   })
@@ -62,11 +62,11 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       placement={behavior.options.placement ?? 'top'}
       forceMount={behavior.options.forceMount}
       initialPosition={behavior.initialPosition()}
-      gutter={behavior.options.gutter}
+      gutter={behavior.options.gutter ?? 4}
       shift={behavior.options.shift}
       flip={behavior.options.flip}
       slide={behavior.options.slide}
-      overflowPadding={behavior.options.overflowPadding}
+      overflowPadding={behavior.options.overflowPadding ?? 4}
       role="tooltip"
       finalFocus={false}
       positionerClass={
@@ -74,9 +74,9 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       }
     >
       {(context) => {
-        const contentProps = mergeProps(context.contentProps, contentEvents)
-        const text = resolveChildren(() => local.children)
-        const kbds = createMemo(() => local.kbds)
+        const contentProps = merge(context.contentProps, contentEvents)
+        const text = resolvePropsChildren(props)
+        const kbds = () => props.kbds
         const contentSlot = slotWith('content', {
           data: tooltipContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

@@ -67,7 +67,7 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | Placement[]",
+          "type": "boolean | Array<Placement>",
           "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. An array is an ordered list of fallback `Placement`\nvalues tried in order (each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`).",
           "default": {
             "kind": "literal",
@@ -106,7 +106,7 @@
         {
           "name": "mount",
           "optional": true,
-          "type": "Node",
+          "type": "Element | ShadowRoot",
           "description": "DOM node the portal mounts into. Defaults to `document.body` (resolved from the trigger's\ndocument when available)."
         },
         {

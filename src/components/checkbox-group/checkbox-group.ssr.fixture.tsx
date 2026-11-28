@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { CheckboxGroup } from './checkbox-group'
-
 export function renderCheckboxGroupFixture(): string {
   return renderToString(() => (
     <CheckboxGroup

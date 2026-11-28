@@ -4,7 +4,6 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
 import type { SliderStyleSlot, SliderStyleVariants } from './slider.style-types'
-
 export const sliderDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
     'disabled',

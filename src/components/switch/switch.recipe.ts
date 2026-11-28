@@ -4,7 +4,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { SwitchStyleSlot, SwitchStyleVariants } from './switch.style-types'
-
 export const switchDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
     'checked',

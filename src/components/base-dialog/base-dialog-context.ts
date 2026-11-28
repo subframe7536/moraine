@@ -4,7 +4,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { createTransitionPresence } from '../../shared/transition-presence'
 
 import type { BaseDialogT } from './base-dialog.types'
-
 export interface BaseDialogContext {
   readonly slotOverrides: { classes?: BaseDialogT.Classes; styles?: BaseDialogT.Styles }
   open: Accessor<boolean>
@@ -17,7 +16,7 @@ export interface BaseDialogContext {
   setContentElement: (element: HTMLDivElement | undefined) => void
   setOverlayScroll: (enabled: boolean) => void
   isModal: Accessor<boolean>
-  mount: Accessor<Node | undefined>
+  mount: Accessor<Element | ShadowRoot | undefined>
   transition: Accessor<boolean>
 }
 

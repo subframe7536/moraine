@@ -1,9 +1,10 @@
-import type { Component, JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, Match, Show, Switch, on } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, Match, Show, Switch, untrack } from 'solid-js'
 
 import { useCn } from '../../../../provider/cn-context'
 import { renderWithProps } from '../../../../shared/render-with-props'
-import { callHandler, callRef } from '../../../../shared/utils'
+import { callHandler } from '../../../../shared/utils'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { mergeSlotBindingData } from '../../../../theme/use-recipe'
@@ -17,7 +18,6 @@ import { Icon } from '../../../icon/index'
 import { sameValue } from './collection'
 import { selectItemDataAttributes } from './select-field.recipe'
 import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
-
 export interface SelectEmptyRenderProps<T extends SelectItem = SelectItem> {
   /** Currently selected value, or `null` when nothing is selected. */
   selectedValue: T['value'] | null
@@ -44,19 +44,17 @@ function DefaultSelectContentBody<T extends SelectItem>(
     () => new Map(props.view.items.map((item, index) => [item.value, index + 1])),
   )
   createEffect(
-    on(
-      [state.highlightedValue, state.open, listbox, () => props.view.rows, () => props.virtualizer],
-      ([key, open, listbox, rows, virtualizer]) => {
-        // Rows outside the virtual window have no element to scroll into view.
-        if (key === undefined || !open || !listbox || !virtualizer) {
-          return
-        }
-        const index = rows.findIndex((row) => row.type === 'item' && sameValue(row.item.value, key))
-        if (index >= 0) {
-          virtualizer.scrollToIndex(index)
-        }
-      },
-    ),
+    () => [state.highlightedValue(), state.open(), listbox(), props.view.rows, props.virtualizer],
+    ([key, open, listbox, rows, virtualizer]) => {
+      // Rows outside the virtual window have no element to scroll into view.
+      if (key === undefined || !open || !listbox || !virtualizer) {
+        return
+      }
+      const index = rows.findIndex((row) => row.type === 'item' && sameValue(row.item.value, key))
+      if (index >= 0) {
+        virtualizer.scrollToIndex(index)
+      }
+    },
   )
   let atBottom = false
   // The item bindings come from the owning select; per-item `data-*` state is added here.
@@ -86,10 +84,15 @@ function DefaultSelectContentBody<T extends SelectItem>(
         item={item()}
         {...attributes()}
         {...itemProps.rowProps}
-        ref={(element) => {
-          callRef(attributes()?.ref, element)
-          itemProps.rowProps?.ref?.(element)
-        }}
+        ref={[
+          (element) => {
+            const ref = untrack(() => attributes()?.ref)
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          },
+          (element) => itemProps.rowProps?.ref?.(element),
+        ]}
         class={cn(attributes()?.class, itemProps.rowProps?.class)}
         style={{
           ...attributes()?.style,
@@ -130,21 +133,18 @@ function DefaultSelectContentBody<T extends SelectItem>(
                     {item().label}
                   </span>
                   <Show when={item().description}>
-                    {(description) => {
-                      const itemDescriptionSlot = slotWithData('itemDescription', {
-                        data: selectItemDataAttributes.itemDescription({
-                          highlighted: () => itemState.highlighted,
-                        }),
-                      })
-                      return (
-                        <span
-                          data-slot={state.slotName('itemDescription')}
-                          {...itemDescriptionSlot}
-                        >
-                          {description()}
-                        </span>
-                      )
-                    }}
+                    {(description) => (
+                      <span
+                        data-slot={state.slotName('itemDescription')}
+                        {...slotWithData('itemDescription', {
+                          data: selectItemDataAttributes.itemDescription({
+                            highlighted: () => itemState.highlighted,
+                          }),
+                        })}
+                      >
+                        {description()}
+                      </span>
+                    )}
                   </Show>
                 </span>
                 <Show when={itemState.selected}>
@@ -158,7 +158,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
               </>
             }
           >
-            {(render) => renderWithProps(render, presentation)}
+            {(render) => <>{renderWithProps(render, presentation)}</>}
           </Show>
         )}
       </BaseSelect.Item>
@@ -190,10 +190,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
     <>
       <BaseSelect.Listbox
         {...props.listboxProps}
-        ref={(element) => {
-          setListbox(element)
-          callRef(props.listboxProps?.ref, element)
-        }}
+        ref={[setListbox, props.listboxProps?.ref]}
         onScroll={(event) => {
           callHandler(event, props.listboxProps?.onScroll)
           if (event.defaultPrevented) {
@@ -214,7 +211,11 @@ function DefaultSelectContentBody<T extends SelectItem>(
           entries={props.view.rows}
           scrollElement={listbox()}
           render={(entry, _index, rowProps) => <Row entry={entry} props={rowProps} />}
-          fallback={<For each={props.view.rows}>{(row) => <Row entry={row} />}</For>}
+          fallback={
+            <For each={props.view.rows} keyed={(row) => row.key}>
+              {(row) => <Row entry={row()} />}
+            </For>
+          }
         />
       </BaseSelect.Listbox>
       <Show when={props.emptyRender} keyed>

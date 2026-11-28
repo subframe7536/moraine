@@ -1,11 +1,10 @@
 import { Button, ButtonGroup, DropdownMenu, Icon } from '@src'
 import type { DropdownMenuT } from '@src'
 import { createSignal } from 'solid-js'
-
 export function DropdownAction() {
   const [exportedFormat, setExportedFormat] = createSignal<string>()
 
-  const exportItems: DropdownMenuT.Item[] = [
+  const exportItems: Array<DropdownMenuT.Item> = [
     {
       type: 'group',
       label: 'Export report',

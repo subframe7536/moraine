@@ -1,12 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { HoverCard } from './hover-card'
-
 const floatingMocks = vi.hoisted(() => ({
-  middlewareNames: [] as string[],
+  middlewareNames: [] as Array<string>,
 }))
 
 vi.mock('@floating-ui/dom', async (importOriginal) => {
@@ -38,16 +37,16 @@ function stubFocusVisible(value: boolean): void {
 
 const contentSelector = '[data-slot="hover-card-content"]'
 
-describe('HoverCard', () => {
+describe('hoverCard', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     vi.useRealTimers()
     floatingMocks.middlewareNames.length = 0
   })
 
-  test('opens after the open delay and closes after the close delay', async () => {
+  it('opens after the open delay and closes after the close delay', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={600} closeDelay={300} onOpenChange={onOpenChange}>
         <HoverCard.Trigger href="/u/solid">@solidjs</HoverCard.Trigger>
@@ -75,7 +74,7 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)).toBeNull()
   })
 
-  test('renders the trigger as an anchor without aria relation attributes', async () => {
+  it('renders the trigger as an anchor without aria relation attributes', async () => {
     render(() => (
       <HoverCard defaultOpen>
         <HoverCard.Trigger href="/u/solid">@solidjs</HoverCard.Trigger>
@@ -102,7 +101,7 @@ describe('HoverCard', () => {
     ).not.toBeNull()
   })
 
-  test('honors a custom trigger root', () => {
+  it('honors a custom trigger root', () => {
     render(() => (
       <HoverCard>
         <HoverCard.Trigger as="button" type="button">
@@ -116,7 +115,7 @@ describe('HoverCard', () => {
     expect(trigger?.tagName).toBe('BUTTON')
   })
 
-  test('defaults to bottom placement with centered alignment', async () => {
+  it('defaults to bottom placement with centered alignment', async () => {
     render(() => (
       <HoverCard defaultOpen>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -131,7 +130,7 @@ describe('HoverCard', () => {
     })
   })
 
-  test('ignores touch and pen hover before accepting mouse hover', async () => {
+  it('ignores touch and pen hover before accepting mouse hover', async () => {
     vi.useFakeTimers()
     const screen = render(() => (
       <HoverCard openDelay={50}>
@@ -151,10 +150,10 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)).not.toBeNull()
   })
 
-  test('a disabled trigger does not open on hover or keyboard focus', async () => {
+  it('a disabled trigger does not open on hover or keyboard focus', async () => {
     vi.useFakeTimers()
     stubFocusVisible(true)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger href="/u/solid" disabled>
@@ -172,7 +171,7 @@ describe('HoverCard', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('opens on keyboard focus but not on pointer focus', { timeout: 15_000 }, async () => {
+  it('opens on keyboard focus but not on pointer focus', { timeout: 15_000 }, async () => {
     vi.useFakeTimers()
     stubFocusVisible(false)
     const screen = render(() => (
@@ -196,7 +195,7 @@ describe('HoverCard', () => {
     expect(content?.hasAttribute('data-instant-motion')).toBe(true)
   })
 
-  test('does not reopen when window focus returns to a trigger after window blur', async () => {
+  it('does not reopen when window focus returns to a trigger after window blur', async () => {
     vi.useFakeTimers()
     stubFocusVisible(true)
     const screen = render(() => (
@@ -219,9 +218,9 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)).not.toBeNull()
   })
 
-  test('keeps the card open while the pointer moves from trigger to content', async () => {
+  it('keeps the card open while the pointer moves from trigger to content', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -246,9 +245,9 @@ describe('HoverCard', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(false)
   })
 
-  test('does not close an externally opened card when leaving its content', async () => {
+  it('does not close an externally opened card when leaving its content', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard defaultOpen closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -269,9 +268,9 @@ describe('HoverCard', () => {
     expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false)
   })
 
-  test('does not fire onOpenChange again when re-hovering while open', async () => {
+  it('does not fire onOpenChange again when re-hovering while open', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -291,9 +290,9 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)?.hasAttribute('data-expanded')).toBe(true)
   })
 
-  test('emits one controlled open request after rapid re-entry', async () => {
+  it('emits one controlled open request after rapid re-entry', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard open={false} openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -311,9 +310,9 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)).toBeNull()
   })
 
-  test('closes with instant motion on Escape and reopens on hover', async () => {
+  it('closes with instant motion on Escape and reopens on hover', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -340,9 +339,9 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)).not.toBeNull()
   })
 
-  test('closes on outside press and reopens on hover', async () => {
+  it('closes on outside press and reopens on hover', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <div>
         <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
@@ -372,9 +371,9 @@ describe('HoverCard', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(true)
   })
 
-  test('does not close or prevent default when the trigger is clicked', async () => {
+  it('does not close or prevent default when the trigger is clicked', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -396,10 +395,10 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)?.hasAttribute('data-expanded')).toBe(true)
   })
 
-  test('keeps the parent card open while a nested card is hovered and closes both together', async () => {
+  it('keeps the parent card open while a nested card is hovered and closes both together', async () => {
     vi.useFakeTimers()
-    const parentChange = vi.fn()
-    const childChange = vi.fn()
+    const parentChange = vi.fn<(...args: Array<any>) => void>()
+    const childChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={parentChange}>
         <HoverCard.Trigger>Parent trigger</HoverCard.Trigger>
@@ -448,9 +447,9 @@ describe('HoverCard', () => {
     expect(parentChange).toHaveBeenLastCalledWith(false)
   })
 
-  test('moves one shared card across triggers and exposes each trigger value', async () => {
+  it('moves one shared card across triggers and exposes each trigger value', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger value="ananya">@ananya</HoverCard.Trigger>
@@ -484,10 +483,10 @@ describe('HoverCard', () => {
     await finishExitMotion(content)
   })
 
-  test('does not open while disabled', async () => {
+  it('does not open while disabled', async () => {
     vi.useFakeTimers()
     stubFocusVisible(true)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <HoverCard disabled openDelay={50} onOpenChange={onOpenChange}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>
@@ -503,7 +502,7 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)).toBeNull()
   })
 
-  test('anchors the content at the hovered point through the inline middleware', async () => {
+  it('anchors the content at the hovered point through the inline middleware', async () => {
     const screen = render(() => (
       <HoverCard openDelay={0}>
         <HoverCard.Trigger>Trigger</HoverCard.Trigger>

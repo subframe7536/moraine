@@ -1,8 +1,8 @@
+import type { JSX } from '@solidjs/web'
 import type { Cell, RowData } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps, untrack } from 'solid-js'
+import { For, Show, createMemo, merge, untrack, omit } from 'solid-js'
 
-import { callHandler, callRef } from '../shared/utils'
+import { callHandler } from '../shared/utils'
 import type { TableVirtualRowProps } from '../virtualizer/virtualizer.types'
 
 import { useDataTableContext } from './data-table-context'
@@ -16,7 +16,6 @@ import {
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 import { FlexRender } from './flex-render'
-
 export type DataTableRowProps<TData extends RowData> = Pick<
   DataTableT.Base<TData>,
   'rowProps' | 'onRowClick' | 'onRowDoubleClick' | 'expandedRowRender'
@@ -60,15 +59,20 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
   function BodyCell(cellProps: { cell: Cell<DataTableFeatures, TData> }): JSX.Element {
     const cell = () => cellProps.cell
     const pin = ctx.createColumnPin(() => cell().column)
-    // `For` keeps one cell per body cell, so its column is fixed for the binding.
-    const column = untrack(() => cell().column)
-    const cellSlot = ctx.cellSlot('cell', column, pin, () => column.getSize(), 'body', {
-      data: dataTableDataAttributes.cell({
-        pinned: pin.side,
-        pinnedEdge: () => pin.edge() && pin.side(),
-        tree: () => depth() > 0 && cell().column.id === ctx.treeColumnId(),
-      }),
-    })
+    const cellSlot = ctx.createCellSlot(
+      'cell',
+      () => cell().column,
+      pin,
+      () => cell().column.getSize(),
+      'body',
+      {
+        data: dataTableDataAttributes.cell({
+          pinned: pin.side,
+          pinnedEdge: () => pin.edge() && pin.side(),
+          tree: () => depth() > 0 && cell().column.id === ctx.treeColumnId(),
+        }),
+      },
+    )
     return (
       <td
         data-slot="data-table-cell"
@@ -90,16 +94,31 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
         <td
           aria-hidden="true"
           data-slot="data-table-cell-spacer"
-          colSpan={spacerProps.span}
+          colspan={spacerProps.span}
           {...spacerSlot}
         />
       </Show>
     )
   }
 
+  // `rowProps` runs once per row (and re-runs if `props.rowProps` changes), so it can call
+  // row-level hooks without tracking `row` or `index`.
+  const extraProps = createMemo(() =>
+    props.rowProps?.({
+      get row() {
+        return props.row
+      },
+      get index() {
+        return props.index
+      },
+    }),
+  )
+  const mergedExtra = merge(() => extraProps() ?? {})
+  const extraRest = omit(mergedExtra, 'ref', 'onClick', 'onDblClick', 'class')
+
   const rowSlot = ctx.slotWith('row', {
     own: () => ({
-      class: [extraOwned.class, clickable() && DATA_TABLE_CLICKABLE_ROW_CLASS],
+      class: [extraProps()?.class, clickable() && DATA_TABLE_CLICKABLE_ROW_CLASS],
       style:
         depth() > 0
           ? { '--mo-data-table-depth': depth(), ...DATA_TABLE_TREE_ROW_STYLE }
@@ -112,43 +131,36 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
     }),
   })
 
-  // A virtual row keeps its wiring for its lifetime; `rowProps` runs once per row, here.
-  const [virtualOwned, virtualRest] = splitProps(untrack(() => props.virtualRowProps) ?? {}, [
-    'ref',
-  ])
-  const [extraOwned, extraRest] = splitProps(
-    untrack(
-      () =>
-        props.rowProps?.({
-          get row() {
-            return props.row
-          },
-          get index() {
-            return props.index
-          },
-        }) ?? {},
-    ),
-    ['ref', 'onClick', 'onDblClick', 'class'],
-  )
-
   // Selection is presentation only: `aria-selected` is not valid on rows of a static table.
   return (
     <>
       <tr
-        {...virtualRest}
+        {...props.virtualRowProps}
         data-slot="data-table-row"
         {...rowSlot}
         {...extraRest}
-        ref={(element) => {
-          callRef(virtualOwned.ref, element)
-          callRef(extraOwned.ref, element)
-        }}
+        ref={[
+          (element) =>
+            untrack(() => {
+              const ref = props.virtualRowProps?.ref
+              if (typeof ref === 'function') {
+                ref(element)
+              }
+            }),
+          (element) =>
+            untrack(() => {
+              const ref = extraProps()?.ref
+              if (typeof ref === 'function') {
+                ref(element)
+              }
+            }),
+        ]}
         onClick={(event) => {
-          callHandler(event, extraOwned.onClick)
+          callHandler(event, extraProps()?.onClick)
           props.onRowClick?.(props.row, event)
         }}
         onDblClick={(event) => {
-          callHandler(event, extraOwned.onDblClick)
+          callHandler(event, extraProps()?.onDblClick)
           props.onRowDoubleClick?.(props.row, event)
         }}
       >

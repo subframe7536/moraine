@@ -1,11 +1,10 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { Collapsible } from '../collapsible'
 
 import { useSidebarStyles } from './sidebar-context'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * Collapsible sub-navigation placed inside a `Sidebar.MenuItem`, holding a `Sidebar.MenuSubTrigger`
  * followed by a `Sidebar.MenuSubContent`. Expanded state is uncontrolled with `defaultOpen`, or
@@ -34,10 +33,17 @@ import type { SidebarT } from './sidebar.types'
  * ```
  */
 export function SidebarMenuSub(props: SidebarT.MenuSubProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['class', 'style'])
+  const rest = omit(props, 'class', 'style', 'id')
   const {
     slots: { menuSub: menuSubSlot },
-  } = useSidebarStyles('menuSub', local)
+  } = useSidebarStyles('menuSub', props)
 
-  return <Collapsible data-slot="sidebar-menu-sub" {...menuSubSlot} {...rest} />
+  return (
+    <Collapsible
+      data-slot="sidebar-menu-sub"
+      id={props.id as string | undefined}
+      {...menuSubSlot}
+      {...rest}
+    />
+  )
 }

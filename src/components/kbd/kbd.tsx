@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { Show, createMemo, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -8,7 +8,6 @@ import { defaultKbdMessages } from './kbd.messages'
 import { kbdRecipe } from './kbd.recipe'
 import { KBD_KEY_ALIASES } from './kbd.types'
 import type { KbdProps } from './kbd.types'
-
 /**
  * Keycap that displays one keyboard key as shortcut notation in a `kbd` element. Known aliases
  * such as `meta`, `ctrl`, `shift`, and `escape` resolve to symbols unless `symbol={false}`, and
@@ -26,7 +25,8 @@ import type { KbdProps } from './kbd.types'
  * ```
  */
 export function Kbd(props: KbdProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'value',
     'symbol',
     'size',
@@ -37,26 +37,26 @@ export function Kbd(props: KbdProps): JSX.Element {
     'styles',
     'aria-label',
     'translations',
-  ])
+  )
   const {
     slots: { root: rootSlot },
-  } = useRecipe(kbdRecipe, local)
-  const messages = useMessages('kbd', defaultKbdMessages, () => local.translations)
+  } = useRecipe(kbdRecipe, props)
+  const messages = useMessages('kbd', defaultKbdMessages, () => props.translations)
 
   const aliasKey = createMemo(() => {
-    if (local.symbol === false) {
+    if (props.symbol === false) {
       return undefined
     }
-    const key = local.value.toLowerCase() as keyof typeof KBD_KEY_ALIASES
+    const key = props.value.toLowerCase() as keyof typeof KBD_KEY_ALIASES
     return key in KBD_KEY_ALIASES ? key : undefined
   })
   const text = createMemo(() => {
     const key = aliasKey()
-    return key ? KBD_KEY_ALIASES[key].text : local.value
+    return key ? KBD_KEY_ALIASES[key].text : props.value
   })
   const label = () => {
     const key = aliasKey()
-    return local['aria-label'] ?? (key ? messages()[key] : undefined)
+    return props['aria-label'] ?? (key ? messages()[key] : undefined)
   }
 
   return (

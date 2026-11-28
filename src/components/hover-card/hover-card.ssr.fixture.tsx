@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { HoverCard } from './hover-card'
-
 export function renderHoverCardFixture(): string {
   return renderToString(() => (
     <HoverCard openDelay={50}>

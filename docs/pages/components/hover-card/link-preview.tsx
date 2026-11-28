@@ -1,5 +1,4 @@
 import { HoverCard, Icon } from '@src'
-
 export function LinkPreview() {
   return (
     <p class="text-sm text-foreground leading-6 max-w-xs">

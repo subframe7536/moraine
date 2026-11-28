@@ -1,10 +1,10 @@
-import type { Accessor, JSX } from 'solid-js'
-import { mergeProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createEffect, merge } from 'solid-js'
 
 import { isNativeButtonElement, isNativeButtonTag } from './native-button'
 import type { ValidComponent } from './types'
 import { callHandler } from './utils'
-
 export interface UseButtonInteractionOptions {
   disabled: Accessor<boolean>
   /** Resolved DOM root for polymorphic components when available. */
@@ -46,8 +46,37 @@ export function useButtonInteraction(
   const isFocusableWhenDisabled = () =>
     options.disabled() && Boolean(options.focusableWhenDisabled?.())
 
+  // For component tags `props.type` flows through `props` untouched: emitting an
+  // explicit `undefined` under Solid 2 spread semantics would clear a `type` the
+  // custom component rendered itself. Native-string tags keep the prop-based
+  // default so SSR emits it; component-rendered native buttons get the same
+  // default injected post-mount below.
+  const isCustomTag = () => typeof options.tag() !== 'string'
+  const resolvedElement = () => (isCustomTag() ? options.element?.() : undefined)
+
+  // Custom component roots resolve native button semantics from their mounted DOM element.
+  // Set `type` post-mount instead of spreading `type: undefined` onto custom components.
+  createEffect(
+    () =>
+      isCustomTag()
+        ? ([options.element?.(), props.type as string | undefined] as const)
+        : undefined,
+    (entry) => {
+      if (!entry) {
+        return
+      }
+      const [element, type] = entry
+      if (element && isNativeButtonElement(element, type)) {
+        element.setAttribute(
+          'type',
+          type ?? (element.localName === 'input' ? (element as HTMLInputElement).type : 'button'),
+        )
+      }
+    },
+  )
+
   const isNativeButton = () => {
-    const element = options.element?.()
+    const element = resolvedElement()
     if (element) {
       return isNativeButtonElement(element, typeof props.type === 'string' ? props.type : undefined)
     }
@@ -62,7 +91,7 @@ export function useButtonInteraction(
 
   const isNativeLink = () => {
     const hasHref = props.href !== undefined
-    const element = options.element?.()
+    const element = resolvedElement()
     if (element) {
       return element.tagName.toLowerCase() === 'a' && (hasHref || element.hasAttribute('href'))
     }
@@ -138,23 +167,33 @@ export function useButtonInteraction(
     dispatchKeyboardClick(event.currentTarget as HTMLElement, event)
   }
 
-  const interactionProps = mergeProps(props, {
+  const staticTagType = {
     get type() {
-      if (isNativeButton()) {
-        const element = options.element?.()
-        return (
-          props.type ??
-          (element?.localName === 'input' ? (element as HTMLInputElement).type : 'button')
-        )
-      }
-      return props.type
+      return props.type ?? (isNativeButton() ? 'button' : undefined)
     },
+  }
+  const dynamicTypeLayer = new Proxy(staticTagType, {
+    has(target, key) {
+      return key === 'type' ? !isCustomTag() : Reflect.has(target, key)
+    },
+    ownKeys() {
+      return isCustomTag() ? [] : ['type']
+    },
+    getOwnPropertyDescriptor(target, key) {
+      if (key === 'type' && isCustomTag()) {
+        return undefined
+      }
+      return Reflect.getOwnPropertyDescriptor(target, key)
+    },
+  })
+
+  const interactionProps = merge(props, dynamicTypeLayer, {
     get role() {
       return props.role ?? (needsButtonRole() ? 'button' : undefined)
     },
-    get tabIndex() {
-      if (props.tabIndex !== undefined) {
-        return props.tabIndex
+    get tabindex() {
+      if (props.tabindex !== undefined) {
+        return props.tabindex
       }
 
       if (options.disabled() && !isNativeButton() && !isFocusableWhenDisabled()) {
@@ -173,7 +212,7 @@ export function useButtonInteraction(
       }
 
       if (!isNativeButton() || isFocusableWhenDisabled()) {
-        return props['aria-disabled'] ?? true
+        return props['aria-disabled'] ?? 'true'
       }
 
       return props['aria-disabled']
@@ -183,8 +222,7 @@ export function useButtonInteraction(
         return options.disabled() && !isFocusableWhenDisabled()
       }
 
-      const tag = options.tag()
-      if (!options.element?.() && typeof tag !== 'string' && options.disabledForComponent) {
+      if (!resolvedElement() && isCustomTag() && options.disabledForComponent) {
         return options.disabled() && !isFocusableWhenDisabled()
       }
 

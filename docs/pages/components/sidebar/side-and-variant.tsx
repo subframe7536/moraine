@@ -1,6 +1,5 @@
 import { Avatar, Badge, Button, Icon, Separator, Sidebar } from '@src'
 import { For } from 'solid-js'
-
 export function SideAndVariantUsage() {
   const reviewers = [
     { name: 'Sarah C.', approved: true },
@@ -59,11 +58,12 @@ export function SideAndVariantUsage() {
                       <span class="text-muted-foreground">{reviewer.name}</span>
                       <Icon
                         name={reviewer.approved ? 'i-lucide:check-circle-2' : 'i-lucide:clock'}
-                        class={`size-3.5 ${
+                        class={[
+                          'size-3.5',
                           reviewer.approved
                             ? 'text-emerald-600 dark:text-emerald-400'
-                            : 'text-muted-foreground/60'
-                        }`}
+                            : 'text-muted-foreground/60',
+                        ]}
                       />
                     </div>
                   )}

@@ -1,7 +1,6 @@
 import { FileUpload } from '@src'
 import type { FileUploadT } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function ButtonVariant() {
   const [attached, setAttached] = createSignal<FileUploadT.Value>(null)
 

@@ -1,7 +1,7 @@
+import type { JSX } from '@solidjs/web'
 import { functionalUpdate, stateSlicesEqual } from '@tanstack/table-core'
 import type { Row, RowData, TableOptions, Updater } from '@tanstack/table-core'
-import { DEV, createMemo, mergeProps, untrack } from 'solid-js'
-import type { JSX } from 'solid-js'
+import { DEV, createMemo, merge, untrack } from 'solid-js'
 
 import { DataTable } from './data-table'
 import {
@@ -15,7 +15,6 @@ import type { DataTableFeatures } from './data-table-features'
 import { DEFAULT_DATA_TABLE_PAGE_SIZES } from './data-table-pagination'
 import type { DataTableT } from './data-table.types'
 import { createTable } from './solid-table'
-
 /** `maxSize` in px given to columns of a resizable table that set none. */
 export const DEFAULT_RESIZABLE_MAX_COLUMN_SIZE = 1000
 
@@ -33,14 +32,14 @@ function resolveColumnId(column: object): string | undefined {
 
 /** Finds a column definition, at any group depth, whose resolved id is `id`. */
 function findColumnById(
-  columns: readonly object[],
+  columns: ReadonlyArray<object>,
   id: string,
 ): { readonly id?: string } | undefined {
   for (const column of columns) {
     if (resolveColumnId(column) === id) {
       return column
     }
-    const children = (column as { columns?: readonly object[] }).columns
+    const children = (column as { columns?: ReadonlyArray<object> }).columns
     const nested = children ? findColumnById(children, id) : undefined
     if (nested) {
       return nested
@@ -79,33 +78,33 @@ function findColumnById(
 export function createDataTable<TData extends RowData = RowData>(
   options: DataTableT.Options<TData>,
 ): DataTableT.Instance<TData> {
-  const initialPageSize =
-    typeof options.paginated === 'object' && options.paginated !== null
-      ? options.paginated.pageSize
-      : undefined
-
-  const initialState: Partial<DataTableT.State> = {
-    ...options.initialState,
-    ...(initialPageSize !== undefined
-      ? {
-          pagination: {
-            pageIndex: options.initialState?.pagination?.pageIndex ?? 0,
-            pageSize: initialPageSize,
-          },
-        }
-      : {}),
-  }
-
-  let table!: DataTableT.Instance<TData>
+  // Initial state seeds the table once, like `initialState` itself, so it is read untracked.
+  const initialState = untrack((): Partial<DataTableT.State> => {
+    const initialPageSize =
+      typeof options.paginated === 'object' && options.paginated !== null
+        ? options.paginated.pageSize
+        : undefined
+    return {
+      ...options.initialState,
+      ...(initialPageSize !== undefined
+        ? {
+            pagination: {
+              pageIndex: options.initialState?.pagination?.pageIndex ?? 0,
+              pageSize: initialPageSize,
+            },
+          }
+        : {}),
+    }
+  })
 
   const expandCol = buildExpandColumn<TData>()
   const warnedIds = DEV ? new Set<string>() : undefined
   // A user column whose resolved id is reserved replaces the generated column, so ids never
   // collide. Derived ids (`accessorKey`, string `header`) replacing it are usually accidental.
-  const hasUserColumn = (columns: readonly DataTableT.Column<TData>[], id: string): boolean => {
+  const hasUserColumn = (columns: ReadonlyArray<DataTableT.Column<TData>>, id: string): boolean => {
     const match = findColumnById(columns, id)
-    if (DEV && match && match.id !== id && !warnedIds!.has(id)) {
-      warnedIds!.add(id)
+    if (DEV && warnedIds && match && match.id !== id && !warnedIds.has(id)) {
+      warnedIds.add(id)
       console.warn(
         `[moraine] A DataTable column derives the reserved id "${id}" and replaces the generated "${id}" column. Set an explicit \`id\` on that column to keep both.`,
       )
@@ -121,7 +120,7 @@ export function createDataTable<TData extends RowData = RowData>(
   )
   const memoizedColumns = createMemo(() => {
     const userColumns = typeof options.columns === 'function' ? options.columns() : options.columns
-    const prefix: DataTableT.Column<TData>[] = []
+    const prefix: Array<DataTableT.Column<TData>> = []
     if (options.selectionMode && !hasUserColumn(userColumns, SELECT_COLUMN_ID)) {
       prefix.push(buildSelectColumn<TData>(options.selectionMode))
     }
@@ -172,16 +171,16 @@ export function createDataTable<TData extends RowData = RowData>(
       : (own ?? null)
   })
 
+  const userGetRowId = options.getRowId
   const features = getDataTableFeatures()
-  // `mergeProps` treats `undefined` as "fall back to a previous source". The
-  // initial options snapshot is captured once by `constructTable`, so a getter
-  // returning `undefined` would keep resurrecting stale values on later
-  // merges. Volatile options return `false`/`null` — `null` stays defined for
-  // mergeProps but nullish for TanStack `??` defaults.
+  // Solid 2's `merge()` treats explicit `undefined` as an override, so omit
+  // `getRowId` unless `options.getRowId` is set, and return `false`/`null` for
+  // volatile options (`null` stays defined for `merge` while still triggering
+  // TanStack `??` defaults).
   //
   // Top-level options own every TanStack option they configure, so they merge after
   // `tableOptions`. Only options without a top-level counterpart stay overridable.
-  const resolvedTableOptions = mergeProps(
+  const resolvedTableOptions = merge(
     {
       get autoResetPageIndex() {
         return options.manual ? false : null
@@ -199,12 +198,18 @@ export function createDataTable<TData extends RowData = RowData>(
       get columns() {
         return memoizedColumns()
       },
-      getRowId: options.getRowId
-        ? (originalRow: TData, index: number, parent?: Row<DataTableFeatures, TData>): string => {
-            const leafId = options.getRowId!(originalRow, index, parent)
-            return parent ? `${parent.id}.${leafId}` : leafId
+      ...(userGetRowId
+        ? {
+            getRowId: (
+              originalRow: TData,
+              index: number,
+              parent?: Row<DataTableFeatures, TData>,
+            ): string => {
+              const leafId = userGetRowId(originalRow, index, parent)
+              return parent ? `${parent.id}.${leafId}` : leafId
+            },
           }
-        : undefined,
+        : {}),
       get enableSorting() {
         return options.columnSortable ?? true
       },
@@ -261,7 +266,7 @@ export function createDataTable<TData extends RowData = RowData>(
     },
   ) as TableOptions<DataTableFeatures, TData>
 
-  table = createTable(resolvedTableOptions) as DataTableT.Instance<TData>
+  const table = createTable(resolvedTableOptions) as DataTableT.Instance<TData>
 
   const paginationSettings: DataTableT.PaginationSettings = {
     get paginated() {

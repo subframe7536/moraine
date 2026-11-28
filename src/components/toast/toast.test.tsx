@@ -1,13 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { Toast } from './index'
 import type { ToastT } from './index'
-
-describe('Toast', () => {
+describe('toast', () => {
   beforeEach(() => {
     Toast.close()
     // jsdom reports an unfocused document by default; the host re-syncs from hasFocus() on attach.
@@ -61,7 +60,7 @@ describe('Toast', () => {
   })
 
   it('renders action button and triggers callback on click', async () => {
-    const handleAction = vi.fn()
+    const handleAction = vi.fn<(...args: Array<any>) => void>()
     render(() => <Toast />)
 
     Toast.show({
@@ -85,7 +84,7 @@ describe('Toast', () => {
   })
 
   it('renders cancel button and triggers callback on click', async () => {
-    const handleCancel = vi.fn()
+    const handleCancel = vi.fn<(...args: Array<any>) => void>()
     render(() => <Toast />)
 
     Toast.show({
@@ -211,7 +210,7 @@ describe('Toast', () => {
     const [closable, setClosable] = createSignal(false)
     render(() => <Toast closable={closable()} />)
 
-    setClosable(true)
+    flush(() => setClosable(true))
     Toast.show({ title: 'Latest host default' })
 
     expect(await screen.findByRole('button', { name: 'Close notification' })).not.toBeNull()
@@ -458,8 +457,8 @@ describe('Toast', () => {
 
   it('invokes onClose with timeout on timer expiration and api on programmatic close', async () => {
     vi.useFakeTimers()
-    const onAutoClose = vi.fn()
-    const onManualClose = vi.fn()
+    const onAutoClose = vi.fn<(...args: Array<any>) => void>()
+    const onManualClose = vi.fn<(...args: Array<any>) => void>()
 
     try {
       render(() => <Toast duration={1000} />)
@@ -605,7 +604,7 @@ describe('Toast', () => {
       expect(screen.getByText('Still loading...')).not.toBeNull()
 
       // Advancing past standard duration should NOT dismiss the loading toast
-      await vi.advanceTimersByTimeAsync(10000)
+      await vi.advanceTimersByTimeAsync(10_000)
       expect(screen.getByText('Still loading...')).not.toBeNull()
 
       resolvePromise!()
@@ -1107,8 +1106,8 @@ describe('Toast', () => {
       title: 'Slot Test Title',
       description: 'Slot Test Description',
       type: 'success',
-      action: { label: 'Action Btn', onClick: vi.fn() },
-      cancel: { label: 'Cancel Btn', onClick: vi.fn() },
+      action: { label: 'Action Btn', onClick: vi.fn<(...args: Array<any>) => void>() },
+      cancel: { label: 'Cancel Btn', onClick: vi.fn<(...args: Array<any>) => void>() },
     })
 
     const titleEl = await screen.findByText('Slot Test Title')
@@ -1273,7 +1272,7 @@ describe('Toast', () => {
   })
 
   it('supports custom itemRender on <Toast>', async () => {
-    const customRender = vi.fn((props: ToastT.ItemRenderProps) => (
+    const customRender = vi.fn<(props: ToastT.ItemRenderProps) => any>((props) => (
       <div data-testid={`custom-item-${props.id}`}>
         <span>Custom: {props.options.title}</span>
         <button type="button" onClick={() => props.close()}>
@@ -1343,7 +1342,7 @@ describe('Toast', () => {
 
   it('cleans up session onClose callback on removal', async () => {
     render(() => <Toast />)
-    const onClose = vi.fn()
+    const onClose = vi.fn<(...args: Array<any>) => void>()
     const handle = Toast.show({ title: 'Cleaned Toast', onClose })
 
     await screen.findByText('Cleaned Toast')

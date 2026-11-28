@@ -1,11 +1,10 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { SliderT } from '../slider'
 
 import type { BoldSliderStyleSlot, BoldSliderStyleVariants } from './bold-slider.style-types'
-
 export namespace BoldSliderT {
   export type Kind = 'single'
   export type Slot<T = unknown> = BoldSliderStyleSlot<T>

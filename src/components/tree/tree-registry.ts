@@ -1,10 +1,9 @@
 import type { TreeT } from './tree.types'
-
 export interface TreeNode<T> {
   key: string
   raw: T
   parentKey: string | undefined
-  childrenKeys: readonly string[]
+  childrenKeys: ReadonlyArray<string>
   /** One-based position among siblings, matching `aria-posinset`. */
   posInSet: number
   /** Total sibling count, matching `aria-setsize`. */
@@ -22,26 +21,30 @@ export interface TreeNode<T> {
 /** Children fetched by `loadChildren`, kept only while the node keeps the same source item. */
 export interface LoadedChildren<T> {
   raw: T
-  children: readonly T[]
+  children: ReadonlyArray<T>
 }
 
 export interface TreeRegistry<T> {
   /** Nodes indexed by key in pre-order. */
   nodes: ReadonlyMap<string, TreeNode<T>>
-  rootKeys: readonly string[]
+  rootKeys: ReadonlyArray<string>
 }
 
 /** Indexes nested data by key in pre-order. A key seen more than once keeps its first occurrence. */
 export function buildRegistry<T>(
-  items: readonly T[],
+  items: ReadonlyArray<T>,
   options: TreeT.Options<T>,
   loaded: Readonly<Record<string, LoadedChildren<T>>>,
 ): TreeRegistry<T> {
   const nodes = new Map<string, TreeNode<T>>()
   const canLoad = Boolean(options.loadChildren)
 
-  function visit(list: readonly T[], parentKey: string | undefined, level: number): string[] {
-    const keys: string[] = []
+  function visit(
+    list: ReadonlyArray<T>,
+    parentKey: string | undefined,
+    level: number,
+  ): Array<string> {
+    const keys: Array<string> = []
     const setSize = list.length
     list.forEach((raw, index) => {
       const key = options.getKey(raw)
@@ -81,13 +84,13 @@ export function buildRegistry<T>(
 export function flattenKeys<T>(
   registry: TreeRegistry<T>,
   isExpanded: (key: string) => boolean,
-): string[] {
-  const result: string[] = []
-  function visit(keys: readonly string[]): void {
+): Array<string> {
+  const result: Array<string> = []
+  function visit(keys: ReadonlyArray<string>): void {
     for (const key of keys) {
       result.push(key)
-      const node = registry.nodes.get(key)!
-      if (node.childrenKeys.length > 0 && isExpanded(key)) {
+      const node = registry.nodes.get(key)
+      if (node && node.childrenKeys.length > 0 && isExpanded(key)) {
         visit(node.childrenKeys)
       }
     }
@@ -97,8 +100,8 @@ export function flattenKeys<T>(
 }
 
 /** Ancestor keys ordered from the nearest parent to the root. */
-export function getAncestorKeys<T>(registry: TreeRegistry<T>, key: string): string[] {
-  const result: string[] = []
+export function getAncestorKeys<T>(registry: TreeRegistry<T>, key: string): Array<string> {
+  const result: Array<string> = []
   let parentKey = registry.nodes.get(key)?.parentKey
   while (parentKey !== undefined) {
     result.push(parentKey)
@@ -108,26 +111,29 @@ export function getAncestorKeys<T>(registry: TreeRegistry<T>, key: string): stri
 }
 
 /** Descendant keys of a node in pre-order, excluding the node itself. */
-export function getDescendantKeys<T>(registry: TreeRegistry<T>, key: string): string[] {
-  const result: string[] = []
-  function visit(keys: readonly string[]): void {
+export function getDescendantKeys<T>(registry: TreeRegistry<T>, key: string): Array<string> {
+  const result: Array<string> = []
+  function visit(keys: ReadonlyArray<string>): void {
     for (const childKey of keys) {
       result.push(childKey)
-      visit(registry.nodes.get(childKey)!.childrenKeys)
+      const childNode = registry.nodes.get(childKey)
+      if (childNode) {
+        visit(childNode.childrenKeys)
+      }
     }
   }
   visit(registry.nodes.get(key)?.childrenKeys ?? [])
   return result
 }
 
-export function getSiblingKeys<T>(registry: TreeRegistry<T>, key: string): readonly string[] {
+export function getSiblingKeys<T>(registry: TreeRegistry<T>, key: string): ReadonlyArray<string> {
   const parentKey = registry.nodes.get(key)?.parentKey
   return parentKey === undefined
     ? registry.rootKeys
     : (registry.nodes.get(parentKey)?.childrenKeys ?? [])
 }
 
-export function sameKeys(left: readonly string[], right: readonly string[]): boolean {
+export function sameKeys(left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean {
   return left.length === right.length && left.every((key, index) => key === right[index])
 }
 
@@ -149,7 +155,10 @@ export function resolveCheckedStates<T>(
   }
 
   function visit(key: string, forced: boolean): void {
-    const node = registry.nodes.get(key)!
+    const node = registry.nodes.get(key)
+    if (!node) {
+      return
+    }
     const selfChecked = (!node.disabled && forced) || keys.has(key)
     states.set(key, selfChecked ? 'checked' : 'unchecked')
     if (node.childrenKeys.length === 0) {
@@ -160,7 +169,7 @@ export function resolveCheckedStates<T>(
     let enabledCount = 0
     for (const childKey of node.childrenKeys) {
       visit(childKey, selfChecked)
-      if (registry.nodes.get(childKey)!.disabled) {
+      if (registry.nodes.get(childKey)?.disabled) {
         continue
       }
       enabledCount += 1
@@ -189,8 +198,8 @@ export function resolveCheckedStates<T>(
   return states
 }
 
-export function collectCheckedKeys(states: ReadonlyMap<string, TreeT.CheckedState>): string[] {
-  const result: string[] = []
+export function collectCheckedKeys(states: ReadonlyMap<string, TreeT.CheckedState>): Array<string> {
+  const result: Array<string> = []
   for (const [key, state] of states) {
     if (state === 'checked') {
       result.push(key)

@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, Show, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -14,7 +14,6 @@ import {
   boldSliderRecipe,
 } from './bold-slider.recipe'
 import type { BoldSliderProps } from './bold-slider.types'
-
 function countDecimals(value: number): number {
   const text = String(value)
   const exponent = text.indexOf('e-')
@@ -34,7 +33,7 @@ function countDecimals(value: number): number {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, omit } from 'solid-js'
  * import { BoldSlider } from 'moraine'
  *
  * const [opacity, setOpacity] = createSignal(80)
@@ -48,7 +47,8 @@ function countDecimals(value: number): number {
  * ```
  */
 export function BoldSlider(props: BoldSliderProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'label',
     'valueLabel',
     'size',
@@ -58,25 +58,13 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     'class',
     'style',
     'aria-label',
-  ])
+  )
   const themeField = useFieldContext()
   const { locale } = useLocale()
 
   const [internalValue, setInternalValue] = createSignal(
-    untrack(() => props.value ?? props.defaultValue ?? props.min ?? 0),
+    () => props.value ?? props.defaultValue ?? props.min ?? 0,
   )
-
-  createEffect(
-    on(
-      () => props.value,
-      (val) => {
-        if (val !== undefined) {
-          setInternalValue(val)
-        }
-      },
-    ),
-  )
-
   // The fill is empty only at `min`, which is not necessarily 0.
   const isAtMin = () => internalValue() <= (props.min ?? 0)
 
@@ -89,7 +77,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     variants,
     slotWith,
     overrides,
-  } = useRecipe(boldSliderRecipe, local, {
+  } = useRecipe(boldSliderRecipe, props, {
     context: () => ({ variants: { size: themeField?.size } }),
     enforced: {
       track: () => ({
@@ -104,8 +92,8 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   })
 
   const formatValue = (value: number, fraction: number): string => {
-    if (typeof local.valueLabel === 'function') {
-      return local.valueLabel({ percent: fraction * 100, value, max: props.max ?? 100 })
+    if (typeof props.valueLabel === 'function') {
+      return props.valueLabel({ percent: fraction * 100, value, max: props.max ?? 100 })
     }
     const step = props.step
     const effectiveStep = step === undefined ? 1 : step > 0 ? step : undefined
@@ -121,17 +109,6 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   // state through `peer-*` selectors.
   function Overlay(state: SliderT.ChildrenRenderProps<number>): JSX.Element {
     const isEmpty = () => (state.percentages[0] ?? 0) === 0
-
-    createEffect(
-      on(
-        () => state.values[0],
-        (val) => {
-          if (val !== undefined && val !== internalValue()) {
-            setInternalValue(val)
-          }
-        },
-      ),
-    )
 
     // Fill edge on the root: the minimum fill plus the value's share of the remaining width,
     // matching the range inside the inset track. At `min`, the fill collapses to 0.
@@ -176,7 +153,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
         data: boldSliderDataAttributes.value({ fill: () => textProps.fill }),
       })
       // Each text layer owns its label instance; a JSX node cannot be inserted twice.
-      const label = createMemo(() => local.label)
+      const label = createMemo(() => props.label)
 
       return (
         <>
@@ -185,7 +162,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
               {label()}
             </span>
           </Show>
-          <Show when={local.valueLabel ?? true}>
+          <Show when={props.valueLabel ?? true}>
             <span data-slot="bold-slider-value" {...valueSlot}>
               {formatted()}
             </span>
@@ -222,7 +199,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       orientation="horizontal"
       size={variants.size}
       aria-label={
-        local['aria-label'] ?? (typeof local.label === 'string' ? local.label : undefined)
+        props['aria-label'] ?? (typeof props.label === 'string' ? props.label : undefined)
       }
       {...overrides({
         root: 'root',

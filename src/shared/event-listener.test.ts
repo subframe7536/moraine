@@ -1,5 +1,5 @@
-import { createEffect, createRoot, createSignal, on } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createEffect, createRoot, createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import {
   attachEventListener,
@@ -7,21 +7,20 @@ import {
   createEventListener,
   createEventListenerMap,
 } from './event-listener'
-
 function click(target: EventTarget) {
   target.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 }
 
 describe('attachEventListener', () => {
-  test('returns a noop cleanup when target is missing', () => {
+  it('returns a noop cleanup when target is missing', () => {
     expect(() => {
       attachEventListener(undefined, 'click', () => {})()
     }).not.toThrow()
   })
 
-  test('listens until the returned cleanup runs', () => {
+  it('listens until the returned cleanup runs', () => {
     const target = document.createElement('button')
-    const listener = vi.fn()
+    const listener = vi.fn<(...args: Array<any>) => void>()
 
     const cleanup = attachEventListener(target, 'click', listener)
     click(target)
@@ -32,9 +31,9 @@ describe('attachEventListener', () => {
     expect(listener).toHaveBeenCalledOnce()
   })
 
-  test('honors the once option', () => {
+  it('honors the once option', () => {
     const target = document.createElement('button')
-    const listener = vi.fn()
+    const listener = vi.fn<(...args: Array<any>) => void>()
 
     attachEventListener(target, 'click', listener, { once: true })
     click(target)
@@ -42,13 +41,34 @@ describe('attachEventListener', () => {
 
     expect(listener).toHaveBeenCalledOnce()
   })
+
+  it('does not swallow errors thrown by listeners', () => {
+    const target = document.createElement('button')
+    const error = new Error('listener boom')
+    const onError = vi.fn<(err: unknown) => void>()
+    const onWindowError = (event: ErrorEvent) => {
+      event.preventDefault()
+      onError(event.error)
+    }
+    window.addEventListener('error', onWindowError)
+    try {
+      const cleanup = attachEventListener(target, 'click', () => {
+        throw error
+      })
+      click(target)
+      cleanup()
+    } finally {
+      window.removeEventListener('error', onWindowError)
+    }
+    expect(onError).toHaveBeenCalledWith(error)
+  })
 })
 
 describe('attachEventListenerMap', () => {
-  test('registers every listener and disposes them together', () => {
+  it('registers every listener and disposes them together', () => {
     const target = document.createElement('button')
-    const onClick = vi.fn()
-    const onKeyDown = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
+    const onKeyDown = vi.fn<(...args: Array<any>) => void>()
 
     const cleanup = attachEventListenerMap(target, { click: onClick, keydown: onKeyDown })
     click(target)
@@ -63,9 +83,9 @@ describe('attachEventListenerMap', () => {
     expect(onKeyDown).toHaveBeenCalledOnce()
   })
 
-  test('skips undefined entries', () => {
+  it('skips undefined entries', () => {
     const target = document.createElement('button')
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
 
     attachEventListenerMap(target, { click: onClick, keydown: undefined })
     click(target)
@@ -76,9 +96,9 @@ describe('attachEventListenerMap', () => {
 })
 
 describe('createEventListener', () => {
-  test('stops calling the listener once its owner is disposed', () => {
+  it('stops calling the listener once its owner is disposed', () => {
     const target = document.createElement('button')
-    const listener = vi.fn()
+    const listener = vi.fn<(...args: Array<any>) => void>()
 
     createRoot((dispose) => {
       createEventListener(target, 'click', listener)
@@ -91,11 +111,11 @@ describe('createEventListener', () => {
     expect(listener).toHaveBeenCalledOnce()
   })
 
-  test('honors capture when the listener sits on an ancestor', () => {
+  it('honors capture when the listener sits on an ancestor', () => {
     const parent = document.createElement('div')
     const child = document.createElement('button')
     parent.append(child)
-    const order: string[] = []
+    const order: Array<string> = []
 
     createRoot((dispose) => {
       createEventListener(parent, 'click', () => order.push('parent'), true)
@@ -107,18 +127,16 @@ describe('createEventListener', () => {
     expect(order).toEqual(['parent', 'child'])
   })
 
-  test('detaches the previous target when the target changes', async () => {
+  it('detaches the previous target when the target changes', async () => {
     const first = document.createElement('button')
     const second = document.createElement('button')
-    const listener = vi.fn()
+    const listener = vi.fn<(...args: Array<any>) => void>()
 
     const lifecycle = createRoot((dispose) => {
       const [target, setTarget] = createSignal<HTMLElement | undefined>(first)
-      createEffect(
-        on(target, (element) => {
-          createEventListener(element, 'click', listener)
-        }),
-      )
+      createEffect(target, (element) => {
+        return createEventListener(element, 'click', listener)
+      })
       return { dispose, setTarget }
     })
 
@@ -126,7 +144,8 @@ describe('createEventListener', () => {
     click(first)
     expect(listener).toHaveBeenCalledTimes(1)
 
-    lifecycle.setTarget(second)
+    flush(() => lifecycle.setTarget(second))
+    await Promise.resolve()
     click(first)
     expect(listener).toHaveBeenCalledTimes(1)
     click(second)
@@ -135,24 +154,24 @@ describe('createEventListener', () => {
     lifecycle.dispose()
   })
 
-  test('dispatches the latest reactive state without duplicate registration', () => {
+  it('dispatches the latest reactive state without duplicate registration', () => {
     const target = document.createElement('button')
-    const seen: string[] = []
+    const seen: Array<string> = []
 
     createRoot((dispose) => {
-      const [value, setValue] = createSignal('first')
+      const [value, setValue] = createSignal('first', { ownedWrite: true })
       createEventListener(target, 'click', () => {
         seen.push(value())
       })
       click(target)
-      setValue('second')
+      flush(() => setValue('second'))
       click(target)
       expect(seen).toEqual(['first', 'second'])
       dispose()
     })
   })
 
-  test('is safe to construct without a target', () => {
+  it('is safe to construct without a target', () => {
     expect(() => {
       createRoot((dispose) => {
         createEventListener(undefined, 'custom', () => {})
@@ -163,10 +182,10 @@ describe('createEventListener', () => {
 })
 
 describe('createEventListenerMap', () => {
-  test('registers multiple listeners and removes them on cleanup', () => {
+  it('registers multiple listeners and removes them on cleanup', () => {
     const target = document.createElement('button')
-    const onClick = vi.fn()
-    const onFocusIn = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
+    const onFocusIn = vi.fn<(...args: Array<any>) => void>()
 
     createRoot((dispose) => {
       createEventListenerMap(target, { click: onClick, focusin: onFocusIn })
@@ -183,11 +202,11 @@ describe('createEventListenerMap', () => {
     expect(onFocusIn).toHaveBeenCalledOnce()
   })
 
-  test('per-event options override map-level options', () => {
+  it('per-event options override map-level options', () => {
     const target = document.createElement('div')
     const child = document.createElement('button')
     target.append(child)
-    const order: string[] = []
+    const order: Array<string> = []
 
     createRoot((dispose) => {
       createEventListenerMap(
@@ -205,7 +224,7 @@ describe('createEventListenerMap', () => {
     expect(order).toEqual(['child', 'parent'])
   })
 
-  test('handles a missing target gracefully', () => {
+  it('handles a missing target gracefully', () => {
     expect(() => {
       createRoot((dispose) => {
         createEventListenerMap(undefined, { click: () => {} })

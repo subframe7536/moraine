@@ -1,10 +1,9 @@
 import { parseCodeBlockMeta } from '../core/shiki.ts'
-
 export interface MdxNode {
   type?: string
   name?: string
-  attributes?: unknown[]
-  children?: MdxNode[]
+  attributes?: Array<unknown>
+  children?: Array<MdxNode>
   value?: string
   lang?: string
   meta?: string
@@ -18,7 +17,7 @@ export interface CodeTabSource {
   lang: string
   title: string
   code: string
-  highlightedLines: number[]
+  highlightedLines: Array<number>
 }
 
 export function asObjectRecord(value: unknown): Record<string, unknown> | null {
@@ -95,7 +94,7 @@ export function readCodeTabSource(node: MdxNode, source?: string): CodeTabSource
   let highlightedLines = parseCodeBlockMeta(undefined, {
     highlightedLines:
       Array.isArray(explicitHighlightedLines) || typeof explicitHighlightedLines === 'string'
-        ? (explicitHighlightedLines as number[] | string)
+        ? (explicitHighlightedLines as Array<number> | string)
         : undefined,
   }).highlightedLines
 

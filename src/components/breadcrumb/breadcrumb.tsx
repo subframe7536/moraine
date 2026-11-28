@@ -1,18 +1,17 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { For, Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { defaultBreadcrumbMessages } from './breadcrumb.messages'
 import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'
 import type { BreadcrumbProps } from './breadcrumb.types'
-
 /**
  * Breadcrumb navigation trail with separator icons and optional wrapping, showing where a
  * resource sits in a navigation hierarchy. Keep ancestors as links with `href`; the last item is
@@ -33,7 +32,8 @@ import type { BreadcrumbProps } from './breadcrumb.types'
  * ```
  */
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'ref',
     'items',
     'separator',
@@ -46,7 +46,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'style',
     'aria-label',
     'translations',
-  ])
+  )
   const {
     slots: {
       root: rootSlot,
@@ -58,14 +58,14 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       separator: separatorSlot,
     },
     slotWith,
-  } = useRecipe(breadcrumbRecipe, local, {
+  } = useRecipe(breadcrumbRecipe, props, {
     data: { page: breadcrumbDataAttributes.page({ current: true }) },
   })
-  const messages = useMessages('breadcrumb', defaultBreadcrumbMessages, () => local.translations)
+  const messages = useMessages('breadcrumb', defaultBreadcrumbMessages, () => props.translations)
 
-  const separator = () => local.separator ?? 'icon-chevron-right'
+  const separator = () => props.separator ?? 'icon-chevron-right'
 
-  const items = createMemo(() => local.items ?? [])
+  const items = createMemo(() => props.items ?? [])
   const currentIndex = createMemo(() => {
     const resolvedItems = items()
     const explicitIndex = resolvedItems.findIndex((item) => item.active)
@@ -78,8 +78,8 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       data-slot="breadcrumb"
       {...rootSlot}
       {...rest}
-      ref={(el) => callRef(local.ref, el)}
-      aria-label={local['aria-label'] ?? messages().label}
+      ref={props.ref}
+      aria-label={props['aria-label'] ?? messages().label}
     >
       <ol data-slot="breadcrumb-list" {...listSlot}>
         <For each={items()}>
@@ -95,16 +95,16 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
             const linkSlot = slotWith('link', {
               data: breadcrumbDataAttributes.link({ disabled: isDisabledLink }),
             })
+            const ItemTag = dynamic(() => (isInteractive() ? 'a' : 'span'))
 
             return (
               <>
                 <li data-slot="breadcrumb-item" {...itemSlot}>
                   <Show
-                    when={local.itemRender}
+                    when={props.itemRender}
                     keyed
                     fallback={
-                      <Dynamic
-                        component={isInteractive() ? 'a' : 'span'}
+                      <ItemTag
                         data-slot={isCurrent() ? 'breadcrumb-page' : 'breadcrumb-link'}
                         {...(isCurrent() ? pageSlot : linkSlot)}
                         role={isDisabledLink() ? 'link' : undefined}
@@ -113,7 +113,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                         href={isInteractive() ? item.href : undefined}
                         target={isInteractive() ? item.target : undefined}
                         rel={isInteractive() ? item.rel : undefined}
-                        onClick={isInteractive() ? item.onClick : undefined}
+                        onClick={(event: MouseEvent) => {
+                          if (isInteractive()) {
+                            callHandler(event, item.onClick)
+                          }
+                        }}
                       >
                         <Show when={leading()}>
                           {(icon) => (
@@ -125,15 +129,21 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                             {label()}
                           </span>
                         </Show>
-                      </Dynamic>
+                      </ItemTag>
                     }
                   >
                     {(render) =>
                       renderWithProps(render, {
                         item,
-                        index: index(),
-                        active: isCurrent(),
-                        disabled: isDisabled(),
+                        get index() {
+                          return index()
+                        },
+                        get active() {
+                          return isCurrent()
+                        },
+                        get disabled() {
+                          return isDisabled()
+                        },
                       })
                     }
                   </Show>

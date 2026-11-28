@@ -1,6 +1,5 @@
 import { AlertDialog, Badge, Button } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function AlertCenter() {
   const [status, setStatus] = createSignal<'idle' | 'allowed' | 'blocked'>('idle')
 

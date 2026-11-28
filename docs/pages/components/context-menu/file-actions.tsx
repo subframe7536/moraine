@@ -1,13 +1,12 @@
 import { Button, ContextMenu, Icon } from '@src'
 import type { ContextMenuT } from '@src'
 import { createMemo, createSignal, Show } from 'solid-js'
-
 export function FileActions() {
   const [folder, setFolder] = createSignal('Projects')
   const [favorite, setFavorite] = createSignal(false)
   const [deleted, setDeleted] = createSignal(false)
   const [status, setStatus] = createSignal('Right click the file, long press, or use Shift + F10.')
-  const items = createMemo<ContextMenuT.Item[]>(() => [
+  const items = createMemo<Array<ContextMenuT.Item>>(() => [
     {
       type: 'group',
       label: 'Project brief.pdf',

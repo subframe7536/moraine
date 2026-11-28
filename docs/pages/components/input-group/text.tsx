@@ -1,11 +1,10 @@
 import { Input, InputGroup, Textarea } from '@src'
-
 export function TextContent() {
   return (
     <div class="gap-4 grid max-w-sm w-full">
       <InputGroup>
         <InputGroup.Leading>$</InputGroup.Leading>
-        <Input aria-label="Amount" inputMode="decimal" placeholder="0.00" />
+        <Input aria-label="Amount" inputmode="decimal" placeholder="0.00" />
         <InputGroup.Trailing>USD</InputGroup.Trailing>
       </InputGroup>
       <InputGroup>

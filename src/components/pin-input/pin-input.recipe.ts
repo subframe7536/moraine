@@ -9,7 +9,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { PinInputStyleSlot, PinInputStyleVariants } from './pin-input.style-types'
-
 export const pinInputDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
     'disabled',

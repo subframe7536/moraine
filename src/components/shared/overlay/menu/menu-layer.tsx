@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   For,
   Match,
@@ -7,16 +7,13 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
-  onCleanup,
+  merge,
+  untrack,
 } from 'solid-js'
-import { isServer } from 'solid-js/web'
 
 import { useCn } from '../../../../provider/cn-context'
-import { bindElement } from '../../../../shared/element-binding'
-import { createEventListener } from '../../../../shared/event-listener'
-import { callHandler, callRef, createId } from '../../../../shared/utils'
+import { attachEventListener } from '../../../../shared/event-listener'
+import { callHandler, createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
@@ -38,7 +35,6 @@ import {
 } from './menu.utils'
 import type { OverlayMenuGroup } from './menu.utils'
 import type { OverlayMenuItem, OverlayMenuLayerProps, OverlayMenuSharedSlots } from './types'
-
 export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem>(
   props: OverlayMenuLayerProps<TItem>,
 ): JSX.Element {
@@ -51,7 +47,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     slot: keyof OverlayMenuSharedSlots,
     options: { data: DataAttributeBag },
   ): SlotBinding {
-    const binding = mergeProps(
+    const binding = merge(
       {
         get class() {
           return resolveSlot(slot).class
@@ -86,11 +82,9 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     }
   }
 
-  createEffect(
-    on([() => props.placement, () => props.align], () => {
-      layer.setCurrentPlacement(resolvedPlacement())
-    }),
-  )
+  createEffect(resolvedPlacement, (placement) => {
+    layer.setCurrentPlacement(placement)
+  })
 
   useFloatingPosition({
     contentElement: layer.contentElement,
@@ -109,22 +103,23 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   })
 
   createEffect(
-    on(
-      [positionerElement, () => props.open, () => props.present()],
-      ([positioner, open, present]) => {
-        if (!positioner || open || !present) {
-          return
-        }
+    () => [positionerElement(), props.open, props.present()] as const,
+    ([positioner, open, present]) => {
+      if (!positioner || open || !present) {
+        return
+      }
 
-        positioner.style.visibility = 'visible'
-      },
-    ),
+      positioner.style.visibility = 'visible'
+    },
   )
 
-  bindElement(positionerElement, (positioner) => {
+  createEffect(positionerElement, (positioner) => {
+    if (!positioner) {
+      return
+    }
     setIsPositioned(false)
     // Stay hidden until the floating position commits; an exiting layer is shown by the effect above.
-    if (props.open) {
+    if (untrack(() => props.open)) {
       positioner.style.visibility = 'hidden'
     }
     return registerLayerBranch(positioner)
@@ -133,21 +128,22 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   usePositionerZIndex(positionerElement, layer.contentElement)
 
   createEffect(
-    on(
-      () => props.refState,
-      (refState) => {
-        refState?.(layer)
+    () => props.refState,
+    (refState) => {
+      refState?.(layer)
 
-        onCleanup(() => {
-          props.refState?.(undefined)
-        })
-      },
-    ),
+      return () => {
+        refState?.(undefined)
+      }
+    },
   )
 
-  bindElement(layer.contentElement, (content) => {
+  createEffect(layer.contentElement, (content) => {
+    if (!content) {
+      return
+    }
     const release = props.registerPresenceElement(content)
-    createEventListener(
+    const detach = attachEventListener(
       content,
       'keydown',
       (event) => {
@@ -157,47 +153,61 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       },
       true,
     )
-    return release
+    return () => {
+      detach()
+      release()
+    }
   })
 
   createEffect(
-    on(
-      [() => props.open, isPositioned, () => props.autoFocusStrategy],
-      ([open, positioned, focusStrategy]) => {
-        if (!open) {
-          layer.setHighlightedItemId(undefined)
-          layer.setPointerGraceIntent(null)
-          layer.resetTypeahead()
-          return
-        }
-        if (!positioned || !focusStrategy || focusStrategy === 'none') {
-          return
-        }
-        const onAutoFocusHandled = props.onAutoFocusHandled
-        let frameId = 0
-        const ownerWindow = layer.contentElement()?.ownerDocument.defaultView
+    () =>
+      [
+        props.open,
+        isPositioned(),
+        props.autoFocusStrategy,
+        props.onAutoFocusHandled,
+        layer.contentElement(),
+      ] as const,
+    ([open, positioned, focusStrategy, onAutoFocusHandled, contentEl]) => {
+      if (!open) {
+        layer.setHighlightedItemId(undefined)
+        layer.setPointerGraceIntent(null)
+        layer.resetTypeahead()
+        return
+      }
+      if (!positioned || !focusStrategy || focusStrategy === 'none') {
+        return
+      }
+      let frameId = 0
+      const ownerWindow = contentEl?.ownerDocument.defaultView
 
-        const runAutoFocus = () => {
-          focusLayerFromStrategy(layer, focusStrategy ?? 'none')
-          onAutoFocusHandled?.()
-        }
+      const runAutoFocus = () => {
+        focusLayerFromStrategy(layer, focusStrategy ?? 'none')
+        onAutoFocusHandled?.()
+      }
 
-        if (typeof ownerWindow?.requestAnimationFrame !== 'function') {
-          queueMicrotask(runAutoFocus)
-          return
-        }
-
-        frameId = ownerWindow.requestAnimationFrame(() => {
-          runAutoFocus()
-        })
-
-        onCleanup(() => {
-          if (frameId !== 0) {
-            ownerWindow.cancelAnimationFrame(frameId)
+      if (typeof ownerWindow?.requestAnimationFrame !== 'function') {
+        let cancelled = false
+        queueMicrotask(() => {
+          if (!cancelled) {
+            runAutoFocus()
           }
         })
-      },
-    ),
+        return () => {
+          cancelled = true
+        }
+      }
+
+      frameId = ownerWindow.requestAnimationFrame(() => {
+        runAutoFocus()
+      })
+
+      return () => {
+        if (frameId !== 0) {
+          ownerWindow.cancelAnimationFrame(frameId)
+        }
+      }
+    },
   )
 
   const { LeafItem, CheckboxMenuItem, RadioMenuItem, RenderItemContent, getItemSlot } =
@@ -269,7 +279,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
 
   function MenuGroup(groupProps: { group: OverlayMenuGroup<TItem> }): JSX.Element {
     const groupLabel = createMemo(() => groupProps.group.label)
-    const groupId = createId(undefined, `${props.id}-group`)
+    const groupId = createId(undefined, () => `${props.id}-group`)
     const groupLabelId = () => (groupLabel() ? `${groupId()}-label` : undefined)
     const radioGroup = createMenuRadioGroupState(() => groupProps.group.radioGroup)
 
@@ -333,21 +343,17 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       ref={setPositionerElement}
       data-slot={slotName('positioner')}
       class={'left-0 top-0 absolute'}
-      style={isServer ? { visibility: 'hidden' } : undefined}
     >
       <div
         data-slot={slotName('content')}
         role="menu"
         id={props.id}
         aria-labelledby={props.ariaLabelledBy}
-        tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
+        tabindex={layer.highlightedItemId() === undefined ? 0 : -1}
         {...contentSlot}
         {...props.elementAttrs}
         {...contentPresentation}
-        ref={(element: HTMLDivElement) => {
-          layer.setContentElement(element)
-          callRef(props.elementAttrs?.ref, element)
-        }}
+        ref={[layer.setContentElement, props.elementAttrs?.ref]}
         onKeyDown={onContentKeyDown}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.elementAttrs?.onPointerDown)

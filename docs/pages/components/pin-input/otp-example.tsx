@@ -1,6 +1,5 @@
 import { PinInput } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function OtpExample() {
   const [completedCode, setCompletedCode] = createSignal('')
 

@@ -1,7 +1,6 @@
 import { Badge } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
-
 interface ServiceMetric {
   id: string
   service: string
@@ -13,12 +12,12 @@ interface ServiceMetric {
   status: 'healthy' | 'degraded' | 'critical'
 }
 
-const METRICS: ServiceMetric[] = [
+const METRICS: Array<ServiceMetric> = [
   {
     id: '1',
     service: 'auth-service',
     region: 'us-east-1 (N. Virginia)',
-    rps: 14250,
+    rps: 14_250,
     p95Latency: '18ms',
     errorRate: '0.01%',
     cpu: '34%',
@@ -72,7 +71,7 @@ const HEALTH = {
   critical: { label: 'Critical', tone: 'danger' },
 } as const
 
-const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
+const COLUMNS: Array<DataTableT.Column<ServiceMetric>> = [
   {
     accessorKey: 'service',
     header: 'Service Name',
@@ -118,11 +117,13 @@ const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
       const elevated = () => Number.parseFloat(props.row.original.errorRate) > 1
       return (
         <span
-          class="tabular-nums"
-          classList={{
-            'text-danger font-medium': elevated(),
-            'text-muted-foreground': !elevated(),
-          }}
+          class={[
+            'tabular-nums',
+            {
+              'text-danger font-medium': elevated(),
+              'text-muted-foreground': !elevated(),
+            },
+          ]}
         >
           {props.row.original.errorRate}
         </span>

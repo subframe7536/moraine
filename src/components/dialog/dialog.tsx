@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { merge, omit } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
 import { BaseDialog } from '../base-dialog/base-dialog'
@@ -16,7 +16,6 @@ import { DialogHeader } from './dialog-header'
 import { DialogTitle } from './dialog-title'
 import { DialogTrigger } from './dialog-trigger'
 import type { DialogProps } from './dialog.types'
-
 /**
  * Labeled modal task with an optional title, description, body, and footer. Pass `title` and
  * `description` to `Dialog.Content` for the default header, or compose `Dialog.Header`, `Dialog.Title`,
@@ -39,15 +38,32 @@ import type { DialogProps } from './dialog.types'
  * ```
  */
 export function Dialog(props: DialogProps): JSX.Element {
-  const [modalProps, dialogProps] = splitProps(props, BASE_DIALOG_ROOT_KEYS)
-  const context: DialogContextValue = mergeProps(dialogProps, {
+  const dialogProps = omit(props, ...BASE_DIALOG_ROOT_KEYS)
+  const context: DialogContextValue = merge(dialogProps, {
     get slotOverrides() {
       return pickSlotOverrides(props)
     },
   })
   return (
     <DialogProvider value={context}>
-      <BaseDialog {...modalProps} />
+      <BaseDialog
+        id={props.id}
+        open={props.open}
+        defaultOpen={props.defaultOpen}
+        onOpenChange={props.onOpenChange}
+        onExitComplete={props.onExitComplete}
+        transition={props.transition}
+        closeOnOutsideClick={props.closeOnOutsideClick}
+        closeOnEscape={props.closeOnEscape}
+        onClosePrevented={props.onClosePrevented}
+        preventScroll={props.preventScroll}
+        modal={props.modal}
+        mount={props.mount}
+        initialFocus={props.initialFocus}
+        finalFocus={props.finalFocus}
+      >
+        {props.children}
+      </BaseDialog>
     </DialogProvider>
   )
 }

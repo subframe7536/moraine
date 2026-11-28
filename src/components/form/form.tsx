@@ -1,16 +1,17 @@
-import type { FormConfig, FormStore, RequiredPath, Schema } from '@formisch/solid'
+import type { FormConfig, FormStore, RequiredPath, Schema } from '@formisch/solid/v2'
 import {
   createForm as createFormischForm,
   Form as FormischForm,
   reset as resetForm,
-} from '@formisch/solid'
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+} from '@formisch/solid/v2'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
+import type { FieldProps } from '../field'
 import { Field as FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form/form-reset-scheduler'
 
@@ -18,7 +19,6 @@ import { useFormischFieldBinding } from './form-field-binding'
 import { defaultFormMessages } from './form.messages'
 import { formDataAttributes, formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
-
 interface InternalFormProps<TSchema extends Schema> extends FormProps<TSchema> {
   of: FormT.Store<TSchema>
 }
@@ -34,7 +34,8 @@ function hasErrorMessage(error: unknown): boolean {
  * focuses the first invalid field, tracks `isSubmitting`, and records handler errors on the store.
  */
 function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JSX.Element {
-  const [local, formProps] = splitProps(props, [
+  const formProps = omit(
+    props,
     'class',
     'style',
     'classes',
@@ -43,26 +44,26 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'onSubmit',
     'onReset',
     'translations',
-  ])
+  )
   const {
     slots: { root: rootSlot },
-  } = useRecipe(formRecipe, local, {
-    data: { root: formDataAttributes.root({ submitting: () => local.of.isSubmitting }) },
+  } = useRecipe(formRecipe, props, {
+    data: { root: formDataAttributes.root({ submitting: () => props.of.isSubmitting }) },
   })
-  const messages = useMessages('form', defaultFormMessages, () => local.translations)
+  const messages = useMessages('form', defaultFormMessages, () => props.translations)
 
   // Moraine also accepts root collection schemas, which Formisch's component typings exclude.
-  const formStore = () => local.of as FormStore
+  const formStore = () => props.of as FormStore
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
-    const form = local.of
-    callHandler(event, local.onReset)
+    const form = props.of
+    callHandler(event, props.onReset)
     scheduleFormReset(event, () => resetForm(form), 'form')
   }
 
   const onSubmit = async (output: unknown, event: SubmitEvent): Promise<void> => {
     try {
-      await local.onSubmit?.(output, event)
+      await props.onSubmit?.(output, event)
     } catch (error) {
       // Formisch stores `error.message`; give message-less errors a localized fallback.
       throw hasErrorMessage(error) ? error : new Error(messages().unknownError)
@@ -122,7 +123,7 @@ export function createForm<TSchema extends Schema>(
       store as FormStore,
       () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,
     )
-    return <FieldInternal {...props} binding={binding} />
+    return <FieldInternal {...(props as unknown as FieldProps<T>)} binding={binding} />
   }
 
   return Object.assign(store, {

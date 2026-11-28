@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { createComponent, createSignal, onCleanup, splitProps, untrack } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import type { JSX } from '@solidjs/web'
+import { createComponent, createSignal, flush, omit, onCleanup, untrack } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import {
   AlertDialog,
@@ -22,10 +22,9 @@ import {
 import type { ButtonProps } from '../index'
 
 import { callHandler } from './utils'
-
 describe('render and polymorphic contracts', () => {
-  test('custom target owns whether onClick is forwarded', () => {
-    const click = vi.fn()
+  it('custom target owns whether onClick is forwarded', () => {
+    const click = vi.fn<(...args: Array<any>) => void>()
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button ref={props.ref}>Action</button>
     )
@@ -34,8 +33,8 @@ describe('render and polymorphic contracts', () => {
     expect(click).not.toHaveBeenCalled()
   })
 
-  test('custom targets can wrap and programmatically invoke their click handler', () => {
-    const calls: string[] = []
+  it('custom targets can wrap and programmatically invoke their click handler', () => {
+    const calls: Array<string> = []
     let invoke!: () => void
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => {
       const handler = untrack(() => props.onClick)
@@ -58,7 +57,7 @@ describe('render and polymorphic contracts', () => {
     expect(calls).toEqual(['consumer', 'custom', 'consumer'])
   })
 
-  test.each([
+  it.each([
     [
       'Combobox',
       (props: { emptyRender?: () => JSX.Element }) => (
@@ -72,8 +71,8 @@ describe('render and polymorphic contracts', () => {
       ),
     ],
   ] as const)('%s replaces empty renderers and restores the default content', (_name, Control) => {
-    const cleanedA = vi.fn()
-    const cleanedB = vi.fn()
+    const cleanedA = vi.fn<(...args: Array<any>) => void>()
+    const cleanedB = vi.fn<(...args: Array<any>) => void>()
     const A = () => {
       onCleanup(cleanedA)
       return <span>Empty A</span>
@@ -82,22 +81,22 @@ describe('render and polymorphic contracts', () => {
       onCleanup(cleanedB)
       return <span>Empty B</span>
     }
-    const [emptyRender, setEmptyRender] = createSignal<(() => JSX.Element) | undefined>(A)
+    const [emptyRender, setEmptyRender] = createSignal<(() => JSX.Element) | undefined>(() => A)
     render(() => <Control emptyRender={emptyRender()} />)
     expect(screen.getByText('Empty A')).toBeTruthy()
 
-    setEmptyRender(() => B)
+    flush(() => setEmptyRender(() => B))
     expect(screen.queryByText('Empty A')).toBeNull()
     expect(screen.getByText('Empty B')).toBeTruthy()
     expect(cleanedA).toHaveBeenCalledTimes(1)
 
-    setEmptyRender(undefined)
+    flush(() => setEmptyRender(undefined))
     expect(screen.queryByText('Empty B')).toBeNull()
     expect(screen.getByText('No items')).toBeTruthy()
     expect(cleanedB).toHaveBeenCalledTimes(1)
   })
 
-  test.each([
+  it.each([
     [
       'MultiSelect tags',
       (props: { renderer: () => JSX.Element }) => (
@@ -176,8 +175,8 @@ describe('render and polymorphic contracts', () => {
       ),
     ],
   ] as const)('%s replaces and cleans up each renderer instance', async (_name, fixture) => {
-    const cleanupA = vi.fn()
-    const cleanupB = vi.fn()
+    const cleanupA = vi.fn<(...args: Array<any>) => void>()
+    const cleanupB = vi.fn<(...args: Array<any>) => void>()
     const A = () => {
       onCleanup(cleanupA)
       return <span>A</span>
@@ -186,7 +185,7 @@ describe('render and polymorphic contracts', () => {
       onCleanup(cleanupB)
       return <span>B</span>
     }
-    const [renderer, setRenderer] = createSignal(A)
+    const [renderer, setRenderer] = createSignal<() => JSX.Element>(() => A)
     const view = render(() =>
       createComponent(fixture, {
         get renderer() {
@@ -195,7 +194,7 @@ describe('render and polymorphic contracts', () => {
       }),
     )
     await waitFor(() => expect(screen.getAllByText('A')).toHaveLength(2))
-    setRenderer(() => B)
+    flush(() => setRenderer(() => B))
     expect(screen.queryAllByText('A')).toHaveLength(0)
     expect(screen.getAllByText('B')).toHaveLength(2)
     expect(cleanupA).toHaveBeenCalledTimes(2)
@@ -203,8 +202,8 @@ describe('render and polymorphic contracts', () => {
     expect(cleanupB).toHaveBeenCalledTimes(2)
   })
 
-  test('custom Button inside a trigger cancels before the outer activation', () => {
-    const onOpenChange = vi.fn()
+  it('custom Button inside a trigger cancels before the outer activation', () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const Native = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
     const Custom = (props: ButtonProps) => (
       <Button {...props} as={Native} onClick={(event) => event.preventDefault()} />
@@ -219,8 +218,8 @@ describe('render and polymorphic contracts', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('nested custom overlay triggers cancel before outer activation', () => {
-    const onOpenChange = vi.fn()
+  it('nested custom overlay triggers cancel before outer activation', () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const Native = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
     const Custom = (
       props: Omit<JSX.ButtonHTMLAttributes<HTMLButtonElement>, 'style'> & {
@@ -228,7 +227,12 @@ describe('render and polymorphic contracts', () => {
       },
     ) => (
       <Popover>
-        <Popover.Trigger {...props} as={Native} onClick={(event) => event.preventDefault()} />
+        <Popover.Trigger
+          {...props}
+          as={Native}
+          disabled={props.disabled === '' ? true : props.disabled}
+          onClick={(event) => event.preventDefault()}
+        />
       </Popover>
     )
     const view = render(() => (
@@ -240,12 +244,12 @@ describe('render and polymorphic contracts', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('foreign custom root cancels keyboard before activation', () => {
+  it('foreign custom root cancels keyboard before activation', () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const host = iframe.contentDocument!.createElement('div')
     iframe.contentDocument!.body.append(host)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const Custom = (props: JSX.HTMLAttributes<HTMLDivElement>) => (
       <div {...props} onKeyDown={(event) => event.preventDefault()} />
     )
@@ -267,7 +271,7 @@ describe('render and polymorphic contracts', () => {
     }
   })
 
-  test.each(['main', 'iframe'] as const)(
+  it.each(['main', 'iframe'] as const)(
     'custom trigger keyboard cancellation works in %s',
     (realm) => {
       const iframe = document.createElement('iframe')
@@ -275,8 +279,8 @@ describe('render and polymorphic contracts', () => {
       const ownerDocument = realm === 'iframe' ? iframe.contentDocument! : document
       const host = ownerDocument.createElement('div')
       ownerDocument.body.append(host)
-      const onOpenChange = vi.fn()
-      const customKeyDown = vi.fn()
+      const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+      const customKeyDown = vi.fn<(...args: Array<any>) => void>()
       const Custom = (props: JSX.HTMLAttributes<HTMLDivElement>) => (
         <div
           {...props}
@@ -328,14 +332,14 @@ describe('render and polymorphic contracts', () => {
     },
   )
 
-  test.each(['main', 'iframe'] as const)('custom keyup can cancel Space in %s', (realm) => {
+  it.each(['main', 'iframe'] as const)('custom keyup can cancel Space in %s', (realm) => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = realm === 'iframe' ? iframe.contentDocument! : document
     const host = ownerDocument.createElement('div')
     ownerDocument.body.append(host)
-    const onOpenChange = vi.fn()
-    const customKeyUp = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const customKeyUp = vi.fn<(...args: Array<any>) => void>()
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button
         {...props}
@@ -366,10 +370,10 @@ describe('render and polymorphic contracts', () => {
     }
   })
 
-  test('normal forwarded keyboard events work without a forwarded ref', () => {
-    const keyDown = vi.fn()
+  it('normal forwarded keyboard events work without a forwarded ref', () => {
+    const keyDown = vi.fn<(...args: Array<any>) => void>()
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => {
-      const [, attributes] = splitProps(props, ['ref'])
+      const attributes = omit(props, 'ref')
       return <button {...attributes}>Action</button>
     }
     const view = render(() => <Button as={Custom} onKeyDown={keyDown} />)
@@ -377,7 +381,7 @@ describe('render and polymorphic contracts', () => {
     expect(keyDown).toHaveBeenCalledOnce()
   })
 
-  test('Button custom input preserves the custom root input type', () => {
+  it('button custom input preserves the custom root input type', () => {
     const Input = (props: JSX.InputHTMLAttributes<HTMLInputElement>) => (
       <input type="file" {...props} />
     )
@@ -385,12 +389,12 @@ describe('render and polymorphic contracts', () => {
     expect((view.container.firstChild as HTMLInputElement).type).toBe('file')
   })
 
-  test('native string Button custom input preserves explicit type', () => {
+  it('native string Button custom input preserves explicit type', () => {
     const view = render(() => <Button as="input" type="file" />)
     expect((view.container.firstChild as HTMLInputElement).type).toBe('file')
   })
 
-  test('DropdownMenu headerRender, footerRender and itemRender render expected content', () => {
+  it('dropdownMenu headerRender, footerRender and itemRender render expected content', () => {
     const TopComponent = (props: { sub: boolean }) => (
       <div data-testid="top-comp">Sub: {String(props.sub)}</div>
     )
@@ -415,7 +419,7 @@ describe('render and polymorphic contracts', () => {
     view.unmount()
   })
 
-  test('KbdGroup separator accepts string, number, and Component', () => {
+  it('kbdGroup separator accepts string, number, and Component', () => {
     const CustomSep = (props: { index: number }) => <span>#{props.index}</span>
     const view1 = render(() => <KbdGroup items={['⌘', 'K']} separator="~" />)
     expect(view1.container.textContent).toContain('~')
@@ -426,7 +430,7 @@ describe('render and polymorphic contracts', () => {
     view2.unmount()
   })
 
-  test('List itemRender accepts Component', () => {
+  it('list itemRender accepts Component', () => {
     const view = render(() => (
       <List items={['a', 'b']} itemRender={(props: { item: string }) => <li>{props.item}</li>} />
     ))
@@ -434,7 +438,7 @@ describe('render and polymorphic contracts', () => {
     view.unmount()
   })
 
-  test('AlertDialog host dialogRender accepts Component and custom accepts both', () => {
+  it('alertDialog host dialogRender accepts Component and custom accepts both', () => {
     const ComponentRender = () => <div>Component Dialog</div>
     const view = render(() => <AlertDialog dialogRender={ComponentRender} />)
 

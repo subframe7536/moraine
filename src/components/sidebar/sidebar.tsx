@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, createSignal, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
-import { callRef, createId } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 
 import { SidebarContent } from './sidebar-content'
@@ -27,7 +27,6 @@ import { SidebarRail } from './sidebar-rail'
 import { SidebarTrigger } from './sidebar-trigger'
 import { sidebarDataAttributes, sidebarRecipe } from './sidebar.recipe'
 import type { SidebarProps, SidebarT } from './sidebar.types'
-
 const SIDEBAR_DEFAULT_BREAKPOINT = 768
 
 /**
@@ -66,7 +65,8 @@ const SIDEBAR_DEFAULT_BREAKPOINT = 768
  * ```
  */
 export function Sidebar(props: SidebarProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'breakpoint',
     'children',
     'classes',
@@ -90,11 +90,11 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     'onWidthCommit',
     'minWidth',
     'maxWidth',
-  ])
+  )
   const {
     slots: { root: rootSlot },
     variants,
-  } = useRecipe(sidebarRecipe, local, {
+  } = useRecipe(sidebarRecipe, props, {
     data: {
       root: sidebarDataAttributes.root(() => ({
         mobile,
@@ -112,59 +112,55 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     },
   })
 
-  const [panelIdProp, setPanelId] = createSignal<string>()
+  const [panelIdProp, setPanelId] = createSignal<string | undefined>(undefined)
   const panelId = createId(panelIdProp, 'sidebar-panel')
   const [rootElement, setRootElement] = createSignal<HTMLElement>()
   const localeDirection = useLocale().dir
   const mediaMatches = createMediaQuery(
-    () => `(max-width: ${local.breakpoint ?? SIDEBAR_DEFAULT_BREAKPOINT}px)`,
+    () => `(max-width: ${props.breakpoint ?? SIDEBAR_DEFAULT_BREAKPOINT}px)`,
     false,
   )
-  const mobile = createMemo(() => local.mobile ?? mediaMatches())
+  const mobile = createMemo(() => props.mobile ?? mediaMatches())
 
   // Each layout owns its open state, so a controlled desktop `open` never opens the drawer.
   const [desktopOpen, setDesktopOpen] = createControllableValue<boolean>({
-    value: () => local.open,
-    defaultValue: () => local.defaultOpen ?? true,
-    onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
+    value: () => props.open,
+    defaultValue: () => props.defaultOpen ?? true,
+    onChange: (nextOpen) => props.onOpenChange?.(nextOpen),
   })
-  const [uncontrolledMobileOpen, setUncontrolledMobileOpen] = createSignal(
-    untrack(() => local.defaultMobileOpen ?? false),
-  )
-  const mobileOpen = () => local.mobileOpen ?? uncontrolledMobileOpen()
+  const initialMobileOpen = untrack(() => props.defaultMobileOpen ?? false)
+  // Leaving mobile closes an uncontrolled drawer without reporting it.
+  const [uncontrolledMobileOpen, setUncontrolledMobileOpen] = createSignal<boolean>((previous) => {
+    if (!mobile()) {
+      return previous === undefined ? initialMobileOpen : false
+    }
+    return previous ?? initialMobileOpen
+  })
+  const mobileOpen = () => props.mobileOpen ?? uncontrolledMobileOpen()
 
   function setMobileOpen(nextOpen: boolean): void {
     if (nextOpen === mobileOpen()) {
       return
     }
-    if (local.mobileOpen === undefined) {
+    if (props.mobileOpen === undefined) {
       setUncontrolledMobileOpen(nextOpen)
     }
-    local.onMobileOpenChange?.(nextOpen)
+    props.onMobileOpenChange?.(nextOpen)
   }
 
   const [width, setWidth] = createControllableValue<number | undefined>({
-    value: () => local.width,
-    defaultValue: () => local.defaultWidth,
+    value: () => props.width,
+    defaultValue: () => props.defaultWidth,
     onChange: (nextWidth) => {
       if (nextWidth !== undefined) {
-        local.onWidthChange?.(nextWidth)
+        props.onWidthChange?.(nextWidth)
       }
     },
   })
-  const minWidth = () => local.minWidth ?? 224
-  const maxWidth = () => Math.max(minWidth(), local.maxWidth ?? 480)
+  const minWidth = () => props.minWidth ?? 224
+  const maxWidth = () => Math.max(minWidth(), props.maxWidth ?? 480)
   const [resizing, setResizing] = createSignal(false)
   const [panelElement, setPanelElement] = createSignal<HTMLElement>()
-
-  // Leaving mobile closes an uncontrolled drawer without reporting it.
-  createEffect(
-    on(mobile, (isMobileLayout, previous) => {
-      if (previous === true && isMobileLayout === false) {
-        setUncontrolledMobileOpen(false)
-      }
-    }),
-  )
 
   const open = createMemo(() => (mobile() ? mobileOpen() : desktopOpen()))
 
@@ -184,7 +180,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 
   const context = {
     get slotOverrides() {
-      return { classes: local.classes, styles: local.styles }
+      return { classes: props.classes, styles: props.styles }
     },
     mobile,
     panelId,
@@ -199,10 +195,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       return variants.side
     },
     drawerSide,
-    translations: () => local.translations,
+    translations: () => props.translations,
     width,
     setWidth,
-    commitWidth: (nextWidth: number) => local.onWidthCommit?.(nextWidth),
+    commitWidth: (nextWidth: number) => props.onWidthCommit?.(nextWidth),
     minWidth,
     maxWidth,
     resizing,
@@ -213,16 +209,8 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 
   return (
     <SidebarProvider value={context}>
-      <div
-        data-slot="sidebar"
-        {...rootSlot}
-        {...rest}
-        ref={(element) => {
-          setRootElement(element)
-          callRef(local.ref, element)
-        }}
-      >
-        {local.children}
+      <div data-slot="sidebar" {...rootSlot} {...rest} ref={[setRootElement, props.ref]}>
+        {props.children}
       </div>
     </SidebarProvider>
   )

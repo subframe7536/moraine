@@ -1,14 +1,6 @@
-import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  splitProps,
-} from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, createEffect, createMemo, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -17,12 +9,12 @@ import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useAutoLoadingClick } from '../../shared/use-auto-loading'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { resolvePropsChildren } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 
 import { BUTTON_LOADING_ICON_CLASS, buttonDataAttributes, buttonRecipe } from './button.recipe'
 import type { ButtonProps } from './button.types'
-
 /**
  * Button for commands and explicit navigation, with optional leading and trailing icons and a
  * loading state. It renders a native `button`; pass `as="a"` with `href` for a destination, and
@@ -45,7 +37,9 @@ import type { ButtonProps } from './button.types'
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const group = useButtonGroupContext()
-  const [local, rest] = splitProps(props as ButtonProps<T> & { ref?: unknown }, [
+  const local = props as ButtonProps<T> & { ref?: unknown }
+  const rest = omit(
+    props as ButtonProps<T> & { ref?: unknown },
     'as',
     'variant',
     'tone',
@@ -63,7 +57,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'leading',
     'trailing',
     'children',
-  ])
+  )
 
   const { isLoading, onClick } = useAutoLoadingClick<HTMLElement>({
     loading: () => local.loading,
@@ -78,8 +72,13 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   // Effects run after the root's attributes are applied, so `pressEffect` reads the caller's
   // attributes even though the class binding is spread before them.
-  const [effectElement, setEffectElement] = createSignal<HTMLElement>()
-  createEffect(on(root.element, setEffectElement))
+  const [effectElement, setEffectElement] = createSignal<HTMLElement | undefined>(undefined)
+  createEffect(
+    () => (typeof local.pressEffect === 'function' ? root.element() : undefined),
+    (element) => {
+      setEffectElement(element)
+    },
+  )
 
   function customPressEffectClass() {
     const effect = local.pressEffect
@@ -151,7 +150,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   )
 
   const binding = root.bind(interactionProps)
-  const child = resolveChildren(() => local.children)
+  const child = resolvePropsChildren(local as { children?: JSX.Element })
   const resolvedChildren = createMemo(() =>
     renderWithProps(child(), {
       get loading() {
@@ -161,11 +160,12 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   )
   const hasChildren = () => hasContent(resolvedChildren())
 
+  const Root = dynamic(tag)
+
   return (
-    <Dynamic
-      component={tag()}
+    <Root
       data-slot="button"
-      aria-busy={isLoading() ? true : undefined}
+      aria-busy={isLoading() ? 'true' : undefined}
       {...rootSlot}
       {...binding}
     >
@@ -174,7 +174,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={leading()}
             data-slot="button-leading"
-            aria-hidden={isLeadingLoading() ? true : undefined}
+            aria-hidden={isLeadingLoading() ? 'true' : undefined}
             {...leadingSlot}
           />
         )}
@@ -191,11 +191,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={trailing()}
             data-slot="button-trailing"
-            aria-hidden={isTrailingLoading() ? true : undefined}
+            aria-hidden={isTrailingLoading() ? 'true' : undefined}
             {...trailingSlot}
           />
         )}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

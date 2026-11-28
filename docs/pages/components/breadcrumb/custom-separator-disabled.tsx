@@ -1,5 +1,4 @@
 import { Breadcrumb } from '@src'
-
 export function CustomSeparatorDisabled() {
   return (
     <Breadcrumb

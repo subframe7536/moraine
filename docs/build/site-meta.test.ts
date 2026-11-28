@@ -1,7 +1,6 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { buildSiteMetaTags, siteMetaPlugin } from './site-meta.ts'
-
 const SITE_META = {
   siteName: 'Moraine',
   title: 'Moraine Docs',
@@ -15,7 +14,7 @@ const SITE_META = {
 }
 
 describe('buildSiteMetaTags', () => {
-  test('builds a complete set of site metadata tags', () => {
+  it('builds a complete set of site metadata tags', () => {
     const tags = buildSiteMetaTags(SITE_META)
 
     expect(tags).toContainEqual({
@@ -57,7 +56,7 @@ describe('buildSiteMetaTags', () => {
     })
   })
 
-  test('resolves absolute URLs from root-relative image paths', () => {
+  it('resolves absolute URLs from root-relative image paths', () => {
     const tags = buildSiteMetaTags({
       ...SITE_META,
       siteUrl: 'https://moraine.subf.dev',
@@ -84,7 +83,7 @@ describe('buildSiteMetaTags', () => {
 })
 
 describe('siteMetaPlugin', () => {
-  test('returns a single configured metadata set via transformIndexHtml', () => {
+  it('returns a single configured metadata set via transformIndexHtml', () => {
     const plugin = siteMetaPlugin(SITE_META)
     const hook = plugin.transformIndexHtml
     const context = {

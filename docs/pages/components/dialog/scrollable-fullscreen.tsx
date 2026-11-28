@@ -1,6 +1,5 @@
 import { Button, Dialog } from '@src'
 import { For } from 'solid-js'
-
 export function ScrollableFullscreen() {
   const SCROLLABLE_LINES = Array.from(
     { length: 100 },

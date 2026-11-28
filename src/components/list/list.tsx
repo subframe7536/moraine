@@ -1,17 +1,15 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, on, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { For, Show, createEffect, createMemo, createSignal, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createScrollMetrics } from '../../shared/scroll-metrics'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { listRecipe } from './list.recipe'
 import type { ListProps } from './list.types'
-
 /**
  * Headless polymorphic list that renders caller-defined rows from `items` through `itemRender`,
  * with optional virtualization. Use it when you own each row's markup and need a stable collection
@@ -38,7 +36,9 @@ import type { ListProps } from './list.types'
 export function List<TItem, T extends ValidComponent = 'ul'>(
   props: ListProps<TItem, T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as ListProps<TItem, T> & { ref?: unknown }, [
+  const local = props as ListProps<TItem, T> & { ref?: unknown }
+  const rest = omit(
+    props as ListProps<TItem, T> & { ref?: unknown },
     'as',
     'items',
     'itemRender',
@@ -52,7 +52,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
     'styles',
     'class',
     'style',
-  ])
+  )
   const {
     slots: { root: rootSlot },
   } = useRecipe(listRecipe, local)
@@ -69,39 +69,42 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
         bottom: extent > 0 && extent - position <= threshold + 1,
       }
     },
-    undefined,
     { equals: (a, b) => a.top === b.top && a.bottom === b.bottom },
   )
 
   createEffect(
-    on(
-      edges,
-      (current, previous) => {
-        if (!previous) {
-          return
-        }
-        if (current.top && !previous.top) {
-          local.onTopReached?.()
-        }
-        if (current.bottom && !previous.bottom) {
-          local.onBottomReached?.()
-        }
-      },
-      { defer: true },
-    ),
+    edges,
+    (current, previous) => {
+      if (!previous) {
+        return
+      }
+      if (current.top && !previous.top) {
+        local.onTopReached?.()
+      }
+      if (current.bottom && !previous.bottom) {
+        local.onBottomReached?.()
+      }
+    },
+    { defer: true },
   )
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'ul')
+
   return (
-    <Dynamic
-      component={local.as ?? 'ul'}
+    <Root
       role="list"
       data-slot="list"
       {...rootSlot}
-      {...rest}
-      ref={(element: HTMLElement) => {
-        setScrollElement(() => element)
-        callRef(local.ref, element)
-      }}
+      {...(rest as Record<string, unknown>)}
+      ref={[
+        (element: HTMLElement) => setScrollElement(() => element),
+        (element: HTMLElement) => {
+          const ref = untrack(() => local.ref)
+          if (typeof ref === 'function') {
+            ref(element)
+          }
+        },
+      ]}
     >
       <Show
         when={'emptyRender' in props && !local.items?.length}
@@ -110,23 +113,28 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
             virtualizer={local.virtualizer}
             entries={local.items ?? []}
             scrollElement={scrollElement()}
-            render={(item, index, rowProps) => {
-              const ItemRender = local.itemRender
-              return <ItemRender item={item} index={index} rowProps={rowProps} />
-            }}
+            render={(item, index, rowProps) => (
+              <>{renderWithProps(local.itemRender, { item, index, rowProps })}</>
+            )}
             fallback={
               <For each={local.items}>
-                {(item, index) => {
-                  const ItemRender = local.itemRender
-                  return <ItemRender item={item} index={index()} />
-                }}
+                {(item, index) => (
+                  <>
+                    {renderWithProps(local.itemRender, {
+                      item,
+                      get index() {
+                        return index()
+                      },
+                    })}
+                  </>
+                )}
               </For>
             }
           />
         }
       >
-        {renderWithProps(local.emptyRender!, {})}
+        {renderWithProps(local.emptyRender, {})}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

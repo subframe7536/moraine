@@ -1,10 +1,9 @@
 import { createCn as upstreamCreateCn } from 'cn/config'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { cn, createCn } from './cn'
-
 describe('createCn', () => {
-  test.each(['surface', 'overlay', 'input'])(
+  it.each(['surface', 'overlay', 'input'])(
     'merges %s shadows with standard shadows while retaining shadow colors',
     (role) => {
       expect(cn('shadow-md', `shadow-${role}`, 'shadow-red-500')).toBe(
@@ -15,7 +14,7 @@ describe('createCn', () => {
     },
   )
 
-  test('extends new and existing groups in independent instances without mutating input', () => {
+  it('extends new and existing groups in independent instances without mutating input', () => {
     const config = {
       extend: { classGroups: { density: ['density-roomy', 'density-compact'], z: ['z-app'] } },
     }
@@ -30,7 +29,7 @@ describe('createCn', () => {
     expect(appCn()).toBeUndefined()
   })
 
-  test('applies user override after Moraine rules, then appends user extend', () => {
+  it('applies user override after Moraine rules, then appends user extend', () => {
     const appCn = createCn({
       override: { classGroups: { z: ['z-first'] } },
       extend: { classGroups: { z: ['z-last'] } },
@@ -39,14 +38,14 @@ describe('createCn', () => {
     expect(cn('z-overlay', 'z-floating')).toBe('z-floating')
   })
 
-  test('supports native prefix parsing', () => {
+  it('supports native prefix parsing', () => {
     const appCn = createCn({ prefix: 'tw' })
     expect(appCn('tw:p-2 tw:p-4')).toBe('tw:p-4')
     expect(appCn('p-2 p-4')).toBe('p-2 p-4')
     expect(appCn('tw:z-overlay tw:z-floating')).toBe('tw:z-floating')
   })
 
-  test('preserves default postfix behavior and existing merge grouping', () => {
+  it('preserves default postfix behavior and existing merge grouping', () => {
     const upstream = upstreamCreateCn()
     const classes = ['leading-6', 'text-lg/7', 'text-sm']
     expect(cn(...classes)).toBe(upstream(...classes))
@@ -56,12 +55,12 @@ describe('createCn', () => {
     expect(cn(...classes)).toBe('text-sm')
   })
 
-  test('treats text-tiny as font size without conflicting with text colors', () => {
+  it('treats text-tiny as font size without conflicting with text colors', () => {
     expect(cn('text-primary-foreground', 'text-tiny')).toBe('text-primary-foreground text-tiny')
     expect(cn('text-sm', 'text-tiny')).toBe('text-tiny')
   })
 
-  test('merges accent-fg channel colors over resting text colors', () => {
+  it('merges accent-fg channel colors over resting text colors', () => {
     expect(cn('text-muted-foreground', 'accent-fg-muted-foreground')).toBe(
       'accent-fg-muted-foreground',
     )
@@ -76,7 +75,7 @@ describe('createCn', () => {
     expect(cn('accent-fg-muted-foreground', 'text-danger')).toBe('text-danger')
   })
 
-  test('dedupes tone channel classes by merge order without touching tone colors', () => {
+  it('dedupes tone channel classes by merge order without touching tone colors', () => {
     expect(cn('tone-primary', 'tone-danger')).toBe('tone-danger')
     expect(cn('tone-danger', 'tone-primary')).toBe('tone-primary')
     expect(cn('bg-tone', 'tone-danger')).toBe('bg-tone tone-danger')

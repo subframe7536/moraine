@@ -1,13 +1,12 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import type { JSX } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import type { JSX } from '@solidjs/web'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
 import { Stepper } from './stepper'
 import type { StepperT } from './stepper.types'
-
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {
     // oxlint-disable-next-line class-methods-use-this
@@ -19,8 +18,8 @@ if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   }
 }
 
-describe('Stepper', () => {
-  test('uses unique instance IDs and one selected tab for duplicate values', () => {
+describe('stepper', () => {
+  it('uses unique instance IDs and one selected tab for duplicate values', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const screen = render(() => (
       <Stepper
@@ -50,7 +49,7 @@ describe('Stepper', () => {
     warn.mockRestore()
   })
 
-  test('falls back when the requested or current item becomes disabled', () => {
+  it('falls back when the requested or current item becomes disabled', () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (
       <Stepper
@@ -61,7 +60,7 @@ describe('Stepper', () => {
         ]}
       />
     ))
-    setDisabled(true)
+    flush(() => setDisabled(true))
     const address = screen.getByRole('tab', { name: 'Address' })
     const shipping = screen.getByRole('tab', { name: 'Shipping' })
     expect(address.getAttribute('aria-selected')).toBe('true')
@@ -71,7 +70,7 @@ describe('Stepper', () => {
     expect(screen.getByRole('tabpanel').textContent).toBe('Address panel')
   })
 
-  test('updates effective selection when an uncontrolled step becomes disabled', () => {
+  it('updates effective selection when an uncontrolled step becomes disabled', () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (
       <Stepper
@@ -83,11 +82,11 @@ describe('Stepper', () => {
       />
     ))
     expect(screen.getByRole('tabpanel').textContent).toBe('Shipping panel')
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(screen.getByRole('tabpanel').textContent).toBe('Address panel')
   })
 
-  test.each([0, ''])('mounts a panel for falsy content %s', (content) => {
+  it.each([0, ''])('mounts a panel for falsy content %s', (content) => {
     const screen = render(() => (
       <Stepper items={[{ value: 'step', label: 'Step', content, class: 'item-only' }]} />
     ))
@@ -98,7 +97,7 @@ describe('Stepper', () => {
     )
   })
 
-  test('renders JSX titles and delays an inactive panel until its step is selected', () => {
+  it('renders JSX titles and delays an inactive panel until its step is selected', () => {
     const [value, setValue] = createSignal('first')
     const view = render(() => (
       <Stepper
@@ -116,7 +115,7 @@ describe('Stepper', () => {
     ))
     expect(view.getByText('Second')).not.toBeNull()
     expect(view.queryByRole('tabpanel')).toBeNull()
-    setValue('second')
+    flush(() => setValue('second'))
     expect(view.getByRole('tabpanel').textContent).toBe('Panel')
   })
 
@@ -141,7 +140,7 @@ describe('Stepper', () => {
     },
   ]
 
-  test('renders step triggers and current content', () => {
+  it('renders step triggers and current content', () => {
     const screen = render(() => <Stepper items={ITEMS} defaultValue="address" />)
 
     expect(screen.getByRole('tab', { name: 'Address' })).not.toBeNull()
@@ -150,7 +149,7 @@ describe('Stepper', () => {
     expect(screen.getByRole('tabpanel').textContent).toContain('Address content')
   })
 
-  test('renders tabpanel content for the selected step', () => {
+  it('renders tabpanel content for the selected step', () => {
     const screen = render(() => <Stepper items={ITEMS} defaultValue="address" navigation="free" />)
 
     const getSelectedPanel = () =>
@@ -163,7 +162,7 @@ describe('Stepper', () => {
     expect(getSelectedPanel()?.textContent).toContain('Shipping content')
   })
 
-  test('only links tabs to panels that are mounted', () => {
+  it('only links tabs to panels that are mounted', () => {
     const screen = render(() => (
       <Stepper
         items={[
@@ -192,15 +191,16 @@ describe('Stepper', () => {
     fireEvent.click(empty)
 
     expect(screen.queryByRole('tabpanel')).toBeNull()
-    for (const trigger of screen.getAllByRole('tab')) {
-      const controlledId = trigger.getAttribute('aria-controls')
-      if (controlledId) {
-        expect(screen.container.querySelector(`#${controlledId}`)).not.toBeNull()
-      }
-    }
+    const controlledIds = screen
+      .getAllByRole('tab')
+      .map((trigger) => trigger.getAttribute('aria-controls'))
+      .filter((id): id is string => Boolean(id))
+    expect(controlledIds.every((id) => screen.container.querySelector(`#${id}`) !== null)).toBe(
+      true,
+    )
   })
 
-  test('updates aria-controls when panel content is added or removed', () => {
+  it('updates aria-controls when panel content is added or removed', () => {
     const [content, setContent] = createSignal<JSX.Element>()
     const screen = render(() => (
       <Stepper
@@ -212,21 +212,21 @@ describe('Stepper', () => {
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
 
-    setContent('Dynamic content')
+    flush(() => setContent('Dynamic content'))
 
     const panel = screen.getByRole('tabpanel')
     expect(screen.getByRole('tab', { name: 'Dynamic' }).getAttribute('aria-controls')).toBe(
       panel.id,
     )
 
-    setContent(undefined)
+    flush(() => setContent(undefined))
 
     expect(screen.queryByRole('tabpanel')).toBeNull()
     expect(screen.getByRole('tab', { name: 'Dynamic' }).hasAttribute('aria-controls')).toBe(false)
   })
 
-  test('supports controlled value and emits onValueChange with item value', () => {
-    const onValueChange = vi.fn()
+  it('supports controlled value and emits onValueChange with item value', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <Stepper items={ITEMS} value="address" onValueChange={onValueChange} navigation="linear" />
@@ -238,8 +238,8 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
-  test('does not change step on click by default', () => {
-    const onValueChange = vi.fn()
+  it('does not change step on click by default', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper items={ITEMS} defaultValue="address" onValueChange={onValueChange} />
     ))
@@ -250,8 +250,8 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
-  test('blocks skipping ahead in linear navigation', () => {
-    const onValueChange = vi.fn()
+  it('blocks skipping ahead in linear navigation', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -269,8 +269,8 @@ describe('Stepper', () => {
     expect(screen.getByText('Address content')).not.toBeNull()
   })
 
-  test('allows returning to completed steps in linear navigation', () => {
-    const onValueChange = vi.fn()
+  it('allows returning to completed steps in linear navigation', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -286,8 +286,8 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
-  test('allows jumping ahead in free navigation', () => {
-    const onValueChange = vi.fn()
+  it('allows jumping ahead in free navigation', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -302,9 +302,9 @@ describe('Stepper', () => {
     expect(onValueChange).toHaveBeenCalledWith('checkout')
   })
 
-  test('disables later duplicate items so they cannot be selected', () => {
+  it('disables later duplicate items so they cannot be selected', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         navigation="free"
@@ -334,8 +334,8 @@ describe('Stepper', () => {
     warn.mockRestore()
   })
 
-  test('does not wrap from the last step to the first on ArrowRight', () => {
-    const onValueChange = vi.fn()
+  it('does not wrap from the last step to the first on ArrowRight', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -355,8 +355,8 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('false')
   })
 
-  test('wraps from the last step to the first on ArrowRight when loop=true', () => {
-    const onValueChange = vi.fn()
+  it('wraps from the last step to the first on ArrowRight when loop=true', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -376,10 +376,10 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
-  test('flips horizontal arrows from the provider without a dir attribute', () => {
+  it('flips horizontal arrows from the provider without a dir attribute', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.removeAttribute('dir')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     try {
       const screen = render(() => (
         <MoraineProvider dir="rtl">
@@ -406,8 +406,8 @@ describe('Stepper', () => {
     }
   })
 
-  test('supports Home and End keyboard navigation in free navigation', () => {
-    const onValueChange = vi.fn()
+  it('supports Home and End keyboard navigation in free navigation', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -431,8 +431,8 @@ describe('Stepper', () => {
     expect(onValueChange).toHaveBeenCalledWith('address')
   })
 
-  test('supports manual activation mode via Enter', () => {
-    const onValueChange = vi.fn()
+  it('supports manual activation mode via Enter', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -458,7 +458,7 @@ describe('Stepper', () => {
     expect(onValueChange).toHaveBeenCalledWith('shipping')
   })
 
-  test('applies orientation to the tablist and class overrides to their slots', () => {
+  it('applies orientation to the tablist and class overrides to their slots', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Stepper
@@ -483,7 +483,7 @@ describe('Stepper', () => {
     expect(content?.className).toContain('content-override')
   })
 
-  test('updates aria-orientation on orientation change without remounting steps', () => {
+  it('updates aria-orientation on orientation change without remounting steps', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => <Stepper items={ITEMS} orientation={orientation()} />)
     const indicator = screen.container.querySelector<HTMLElement>(
@@ -491,12 +491,12 @@ describe('Stepper', () => {
     )!
 
     expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('horizontal')
-    setOrientation('vertical')
+    flush(() => setOrientation('vertical'))
     expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('vertical')
     expect(screen.container.querySelector('[data-slot="stepper-indicator"]')).toBe(indicator)
   })
 
-  test('selects through the label and description and reports each step state', () => {
+  it('selects through the label and description and reports each step state', () => {
     const screen = render(() => <Stepper items={ITEMS} navigation="linear" />)
     const triggers = screen.getAllByRole('tab')
     const label = screen.getByText('Shipping')
@@ -514,7 +514,7 @@ describe('Stepper', () => {
     expect(screen.container.querySelectorAll('[data-slot="stepper-separator"]')).toHaveLength(2)
   })
 
-  test('omits empty text wrappers and the connector for a single step', () => {
+  it('omits empty text wrappers and the connector for a single step', () => {
     const screen = render(() => <Stepper items={[{ value: 'single' }]} />)
     expect(screen.container.querySelector('[data-slot="stepper-wrapper"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="stepper-separator"]')).toBeNull()
@@ -526,7 +526,7 @@ describe('Stepper', () => {
     ).toBeNull()
   })
 
-  test('renders icon indicators', () => {
+  it('renders icon indicators', () => {
     const screen = render(() => (
       <Stepper
         items={[
@@ -543,7 +543,7 @@ describe('Stepper', () => {
     expect(screen.container.querySelector('[data-slot="stepper-icon"]')).not.toBeNull()
   })
 
-  test('falls back to the first available step when defaultValue is invalid', () => {
+  it('falls back to the first available step when defaultValue is invalid', () => {
     const screen = render(() => (
       <Stepper
         items={[{ ...ITEMS[0], disabled: true }, { ...ITEMS[1] }, { ...ITEMS[2] }]}
@@ -555,7 +555,7 @@ describe('Stepper', () => {
     expect(screen.getByRole('tabpanel').textContent).toContain('Shipping content')
   })
 
-  test('falls back to the first available step when value is invalid', () => {
+  it('falls back to the first available step when value is invalid', () => {
     const screen = render(() => (
       <Stepper
         items={[{ ...ITEMS[0], disabled: true }, { ...ITEMS[1] }, { ...ITEMS[2] }]}
@@ -568,8 +568,8 @@ describe('Stepper', () => {
     expect(screen.getByRole('tabpanel').textContent).toContain('Shipping content')
   })
 
-  test('keeps the no-request fallback dynamic until the user selects a step', () => {
-    const [items, setItems] = createSignal<StepperT.Item[]>([
+  it('keeps the no-request fallback dynamic until the user selects a step', () => {
+    const [items, setItems] = createSignal<Array<StepperT.Item>>([
       { ...ITEMS[0], disabled: true },
       { ...ITEMS[1] },
       { ...ITEMS[2] },
@@ -578,7 +578,7 @@ describe('Stepper', () => {
 
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
 
-    setItems([{ ...ITEMS[0] }, { ...ITEMS[1] }, { ...ITEMS[2] }])
+    flush(() => setItems([{ ...ITEMS[0] }, { ...ITEMS[1] }, { ...ITEMS[2] }]))
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
@@ -591,21 +591,21 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
   })
 
-  test('restores preserved uncontrolled step state after controlled mode is removed', () => {
+  it('restores preserved uncontrolled step state after controlled mode is removed', () => {
     const [value, setValue] = createSignal<string | undefined>()
     const screen = render(() => <Stepper items={ITEMS} value={value()} navigation="free" />)
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
 
-    setValue('address')
+    flush(() => setValue('address'))
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
 
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
   })
 
-  test('applies style overrides', () => {
+  it('applies style overrides', () => {
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -626,7 +626,7 @@ describe('Stepper', () => {
     expect(content?.style.width).toBe('200px')
   })
 
-  test('provides aria-owns on tablist and aria-current="step" on active tab', () => {
+  it('provides aria-owns on tablist and aria-current="step" on active tab', () => {
     const screen = render(() => <Stepper items={ITEMS} value="shipping" />)
     const tablist = screen.getByRole('tablist')
     const tabs = screen.getAllByRole('tab')
@@ -640,7 +640,7 @@ describe('Stepper', () => {
     expect(inactiveTab.getAttribute('aria-current')).toBeNull()
   })
 
-  test('associates aria-labelledby when title is 0', () => {
+  it('associates aria-labelledby when title is 0', () => {
     const screen = render(() => (
       <Stepper
         items={[
@@ -653,7 +653,7 @@ describe('Stepper', () => {
     expect(tab.getAttribute('aria-labelledby')).not.toBeNull()
   })
 
-  test('renders item.content as a component receiving { value, index }', () => {
+  it('renders item.content as a component receiving { value, index }', () => {
     const CustomContent = (props: { value: string; index: number }) => (
       <div data-testid="custom-content">
         Value: {props.value}, Index: {props.index}
@@ -674,7 +674,7 @@ describe('Stepper', () => {
     expect(content.textContent).toBe('Value: custom, Index: 0')
   })
 
-  test('warns in DEV on missing or duplicate item value', () => {
+  it('warns in DEV on missing or duplicate item value', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     render(() => (

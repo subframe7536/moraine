@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createComponent, createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../../provider'
 import { defineTheme } from '../../../theme'
@@ -8,12 +8,11 @@ import { ContextMenu } from '../../context-menu/context-menu'
 import { DropdownMenu } from '../../dropdown-menu/dropdown-menu'
 import { Popover } from '../../popover/popover'
 import { Tooltip } from '../../tooltip/tooltip'
-
 describe.each([
   { name: 'Popover', Root: Popover },
   { name: 'Tooltip', Root: Tooltip },
 ])('$name DOM ownership', ({ Root, name }) => {
-  test('does not mount content until the overlay opens', async () => {
+  it('does not mount content until the overlay opens', async () => {
     const [open, setOpen] = createSignal(false)
     const view = render(() => (
       <Root open={open()}>
@@ -25,13 +24,13 @@ describe.each([
     ))
     expect(view.container.children).toHaveLength(1)
     expect(document.body.querySelector(`[data-slot="${name.toLowerCase()}-content"]`)).toBeNull()
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => expect(within(document.body).getByText('Body')).toBeTruthy())
   })
 
-  test('forwards cancellable content events and forwards consumer refs', async () => {
-    const ref = vi.fn()
-    const changes = vi.fn()
+  it('forwards cancellable content events and forwards consumer refs', async () => {
+    const ref = vi.fn<(...args: Array<any>) => void>()
+    const changes = vi.fn<(...args: Array<any>) => void>()
     const view = render(() => (
       <Root defaultOpen onOpenChange={changes}>
         <Root.Trigger>Trigger</Root.Trigger>
@@ -55,7 +54,7 @@ describe.each([
   { name: 'DropdownMenu', Root: DropdownMenu },
   { name: 'ContextMenu', Root: ContextMenu },
 ])('$name Design ownership', ({ name, Root }) => {
-  test('shows menu header only while open and keeps the open menu across Design changes', async () => {
+  it('shows menu header only while open and keeps the open menu across Design changes', async () => {
     const key = name === 'DropdownMenu' ? 'dropdownMenu' : 'contextMenu'
     const [design, setDesign] = createSignal(defineTheme({}))
     const [open, setOpen] = createSignal(false)
@@ -72,11 +71,11 @@ describe.each([
       </MoraineProvider>
     ))
     expect(document.body.textContent).not.toContain('Menu header')
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => expect(within(document.body).getByRole('menu')).toBeTruthy())
     expect(within(document.body).getByText('Menu header')).toBeTruthy()
     const content = within(document.body).getByRole('menu')
-    setDesign(defineTheme({ [key]: { base: { content: 'design-menu-content' } } }))
+    flush(() => setDesign(defineTheme({ [key]: { base: { content: 'design-menu-content' } } })))
     expect(within(document.body).getByRole('menu')).toBe(content)
     expect(content.className).toContain('design-menu-content')
     expect(within(document.body).getByText('Menu header')).toBeTruthy()

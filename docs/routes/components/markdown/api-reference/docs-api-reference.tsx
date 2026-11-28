@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { For, Show, createMemo } from 'solid-js'
 
 import { createApiReferenceModel } from '../../../../build/api-doc/presentation'
@@ -9,7 +9,6 @@ import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
 import { AttributesSection } from './api-attributes-section'
 import { PropRows } from './api-prop-rows'
 import { HeadingWithAnchor } from './heading-with-anchor'
-
 function PartMetadata(props: { part: PresentationPartSection; description?: string }): JSX.Element {
   const description = () => props.part.description ?? props.description
 

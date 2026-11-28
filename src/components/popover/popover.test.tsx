@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal } from 'solid-js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
+import { afterEach, describe, expect, vi, it } from 'vitest'
 
 import { callHandler } from '../../shared/utils'
 import { finishExitMotion, stubViewportSize } from '../../test-util/overlay-test'
@@ -9,11 +9,10 @@ import { Button } from '../button'
 import type { ButtonProps } from '../button'
 
 import { Popover } from './popover'
-
-describe('Popover', () => {
-  test('ignores a detached custom trigger root and rebinds its replacement', async () => {
+describe('popover', () => {
+  it('ignores a detached custom trigger root and rebinds its replacement', async () => {
     let setVisible!: (value: boolean) => void
-    const errors: string[] = []
+    const errors: Array<string> = []
     const handleError = (event: ErrorEvent) => {
       errors.push(event.message)
       event.preventDefault()
@@ -36,12 +35,12 @@ describe('Popover', () => {
     })
     try {
       const original = screen.getByRole('button', { name: 'Replaceable trigger' })
-      setVisible(false)
+      flush(() => setVisible(false))
       await waitFor(() => expect(original.isConnected).toBe(false))
       fireEvent.click(document.body)
       fireEvent.click(original)
       expect(document.querySelector('[data-slot="popover-content"]')).toBeNull()
-      setVisible(true)
+      flush(() => setVisible(true))
       const replacement = await screen.findByRole('button', { name: 'Replaceable trigger' })
       expect(replacement).not.toBe(original)
       fireEvent.click(replacement)
@@ -59,8 +58,8 @@ describe('Popover', () => {
     }
   })
 
-  test('honors a custom trigger that cancels click before forwarding it', async () => {
-    const onOpenChange = vi.fn()
+  it('honors a custom trigger that cancels click before forwarding it', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button
         {...props}
@@ -82,7 +81,7 @@ describe('Popover', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('opens in the trigger Document when the trigger is in an iframe', async () => {
+  it('opens in the trigger Document when the trigger is in an iframe', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = iframe.contentDocument!
@@ -110,9 +109,9 @@ describe('Popover', () => {
     }
   })
 
-  test.each([0, 100])('keeps hover content open when clicked after %i ms', async (delay) => {
+  it.each([0, 100])('keeps hover content open when clicked after %i ms', async (delay) => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover openDelay={100} closeDelay={100} onOpenChange={onOpenChange}>
         <Popover.Trigger>Hover target</Popover.Trigger>
@@ -136,9 +135,9 @@ describe('Popover', () => {
     vi.useRealTimers()
   })
 
-  test('a disabled hover trigger does not open on hover, focus, or click', async () => {
+  it('a disabled hover trigger does not open on hover, focus, or click', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover openDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="span" disabled>
@@ -156,7 +155,7 @@ describe('Popover', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('renders content as a dialog in a portal outside the trigger container', () => {
+  it('renders content as a dialog in a portal outside the trigger container', () => {
     const screen = render(() => (
       <Popover open>
         <Popover.Trigger as="button" type="button">
@@ -172,7 +171,7 @@ describe('Popover', () => {
     expect(screen.container.contains(dialog)).toBe(false)
   })
 
-  test('renders the trigger content as a native button root', () => {
+  it('renders the trigger content as a native button root', () => {
     render(() => (
       <Popover open>
         <Popover.Trigger as="button" type="button">
@@ -193,7 +192,7 @@ describe('Popover', () => {
     expect(document.getElementById(trigger?.getAttribute('aria-controls') ?? '')).not.toBeNull()
   })
 
-  test('renders an anchor trigger root', () => {
+  it('renders an anchor trigger root', () => {
     render(() => (
       <Popover open>
         <Popover.Trigger as="a" href="#options">
@@ -211,7 +210,7 @@ describe('Popover', () => {
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
   })
 
-  test('supports polymorphic div trigger with keyboard Enter and Space activation', async () => {
+  it('supports polymorphic div trigger with keyboard Enter and Space activation', async () => {
     const screen = render(() => (
       <Popover>
         <Popover.Trigger as="div" data-testid="poly-popover-trigger">
@@ -260,7 +259,7 @@ describe('Popover', () => {
     })
   })
 
-  test('keeps trigger ARIA state reactive through controlled open and exit presence', async () => {
+  it('keeps trigger ARIA state reactive through controlled open and exit presence', async () => {
     const [open, setOpen] = createSignal(false)
     const screen = render(() => (
       <Popover open={open()}>
@@ -273,21 +272,21 @@ describe('Popover', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(trigger.hasAttribute('data-closed')).toBe(true)
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(trigger.getAttribute('aria-expanded')).toBe('true')
       expect(trigger.hasAttribute('data-expanded')).toBe(true)
       expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
     })
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
     await finishExitMotion()
     await waitFor(() => expect(trigger.hasAttribute('aria-controls')).toBe(false))
   })
 
-  test('opens hover mode only for mouse pointers', async () => {
+  it('opens hover mode only for mouse pointers', async () => {
     vi.useFakeTimers()
     const screen = render(() => (
       <Popover openOnHover openDelay={50}>
@@ -309,9 +308,9 @@ describe('Popover', () => {
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain('Mouse content')
   })
 
-  test('does not refocus trigger or reopen when dismissed by pointer leave in hover mode', async () => {
+  it('does not refocus trigger or reopen when dismissed by pointer leave in hover mode', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -340,9 +339,9 @@ describe('Popover', () => {
     expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
   })
 
-  test('does not refocus trigger or reopen when pointer leaves content in hover mode', async () => {
+  it('does not refocus trigger or reopen when pointer leaves content in hover mode', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -376,7 +375,7 @@ describe('Popover', () => {
     expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
   })
 
-  test('focuses the finalFocus target instead of the trigger after close', async () => {
+  it('focuses the finalFocus target instead of the trigger after close', async () => {
     const target = document.createElement('button')
     document.body.append(target)
     const screen = render(() => (
@@ -399,8 +398,8 @@ describe('Popover', () => {
     target.remove()
   })
 
-  test('skips the close-time focus restore when finalFocus is false', async () => {
-    const onOpenChange = vi.fn()
+  it('skips the close-time focus restore when finalFocus is false', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover finalFocus={false} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -423,9 +422,9 @@ describe('Popover', () => {
     expect(document.activeElement).not.toBe(trigger)
   })
 
-  test('keeps hover mode reachable by keyboard focus and press', async () => {
+  it('keeps hover mode reachable by keyboard focus and press', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover open={false} openDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -447,9 +446,9 @@ describe('Popover', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(true)
   })
 
-  test('bridges keyboard-open hover content and cancels its close timer', async () => {
+  it('bridges keyboard-open hover content and cancels its close timer', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <Popover openOnHover openDelay={0} closeDelay={50} onOpenChange={onOpenChange}>
@@ -510,9 +509,9 @@ describe('Popover', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(false)
   })
 
-  test('does not bridge a controlled hover popover that rejected opening', async () => {
+  it('does not bridge a controlled hover popover that rejected opening', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <Popover openOnHover open={false} openDelay={0} onOpenChange={onOpenChange}>
@@ -537,11 +536,11 @@ describe('Popover', () => {
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  test('cancels hover timers when openOnHover or disabled changes', async () => {
+  it('cancels hover timers when openOnHover or disabled changes', async () => {
     vi.useFakeTimers()
     const [openOnHover, setOpenOnHover] = createSignal(true)
     const [disabled, setDisabled] = createSignal(false)
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover
         openOnHover={openOnHover()}
@@ -558,21 +557,21 @@ describe('Popover', () => {
     const trigger = screen.getByRole('button')
 
     fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    setOpenOnHover(false)
+    flush(() => setOpenOnHover(false))
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    setOpenOnHover(true)
+    flush(() => setOpenOnHover(true))
     fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    setDisabled(true)
-    setDisabled(false)
+    flush(() => setDisabled(true))
+    flush(() => setDisabled(false))
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('emits one controlled hover request after rapid re-entry', async () => {
+  it('emits one controlled hover request after rapid re-entry', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover open={false} openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -592,9 +591,9 @@ describe('Popover', () => {
     expect(onOpenChange).toHaveBeenCalledWith(true)
   })
 
-  test('emits one controlled close request after rapid pointer leave', async () => {
+  it('emits one controlled close request after rapid pointer leave', async () => {
     vi.useFakeTimers()
-    const onOpenChange = vi.fn()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover openOnHover open closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
@@ -614,7 +613,7 @@ describe('Popover', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('provides an explicit accessible name for dialog content', () => {
+  it('provides an explicit accessible name for dialog content', () => {
     render(() => (
       <Popover open>
         <Popover.Trigger as="button" type="button">
@@ -629,7 +628,7 @@ describe('Popover', () => {
     )
   })
 
-  test.each([
+  it.each([
     ['the default gutter', undefined, 124],
     ['a configured gutter', 12, 132],
   ])('places content with %s', async (_, gutter, top) => {
@@ -661,7 +660,7 @@ describe('Popover', () => {
     }
   })
 
-  test('defaults to the bottom side with centered alignment', () => {
+  it('defaults to the bottom side with centered alignment', () => {
     render(() => (
       <Popover open>
         <Popover.Trigger>Trigger</Popover.Trigger>
@@ -675,7 +674,7 @@ describe('Popover', () => {
     expect(content?.getAttribute('data-align')).toBe('center')
   })
 
-  test.each([
+  it.each([
     ['top', 'start'],
     ['right', 'end'],
     ['bottom', 'start'],
@@ -694,7 +693,7 @@ describe('Popover', () => {
     expect(content?.getAttribute('data-align')).toBe(align)
   })
 
-  test('routes classes and styles to their slots', () => {
+  it('routes classes and styles to their slots', () => {
     render(() => (
       <Popover
         open
@@ -718,7 +717,7 @@ describe('Popover', () => {
     )
   })
 
-  test('marks a defaultOpen popover as positioned after it mounts', async () => {
+  it('marks a defaultOpen popover as positioned after it mounts', async () => {
     render(() => (
       <Popover defaultOpen>
         <Popover.Trigger as="button" type="button">
@@ -734,7 +733,7 @@ describe('Popover', () => {
     })
   })
 
-  test('renders controlled overlay without a trigger', async () => {
+  it('renders controlled overlay without a trigger', async () => {
     render(() => (
       <Popover open>
         <Popover.Content>{'No trigger'}</Popover.Content>
@@ -748,7 +747,7 @@ describe('Popover', () => {
     })
   })
 
-  test.each([undefined, null])('does not render the body when content is %s', (children) => {
+  it.each([undefined, null])('does not render the body when content is %s', (children) => {
     render(() => (
       <Popover open>
         <Popover.Trigger>Trigger</Popover.Trigger>
@@ -760,8 +759,8 @@ describe('Popover', () => {
     expect(document.body.querySelector('[data-slot="popover-body"]')).toBeNull()
   })
 
-  test('keeps popover open and emits onClosePrevented when closeOnEscape=false', async () => {
-    const onClosePrevented = vi.fn()
+  it('keeps popover open and emits onClosePrevented when closeOnEscape=false', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Popover defaultOpen closeOnEscape={false} onClosePrevented={onClosePrevented}>
@@ -782,9 +781,9 @@ describe('Popover', () => {
     })
   })
 
-  test('blocks only outside dismissal when closeOnOutsideClick=false', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+  it('blocks only outside dismissal when closeOnOutsideClick=false', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -805,7 +804,9 @@ describe('Popover', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
@@ -824,9 +825,9 @@ describe('Popover', () => {
     })
   })
 
-  test('blocks only Escape when closeOnEscape=false and still closes on outside click', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+  it('blocks only Escape when closeOnEscape=false and still closes on outside click', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -856,7 +857,9 @@ describe('Popover', () => {
       expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(screen.getByTestId('outside'))
     await finishExitMotion()
 
@@ -866,8 +869,8 @@ describe('Popover', () => {
     })
   })
 
-  test('emits onClosePrevented once for blocked outside pointer interaction', async () => {
-    const onClosePrevented = vi.fn()
+  it('emits onClosePrevented once for blocked outside pointer interaction', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -888,7 +891,9 @@ describe('Popover', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     const event = new PointerEvent('pointerdown', {
       bubbles: true,
       cancelable: true,
@@ -903,8 +908,8 @@ describe('Popover', () => {
     })
   })
 
-  test('does not double count pointer attempt followed by outside focus', async () => {
-    const onClosePrevented = vi.fn()
+  it('does not double count pointer attempt followed by outside focus', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -927,7 +932,9 @@ describe('Popover', () => {
 
     const outside = screen.getByTestId('outside')
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     fireEvent.pointerDown(outside)
     fireEvent.focusIn(outside)
 
@@ -937,9 +944,9 @@ describe('Popover', () => {
     })
   })
 
-  test('closes popover on escape when closeOnEscape=true', async () => {
-    const onClosePrevented = vi.fn()
-    const onOpenChange = vi.fn()
+  it('closes popover on escape when closeOnEscape=true', async () => {
+    const onClosePrevented = vi.fn<(...args: Array<any>) => void>()
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <Popover
@@ -973,8 +980,8 @@ describe('Popover', () => {
     })
   })
 
-  test('closes popover on outside pointer interaction in click mode', async () => {
-    const onOpenChange = vi.fn()
+  it('closes popover on outside pointer interaction in click mode', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     const screen = render(() => (
       <>
@@ -1008,8 +1015,8 @@ describe('Popover', () => {
     })
   })
 
-  test('keeps preventScroll through exit presence and restores trigger focus when closed from its content', async () => {
-    const onOpenChange = vi.fn()
+  it('keeps preventScroll through exit presence and restores trigger focus when closed from its content', async () => {
+    const onOpenChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <Popover defaultOpen preventScroll onOpenChange={onOpenChange}>
         <Popover.Trigger>Trigger</Popover.Trigger>
@@ -1037,8 +1044,8 @@ describe('Popover', () => {
     screen.unmount()
   })
 
-  test('resolves a custom Popover.Close DOM root before applying native button defaults', () => {
-    const onSubmit = vi.fn()
+  it('resolves a custom Popover.Close DOM root before applying native button defaults', () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
     const CustomButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
       <button {...props} />
     )
@@ -1065,7 +1072,7 @@ describe('Popover', () => {
     screen.unmount()
   })
 
-  test('closes an uncontrolled popover with Escape and restores its trigger', async () => {
+  it('closes an uncontrolled popover with Escape and restores its trigger', async () => {
     const screen = render(() => (
       <Popover defaultOpen>
         <Popover.Trigger>Trigger</Popover.Trigger>
@@ -1090,9 +1097,9 @@ describe('Popover', () => {
     screen.unmount()
   })
 
-  test('keeps a parent popover open when a nested Popover.Close is used', async () => {
-    const outerChanges = vi.fn()
-    const innerChanges = vi.fn()
+  it('keeps a parent popover open when a nested Popover.Close is used', async () => {
+    const outerChanges = vi.fn<(...args: Array<any>) => void>()
+    const innerChanges = vi.fn<(...args: Array<any>) => void>()
     render(() => (
       <Popover defaultOpen onOpenChange={outerChanges}>
         <Popover.Trigger>Outer trigger</Popover.Trigger>
@@ -1120,7 +1127,7 @@ describe('Popover', () => {
     })
   })
 
-  test('does not restore focus after outside pointer dismissal', async () => {
+  it('does not restore focus after outside pointer dismissal', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
@@ -1135,7 +1142,9 @@ describe('Popover', () => {
       </>
     ))
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0)
+    })
     const outside = screen.getByTestId('outside')
     fireEvent.pointerDown(outside, { pointerType: 'mouse' })
     outside.focus()
@@ -1149,9 +1158,9 @@ describe('Popover', () => {
     })
   })
 
-  test('keeps lower popovers open when the top popover finishes closing', async () => {
-    const onFirstOpenChange = vi.fn()
-    const onSecondOpenChange = vi.fn()
+  it('keeps lower popovers open when the top popover finishes closing', async () => {
+    const onFirstOpenChange = vi.fn<(...args: Array<any>) => void>()
+    const onSecondOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <>
@@ -1189,9 +1198,9 @@ describe('Popover', () => {
     })
   })
 
-  test('does not restore focus when a non-top popover finishes closing', async () => {
+  it('does not restore focus when a non-top popover finishes closing', async () => {
     const [firstOpen, setFirstOpen] = createSignal(true)
-    const onSecondOpenChange = vi.fn()
+    const onSecondOpenChange = vi.fn<(...args: Array<any>) => void>()
 
     render(() => (
       <>
@@ -1221,7 +1230,7 @@ describe('Popover', () => {
     ) as HTMLElement
 
     secondContent.focus()
-    setFirstOpen(false)
+    flush(() => setFirstOpen(false))
     const closingContent = document.body.querySelector<HTMLElement>(
       '[data-slot="popover-content"][data-closed]',
     )
@@ -1236,7 +1245,7 @@ describe('Popover', () => {
     })
   })
 
-  test('updates side and alignment when placement props change without replacing content', () => {
+  it('updates side and alignment when placement props change without replacing content', () => {
     const [placement, setPlacement] = createSignal<'bottom' | 'right'>('bottom')
     const [align, setAlign] = createSignal<'center' | 'end'>('center')
 
@@ -1253,8 +1262,8 @@ describe('Popover', () => {
     expect(initialContent?.getAttribute('data-side')).toBe('bottom')
     expect(initialContent?.getAttribute('data-align')).toBe('center')
 
-    setPlacement('right')
-    setAlign('end')
+    flush(() => setPlacement('right'))
+    flush(() => setAlign('end'))
 
     const updatedContent = document.body.querySelector('[data-slot="popover-content"]')
     expect(updatedContent).toBe(initialContent)

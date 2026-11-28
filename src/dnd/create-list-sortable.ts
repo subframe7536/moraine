@@ -1,4 +1,4 @@
-import { mergeProps } from 'solid-js'
+import { merge } from 'solid-js'
 
 import { createSortable } from './create-sortable'
 import type { SortableOptions } from './create-sortable'
@@ -20,7 +20,7 @@ export interface ListReorderEvent<TItem> {
   /** Index of the item after the move. */
   readonly to: number
   /** Copy of the items with the move applied. */
-  readonly items: TItem[]
+  readonly items: Array<TItem>
   /** Item the source was dropped on. */
   readonly target: TItem
   /** Side of `target` the source was dropped on. */
@@ -32,7 +32,7 @@ export interface ListSortableOptions<TItem> extends Omit<SortableOptions, 'canDr
    * Accessor for the items in rendered order, such as the `items` passed to `List`. A row's index
    * in this array is its position; it is read at drop time, so it must return the current order.
    */
-  items: () => readonly TItem[]
+  items: () => ReadonlyArray<TItem>
   /**
    * Called once per drop that moves an item to a new index. It is not called for canceled drags
    * or when the drop leaves the item where it was. Nothing is reordered for you: store
@@ -41,7 +41,7 @@ export interface ListSortableOptions<TItem> extends Omit<SortableOptions, 'canDr
    * ```tsx
    * import { List } from 'moraine'
    * import { createListSortable } from 'moraine/dnd'
-   * import { createSignal } from 'solid-js'
+   * import { createSignal, merge } from 'solid-js'
    *
    * const [tasks, setTasks] = createSignal([{ label: 'Write' }, { label: 'Review' }])
    * const sortable = createListSortable({ items: tasks, onReorder: (event) => setTasks(event.items) })
@@ -96,18 +96,24 @@ export interface ListSortableRow<TRowProps extends object> extends Omit<Sortable
 
 export interface ListSortable<TItem> extends Sortable {
   /** Registers a row; call it in the row component, such as a `List` `itemRender`. */
-  useRow: <TRowProps extends object = {}>(
+  useRow: <TRowProps extends object = object>(
     context: ListSortableRowContext<TRowProps>,
   ) => ListSortableRow<TRowProps>
   /** Items the sortable reorders. */
-  readonly items: () => readonly TItem[]
+  readonly items: () => ReadonlyArray<TItem>
 }
 
 /** Returns a copy of `items` with the item at `from` moved to `to`. */
-export function moveItem<TItem>(items: readonly TItem[], from: number, to: number): TItem[] {
+export function moveItem<TItem>(
+  items: ReadonlyArray<TItem>,
+  from: number,
+  to: number,
+): Array<TItem> {
   const next = items.slice()
-  const [item] = next.splice(from, 1)
-  next.splice(to, 0, item!)
+  const removed = next.splice(from, 1)
+  if (removed.length > 0) {
+    next.splice(to, 0, ...removed)
+  }
   return next
 }
 
@@ -152,16 +158,21 @@ export function createListSortable<TItem>(
     onDrop: (target) => {
       const move = resolveMove(target)
       const items = options.items()
-      if (!move || target.position === 'inside' || move.from >= items.length) {
+      if (!move || target.position === 'inside') {
+        return
+      }
+      const item = items[move.from]
+      const targetItem = items[target.targetIndex]
+      if (item === undefined || targetItem === undefined) {
         return
       }
       const next = moveItem(items, move.from, move.to)
       options.onReorder({
-        item: items[move.from]!,
+        item,
         from: move.from,
         to: move.to,
         items: next,
-        target: items[target.targetIndex]!,
+        target: targetItem,
         position: target.position,
       })
       // Index ids follow the item to its new index.
@@ -174,7 +185,7 @@ export function createListSortable<TItem>(
     return item === undefined ? index : (options.getItemKey?.(item, index) ?? index)
   }
 
-  const useRow = <TRowProps extends object = {}>(
+  const useRow = <TRowProps extends object = object>(
     context: ListSortableRowContext<TRowProps>,
   ): ListSortableRow<TRowProps> => {
     const item = sortable.useItem({
@@ -187,7 +198,7 @@ export function createListSortable<TItem>(
     })
     const hostRef = (): ((element: HTMLElement) => void) | undefined =>
       (context.rowProps as { ref?: (element: HTMLElement) => void } | undefined)?.ref
-    const props = mergeProps(
+    const props = merge(
       () => context.rowProps ?? {},
       {
         ref: (element: HTMLElement) => {

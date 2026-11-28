@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface HoverCardStyleSlot<T = unknown> {
   /** Element that opens the hover card. */
   trigger?: T

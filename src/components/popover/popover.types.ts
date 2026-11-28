@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -11,7 +11,6 @@ import type {
 } from '../shared/overlay/trigger'
 
 import type { PopoverStyleSlot, PopoverStyleVariants } from './popover.style-types'
-
 export namespace PopoverT {
   export type Kind = 'composite'
 

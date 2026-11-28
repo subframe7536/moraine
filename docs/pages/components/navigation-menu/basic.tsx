@@ -1,5 +1,4 @@
 import { NavigationMenu } from '@src'
-
 export function Basic() {
   return (
     <div class="pt-4 flex min-h-64 w-full justify-center">

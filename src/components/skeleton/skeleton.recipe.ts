@@ -1,7 +1,6 @@
 import { defineRecipe } from '../../theme/recipe'
 
 import type { SkeletonStyleSlot, SkeletonStyleVariants } from './skeleton.style-types'
-
 export const skeletonRecipe = /* @__PURE__ */ defineRecipe<
   SkeletonStyleSlot,
   SkeletonStyleVariants

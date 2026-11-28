@@ -1,15 +1,15 @@
-import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
+import { resolvePropsChildren } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { badgeRecipe } from './badge.recipe'
 import type { BadgeProps } from './badge.types'
-
 /**
  * Compact label for status or metadata beside related content, with optional leading and trailing
  * icons. It renders a presentational `span` by default and does not replace an accessible status
@@ -26,7 +26,8 @@ import type { BadgeProps } from './badge.types'
  * ```
  */
 export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'as',
     'size',
     'variant',
@@ -38,13 +39,13 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
     'leading',
     'trailing',
     'children',
-  ])
-  const leading = createMemo(() => local.leading)
-  const trailing = createMemo(() => local.trailing)
-  const resolvedChildren = resolveChildren(() => local.children)
+  )
+  const leading = createMemo(() => props.leading)
+  const trailing = createMemo(() => props.trailing)
+  const resolvedChildren = resolvePropsChildren(props)
   const hasChildren = () => hasContent(resolvedChildren())
   const square = () => !hasChildren() && Boolean(leading()) !== Boolean(trailing())
-  const styleProps = mergeProps(local, {
+  const styleProps = merge(props, {
     get square() {
       return square()
     },
@@ -53,8 +54,10 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
     slots: { root: rootSlot, leading: leadingSlot, label: labelSlot, trailing: trailingSlot },
   } = useRecipe(badgeRecipe, styleProps)
 
+  const Root = dynamic<ValidComponent>(() => props.as ?? 'span')
+
   return (
-    <Dynamic component={local.as ?? 'span'} data-slot="badge" {...rootSlot} {...rest}>
+    <Root data-slot="badge" {...rootSlot} {...(rest as Record<string, unknown>)}>
       <Show when={leading()}>
         {(leading) => <Icon name={leading()} data-slot="badge-leading" {...leadingSlot} />}
       </Show>
@@ -68,6 +71,6 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
       <Show when={trailing()}>
         <Icon name={trailing()} data-slot="badge-trailing" {...trailingSlot} />
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

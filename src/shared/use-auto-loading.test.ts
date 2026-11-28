@@ -1,8 +1,7 @@
-import { createRoot, createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createRoot, createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { useAutoLoadingClick } from './use-auto-loading'
-
 function deferred(): {
   promise: Promise<void>
   reject: (reason?: unknown) => void
@@ -30,10 +29,13 @@ function createClickEvent(): MouseEvent & { currentTarget: HTMLButtonElement; ta
 }
 
 describe('useAutoLoadingClick', () => {
-  test('stays loading until every overlapping action settles', async () => {
+  it('stays loading until every overlapping action settles', async () => {
     const first = deferred()
     const second = deferred()
-    const onClick = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
+    const onClick = vi
+      .fn<(...args: Array<any>) => Promise<void>>()
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise)
     const lifecycle = createRoot((dispose) => ({
       dispose,
       state: useAutoLoadingClick<HTMLButtonElement>({
@@ -44,6 +46,7 @@ describe('useAutoLoadingClick', () => {
 
     lifecycle.state.onClick(createClickEvent())
     lifecycle.state.onClick(createClickEvent())
+    flush()
 
     expect(lifecycle.state.isLoading()).toBe(true)
 
@@ -61,7 +64,7 @@ describe('useAutoLoadingClick', () => {
     lifecycle.dispose()
   })
 
-  test('clears loading on rejection without changing the original rejection', async () => {
+  it('clears loading on rejection without changing the original rejection', async () => {
     const task = deferred()
     const error = new Error('failed')
     const lifecycle = createRoot((dispose) => ({
@@ -73,6 +76,7 @@ describe('useAutoLoadingClick', () => {
     }))
 
     lifecycle.state.onClick(createClickEvent())
+    flush()
     expect(lifecycle.state.isLoading()).toBe(true)
 
     task.reject(error)
@@ -84,7 +88,7 @@ describe('useAutoLoadingClick', () => {
     lifecycle.dispose()
   })
 
-  test('does not publish stale completion after its owner is disposed', async () => {
+  it('does not publish stale completion after its owner is disposed', async () => {
     const task = deferred()
     const lifecycle = createRoot((dispose) => ({
       dispose,
@@ -95,6 +99,7 @@ describe('useAutoLoadingClick', () => {
     }))
 
     lifecycle.state.onClick(createClickEvent())
+    flush()
     expect(lifecycle.state.isLoading()).toBe(true)
 
     lifecycle.dispose()
@@ -105,10 +110,10 @@ describe('useAutoLoadingClick', () => {
     expect(lifecycle.state.isLoading()).toBe(true)
   })
 
-  test('does not enter loading for synchronous returns or thrown errors', () => {
+  it('does not enter loading for synchronous returns or thrown errors', () => {
     const error = new Error('sync failure')
     const onClick = vi
-      .fn()
+      .fn<(...args: Array<any>) => string>()
       .mockReturnValueOnce('done')
       .mockImplementationOnce(() => {
         throw error
@@ -129,7 +134,7 @@ describe('useAutoLoadingClick', () => {
     lifecycle.dispose()
   })
 
-  test('tracks a non-Promise thenable through settlement', async () => {
+  it('tracks a non-Promise thenable through settlement', async () => {
     let resolveThenable: (() => void) | undefined
     const thenable = {
       // oxlint-disable-next-line unicorn/no-thenable -- This fixture intentionally exercises PromiseLike interoperability.
@@ -146,6 +151,7 @@ describe('useAutoLoadingClick', () => {
     }))
 
     lifecycle.state.onClick(createClickEvent())
+    flush()
     expect(lifecycle.state.isLoading()).toBe(true)
 
     await Promise.resolve()
@@ -157,7 +163,7 @@ describe('useAutoLoadingClick', () => {
     lifecycle.dispose()
   })
 
-  test('does not auto-load a prevented async click', () => {
+  it('does not auto-load a prevented async click', () => {
     const task = deferred()
     const lifecycle = createRoot((dispose) => ({
       dispose,
@@ -176,7 +182,7 @@ describe('useAutoLoadingClick', () => {
     lifecycle.dispose()
   })
 
-  test('keeps automatic work visible when controlled loading turns off', async () => {
+  it('keeps automatic work visible when controlled loading turns off', async () => {
     const task = deferred()
     const lifecycle = createRoot((dispose) => {
       const [loading, setLoading] = createSignal(true)
@@ -193,6 +199,7 @@ describe('useAutoLoadingClick', () => {
 
     lifecycle.state.onClick(createClickEvent())
     lifecycle.setLoading(false)
+    flush()
 
     expect(lifecycle.state.isLoading()).toBe(true)
 

@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon/icon.types'
 
 import type { StepperStyleSlot, StepperStyleVariants } from './stepper.style-types'
-
 export namespace StepperT {
   export type Kind = 'single'
   export type Slot<T = unknown> = StepperStyleSlot<T>
@@ -131,7 +131,7 @@ export namespace StepperT {
      * />
      * ```
      */
-    items?: Item[]
+    items?: Array<Item>
 
     /**
      * How users move between steps. `none` keeps only the active step enabled, `linear` also allows

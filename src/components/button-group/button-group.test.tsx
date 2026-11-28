@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
@@ -11,9 +11,8 @@ import { Popover } from '../popover'
 import { ToggleButton } from '../toggle-button/toggle-button'
 
 import { ButtonGroup } from './button-group'
-
-describe('ButtonGroup', () => {
-  test('renders related buttons with group semantics', () => {
+describe('buttonGroup', () => {
+  it('renders related buttons with group semantics', () => {
     const screen = render(() => (
       <MoraineProvider>
         <ButtonGroup aria-label="History controls">
@@ -30,7 +29,7 @@ describe('ButtonGroup', () => {
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
-  test('renders a standalone vertical separator', () => {
+  it('renders a standalone vertical separator', () => {
     const screen = render(() => <ButtonGroup.Separator />)
     const separator = screen.getByRole('separator')
 
@@ -38,7 +37,7 @@ describe('ButtonGroup', () => {
     expect(separator.getAttribute('aria-orientation')).toBe('vertical')
   })
 
-  test('renders an explicit separator with generic separator semantics', () => {
+  it('renders an explicit separator with generic separator semantics', () => {
     const screen = render(() => (
       <MoraineProvider>
         <ButtonGroup aria-label="Clipboard actions">
@@ -60,7 +59,7 @@ describe('ButtonGroup', () => {
     expect(separator.getAttribute('data-orientation')).toBe('vertical')
   })
 
-  test('derives ButtonGroup.Separator orientation from the parent ButtonGroup', () => {
+  it('derives ButtonGroup.Separator orientation from the parent ButtonGroup', () => {
     const screen = render(() => (
       <div>
         <ButtonGroup orientation="horizontal" data-testid="horizontal-group">
@@ -83,7 +82,7 @@ describe('ButtonGroup', () => {
     expect(separators[1]?.getAttribute('data-orientation')).toBe('horizontal')
   })
 
-  test('applies ButtonGroup separator theme and local slot overrides', () => {
+  it('applies ButtonGroup separator theme and local slot overrides', () => {
     const theme = defineTheme({
       buttonGroup: { base: { separator: 'theme-separator' } },
     })
@@ -103,7 +102,7 @@ describe('ButtonGroup', () => {
     expect(separator.className).toContain('instance-separator')
   })
 
-  test('reuses resolved getter-backed children without a separator', () => {
+  it('reuses resolved getter-backed children without a separator', () => {
     let reads = 0
     const screen = render(() =>
       createComponent(ButtonGroup, {
@@ -118,7 +117,7 @@ describe('ButtonGroup', () => {
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
-  test('joins overlay trigger roots as direct children', () => {
+  it('joins overlay trigger roots as direct children', () => {
     const screen = render(() => (
       <MoraineProvider>
         <ButtonGroup>
@@ -138,7 +137,7 @@ describe('ButtonGroup', () => {
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
-  test('joins a polymorphic popover trigger root as a direct child', () => {
+  it('joins a polymorphic popover trigger root as a direct child', () => {
     const screen = render(() => (
       <ButtonGroup>
         <Button>Save</Button>
@@ -161,7 +160,7 @@ describe('ButtonGroup', () => {
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
-  test('keeps a separator as the vertical action boundary', () => {
+  it('keeps a separator as the vertical action boundary', () => {
     const screen = render(() => (
       <MoraineProvider>
         <ButtonGroup orientation="vertical" aria-label="Move actions">
@@ -178,7 +177,7 @@ describe('ButtonGroup', () => {
     expect(separator.getAttribute('aria-orientation')).toBe('horizontal')
   })
 
-  test('joins overlay trigger roots as direct children vertically', () => {
+  it('joins overlay trigger roots as direct children vertically', () => {
     const screen = render(() => (
       <MoraineProvider>
         <ButtonGroup orientation="vertical">
@@ -198,7 +197,7 @@ describe('ButtonGroup', () => {
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
-  test('merges root classes and styles while forwarding div attributes', () => {
+  it('merges root classes and styles while forwarding div attributes', () => {
     const screen = render(() => (
       <ButtonGroup
         id="actions"
@@ -219,7 +218,7 @@ describe('ButtonGroup', () => {
     expect(group.style.height).toBe('40px')
   })
 
-  test('passes the xs and xl text sizes to every button kind', () => {
+  it('passes the xs and xl text sizes to every button kind', () => {
     const screen = render(() => (
       <>
         <ButtonGroup size="xl" aria-label="Large actions">

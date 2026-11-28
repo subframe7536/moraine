@@ -1,5 +1,6 @@
-import type { Accessor, JSX } from 'solid-js'
-import { createMemo } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createEffect, createMemo, createSignal, onFlush } from 'solid-js'
 
 import { useMessages } from '../../../../provider/locale/locale-context'
 import type { ComponentMessages } from '../../../../provider/locale/messages.types'
@@ -9,7 +10,6 @@ import { Icon } from '../../../icon/index'
 import type { IconT } from '../../../icon/index'
 
 import { defaultTagsFieldMessages } from './tags-field.messages'
-
 export interface TagsFieldEntry<TValue> {
   value: TValue
   label: JSX.Element
@@ -21,15 +21,16 @@ export interface TagsFieldEntry<TValue> {
 type TagSlot = 'tag' | 'tagLabel' | 'tagRemove'
 
 export interface TagsFieldOptions<TValue> {
-  values: Accessor<readonly TValue[]>
+  values: Accessor<ReadonlyArray<TValue>>
   resolve: (value: TValue) => TagsFieldEntry<TValue>
-  change: (values: TValue[]) => void
+  change: (values: Array<TValue>) => void
   getFocusOwner: Accessor<HTMLElement | undefined>
   maxVisible?: Accessor<number | undefined>
   query: Accessor<string>
   setQuery: (value: string) => string
   commitInput: (input: string) => boolean
-  tokenSeparators: Accessor<readonly string[] | undefined>
+  commitInputs?: (inputs: ReadonlyArray<string>) => boolean
+  tokenSeparators: Accessor<ReadonlyArray<string> | undefined>
   locked: Accessor<boolean>
   slot: (name: TagSlot) => SlotBinding
   slotName: (name: TagSlot) => string
@@ -151,8 +152,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
 
   function removeTag(index: number, direction: -1 | 1): void {
     if (remove(index, false)) {
-      // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus reads the post-removal tag list.
-      queueMicrotask(() => focusNearest(index - (direction === 1 ? 1 : 0), direction))
+      onFlush(() => focusNearest(index - (direction === 1 ? 1 : 0), direction))
     }
   }
 
@@ -196,17 +196,27 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
 
   function tokenize(text: string, commitLast = false): string {
     let remaining = text
+    const tokens: Array<string> = []
     for (;;) {
       const match = nextSeparator(remaining, !commitLast)
       if (!match) {
         break
       }
-      options.commitInput(remaining.slice(0, match.index))
+      tokens.push(remaining.slice(0, match.index))
       remaining = remaining.slice(match.index + match.separator.length)
     }
     if (commitLast) {
-      options.commitInput(remaining)
-      return ''
+      tokens.push(remaining)
+      remaining = ''
+    }
+    if (tokens.length > 0) {
+      if (options.commitInputs) {
+        options.commitInputs(tokens)
+      } else {
+        for (const token of tokens) {
+          options.commitInput(token)
+        }
+      }
     }
     return remaining
   }
@@ -230,6 +240,22 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
   }
 
   function DefaultTag(tagProps: { tag: TagsFieldEntry<TValue>; index: number }): JSX.Element {
+    const [removeButton, setRemoveButton] = createSignal<HTMLButtonElement>()
+    // Keyboard navigation looks remove buttons up by tag index, which moves as tags change.
+    createEffect(
+      () => [tagProps.index, removeButton()] as const,
+      ([index, element]) => {
+        if (!element) {
+          return
+        }
+        removeButtons[index] = element
+        return () => {
+          if (removeButtons[index] === element) {
+            removeButtons[index] = undefined
+          }
+        }
+      },
+    )
     return (
       <span title={tagProps.tag.title} data-slot={options.slotName('tag')} {...options.slot('tag')}>
         <span
@@ -243,12 +269,10 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
           type="button"
           data-slot={options.slotName('tagRemove')}
           aria-label={messages().remove({ title: tagProps.tag.title })}
-          tabIndex={-1}
+          tabindex={-1}
           disabled={!tagProps.tag.removable}
           {...options.slot('tagRemove')}
-          ref={(element) => {
-            removeButtons[tagProps.index] = element
-          }}
+          ref={setRemoveButton}
           onPointerDown={isolatePointer}
           onKeyDown={(event) => onRemoveKeyDown(event, tagProps.index)}
           onClick={(event) => {

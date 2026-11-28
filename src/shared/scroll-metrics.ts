@@ -1,9 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
-import { bindElement } from './element-binding'
-import { createEventListener } from './event-listener'
-
+import { attachEventListener } from './event-listener'
 export interface AxisMetrics {
   /** Visible size in px. */
   readonly client: number
@@ -47,12 +45,14 @@ export function createScrollMetrics(
     equals: (a, b) => a.rtl === b.rtl && sameAxis(a.x, b.x) && sameAxis(a.y, b.y),
   })
 
-  bindElement(viewport, (element) => {
+  createEffect(viewport, (current) => {
+    if (!current) {
+      return
+    }
+    const element = current
     let disposed = false
 
     function measure(): void {
-      // A new element can still belong to the inert template document while it binds, so the
-      // window is resolved at measurement time.
       const view = element.ownerDocument.defaultView
       if (disposed || !view) {
         return
@@ -69,7 +69,7 @@ export function createScrollMetrics(
     for (const child of element.children) {
       resizeObserver?.observe(child)
     }
-    createEventListener(
+    const detachScroll = attachEventListener(
       element,
       'scroll',
       () => {
@@ -78,12 +78,14 @@ export function createScrollMetrics(
       },
       { passive: true },
     )
-    createEventListener(element, 'load', measure, true)
+    const detachLoad = attachEventListener(element, 'load', measure, true)
     queueMicrotask(measure)
 
     return () => {
       disposed = true
       resizeObserver?.disconnect()
+      detachScroll()
+      detachLoad()
     }
   })
 

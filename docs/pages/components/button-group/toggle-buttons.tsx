@@ -1,5 +1,4 @@
 import { ButtonGroup, ToggleButton } from '@src'
-
 export function ToggleButtons() {
   return (
     <ButtonGroup size="sm" aria-label="Text formatting">

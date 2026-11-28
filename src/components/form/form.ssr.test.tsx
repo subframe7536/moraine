@@ -1,6 +1,6 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import { Button } from '../button'
@@ -8,10 +8,9 @@ import { Input } from '../input'
 import { Switch } from '../switch'
 
 import { createForm } from './'
-
-describe('Form SSR Hydration', () => {
-  test('hydrates and resets the same controls before submitting the client-owned store', async () => {
-    const onSubmit = vi.fn()
+describe('form SSR Hydration', () => {
+  it('hydrates and resets the same controls before submitting the client-owned store', async () => {
+    const onSubmit = vi.fn<(...args: Array<any>) => void>()
 
     function ClientForm() {
       const form = createForm({
@@ -54,7 +53,9 @@ describe('Form SSR Hydration', () => {
         fireEvent.input(input, { target: { value: 'Changed' } })
       }
       fireEvent.click(reset)
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
       expect(control.getAttribute('aria-checked')).toBe('true')
       expect(checkbox.checked).toBe(true)
       expect(input.value).toBe('Server value')

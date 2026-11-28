@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Tooltip } from './tooltip'
-
 export function renderTooltipFixture(): string {
   return renderToString(() => (
     <Tooltip openDelay={50}>

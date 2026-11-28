@@ -1,8 +1,8 @@
 import type { Coords } from '@floating-ui/dom'
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, mergeProps, on } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal } from 'solid-js'
 
-import { createEventListener } from '../../shared/event-listener'
+import { attachEventListener } from '../../shared/event-listener'
 import { createId } from '../../shared/utils'
 import { createHoverDelay } from '../shared/overlay/hover-delay'
 import { createPopper } from '../shared/overlay/popper'
@@ -12,7 +12,6 @@ import type { HoverCardContextValue } from './hover-card-context'
 import { HoverCardProvider, useHoverCardContext } from './hover-card-context'
 import { HoverCardTrigger } from './hover-card-trigger'
 import type { HoverCardProps } from './hover-card.types'
-
 /**
  * Headless root for a preview card that opens on hover or keyboard focus of a link trigger. Use it
  * to preview the destination of a link, `Tooltip` for a brief non-interactive hint, and `Popover`
@@ -32,41 +31,31 @@ import type { HoverCardProps } from './hover-card.types'
  * ```
  */
 export function HoverCard(props: HoverCardProps): JSX.Element {
-  const merged = mergeProps(
-    {
-      openDelay: 600,
-      closeDelay: 300,
-      gutter: 4,
-      overflowPadding: 4,
-    },
-    props,
-  )
-
   const parent = useHoverCardContext()
-  const hoverCardId = createId(() => merged.id, 'hover-card')
+  const hoverCardId = createId(() => props.id, 'hover-card')
   const popper = createPopper(
     {
       get id() {
         return hoverCardId()
       },
       get open() {
-        return merged.open
+        return props.open
       },
       get defaultOpen() {
-        return merged.defaultOpen
+        return props.defaultOpen
       },
-      onOpenChange: (nextOpen) => merged.onOpenChange?.(nextOpen),
+      onOpenChange: (nextOpen) => props.onOpenChange?.(nextOpen),
       get disabled() {
-        return merged.disabled
+        return props.disabled
       },
     },
     'hover-card',
   )
   const ownerDocument = () => popper.triggerElement()?.ownerDocument
   const hoverDelay = createHoverDelay({
-    openDelay: () => merged.openDelay,
-    closeDelay: () => merged.closeDelay,
-    enabled: () => !merged.disabled,
+    openDelay: () => props.openDelay ?? 600,
+    closeDelay: () => props.closeDelay ?? 300,
+    enabled: () => !props.disabled,
     setOpen: (open) => popper.setOpen(open),
   })
   const [instantMotion, setInstantMotion] = createSignal(false)
@@ -86,7 +75,7 @@ export function HoverCard(props: HoverCardProps): JSX.Element {
       ignoreNextFocusAfterWindowBlur = false
     }
 
-    if (merged.disabled) {
+    if (props.disabled) {
       return
     }
 
@@ -113,46 +102,40 @@ export function HoverCard(props: HoverCardProps): JSX.Element {
     hoverDelay.cancelClose()
   }
 
-  createEffect(
-    on(popper.isOpen, (open) => {
-      if (open) {
-        if (triggerOpenPending) {
-          setOpenedByTrigger(true)
-        }
-        triggerOpenPending = false
-        return
+  createEffect(popper.isOpen, (open) => {
+    if (open) {
+      if (triggerOpenPending) {
+        setOpenedByTrigger(true)
       }
-
       triggerOpenPending = false
-      setOpenedByTrigger(false)
-      setInlinePoint(undefined)
-    }),
-  )
+      return
+    }
+
+    triggerOpenPending = false
+    setOpenedByTrigger(false)
+    setInlinePoint(undefined)
+  })
 
   createEffect(
-    on(
-      () => Boolean(merged.disabled),
-      () => {
-        hoverDelay.invalidate()
-      },
-    ),
+    () => Boolean(props.disabled),
+    () => {
+      hoverDelay.invalidate()
+    },
   )
 
-  createEffect(
-    on(ownerDocument, (currentDocument) => {
-      const ownerWindow = currentDocument?.defaultView
-      if (!ownerWindow) {
-        return
-      }
-      createEventListener(ownerWindow, 'blur', () => {
-        ignoreNextFocusAfterWindowBlur = true
-        hoverDelay.invalidate()
-      })
-    }),
-  )
+  createEffect(ownerDocument, (currentDocument) => {
+    const ownerWindow = currentDocument?.defaultView
+    if (!ownerWindow) {
+      return
+    }
+    return attachEventListener(ownerWindow, 'blur', () => {
+      ignoreNextFocusAfterWindowBlur = true
+      hoverDelay.invalidate()
+    })
+  })
 
   const behavior: HoverCardContextValue = {
-    options: merged,
+    options: props,
     popper,
     instantMotion,
     openedByTrigger,
@@ -168,10 +151,10 @@ export function HoverCard(props: HoverCardProps): JSX.Element {
     recordPoint: (x, y) => setInlinePoint({ x, y }),
     markInstantClose: () => setInstantMotion(true),
     get slotOverrides() {
-      return { classes: merged.classes, styles: merged.styles }
+      return { classes: props.classes, styles: props.styles }
     },
   }
-  return <HoverCardProvider value={behavior}>{merged.children}</HoverCardProvider>
+  return <HoverCardProvider value={behavior}>{props.children}</HoverCardProvider>
 }
 
 HoverCard.Trigger = HoverCardTrigger

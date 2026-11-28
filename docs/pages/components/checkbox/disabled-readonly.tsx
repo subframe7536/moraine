@@ -1,5 +1,4 @@
 import { Checkbox } from '@src'
-
 export function DisabledReadonly() {
   return (
     <div class="flex flex-col gap-4">

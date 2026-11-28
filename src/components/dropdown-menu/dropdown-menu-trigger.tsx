@@ -1,19 +1,18 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, onMount, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, mergeDefinedProps } from '../../shared/utils'
 import { validateOverlayTrigger } from '../shared/overlay/trigger'
 
 import { useDropdownMenuContext } from './dropdown-menu-context'
 import { dropdownMenuRecipe } from './dropdown-menu.recipe'
 import type { DropdownMenuT } from './dropdown-menu.types'
-
 /**
  * Element that opens and closes the surrounding `DropdownMenu`, wiring click, keyboard (Enter,
  * Space, ArrowDown, ArrowUp), and ARIA behavior. Place it inside `DropdownMenu`; it renders a
@@ -32,7 +31,8 @@ import type { DropdownMenuT } from './dropdown-menu.types'
 export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   props: DropdownMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'disabled', 'ref' as any])
+  const local = props as DropdownMenuT.TriggerProps
+  const rest = omit(props as DropdownMenuT.TriggerProps, 'as', 'class', 'style', 'disabled', 'ref')
   const context = useDropdownMenuContext()
 
   const {
@@ -48,10 +48,10 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     ref: () => local.ref,
     registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
-  const disabled = () => Boolean(local.disabled ?? context.disabled())
+  const disabled = () => local.disabled ?? context.disabled()
   const userEvents = rest as Record<string, unknown>
   let keyboardActivation = false
-  const events = mergeProps(rest, {
+  const events = merge(rest, {
     onKeyDown: createKeyDownHandler({
       onKeyDown: () =>
         userEvents.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
@@ -103,13 +103,24 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     },
     events,
   )
-  const triggerProps = mergeProps(
+  const triggerProps = mergeDefinedProps(
     { 'data-slot': 'dropdown-menu-trigger' },
     context.triggerProps,
     triggerSlot,
     interaction,
   )
   const binding = root.bind(triggerProps)
-  onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
-  return <Dynamic component={tag()} {...binding} />
+  onSettled(() => {
+    let active = true
+    queueMicrotask(() => {
+      if (active) {
+        validateOverlayTrigger(root.element(), 'DropdownMenu')
+      }
+    })
+    return () => {
+      active = false
+    }
+  })
+  const Root = dynamic<ValidComponent>(tag)
+  return <Root {...binding} />
 }

@@ -1,5 +1,6 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { merge } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
@@ -7,9 +8,30 @@ import { Button } from '../button/button'
 import { Icon } from '../icon/icon'
 
 import { Dialog } from './dialog'
-import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
+import { DialogProvider, createDialogContentRegistration, useDialogContext } from './dialog-context'
 
-test('hydrates a polymorphic Button trigger with nested JSX icons', () => {
+function PartsWithContent() {
+  const dialog = useDialogContext()
+  const registration = createDialogContentRegistration()
+  const value = merge(dialog, {
+    content: {
+      ...registration,
+      variants: { fullscreen: false, scrollable: false },
+      overlayScroll: () => false,
+    },
+  })
+  return (
+    <DialogProvider value={value}>
+      <Dialog.Header>
+        <Dialog.Title id="server-dialog-title">Real title</Dialog.Title>
+        <Dialog.Description>Details</Dialog.Description>
+      </Dialog.Header>
+      <Dialog.Body>Body</Dialog.Body>
+      <Dialog.Footer>Actions</Dialog.Footer>
+    </DialogProvider>
+  )
+}
+it('hydrates a polymorphic Button trigger with nested JSX icons', () => {
   const { container } = hydrateFixture(
     '/src/components/dialog/dialog.ssr.fixture.tsx',
     'renderButtonTriggerFixture',
@@ -38,38 +60,22 @@ function expectAriaReferencesToResolve(content: Element): void {
   }
 }
 
-describe('Dialog SSR Hydration', () => {
-  test('hydrates composed part IDs without replacing nodes', () => {
+describe('dialog SSR Hydration', () => {
+  it('hydrates composed part IDs without replacing nodes', () => {
     const { container } = hydrateFixture(
       '/src/components/dialog/dialog.ssr.fixture.tsx',
       'renderPartsFixture',
-      () => {
-        const registration = createDialogContentRegistration()
-        return (
-          <Dialog>
-            <DialogContentProvider
-              value={{
-                ...registration,
-                variants: { fullscreen: false, scrollable: false },
-                overlayScroll: () => false,
-              }}
-            >
-              <Dialog.Header>
-                <Dialog.Title id="server-dialog-title">Real title</Dialog.Title>
-                <Dialog.Description>Details</Dialog.Description>
-              </Dialog.Header>
-              <Dialog.Body>Body</Dialog.Body>
-              <Dialog.Footer>Actions</Dialog.Footer>
-            </DialogContentProvider>
-          </Dialog>
-        )
-      },
+      () => (
+        <Dialog>
+          <PartsWithContent />
+        </Dialog>
+      ),
     )
     expect(container.querySelector('#server-dialog-title')).not.toBeNull()
     expect(container.querySelector('[data-slot="dialog-description"]')?.id).toBeTruthy()
   })
 
-  test('server renders composable parts with stable IDs', () => {
+  it('server renders composable parts with stable IDs', () => {
     const html = renderSsrFixture(
       '/src/components/dialog/dialog.ssr.fixture.tsx',
       'renderPartsFixture',
@@ -79,7 +85,7 @@ describe('Dialog SSR Hydration', () => {
     expect(html).toContain('data-slot="dialog-body"')
     expect(html).toContain('data-slot="dialog-footer"')
   })
-  test('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
+  it('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
     const { container } = hydrateFixture(
       '/src/components/dialog/dialog.ssr.fixture.tsx',
       'renderDialogFixture',

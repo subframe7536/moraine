@@ -1,24 +1,13 @@
-import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  splitProps,
-} from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, createEffect, createMemo, createSignal, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
-import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { mergeDefinedProps, resolvePropsChildren } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -26,18 +15,13 @@ import { BaseDialogPortal } from '../base-dialog/base-dialog-portal'
 import { Icon } from '../icon'
 import { createShorthandContent } from '../shared/overlay/shorthand-content'
 
-import {
-  DialogContentProvider,
-  createDialogContentRegistration,
-  useDialogContext,
-} from './dialog-context'
+import { DialogProvider, createDialogContentRegistration, useDialogContext } from './dialog-context'
 import { DialogDescription } from './dialog-description'
 import { DialogShorthandHeader } from './dialog-header'
 import { DialogTitle } from './dialog-title'
 import { defaultDialogMessages } from './dialog.messages'
 import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
 import type { DialogT } from './dialog.types'
-
 /**
  * Portaled surface of a `Dialog` that renders the overlay, the dialog panel, and a corner close
  * button. Pass `title` and `description` for the default header, or compose `Dialog.Header`,
@@ -64,7 +48,9 @@ import type { DialogT } from './dialog.types'
 export function DialogContent<T extends ValidComponent = 'div'>(
   props: DialogT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as DialogT.ContentProps<T> & { ref?: unknown }, [
+  const local = props as DialogT.ContentProps<T> & { ref?: unknown; dir?: unknown }
+  const rest = omit(
+    props as DialogT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
     'ref',
     'title',
@@ -72,12 +58,13 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
-  ])
+    'dir',
+  )
   const dialog = useDialogContext()
   const messages = useMessages('dialog', defaultDialogMessages, () => dialog.translations)
   const direction = useLocale().dir
   const family = useBaseDialogContext()
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     { overlay: true, closable: true, closeIcon: 'icon-close' as const },
     dialog,
   )
@@ -108,8 +95,10 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   const registration = createDialogContentRegistration()
   const overlayScroll = () => variants.scrollable && isOverlay() && !variants.fullscreen
 
-  createEffect(on(overlayScroll, family.setOverlayScroll))
-  onCleanup(() => family.setOverlayScroll(false))
+  createEffect(overlayScroll, (scrollable) => {
+    family.setOverlayScroll(scrollable)
+    return () => family.setOverlayScroll(false)
+  })
 
   const ariaLabel = () => (rest as { 'aria-label'?: string })['aria-label']
   const ariaLabelledBy = () =>
@@ -119,7 +108,15 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   function RenderDialogOverlay(): JSX.Element {
     const [overlay, setOverlay] = createSignal<HTMLDivElement>()
     // Only the backdrop element animates as part of the presence; a plain wrapper does not.
-    bindElement(() => isOverlay() && overlay(), family.presence.registerElement)
+    createEffect(
+      () => (isOverlay() ? overlay() : undefined),
+      (node) => {
+        if (!node) {
+          return
+        }
+        return family.presence.registerElement(node)
+      },
+    )
     return (
       <div
         data-slot={isOverlay() ? 'dialog-overlay' : undefined}
@@ -134,28 +131,27 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   function RenderDialogContent(): JSX.Element {
     // The portal branch owns the content binding, so it releases when the content unmounts.
     const binding = createBaseDialogContentBinding(family, {
-      ref: () => local.ref,
+      ref: () => local.ref as ((element: HTMLDivElement) => void) | HTMLDivElement | undefined,
       onKeyDown: () =>
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
     const contentShorthand = createShorthandContent(local)
-    const child = resolveChildren(() => local.children)
+    const child = resolvePropsChildren(local as { children?: JSX.Element })
     const explicitChildren = createMemo(() =>
       renderWithProps(child(), {
         close: () => family.updateOpen(false),
       }),
     )
-    const closeIcon = createLazyMemo(() => merged.closeIcon)
     const tag = (): ValidComponent => local.as ?? 'div'
+    const Root = dynamic(tag)
 
     return (
-      <Dynamic
-        component={tag()}
+      <Root
         data-slot="dialog-content"
         role="dialog"
-        dir={direction()}
+        dir={local.dir ?? direction()}
         id={family.contentId()}
-        tabIndex={binding.tabIndex}
+        tabindex={binding.tabIndex}
         aria-modal={binding.ariaModal()}
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}
@@ -180,27 +176,29 @@ export function DialogContent<T extends ValidComponent = 'div'>(
             aria-label={messages().close}
             {...contentCloseSlot}
           >
-            <Icon name={closeIcon()} />
+            <Icon name={merged.closeIcon} />
           </BaseDialog.Close>
         </Show>
         {explicitChildren()}
-      </Dynamic>
+      </Root>
     )
   }
 
+  const dialogWithContent = merge(dialog, {
+    content: {
+      ...registration,
+      get variants() {
+        return variants
+      },
+      overlayScroll,
+    },
+  })
+
   return (
-    <DialogContentProvider
-      value={{
-        ...registration,
-        get variants() {
-          return variants
-        },
-        overlayScroll,
-      }}
-    >
+    <DialogProvider value={dialogWithContent}>
       <BaseDialogPortal>
         <RenderDialogOverlay />
       </BaseDialogPortal>
-    </DialogContentProvider>
+    </DialogProvider>
   )
 }

@@ -1,18 +1,18 @@
 import { getOverflowAncestors } from '@floating-ui/dom'
-import type { JSX } from 'solid-js'
-import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, createEffect, createSignal, onSettled, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
-import { createEventListener } from '../../shared/event-listener'
+import { attachEventListener } from '../../shared/event-listener'
 import { resolveDirection } from '../shared/overlay/direction'
 import { PopperContent } from '../shared/overlay/popper'
+import type { PopperProps } from '../shared/overlay/popper.types'
 
 import { isMousePointer, useNavigationMenuContext } from './navigation-menu-context'
 import {
   NAVIGATION_MENU_POSITIONER_CLASS,
   NAVIGATION_MENU_PANEL_CLASS,
 } from './navigation-menu.recipe'
-
 /** One persistent surface owns positioning and size transitions for every item. */
 export function NavigationMenuPanel(): JSX.Element {
   const context = useNavigationMenuContext()
@@ -20,42 +20,57 @@ export function NavigationMenuPanel(): JSX.Element {
   const [size, setSize] = createSignal<JSX.CSSProperties>({})
 
   createEffect(
-    on([context.positionerElement, context.reference], ([positioner, reference]) => {
-      if (!positioner || !reference) {
+    () => [context.positionerElement(), context.reference()],
+    ([positioner, reference]) => {
+      if (!positioner || !reference || !reference.isConnected) {
         return
       }
-      createEventListener(positioner, 'pointerenter', (event) => {
-        if (isMousePointer(event)) {
-          context.keepOpen()
-        }
-      })
-      createEventListener(positioner, 'pointerleave', (event) => {
-        if (isMousePointer(event)) {
-          context.scheduleClose(event)
-        }
-      })
+      const detaches: Array<VoidFunction> = [
+        attachEventListener(positioner, 'pointerenter', (event) => {
+          if (isMousePointer(event)) {
+            context.keepOpen()
+          }
+        }),
+        attachEventListener(positioner, 'pointerleave', (event) => {
+          if (isMousePointer(event)) {
+            context.scheduleClose(event)
+          }
+        }),
+      ]
       positioner.style.removeProperty('transition-property')
       // Scroll tracking must be immediate; trigger changes restore the movement transition.
       for (const ancestor of getOverflowAncestors(reference)) {
-        createEventListener<EventTarget, 'scroll'>(
-          ancestor,
-          'scroll',
-          () => {
-            positioner.style.transitionProperty = 'none'
-          },
-          { passive: true },
+        detaches.push(
+          attachEventListener<EventTarget, 'scroll'>(
+            ancestor,
+            'scroll',
+            () => {
+              positioner.style.transitionProperty = 'none'
+            },
+            { passive: true },
+          ),
         )
       }
-    }),
+      return () => {
+        for (const detach of detaches) {
+          detach()
+        }
+      }
+    },
   )
 
-  function measure(): void {
-    const content = context.activeContent()
-    const panel = context.panelElement()
+  function measure(
+    content = untrack(context.activeContent),
+    panel = untrack(context.panelElement),
+  ): void {
     if (!content || !panel) {
       return
     }
-    const computed = panel.ownerDocument.defaultView!.getComputedStyle(panel)
+    const view = panel.ownerDocument.defaultView
+    if (!view) {
+      return
+    }
+    const computed = view.getComputedStyle(panel)
     const width =
       content.offsetWidth +
       Number.parseFloat(computed.borderLeftWidth || '0') +
@@ -66,31 +81,42 @@ export function NavigationMenuPanel(): JSX.Element {
       Number.parseFloat(computed.borderBottomWidth || '0')
     const widthStyle = `${width}px`
     const heightStyle = `${height}px`
-    if (width > 0 && height > 0 && (size().width !== widthStyle || size().height !== heightStyle)) {
+    const currentSize = untrack(size)
+    if (
+      width > 0 &&
+      height > 0 &&
+      (currentSize.width !== widthStyle || currentSize.height !== heightStyle)
+    ) {
       setSize({ width: widthStyle, height: heightStyle })
     }
   }
 
   createEffect(
-    on([context.activeContent, context.panelElement], ([content, panel]) => {
+    () => [context.activeContent(), context.panelElement()] as const,
+    ([content, panel]) => {
       if (!content || !panel) {
         return
       }
-      measure()
+      measure(content, panel)
+      const onResize = () => measure(content, panel)
       const Observer = panel.ownerDocument.defaultView?.ResizeObserver
+      let observer: ResizeObserver | undefined
       if (Observer) {
-        const observer = new Observer(measure)
+        observer = new Observer(onResize)
         observer.observe(content)
-        onCleanup(() => observer.disconnect())
       }
-      createEventListener(panel.ownerDocument.defaultView, 'resize', measure)
-    }),
+      const detach = attachEventListener(panel.ownerDocument.defaultView, 'resize', onResize)
+      return () => {
+        detach()
+        observer?.disconnect()
+      }
+    },
   )
 
   return (
     <PopperContent
       context={{
-        options: context.options,
+        options: context.options as PopperProps,
         slotName: (slot) => `navigation-menu-${slot}`,
         contentId: () => `${context.id()}-panel`,
         isOpen: context.open,
@@ -112,7 +138,7 @@ export function NavigationMenuPanel(): JSX.Element {
       positionerClass={NAVIGATION_MENU_POSITIONER_CLASS}
       positionerStyle={size()}
       interactionEnabled={context.open()}
-      containsTarget={(target) => Boolean(context.rootElement()?.contains(target))}
+      containsTarget={(target) => context.rootElement()?.contains(target) ?? false}
       finalFocus={false}
       onEscapeKeyDown={(event) => {
         if (!event.defaultPrevented) {
@@ -122,16 +148,18 @@ export function NavigationMenuPanel(): JSX.Element {
       }}
     >
       {(floating) => {
-        context.setFloating(floating)
-        onCleanup(() => {
-          context.setFloating(undefined)
-          setSize({})
+        onSettled(() => {
+          context.setFloating(floating)
+          return () => {
+            context.setFloating(undefined)
+            setSize({})
+          }
         })
         return (
           <div
             {...floating.contentProps}
-            inert={!context.open() ? true : undefined}
-            aria-hidden={!context.open() ? true : undefined}
+            {...{ 'prop:inert': !context.open() ? true : undefined }}
+            aria-hidden={!context.open() ? 'true' : undefined}
             class={NAVIGATION_MENU_PANEL_CLASS}
             style={size()}
           >

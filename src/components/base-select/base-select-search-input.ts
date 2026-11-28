@@ -1,13 +1,12 @@
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, onSettled } from 'solid-js'
+import type { Accessor } from 'solid-js'
 
-import { bindElement, publishElement } from '../../shared/element-binding'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { isAndroidUserAgent } from '../../shared/utils'
+import { isAndroidUserAgent, publishElement } from '../../shared/utils'
 import { createCompositionState } from '../shared/overlay/composition'
 
 import type { BaseSelectT } from './base-select.types'
-
 export interface BaseSelectSearchInputOptions<TItem extends BaseSelectT.Item = BaseSelectT.Item> {
   state: Pick<
     BaseSelectT.Context<TItem>,
@@ -46,9 +45,14 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
   const isComposing = () => compositionDraft() !== undefined
   const displayValue = () => options.displayValue?.() ?? options.searchValue()
   const enabled = () => options.enabled?.() ?? true
-  onCleanup(() => composition.dispose())
+  onSettled(() => () => composition.dispose())
   const [input, setInput] = createSignal<HTMLInputElement>()
-  bindElement(input, publishElement(state.focusOwner, state.setFocusOwner))
+  createEffect(input, (node) => {
+    if (!node) {
+      return
+    }
+    return publishElement(state.focusOwner, state.setFocusOwner)(node)
+  })
 
   function commit(value: string): string {
     const next = options.setSearchValue(options.transformInput?.(value) ?? value)
@@ -64,11 +68,13 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
 
   state.registerCompositionDiscarder(discardComposition)
   createEffect(
-    on(options.searchValue, (current, previous) => {
+    options.searchValue,
+    (current, previous) => {
       if (previous !== undefined && current !== previous) {
         discardComposition()
       }
-    }),
+    },
+    { defer: true },
   )
 
   const inputProps = {
@@ -93,10 +99,10 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
     get disabled() {
       return state.disabled()
     },
-    get readOnly() {
+    get readonly() {
       return state.readOnly() || !enabled()
     },
-    get maxLength() {
+    get maxlength() {
       return options.maxLength
     },
     get autocomplete() {
@@ -116,7 +122,10 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
         setCompositionDraft(target.value)
         return
       }
-      commit(target.value)
+      const committed = commit(target.value)
+      if (target.value !== committed) {
+        target.value = committed
+      }
     },
     onCompositionStart(event: CompositionEvent) {
       if (isAndroidUserAgent()) {

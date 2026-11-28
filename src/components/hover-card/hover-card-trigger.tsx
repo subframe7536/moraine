@@ -1,8 +1,9 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { mergeDefinedProps } from '../../shared/utils'
 import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
 import type { createPopper } from '../shared/overlay/popper'
 import type { PopperTriggerProps } from '../shared/overlay/popper.types'
@@ -10,7 +11,6 @@ import type { PopperTriggerProps } from '../shared/overlay/popper.types'
 import { useHoverCardContext } from './hover-card-context'
 import { hoverCardRecipe } from './hover-card.recipe'
 import type { HoverCardT } from './hover-card.types'
-
 /**
  * Element that opens its `HoverCard` on pointer hover or keyboard focus and anchors the card to
  * itself; place it inside `HoverCard`. It renders an `a` by default, so give it an `href` and
@@ -32,8 +32,11 @@ import type { HoverCardT } from './hover-card.types'
 export function HoverCardTrigger<T extends ValidComponent = 'a'>(
   props: HoverCardT.TriggerProps<T>,
 ): JSX.Element {
-  const context = useHoverCardContext()!
-  const [local, rest] = splitProps(props, ['value'])
+  const context = useHoverCardContext()
+  if (!context) {
+    throw new Error('HoverCard.Trigger must be used within HoverCard')
+  }
+  const rest = omit(props, 'value')
   const { slots } = useRecipe(hoverCardRecipe, props, {
     slot: 'trigger',
     context: () => context.slotOverrides,
@@ -41,7 +44,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
   const popper = context.popper
   // Hover and focus open the card outside the button interaction, so they check `disabled` here.
   const disabled = () => Boolean(props.disabled)
-  const triggerProps = mergeProps(
+  const triggerProps = mergeDefinedProps(
     { as: 'a' as const },
     mergePopperElementProps<HTMLElement>(
       {
@@ -54,7 +57,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
             // Engines without :focus-visible support still open on keyboard focus.
           }
           if (focusVisible && !disabled()) {
-            context.activateTrigger(local.value, trigger)
+            context.activateTrigger(props.value, trigger)
             context.scheduleOpen(true)
           }
         },
@@ -63,7 +66,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
         },
         onPointerEnter: (event) => {
           if ((event.pointerType === 'mouse' || !event.pointerType) && !disabled()) {
-            context.activateTrigger(local.value, event.currentTarget)
+            context.activateTrigger(props.value, event.currentTarget)
             context.recordPoint(event.clientX, event.clientY)
             context.scheduleOpen()
           }

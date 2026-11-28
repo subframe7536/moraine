@@ -10,7 +10,6 @@ import { collectMarkdownFiles, resolveDocsPageContext } from './core/paths.ts'
 import type { DocsPageContext } from './core/paths.ts'
 import { readFrontmatterData } from './markdown/frontmatter.ts'
 import type { FrontmatterData } from './markdown/types.ts'
-
 export interface DocsRouteEntry {
   info: DocsRouteInfo
   sourcePath: string
@@ -25,7 +24,7 @@ function readPageFrontmatter(sourcePath: string): FrontmatterData {
   return readFrontmatterData(readFileSync(sourcePath, 'utf8'), sourcePath)
 }
 
-export function scanDocsPages(projectRoot: string): DocsPageSource[] {
+export function scanDocsPages(projectRoot: string): Array<DocsPageSource> {
   return collectMarkdownFiles(path.join(projectRoot, 'docs/pages')).map((sourcePath) => ({
     page: resolveDocsPageContext(sourcePath),
     frontmatter: readPageFrontmatter(sourcePath),
@@ -76,8 +75,8 @@ function compareRoutes(left: DocsRouteEntry, right: DocsRouteEntry): number {
 
 export function scanDocsRoutes(
   projectRoot: string,
-  pages: readonly DocsPageSource[] = scanDocsPages(projectRoot),
-): DocsRouteEntry[] {
+  pages: ReadonlyArray<DocsPageSource> = scanDocsPages(projectRoot),
+): Array<DocsRouteEntry> {
   const componentKeys = createComponentKeySet(projectRoot)
 
   const routes = pages
@@ -119,7 +118,7 @@ export function createDocsRouteInfo(
   page: DocsPageContext,
   frontmatter: FrontmatterData,
   componentKeys: ReadonlySet<string>,
-  sections: readonly DocsRouteSection[] = [],
+  sections: ReadonlyArray<DocsRouteSection> = [],
 ): DocsRouteInfo {
   const section =
     page.surface === 'components' && page.routePath !== '/components' && frontmatter.group

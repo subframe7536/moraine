@@ -10,7 +10,6 @@ import type { DataTableFeatures } from './data-table-features'
 import type { DataTableCellPin, DataTableSection } from './data-table-layout'
 import type { dataTableRecipe } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
-
 type DataTableRecipe = UseRecipeResult<typeof dataTableRecipe>
 
 export interface DataTableContextValue {
@@ -43,9 +42,9 @@ export interface DataTableContextValue {
   /** Shared `name` of the single-selection radios, so they form one native radio group. */
   readonly selectionName: string
   /** Slot binding for a `head` or `cell` of `column` in the given table section. */
-  readonly cellSlot: <TData extends RowData>(
+  readonly createCellSlot: <TData extends RowData>(
     slot: 'head' | 'cell',
-    column: Column<DataTableFeatures, TData>,
+    column: Accessor<Column<DataTableFeatures, TData>>,
     pin: DataTableCellPin,
     size: () => number,
     section: DataTableSection,

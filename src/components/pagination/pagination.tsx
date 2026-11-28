@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
+import { mergeDefinedProps } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { Button } from '../button'
 import type { ButtonProps } from '../button'
@@ -14,7 +14,6 @@ import { Icon } from '../icon'
 import { defaultPaginationMessages } from './pagination.messages'
 import { paginationDataAttributes, paginationRecipe } from './pagination.recipe'
 import type { PaginationProps } from './pagination.types'
-
 interface InteractiveProps {
   as?: ValidComponent
   href?: string
@@ -42,7 +41,7 @@ function normalizeInteger(value: number | undefined, fallback: number, min: numb
   return Math.min(Math.max(Math.trunc(value), min), max)
 }
 
-function createRange(start: number, end: number): number[] {
+function createRange(start: number, end: number): Array<number> {
   if (end < start) {
     return []
   }
@@ -88,7 +87,7 @@ function getSize(size: string | null | undefined, text?: string): ButtonProps['s
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Pagination } from 'moraine'
  *
  * const [page, setPage] = createSignal(1)
@@ -97,7 +96,8 @@ function getSize(size: string | null | undefined, text?: string): ButtonProps['s
  * ```
  */
 export function Pagination(props: PaginationProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'ref',
     'page',
     'defaultPage',
@@ -126,7 +126,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'style',
     'aria-label',
     'translations',
-  ])
+  )
   const {
     slots: {
       root: rootSlot,
@@ -139,7 +139,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     slotWith,
     variants,
     overrides,
-  } = useRecipe(paginationRecipe, local, {
+  } = useRecipe(paginationRecipe, props, {
     data: {
       prev: paginationDataAttributes.prev(() => ({
         disabled: undefined,
@@ -153,9 +153,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
       })),
     },
   })
-  const messages = useMessages('pagination', defaultPaginationMessages, () => local.translations)
+  const messages = useMessages('pagination', defaultPaginationMessages, () => props.translations)
 
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       role: 'navigation' as const,
       pageSize: 10,
@@ -169,7 +169,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       defaultPage: 1,
     },
 
-    local,
+    props,
   )
 
   const [page, setPage] = createControllableValue<number>({
@@ -188,7 +188,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
   const currentPage = createMemo(() => clampPage(page(), pageCount()))
 
-  const items = createMemo((previous: PaginationEntry[] | undefined) => {
+  const items = createMemo((previous: Array<PaginationEntry> | undefined) => {
     const next = getPaginationItems(
       currentPage(),
       pageCount(),
@@ -268,8 +268,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
       role={merged.role}
       {...rootSlot}
       {...rest}
-      ref={(el) => callRef(local.ref, el)}
-      aria-label={local['aria-label'] ?? messages().label}
+      ref={props.ref}
+      aria-label={props['aria-label'] ?? messages().label}
     >
       <ul data-slot="pagination-list" {...listSlot}>
         <Show when={merged.controls}>
@@ -303,7 +303,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
             return (
               <li
                 data-slot="pagination-list-item"
-                aria-hidden={typeof item === 'number' ? undefined : true}
+                aria-hidden={typeof item === 'number' ? undefined : 'true'}
                 {...itemListItemSlot}
               >
                 <Show

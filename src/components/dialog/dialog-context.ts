@@ -4,7 +4,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import type { DialogT } from './dialog.types'
-
 export interface DialogContextValue {
   readonly slotOverrides: { classes?: DialogT.Classes; styles?: DialogT.Styles }
   overlay?: boolean
@@ -13,6 +12,7 @@ export interface DialogContextValue {
   closable?: boolean
   closeIcon?: DialogT.Base['closeIcon']
   translations?: DialogT.Translations
+  readonly content?: DialogContentContext
 }
 
 export const [DialogProvider, useDialogContext] =
@@ -36,5 +36,10 @@ export interface DialogContentContext extends ReturnType<typeof createDialogCont
   overlayScroll: () => boolean
 }
 
-export const [DialogContentProvider, useDialogContent] =
-  /* @__PURE__ */ createContextProvider<DialogContentContext>('DialogContent')
+export function useDialogContent(): DialogContentContext {
+  const content = useDialogContext().content
+  if (!content) {
+    throw new TypeError('useDialogContent must be used within <Dialog.Content />')
+  }
+  return content
+}

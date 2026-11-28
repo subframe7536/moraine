@@ -182,7 +182,7 @@ workbench begins near the first viewport on both desktop and mobile. Follow with
 multi-component live preview controlled by a preset toolbar (Popover and Dialog on desktop; sticky
 preset bar and bottom Drawer on mobile `< 768px`, with single-screen scene Tabs on mobile to prevent
 excessive vertical stacking), then a focused architecture section comparing composite controls with
-granular primitives, optional peer modules, and UnoCSS/Tailwind setup, and a compact footer with
+granular primitives, ecosystem adapters, and UnoCSS/Tailwind setup, and a compact footer with
 relevant documentation paths and project metadata.
 Documentation search and the sidebar own full component discovery.
 

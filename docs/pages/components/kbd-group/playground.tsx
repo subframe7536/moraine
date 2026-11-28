@@ -1,7 +1,6 @@
 import { KbdGroup } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function KbdGroupPlayground() {
   return (
     <DocsPlayground

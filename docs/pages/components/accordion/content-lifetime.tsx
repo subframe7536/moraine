@@ -1,5 +1,4 @@
 import { Accordion, Input } from '@src'
-
 export function ContentLifetime() {
   return (
     <div class="max-w-md w-full">

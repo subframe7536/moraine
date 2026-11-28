@@ -1,10 +1,10 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Ref } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { ScrollAreaStyleSlot, ScrollAreaStyleVariants } from './scroll-area.style-types'
-
 export namespace ScrollAreaT {
   export type Kind = 'single'
   export type Slot<T = unknown> = ScrollAreaStyleSlot<T>

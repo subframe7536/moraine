@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 const VISUALLY_HIDDEN_INPUT_STYLE: JSX.CSSProperties = {
   position: 'absolute',
@@ -19,17 +19,17 @@ export interface HiddenInputProps extends Omit<JSX.InputHTMLAttributes<HTMLInput
 }
 
 export function HiddenInput(props: HiddenInputProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['style', 'visuallyHidden'])
+  const rest = omit(props, 'style', 'visuallyHidden')
 
   return (
     <input
       {...rest}
       style={
-        local.visuallyHidden === false
-          ? local.style
+        props.visuallyHidden === false
+          ? props.style
           : {
               ...VISUALLY_HIDDEN_INPUT_STYLE,
-              ...local.style,
+              ...props.style,
             }
       }
     />

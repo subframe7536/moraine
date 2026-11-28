@@ -1,9 +1,9 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
@@ -20,7 +20,7 @@ import type { InputProps, InputT } from './input.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, omit } from 'solid-js'
  * import { Field, Input } from 'moraine'
  *
  * const [query, setQuery] = createSignal('')
@@ -33,7 +33,8 @@ import type { InputProps, InputT } from './input.types'
 export function Input<TModifiers extends InputModifiers | undefined = InputModifiers | undefined>(
   props: InputProps<TModifiers>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'ref',
     'id',
     'name',
@@ -60,12 +61,12 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     'styles',
     'class',
     'style',
-  ])
+  )
   const themeField = useFieldContext()
   const group = useInputGroupContext()
   const {
     slots: { root: rootSlot },
-  } = useRecipe(inputRecipe, local, {
+  } = useRecipe(inputRecipe, props, {
     data: {
       root: inputDataAttributes.root(() => ({
         invalid: field.invalid,
@@ -83,14 +84,14 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     }),
   })
 
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       type: 'text',
       autoComplete: 'off',
       autoFocusDelay: 0,
     },
 
-    local,
+    props,
   )
   const modifiers = () => merged.modifiers
   const generatedId = createId(() => merged.id, 'input')
@@ -167,17 +168,9 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     callHandler(event, merged.onCompositionEnd)
   }
 
-  let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
-
-  onCleanup(() => {
-    if (autoFocusTimer !== undefined) {
-      clearTimeout(autoFocusTimer)
-    }
-  })
-
   useFormReset(() => inputEl?.form, restoreControlledValue)
 
-  onMount(() => {
+  onSettled(() => {
     if (inputEl && textControl.initialDefaultValue !== undefined && merged.type !== 'file') {
       inputEl.defaultValue = String(textControl.initialDefaultValue ?? '')
       restoreControlledValue()
@@ -187,11 +180,12 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       return
     }
 
-    autoFocusTimer = setTimeout(() => {
+    const autoFocusTimer = setTimeout(() => {
       if (!field.disabled()) {
         inputEl?.focus()
       }
     }, merged.autoFocusDelay ?? 0)
+    return () => clearTimeout(autoFocusTimer)
   })
 
   return (
@@ -208,11 +202,14 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       autocomplete={merged.autoComplete}
       {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
-      ref={(element) => {
-        inputEl = element
-        field.setControlRef(element)
-        callRef(local.ref, element)
-      }}
+      {...textControl.controlledValueProps()}
+      ref={[
+        (element) => {
+          inputEl = element
+        },
+        field.setControlRef,
+        props.ref,
+      ]}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

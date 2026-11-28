@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { DEV, For, Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { DEV, For, Show, createEffect, createMemo, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -8,19 +8,19 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId, toIdSegment } from '../../shared/utils'
+import { createId, mergeDefinedProps, toIdSegment } from '../../shared/utils'
 import { Icon } from '../icon/index'
 import { resolveDirection } from '../shared/overlay/direction'
 
 import { stepperDataAttributes, stepperRecipe } from './stepper.recipe'
 import type { StepperProps, StepperT } from './stepper.types'
-
 type StepperState = 'inactive' | 'active' | 'completed'
 
 interface NormalizedStepperItem {
   item: StepperT.Item
   index: number
   value: StepperT.Value
+  disabled: boolean
   instanceKey: string
 }
 
@@ -33,7 +33,7 @@ interface NormalizedStepperItem {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Button, Stepper } from 'moraine'
  *
  * const [step, setStep] = createSignal('account')
@@ -54,7 +54,8 @@ interface NormalizedStepperItem {
  * ```
  */
 export function Stepper(props: StepperProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'id',
     'value',
     'defaultValue',
@@ -72,7 +73,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     'style',
     'aria-label',
     'aria-labelledby',
-  ])
+  )
   const {
     slots: {
       root: rootSlot,
@@ -84,11 +85,11 @@ export function Stepper(props: StepperProps): JSX.Element {
     },
     variants,
     slotWith,
-  } = useRecipe(stepperRecipe, local, {
+  } = useRecipe(stepperRecipe, props, {
     data: { content: stepperDataAttributes.content({ selected: true }) },
   })
   const direction = useLocale().dir
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       get orientation() {
         return variants.orientation
@@ -97,7 +98,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       navigation: 'none',
       loop: false,
     },
-    local,
+    props,
   )
 
   const id = createId(() => merged.id, 'stepper')
@@ -109,7 +110,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   const warnedDuplicateValues = new Set<StepperT.Value>()
   let headerRef: HTMLDivElement | undefined
 
-  const normalizedItems = createMemo<NormalizedStepperItem[]>(() => {
+  const normalizedItems = createMemo<Array<NormalizedStepperItem>>(() => {
     const occurrences = new Map<StepperT.Value, number>()
     return (merged.items ?? []).map((item, index) => {
       const value = item.value ?? ''
@@ -123,31 +124,11 @@ export function Stepper(props: StepperProps): JSX.Element {
           console.warn(`[moraine] Stepper received duplicate item value "${value}".`)
         }
       }
-      const label = createLazyMemo(() => item.label)
-      const description = createLazyMemo(() => item.description)
-      const icon = createLazyMemo(() => item.icon)
-      const content = createLazyMemo(() => item.content)
-      const mergedItem = mergeProps(item, {
-        get disabled() {
-          return item.disabled || occurrence > 0
-        },
-        get label() {
-          return label()
-        },
-        get description() {
-          return description()
-        },
-        get icon() {
-          return icon()
-        },
-        get content() {
-          return content()
-        },
-      })
       return {
-        item: mergedItem,
+        item,
         index,
         value,
+        disabled: item.disabled || occurrence > 0,
         instanceKey: `${toIdSegment(value)}-${occurrence}`,
       }
     })
@@ -159,10 +140,11 @@ export function Stepper(props: StepperProps): JSX.Element {
     return (
       (value === undefined
         ? undefined
-        : items.find((entry) => entry.value === value && !entry.item.disabled)) ??
-      items.find((entry) => !entry.item.disabled)
+        : items.find((entry) => entry.value === value && !entry.disabled)) ??
+      items.find((entry) => !entry.disabled)
     )
   })
+  const selectedContent = createMemo(() => selectedItem()?.item.content)
 
   const currentIndex = createMemo(() => {
     return selectedItem()?.index ?? -1
@@ -199,7 +181,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   }
 
   function isItemDisabled(entry: NormalizedStepperItem): boolean {
-    if (merged.disabled || entry.item.disabled) {
+    if (merged.disabled || entry.disabled) {
       return true
     }
 
@@ -247,14 +229,17 @@ export function Stepper(props: StepperProps): JSX.Element {
         }}
         role="tablist"
         aria-owns={tabIds()}
-        aria-label={local['aria-label']}
-        aria-labelledby={local['aria-labelledby']}
+        aria-label={props['aria-label']}
+        aria-labelledby={props['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
         data-slot="stepper-header"
         {...headerSlot}
       >
         <For each={normalizedItems()}>
           {(entry) => {
+            const label = createLazyMemo(() => entry.item.label)
+            const description = createLazyMemo(() => entry.item.description)
+            const icon = createLazyMemo(() => entry.item.icon)
             const state = createMemo(() => getItemState(entry.index))
             const disabled = createMemo(() => isItemDisabled(entry))
             const triggerId = () => getTriggerId(entry.instanceKey)
@@ -262,7 +247,7 @@ export function Stepper(props: StepperProps): JSX.Element {
             const labelId = () => `${contentId()}-step-${entry.index}-label`
             const descriptionId = () => `${contentId()}-step-${entry.index}-description`
             const selected = createMemo(() => selectedItem()?.instanceKey === entry.instanceKey)
-            const panelMounted = createMemo(() => selected() && entry.item.content !== undefined)
+            const panelMounted = createMemo(() => selected() && selectedContent() !== undefined)
             const itemSlot = slotWith('item', {
               own: () => ({ class: entry.item.class }),
               data: stepperDataAttributes.item({ state, disabled }),
@@ -280,34 +265,38 @@ export function Stepper(props: StepperProps): JSX.Element {
             const separatorSlot = slotWith('separator', {
               data: stepperDataAttributes.separator({ state, disabled }),
             })
-            let trigger: HTMLButtonElement | undefined
-            onCleanup(() => {
-              if (triggerRefs.get(entry.instanceKey) === trigger) {
-                triggerRefs.delete(entry.instanceKey)
-              }
-            })
+            const [trigger, setTrigger] = createSignal<HTMLButtonElement>()
+            createEffect(
+              () => [trigger(), entry.instanceKey] as const,
+              ([element, key]) => {
+                if (!element) {
+                  return
+                }
+                triggerRefs.set(key, element)
+                return () => {
+                  if (triggerRefs.get(key) === element) {
+                    triggerRefs.delete(key)
+                  }
+                }
+              },
+            )
 
             return (
               <div data-slot="stepper-item" {...itemSlot}>
                 <button
                   id={triggerId()}
-                  ref={(element) => {
-                    trigger = element
-                    triggerRefs.set(entry.instanceKey, element)
-                  }}
+                  ref={setTrigger}
                   type="button"
                   role="tab"
-                  tabIndex={selected() ? 0 : -1}
+                  tabindex={selected() ? 0 : -1}
                   aria-controls={panelMounted() ? contentId() : undefined}
-                  aria-selected={selected()}
+                  aria-selected={selected() ? 'true' : 'false'}
                   aria-current={selected() ? 'step' : undefined}
                   data-slot="stepper-trigger"
                   {...triggerSlot}
                   disabled={disabled()}
-                  aria-labelledby={hasContent(entry.item.label) ? labelId() : undefined}
-                  aria-describedby={
-                    hasContent(entry.item.description) ? descriptionId() : undefined
-                  }
+                  aria-labelledby={hasContent(label()) ? labelId() : undefined}
+                  aria-describedby={hasContent(description()) ? descriptionId() : undefined}
                   onClick={() => selectStep(entry.value)}
                   onKeyDown={(event) => {
                     onNavigationKeyDown(
@@ -318,26 +307,26 @@ export function Stepper(props: StepperProps): JSX.Element {
                   }}
                 >
                   <span data-slot="stepper-indicator" {...indicatorSlot}>
-                    <Show when={entry.item.icon} fallback={entry.index + 1}>
-                      {(icon) => <Icon name={icon()} data-slot="stepper-icon" />}
+                    <Show when={icon()} fallback={entry.index + 1}>
+                      {(resolvedIcon) => <Icon name={resolvedIcon()} data-slot="stepper-icon" />}
                     </Show>
                   </span>
 
-                  <Show when={hasContent(entry.item.label) || hasContent(entry.item.description)}>
+                  <Show when={hasContent(label()) || hasContent(description())}>
                     <span data-slot="stepper-wrapper" {...wrapperSlot}>
-                      <Show when={hasContent(entry.item.label)}>
+                      <Show when={hasContent(label())}>
                         <span data-slot="stepper-label" id={labelId()} {...labelSlot}>
-                          {entry.item.label}
+                          {label()}
                         </span>
                       </Show>
 
-                      <Show when={hasContent(entry.item.description)}>
+                      <Show when={hasContent(description())}>
                         <span
                           data-slot="stepper-description"
                           id={descriptionId()}
                           {...descriptionSlot}
                         >
-                          {entry.item.description}
+                          {description()}
                         </span>
                       </Show>
                     </span>
@@ -356,18 +345,18 @@ export function Stepper(props: StepperProps): JSX.Element {
         {(entry) => (
           <Show
             when={
-              selectedItem()?.instanceKey === entry.instanceKey && entry.item.content !== undefined
+              selectedItem()?.instanceKey === entry.instanceKey && selectedContent() !== undefined
             }
           >
             <div
               id={getContentId(entry.instanceKey)}
               role="tabpanel"
-              tabIndex={0}
+              tabindex={0}
               aria-labelledby={getTriggerId(entry.instanceKey)}
               data-slot="stepper-content"
               {...contentSlot}
             >
-              {renderWithProps(entry.item.content, {
+              {renderWithProps(selectedContent(), {
                 get value() {
                   return entry.value
                 },

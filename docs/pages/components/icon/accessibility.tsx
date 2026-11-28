@@ -1,5 +1,4 @@
 import { Icon } from '@src'
-
 export function Accessibility() {
   return (
     <div class="flex gap-5 items-center">

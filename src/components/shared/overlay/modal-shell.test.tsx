@@ -1,19 +1,18 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { Show, createComponent, createSignal, flush, onCleanup } from 'solid-js'
+import { describe, expect, it } from 'vitest'
 
 import { MoraineProvider } from '../../../provider'
 import { finishExitMotion } from '../../../test-util/overlay-test'
 import { defineTheme } from '../../../theme'
 import { Dialog } from '../../dialog/dialog'
 import { Sheet } from '../../sheet/sheet'
-
 describe.each([
   { name: 'Dialog', Root: Dialog },
   { name: 'Sheet', Root: Sheet },
 ])('$name composition', ({ Root, name }) => {
   const owner = name.toLowerCase()
-  test('does not render body content until the overlay opens', () => {
+  it('does not render body content until the overlay opens', () => {
     const screen = render(() => (
       <Root>
         <Root.Trigger>Open</Root.Trigger>
@@ -27,7 +26,7 @@ describe.each([
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
   })
 
-  test('updates body header attributes without replacing the body and forwards its ref', () => {
+  it('updates body header attributes without replacing the body and forwards its ref', () => {
     const [showHeader, setShowHeader] = createSignal(false)
     let bodyRef: HTMLDivElement | undefined
     render(() => (
@@ -45,14 +44,14 @@ describe.each([
     expect(bodyRef).toBe(body)
     expect(body.hasAttribute('data-header')).toBe(false)
 
-    setShowHeader(true)
+    flush(() => setShowHeader(true))
     expect(body.hasAttribute('data-header')).toBe(true)
-    setShowHeader(false)
+    flush(() => setShowHeader(false))
     expect(body.hasAttribute('data-header')).toBe(false)
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
   })
 
-  test('renders shorthand title and description on each opening and unmounts the title after exit', async () => {
+  it('renders shorthand title and description on each opening and unmounts the title after exit', async () => {
     const [open, setOpen] = createSignal(false)
     let cleanups = 0
     const Title = () => {
@@ -79,22 +78,22 @@ describe.each([
     ))
 
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)).toBeNull()
-    setOpen(true)
+    flush(() => setOpen(true))
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'TitleDescription',
     )
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     expect(cleanups).toBe(1)
 
-    setOpen(true)
+    flush(() => setOpen(true))
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'TitleDescription',
     )
   })
 
-  test('keeps the body node while switching between explicit and shorthand headers', () => {
+  it('keeps the body node while switching between explicit and shorthand headers', () => {
     const [showHeader, setShowHeader] = createSignal(true)
 
     render(() => (
@@ -126,21 +125,21 @@ describe.each([
       'Explicit header',
     )
 
-    setShowHeader(false)
+    flush(() => setShowHeader(false))
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'Fallback titleFallback description',
     )
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
     expect(body.hasAttribute('data-header')).toBe(true)
 
-    setShowHeader(true)
+    flush(() => setShowHeader(true))
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'Explicit header',
     )
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
   })
 
-  test('mounts controlled content in the root portal destination without a trigger', () => {
+  it('mounts controlled content in the root portal destination without a trigger', () => {
     const otherDocument = document.implementation.createHTMLDocument('portal owner')
     const mount = otherDocument.createElement('div')
     otherDocument.body.append(mount)
@@ -156,7 +155,7 @@ describe.each([
     screen.unmount()
   })
 
-  test('prefers a native aria-label over a registered title', () => {
+  it('prefers a native aria-label over a registered title', () => {
     render(() => (
       <Root open>
         <Root.Content aria-label="Native label" title="Visible title" description="Details">
@@ -175,7 +174,7 @@ describe.each([
     expect(content.getAttribute('aria-describedby')).toBe(description.id)
   })
 
-  test('renders the documented anatomy without a provider', () => {
+  it('renders the documented anatomy without a provider', () => {
     render(() => (
       <Root defaultOpen>
         <Root.Trigger>Open</Root.Trigger>
@@ -188,13 +187,13 @@ describe.each([
     for (const slot of ['content', 'header', 'title', 'description', 'body', 'footer']) {
       expect(document.body.querySelector(`[data-slot="${owner}-${slot}"]`)).not.toBeNull()
     }
-    if (owner === 'sheet') {
-      const content = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)
-      expect(content?.style.getPropertyValue('--sheet-keyboard-inset')).toBe('0px')
-    }
+    const content = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)
+    expect(content?.style.getPropertyValue('--sheet-keyboard-inset')).toBe(
+      owner === 'sheet' ? '0px' : '',
+    )
   })
 
-  test('replaces Design while preserving content identity and focus', () => {
+  it('replaces Design while preserving content identity and focus', () => {
     const key = name === 'Dialog' ? 'dialog' : 'sheet'
     const [design, setDesign] = createSignal(
       defineTheme({
@@ -212,14 +211,14 @@ describe.each([
     ))
     const content = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)!
     content.focus()
-    setDesign(defineTheme({ [key]: { base: { content: 'next-content' } } }))
+    flush(() => setDesign(defineTheme({ [key]: { base: { content: 'next-content' } } })))
     expect(document.body.querySelector(`[data-slot="${owner}-content"]`)).toBe(content)
     expect(content.className).toContain('next-content')
     expect(content.className).not.toContain('first-content')
     expect(document.activeElement).toBe(content)
   })
 
-  test('updates modal isolation when root modal changes', async () => {
+  it('updates modal isolation when root modal changes', async () => {
     const [modal, setModal] = createSignal(false)
     const screen = render(() => (
       <>
@@ -236,14 +235,14 @@ describe.each([
     expect(background.closest('[aria-hidden="true"]')).toBeNull()
     expect(document.body.style.overflow).toBe('')
 
-    setModal(true)
+    flush(() => setModal(true))
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBe('true')
       expect(background.closest('[aria-hidden="true"]')).not.toBeNull()
       expect(document.body.style.overflow).toBe('hidden')
     })
 
-    setModal(false)
+    flush(() => setModal(false))
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBeNull()
       expect(background.closest('[aria-hidden="true"]')).toBeNull()

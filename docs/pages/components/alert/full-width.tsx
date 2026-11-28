@@ -1,5 +1,4 @@
 import { Alert } from '@src'
-
 export function FullWidthExample() {
   return (
     <div class="flex flex-col gap-3 w-full">

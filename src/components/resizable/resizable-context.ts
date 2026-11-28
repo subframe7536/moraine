@@ -4,7 +4,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 
 import type { ResizableOrientation } from './hook'
 import type { ResizableT } from './resizable.types'
-
 /**
  * Registered panel. All accessors are read reactively by the root so prop
  * changes flow into layout resolution.
@@ -48,9 +47,9 @@ export interface ResizableContext {
    */
   registerItem: (item: ResizableItem) => () => void
   /** Panels and handles in DOM order. */
-  orderedItems: () => ResizableItem[]
+  orderedItems: () => Array<ResizableItem>
   /** Panels only, in DOM order. */
-  orderedPanels: () => ResizablePanelRegistration[]
+  orderedPanels: () => Array<ResizablePanelRegistration>
   /** Index of the panel in `orderedPanels()`, or -1. */
   panelIndex: (panel: ResizablePanelRegistration) => number
   /** Resolved size of the panel in percent (0-100). */

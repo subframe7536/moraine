@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type {
   BaseProps,
@@ -8,7 +8,6 @@ import type {
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { CollapsibleStyleSlot, CollapsibleStyleVariants } from './collapsible.style-types'
-
 export namespace CollapsibleT {
   export type Kind = 'composite'
 

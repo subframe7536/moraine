@@ -1,15 +1,14 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { For, createEffect, createSignal, flush, onCleanup } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { measuredRows, scrollViewport } from '../../test-util/virtualizer-layout'
 import { createListVirtualizer } from '../../virtualizer'
 import type { VirtualRenderProps } from '../../virtualizer/virtualizer.types'
 
 import { List } from './list'
-
-describe('List', () => {
-  test('renders fixed content from an item component', () => {
+describe('list', () => {
+  it('renders fixed content from an item component', () => {
     const screen = render(() => (
       <List items={['ignored']} itemRender={() => <li>Static item</li>} />
     ))
@@ -17,9 +16,9 @@ describe('List', () => {
     expect(screen.getByRole('list').textContent).toBe('Static item')
   })
 
-  test('keeps keyed rows and reactive indexes across reorders, then disposes removed rows', () => {
+  it('keeps keyed rows and reactive indexes across reorders, then disposes removed rows', () => {
     const [items, setItems] = createSignal(['Alpha', 'Beta'])
-    const disposed: string[] = []
+    const disposed: Array<string> = []
     const screen = render(() => (
       <List
         items={items()}
@@ -36,23 +35,23 @@ describe('List', () => {
     const list = screen.getByRole('list')
     const rows = Array.from(list.children)
 
-    setItems(['Beta', 'Alpha'])
+    flush(() => setItems(['Beta', 'Alpha']))
     expect(list.children[0]).toBe(rows[1])
     expect(list.children[1]).toBe(rows[0])
     expect(list.children[0]?.textContent).toBe('0: Beta')
     expect(list.children[1]?.textContent).toBe('1: Alpha')
 
-    setItems(['Beta'])
+    flush(() => setItems(['Beta']))
     expect(disposed).toEqual(['Alpha'])
     expect(list.children).toHaveLength(1)
   })
 
-  test('renders no rows when items are omitted', () => {
+  it('renders no rows when items are omitted', () => {
     const screen = render(() => <List itemRender={() => <li>Unused</li>} />)
     expect(screen.getByRole('list').children).toHaveLength(0)
   })
 
-  test('renders arbitrary reactive items with ul semantics by default', async () => {
+  it('renders arbitrary reactive items with ul semantics by default', async () => {
     const [items, setItems] = createSignal([{ name: 'Engineer' }])
     const screen = render(() => (
       <>
@@ -70,7 +69,7 @@ describe('List', () => {
     expect(screen.getByRole('list').textContent).toBe('Designer')
   })
 
-  test('applies default root role and slot while allowing overrides', () => {
+  it('applies default root role and slot while allowing overrides', () => {
     const defaultScreen = render(() => (
       <List items={['Engineer']} itemRender={(context) => <li>{context.item}</li>} />
     ))
@@ -94,8 +93,8 @@ describe('List', () => {
     expect(overrideRoot.getAttribute('data-slot')).toBe('content')
   })
 
-  test('supports polymorphic roots and forwards native attributes, style, class, and ref', () => {
-    const ref = vi.fn()
+  it('supports polymorphic roots and forwards native attributes, style, class, and ref', () => {
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <List
         as="div"
@@ -118,7 +117,7 @@ describe('List', () => {
     expect(list.style.color).toBe('red')
   })
 
-  test('normalizes ClassValue root classes', () => {
+  it('normalizes ClassValue root classes', () => {
     const screen = render(() => (
       <List
         class={['custom-list', 'is-active']}
@@ -130,16 +129,14 @@ describe('List', () => {
     expect(screen.getByRole('list').className).toBe('custom-list is-active')
   })
 
-  test('creates virtual content before mount and reactively exposes the scroll element', () => {
+  it('creates virtual content before mount and reactively exposes the scroll element', () => {
     let virtualScrollElement: HTMLElement | undefined
-    const VirtualRender = vi.fn((props: VirtualRenderProps<string>) => {
+    const VirtualRender = vi.fn<(props: VirtualRenderProps<string>) => any>((props) => {
       createEffect(
-        on(
-          () => props.scrollElement,
-          (scrollElement) => {
-            virtualScrollElement = scrollElement
-          },
-        ),
+        () => props.scrollElement,
+        (scrollElement) => {
+          virtualScrollElement = scrollElement
+        },
       )
 
       return (
@@ -172,7 +169,7 @@ describe('List', () => {
     expect(row.getAttribute('data-index')).toBe('0')
   })
 
-  test('switches between ordinary and virtual rows without replacing the root', () => {
+  it('switches between ordinary and virtual rows without replacing the root', () => {
     const [virtual, setVirtual] = createSignal(false)
     const VirtualRender = (props: VirtualRenderProps<string>) => (
       <For each={props.entries}>
@@ -208,7 +205,7 @@ describe('List', () => {
     expect(root.children[0]?.getAttribute('data-index')).toBeNull()
   })
 
-  test('renders visible virtual rows on the initial mount and after scrolling', async () => {
+  it('renders visible virtual rows on the initial mount and after scrolling', async () => {
     const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
     const virtualRendering = createListVirtualizer<string>({
       estimateSize: () => 36,
@@ -238,7 +235,7 @@ describe('List', () => {
     expect(screen.getByText('Result 41').getAttribute('data-index')).toBe('40')
   })
 
-  test('keeps horizontal virtual rows and the scroll container in RTL directions', async () => {
+  it('keeps horizontal virtual rows and the scroll container in RTL directions', async () => {
     const screen = render(() => {
       const virtualRendering = createListVirtualizer<number>({
         estimateSize: () => 20,
@@ -267,7 +264,7 @@ describe('List', () => {
     expect(screen.getByRole('list').getAttribute('dir')).toBe('rtl')
   })
 
-  test('provides measured dynamic rows with consistent gaps', async () => {
+  it('provides measured dynamic rows with consistent gaps', async () => {
     const items = [
       { id: 'first', label: 'First', size: 24 },
       { id: 'second', label: 'Second', size: 48 },
@@ -314,9 +311,9 @@ describe('List', () => {
     })
   })
 
-  test('fires edge callbacks on transitions of an overflowing list only', async () => {
-    const onTopReached = vi.fn()
-    const onBottomReached = vi.fn()
+  it('fires edge callbacks on transitions of an overflowing list only', async () => {
+    const onTopReached = vi.fn<(...args: Array<any>) => void>()
+    const onBottomReached = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <List
         items={['A', 'B', 'C']}
@@ -359,8 +356,8 @@ describe('List', () => {
     expect(onTopReached).toHaveBeenCalledTimes(1)
   })
 
-  test('fires onBottomReached again after scrolling away and back', async () => {
-    const onBottomReached = vi.fn()
+  it('fires onBottomReached again after scrolling away and back', async () => {
+    const onBottomReached = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <List
         items={['A', 'B', 'C']}
@@ -372,6 +369,7 @@ describe('List', () => {
     for (const [name, value] of Object.entries({ clientHeight: 100, scrollHeight: 300 })) {
       Object.defineProperty(list, name, { configurable: true, value })
     }
+    await Promise.resolve()
     await Promise.resolve()
 
     list.scrollTop = 200

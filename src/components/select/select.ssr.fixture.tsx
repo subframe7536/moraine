@@ -1,9 +1,8 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Field } from '../field'
 
 import { Select } from './select'
-
 export function renderSelectFixture(): string {
   return renderToString(() => (
     <Select

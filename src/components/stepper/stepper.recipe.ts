@@ -4,7 +4,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { StepperStyleSlot, StepperStyleVariants } from './stepper.style-types'
-
 export const stepperDataAttributes = {
   item: /* @__PURE__ */ createDataAttributes('disabled', 'state'),
   trigger: /* @__PURE__ */ createDataAttributes('clickable', 'selected', 'state'),

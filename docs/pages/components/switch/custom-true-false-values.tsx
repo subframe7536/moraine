@@ -1,6 +1,5 @@
 import { Switch } from '@src'
 import { createSignal } from 'solid-js'
-
 export function CustomTrueFalseValues() {
   const [deploymentGuard, setDeploymentGuard] = createSignal<'enabled' | 'disabled'>('disabled')
 

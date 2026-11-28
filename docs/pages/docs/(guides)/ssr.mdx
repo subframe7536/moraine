@@ -42,8 +42,9 @@ In Moraine:
 
 - Overlays default to closed, so the server output contains only the trigger.
 - Portals emit no server markup, so overlay content renders only on the client, even when an overlay starts open. The server and initial client trees match.
-- Read browser APIs in `onMount` or event handlers. For browser-only content, keep the server and
-  initial client tree identical, then reveal that content after mounting.
+- Read browser APIs in `onSettled`, the side-effect phase of `createEffect`, or event handlers. For
+  browser-only content, keep the server and initial client tree identical, then reveal that content
+  after hydration.
 
 ```tsx
 import { Button, Dialog } from 'moraine'
@@ -95,15 +96,15 @@ Several props accept either JSX or a render function `(props) => JSX.Element`:
 
 - `children` of [Button](/components/button), [ToggleButton](/components/toggle-button), [CopyButton](/components/copy-button), and [Slider](/components/slider)
 - Trigger and item `children` of [BaseSelect](/components/base-select)
-- Content `children` of [Dialog](/components/dialog), [BaseDialog](/components/base-dialog), [Sheet](/components/sheet), and [Drawer](/components/drawer)
+- Content `children` of [Dialog](/components/dialog), [BaseDialog](/components/base-dialog), [Sheet](/components/sheet), [Drawer](/components/drawer), and [HoverCard](/components/hover-card)
 - Handle `children` of [Resizable](/components/resizable)
 
-For these props, **declare the function parameter** even when your callback does not read it:
+For these props, **declare a required, non-rest function parameter** even when your callback does not read it:
 
-- A zero-argument function `() => JSX.Element` is called as a plain reactive accessor without a component boundary.
-- A function that declares its parameter `(state) => JSX.Element` is mounted as a component with its own Solid owner and lifecycle.
+- A zero-argument function `() => JSX.Element` (or a function whose first parameter has a default or is a rest parameter) is called as a plain reactive accessor without render props.
+- A function that declares its parameter `(state) => JSX.Element` is invoked with the component's render props.
 
-By contrast, [Field](/components/field) `children` and [HoverCard](/components/hover-card) content invoke every function with their render props regardless of parameter count, inside a tracked scope.
+By contrast, [Field](/components/field) `children` invokes every function with its render props regardless of parameter count, inside a tracked scope.
 
 ## Responsive Queries in SSR
 
@@ -144,6 +145,6 @@ SSR and the first client render use `en-US`; a root `MoraineProvider` follows `n
 
 ## Best Practices for SSR Safety
 
-1. **Avoid `window` or `document` in the component body**: Read window dimensions, `localStorage`, or DOM properties inside `onMount` or user event handlers (`onClick`, `onInput`), never while the component runs.
+1. **Avoid `window` or `document` in the component body**: Read window dimensions, `localStorage`, or DOM properties inside `onSettled`, the side-effect phase of `createEffect`, or user event handlers (`onClick`, `onInput`), never while the component or the compute phase runs.
 2. **Deterministic initial state**: Initialize controlled signals with static defaults that the server evaluates the same way as the client.
 3. **Use Moraine primitives for overlays**: Built-in primitives already manage portals, scroll locks, and focus containment, so you do not need custom SSR guards.

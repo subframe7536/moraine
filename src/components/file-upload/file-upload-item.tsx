@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { Show } from 'solid-js'
 
 import type { SlotBinding } from '../../theme/use-recipe'
@@ -7,7 +7,6 @@ import type { IconT } from '../icon'
 
 import { FILE_UPLOAD_PREVIEW_IMAGE_CLASS } from './file-upload.recipe'
 import { formatFileSize } from './file-validation'
-
 export interface FileUploadItemProps {
   file: File
   previewUrl: string | undefined

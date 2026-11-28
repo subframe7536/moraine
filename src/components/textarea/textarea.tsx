@@ -1,9 +1,9 @@
-import type { JSX } from 'solid-js'
-import { createEffect, mergeProps, on, onCleanup, onMount, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
@@ -12,7 +12,6 @@ import { useTextControlValue } from '../shared/form/use-text-control-value'
 
 import { textareaDataAttributes, textareaRecipe } from './textarea.recipe'
 import type { TextareaProps, TextareaT } from './textarea.types'
-
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {
   const paddingTop = Number.parseInt(styles.paddingTop, 10) || 0
@@ -37,7 +36,7 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, omit } from 'solid-js'
  * import { Field, Textarea } from 'moraine'
  *
  * const [message, setMessage] = createSignal('')
@@ -57,7 +56,8 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
 export function Textarea<
   TModifiers extends InputModifiers | undefined = InputModifiers | undefined,
 >(props: TextareaProps<TModifiers>): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'ref',
     'id',
     'name',
@@ -87,12 +87,12 @@ export function Textarea<
     'styles',
     'class',
     'style',
-  ])
+  )
   const themeField = useFieldContext()
   const group = useInputGroupContext()
   const {
     slots: { root: rootSlot },
-  } = useRecipe(textareaRecipe, local, {
+  } = useRecipe(textareaRecipe, props, {
     data: {
       root: textareaDataAttributes.root(() => ({
         invalid: field.invalid,
@@ -111,7 +111,7 @@ export function Textarea<
     }),
   })
 
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       rows: 3,
       maxRows: 0,
@@ -121,7 +121,7 @@ export function Textarea<
       autoResize: false,
     },
 
-    local,
+    props,
   )
   const modifiers = () => merged.modifiers
   const generatedId = createId(() => merged.id, 'textarea')
@@ -256,28 +256,18 @@ export function Textarea<
   }
 
   createEffect(
-    on(
+    () =>
       [
-        () => merged.autoResize,
-        () => merged.rows,
-        () => merged.maxRows,
-        () => merged.autoResizeDelay,
-        () => merged.value,
-        field.value,
-      ],
-      () => scheduleAutoResize(),
-    ),
+        merged.autoResize,
+        merged.rows,
+        merged.maxRows,
+        merged.autoResizeDelay,
+        merged.value,
+        field.value(),
+      ] as const,
+    () => scheduleAutoResize(),
+    { defer: true },
   )
-
-  let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
-
-  onCleanup(() => {
-    if (autoFocusTimer !== undefined) {
-      clearTimeout(autoFocusTimer)
-    }
-    cancelAutoResizeTimer?.()
-    cancelAutoResizeTimer = undefined
-  })
 
   useFormReset(
     () => textareaEl?.form,
@@ -287,7 +277,7 @@ export function Textarea<
     },
   )
 
-  onMount(() => {
+  onSettled(() => {
     if (textareaEl) {
       initialOverflow = textareaEl.style.overflow
       if (textControl.initialDefaultValue !== undefined) {
@@ -296,6 +286,7 @@ export function Textarea<
       restoreControlledValue()
     }
 
+    let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
     if (merged.autoFocus) {
       autoFocusTimer = setTimeout(() => {
         if (!field.disabled()) {
@@ -305,6 +296,14 @@ export function Textarea<
     }
 
     scheduleAutoResize(merged.autoResizeDelay)
+
+    return () => {
+      if (autoFocusTimer !== undefined) {
+        clearTimeout(autoFocusTimer)
+      }
+      cancelAutoResizeTimer?.()
+      cancelAutoResizeTimer = undefined
+    }
   })
 
   return (
@@ -321,11 +320,14 @@ export function Textarea<
       autocomplete={merged.autoComplete}
       {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
-      ref={(element) => {
-        textareaEl = element
-        field.setControlRef(element)
-        callRef(local.ref, element)
-      }}
+      {...textControl.controlledValueProps()}
+      ref={[
+        (element) => {
+          textareaEl = element
+        },
+        field.setControlRef,
+        props.ref,
+      ]}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

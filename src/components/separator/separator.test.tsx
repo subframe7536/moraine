@@ -1,14 +1,13 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 
 import { Separator } from './separator'
-
-describe('Separator', () => {
-  test('renders a single root element with default semantics and horizontal orientation', () => {
+describe('separator', () => {
+  it('renders a single root element with default semantics and horizontal orientation', () => {
     const screen = render(() => <Separator />)
     const root = screen.container.querySelector('[data-slot="separator"]')
 
@@ -20,7 +19,7 @@ describe('Separator', () => {
     expect(root?.getAttribute('role')).toBe('separator')
   })
 
-  test('updates orientation semantics reactively without remounting', () => {
+  it('updates orientation semantics reactively without remounting', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
       <MoraineProvider>
@@ -31,21 +30,21 @@ describe('Separator', () => {
 
     expect(root.getAttribute('aria-orientation')).toBe('horizontal')
 
-    setOrientation('vertical')
+    flush(() => setOrientation('vertical'))
 
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.getAttribute('data-orientation')).toBe('vertical')
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
   })
 
-  test('forwards native attributes and lets callers override generated metadata', () => {
+  it('forwards native attributes and lets callers override generated metadata', () => {
     const screen = render(() => (
       <Separator
         id="section-break"
         title="Section break"
         orientation="horizontal"
         role="presentation"
-        aria-hidden={false}
+        aria-hidden={'false'}
         aria-orientation="vertical"
         data-orientation="custom"
       />
@@ -60,8 +59,8 @@ describe('Separator', () => {
     expect(root?.getAttribute('data-orientation')).toBe('custom')
   })
 
-  test('remains passive and non-tabbable while forwarding caller pointer events', () => {
-    const onPointerDown = vi.fn()
+  it('remains passive and non-tabbable while forwarding caller pointer events', () => {
+    const onPointerDown = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <Separator onPointerDown={onPointerDown} />)
     const root = screen.getByRole('separator')
     const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
@@ -73,7 +72,7 @@ describe('Separator', () => {
     expect(onPointerDown).toHaveBeenCalledTimes(1)
   })
 
-  test('applies root class and style overrides', () => {
+  it('applies root class and style overrides', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Separator class="root-override" style={{ width: '200px' }} />
@@ -85,7 +84,7 @@ describe('Separator', () => {
     expect(root?.style.width).toBe('200px')
   })
 
-  test('replaces Design root styling without remounting the separator', () => {
+  it('replaces Design root styling without remounting the separator', () => {
     const [design, setDesign] = createSignal(
       defineTheme({ separator: { base: { root: 'theme-separator-a' } } }),
     )
@@ -98,7 +97,7 @@ describe('Separator', () => {
 
     expect(root.className).toContain('theme-separator-a')
 
-    setDesign(defineTheme({ separator: { base: { root: 'theme-separator-b' } } }))
+    flush(() => setDesign(defineTheme({ separator: { base: { root: 'theme-separator-b' } } })))
 
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.className).toContain('theme-separator-b')

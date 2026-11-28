@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
 import { Collapsible } from '../collapsible'
@@ -8,7 +8,6 @@ import type { IconT } from '../icon'
 import { useSidebarStyles } from './sidebar-context'
 import { SidebarMenuButton } from './sidebar-menu-button'
 import type { SidebarT } from './sidebar.types'
-
 const DEFAULT_EXPAND_ICON: IconT.Name = 'icon-chevron-right'
 
 /**
@@ -38,12 +37,8 @@ const DEFAULT_EXPAND_ICON: IconT.Name = 'icon-chevron-right'
 export function SidebarMenuSubTrigger<T extends ValidComponent = 'button'>(
   props: SidebarT.MenuSubTriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as SidebarT.MenuSubTriggerProps, [
-    'as',
-    'class',
-    'style',
-    'expandIcon',
-  ])
+  const local = props as SidebarT.MenuSubTriggerProps
+  const rest = omit(props as SidebarT.MenuSubTriggerProps, 'as', 'class', 'style', 'expandIcon')
   const {
     slots: { menuSubTrigger: menuSubTriggerSlot },
   } = useSidebarStyles('menuSubTrigger', local)

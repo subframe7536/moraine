@@ -3,7 +3,6 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'pathe'
 
 import type { ComponentApi, IndexDoc } from './types.ts'
-
 export function loadApiDocIndex(projectRoot: string): IndexDoc | null {
   const jsonPath = path.join(projectRoot, 'docs/pages/_api-index.json')
   if (!existsSync(jsonPath)) {
@@ -16,6 +15,7 @@ export function loadApiDocIndex(projectRoot: string): IndexDoc | null {
   } catch (error) {
     throw new Error(
       `[api-doc] Malformed index document at ${jsonPath}:\n${(error as Error).message}`,
+      { cause: error },
     )
   }
 }
@@ -32,6 +32,7 @@ export function loadComponentApiDoc(pagePath: string): ComponentApi | null {
   } catch (error) {
     throw new Error(
       `[api-doc] Malformed component API doc at ${jsonPath}:\n${(error as Error).message}`,
+      { cause: error },
     )
   }
 }

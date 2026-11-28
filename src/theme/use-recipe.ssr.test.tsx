@@ -1,9 +1,8 @@
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../test-util/ssr-test'
 
 import { UseRecipeSsrFixture } from './use-recipe.ssr.fixture'
-
 function parse(markup: string) {
   const container = document.createElement('div')
   container.innerHTML = markup
@@ -11,12 +10,12 @@ function parse(markup: string) {
   return {
     root,
     label: root.querySelector('span')!,
-    reads: JSON.parse(root.dataset.reads!) as string[],
-    styles: JSON.parse(root.dataset.styles!) as Record<string, unknown>[],
+    reads: JSON.parse(root.dataset.reads!) as Array<string>,
+    styles: JSON.parse(root.dataset.styles!) as Array<Record<string, unknown>>,
   }
 }
 
-test('server bindings apply every layer and agree across repeated reads', () => {
+it('server bindings apply every layer and agree across repeated reads', () => {
   const { root, label, reads, styles } = parse(
     renderSsrFixture('/src/theme/use-recipe.ssr.fixture.tsx', 'renderUseRecipeFixture'),
   )
@@ -36,7 +35,7 @@ test('server bindings apply every layer and agree across repeated reads', () => 
   expect(label.style.color).toBe('red')
 })
 
-test('server bindings resolve Theme layers and defaults', () => {
+it('server bindings resolve Theme layers and defaults', () => {
   const { root, label } = parse(
     renderSsrFixture('/src/theme/use-recipe.ssr.fixture.tsx', 'renderUseRecipeThemedFixture'),
   )
@@ -46,7 +45,7 @@ test('server bindings resolve Theme layers and defaults', () => {
   expect(root.style.getPropertyValue('--gap')).toBe('1px')
 })
 
-test('hydrates server bindings without replacing nodes', () => {
+it('hydrates server bindings without replacing nodes', () => {
   const { container } = hydrateFixture(
     '/src/theme/use-recipe.ssr.fixture.tsx',
     'renderUseRecipeFixture',
@@ -59,7 +58,7 @@ test('hydrates server bindings without replacing nodes', () => {
   )
 })
 
-test('server bindings carry data attributes and omit an empty class or style', () => {
+it('server bindings carry data attributes and omit an empty class or style', () => {
   const markup = renderSsrFixture(
     '/src/theme/use-recipe.ssr.fixture.tsx',
     'renderUseRecipeDataFixture',

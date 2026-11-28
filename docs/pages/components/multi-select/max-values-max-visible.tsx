@@ -1,8 +1,7 @@
 import { Icon, MultiSelect, Tooltip } from '@src'
 import type { MultiSelectT } from '@src'
 import { For } from 'solid-js'
-
-const TECH_STACK: MultiSelectT.Item[] = [
+const TECH_STACK: Array<MultiSelectT.Item> = [
   { label: 'SolidJS', value: 'solid', icon: 'i-lucide:atom' },
   { label: 'TypeScript', value: 'ts', icon: 'i-lucide:code' },
   { label: 'Tailwind CSS', value: 'tailwind', icon: 'i-lucide:palette' },

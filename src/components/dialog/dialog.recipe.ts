@@ -15,7 +15,6 @@ import {
 } from '../shared/overlay/trigger.recipe'
 
 import type { DialogStyleSlot, DialogStyleVariants } from './dialog.style-types'
-
 export const dialogDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   overlay: baseDialogDataAttributes.overlay,

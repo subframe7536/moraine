@@ -1,8 +1,8 @@
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createMemo, createSignal, onCleanup, untrack } from 'solid-js'
-import { isServer } from 'solid-js/web'
+import { createMemo, createSignal, onCleanup } from 'solid-js'
 
-export type CopyData = string | ClipboardItem | ClipboardItem[]
+export type CopyData = string | ClipboardItem | Array<ClipboardItem>
 
 export type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)
 
@@ -103,7 +103,7 @@ export function copyWithCommand(text: string, ownerDocument?: Document): boolean
   const selection = doc.getSelection()
   const originalRange = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null
   const container = doc.body ?? doc.documentElement
-  container.appendChild(element)
+  container.append(element)
   element.select()
   element.setSelectionRange(0, text.length)
 
@@ -143,14 +143,16 @@ export async function fallbackToCommand(
           typeof item === 'object' &&
           'types' in item &&
           Array.isArray((item as Record<string, unknown>).types)
-        ? (item as { types: readonly string[] }).types
+        ? (item as { types: ReadonlyArray<string> }).types
         : undefined
 
     if (types) {
       const textType = types.find((t: string) => t === 'text/plain' || t.startsWith('text/'))
       if (textType && typeof item.getType === 'function') {
         try {
+          // oxlint-disable-next-line eslint/no-await-in-loop -- Clipboard items are fallback candidates and must be tried in order.
           const blob = await item.getType(textType)
+          // oxlint-disable-next-line eslint/no-await-in-loop -- The selected blob must finish before deciding whether to try the next item.
           const text = await blob.text()
           if (typeof text === 'string') {
             return copyWithCommand(text, ownerDocument)
@@ -198,6 +200,19 @@ export async function writeClipboardWithFallback(
   return fallbackToCommand(data, ownerDocument)
 }
 
+function isCopySupported(): boolean {
+  if (isServer || typeof window === 'undefined') {
+    return false
+  }
+  return (
+    (typeof navigator !== 'undefined' &&
+      Boolean(navigator.clipboard) &&
+      (typeof navigator.clipboard.writeText === 'function' ||
+        typeof navigator.clipboard.write === 'function')) ||
+    (typeof document !== 'undefined' && typeof document.execCommand === 'function')
+  )
+}
+
 export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   const [status, setStatus] = createSignal<CopyStatus>('idle')
   const [error, setError] = createSignal<unknown>(undefined)
@@ -205,6 +220,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   let timer: ReturnType<typeof setTimeout> | undefined
   let attempt = 0
   let disposed = false
+  let currentStatus: CopyStatus = 'idle'
 
   onCleanup(() => {
     disposed = true
@@ -212,9 +228,10 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   })
 
   function notifyStatus(nextStatus: CopyStatus) {
-    if (untrack(status) === nextStatus) {
+    if (currentStatus === nextStatus) {
       return
     }
+    currentStatus = nextStatus
     setStatus(nextStatus)
     options.onStatusChange?.(nextStatus)
   }
@@ -233,18 +250,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
     return val ?? 2000
   }
 
-  const isSupported = () => {
-    if (isServer || typeof window === 'undefined') {
-      return false
-    }
-    return (
-      (typeof navigator !== 'undefined' &&
-        Boolean(navigator.clipboard) &&
-        (typeof navigator.clipboard.writeText === 'function' ||
-          typeof navigator.clipboard.write === 'function')) ||
-      (typeof document !== 'undefined' && typeof document.execCommand === 'function')
-    )
-  }
+  const isSupported = isCopySupported
 
   async function copy(source?: CopySource): Promise<boolean> {
     if (disposed || isServer) {
@@ -294,14 +300,14 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
       }, duration)
 
       return true
-    } catch (err) {
+    } catch (error_) {
       if (disposed || currentAttempt !== attempt) {
         return false
       }
 
-      setError(err)
+      setError(error_)
       notifyStatus('error')
-      options.onCopyError?.(err)
+      options.onCopyError?.(error_)
 
       const duration = resolveDuration()
       timer = setTimeout(() => {

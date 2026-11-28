@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -9,7 +10,6 @@ import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared
 
 import type { defaultDrawerMessages } from './drawer.messages'
 import type { DrawerStyleSlot, DrawerStyleVariants } from './drawer.style-types'
-
 export namespace DrawerT {
   export type Kind = 'composite'
 
@@ -90,7 +90,7 @@ export namespace DrawerT {
      * </Drawer>
      * ```
      */
-    snapPoints?: SnapPoint[]
+    snapPoints?: Array<SnapPoint>
 
     /**
      * Controlled active snap point, normally one of the `snapPoints` entries. `null` selects the

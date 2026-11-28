@@ -1,5 +1,4 @@
 import { Badge, Table } from '@src'
-
 export function Basic() {
   return (
     <Table>
@@ -46,7 +45,7 @@ export function Basic() {
       </Table.Body>
       <Table.Footer>
         <Table.Row>
-          <Table.Cell colSpan={3}>Total</Table.Cell>
+          <Table.Cell colspan={3}>Total</Table.Cell>
           <Table.Cell align="end" class="font-semibold">
             $750.00
           </Table.Cell>

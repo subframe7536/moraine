@@ -1,5 +1,4 @@
 import { Icon, ToggleButton } from '@src'
-
 export function Icons() {
   return (
     <div class="flex gap-3 items-center">

@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { Show, createMemo, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -9,7 +9,6 @@ import { hasContent } from '../../shared/jsx-content'
 import { defaultProgressMessages } from './progress.messages'
 import { progressDataAttributes, progressRecipe } from './progress.recipe'
 import type { ProgressProps } from './progress.types'
-
 function resolveMaxValue(max: number | undefined): number {
   if (typeof max === 'number' && Number.isFinite(max) && max >= 0) {
     return max
@@ -37,25 +36,36 @@ function clamp(value: number, min: number, max: number): number {
  * ```
  */
 export function Progress(props: ProgressProps): JSX.Element {
-  const [local, style, rest] = splitProps(
+  const rest = omit(
     props,
-    ['value', 'max', 'label', 'valueLabel', 'formatOptions', 'translations'],
-    ['orientation', 'animation', 'size', 'classes', 'styles', 'class', 'style'],
+    'value',
+    'max',
+    'label',
+    'valueLabel',
+    'formatOptions',
+    'translations',
+    'orientation',
+    'animation',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
   )
-  const messages = useMessages('progress', defaultProgressMessages, () => local.translations)
+  const messages = useMessages('progress', defaultProgressMessages, () => props.translations)
   const { locale } = useLocale()
-  const labelContent = createMemo(() => local.label)
+  const labelContent = createMemo(() => props.label)
   const hasLabel = () => hasContent(labelContent())
   const isIndeterminate = createMemo(
-    () => local.value === undefined || !Number.isFinite(local.value),
+    () => props.value === undefined || !Number.isFinite(props.value),
   )
-  const showValueSlot = () => !isIndeterminate() && Boolean(local.valueLabel)
+  const showValueSlot = () => !isIndeterminate() && Boolean(props.valueLabel)
   const showHeader = () => hasLabel() || showValueSlot()
 
-  const resolvedMax = createMemo(() => resolveMaxValue(local.max))
+  const resolvedMax = createMemo(() => resolveMaxValue(props.max))
   const minValue = 0
   const resolvedValue = createMemo(() =>
-    isIndeterminate() ? minValue : clamp(local.value as number, minValue, resolvedMax()),
+    isIndeterminate() ? minValue : clamp(props.value as number, minValue, resolvedMax()),
   )
   const percent = createMemo<number | undefined>(() => {
     if (isIndeterminate()) {
@@ -67,7 +77,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       return 0
     }
 
-    return Math.round(((resolvedValue() - minValue) / range) * 10000) / 100
+    return Math.round(((resolvedValue() - minValue) / range) * 10_000) / 100
   })
   const {
     slots: {
@@ -77,7 +87,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       track: trackSlot,
       indicator: indicatorSlot,
     },
-  } = useRecipe(progressRecipe, style, {
+  } = useRecipe(progressRecipe, props, {
     data: {
       root: progressDataAttributes.root(() => progressState),
       indicator: progressDataAttributes.indicator(() => progressState),
@@ -108,10 +118,10 @@ export function Progress(props: ProgressProps): JSX.Element {
   }
   const displayText = createMemo(() => {
     const next = percent() ?? 0
-    if (typeof local.valueLabel === 'function') {
-      return local.valueLabel({ percent: next, value: resolvedValue(), max: resolvedMax() })
+    if (typeof props.valueLabel === 'function') {
+      return props.valueLabel({ percent: next, value: resolvedValue(), max: resolvedMax() })
     }
-    const options = local.formatOptions
+    const options = props.formatOptions
     if (!options) {
       return `${next}%`
     }

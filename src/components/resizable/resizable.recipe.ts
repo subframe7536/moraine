@@ -5,7 +5,6 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { splitterDataAttributes } from '../shared/splitter/splitter.recipe'
 
 import type { ResizableStyleSlot, ResizableStyleVariants } from './resizable.style-types'
-
 export const resizableDataAttributes = {
   root: splitterDataAttributes.root,
   panel: /* @__PURE__ */ createDataAttributes('collapsed', 'expanded', 'resizing', 'transitioning'),

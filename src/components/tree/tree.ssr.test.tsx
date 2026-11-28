@@ -1,19 +1,20 @@
-import { fireEvent } from '@solidjs/testing-library'
-import { expect, test } from 'vitest'
+import { fireEvent, render } from '@solidjs/testing-library'
+import { createComponent } from 'solid-js'
+import { expect, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
+import { createTree } from './tree'
 import { TreeHydrationFixture } from './tree.ssr.fixture'
-
 const FIXTURE = '/src/components/tree/tree.ssr.fixture.tsx'
 
-function labels(container: HTMLElement): string[] {
+function labels(container: HTMLElement): Array<string> {
   return Array.from(container.querySelectorAll('[role="treeitem"]')).map(
     (element) => element.getAttribute('aria-label') ?? '',
   )
 }
 
-test('hydrates expanded nested items and keeps the server DOM', () => {
+it('hydrates expanded nested items and keeps the server DOM', () => {
   const { container } = hydrateFixture(FIXTURE, 'renderTreeFixture', () => <TreeHydrationFixture />)
   const tree = container.querySelector('[role="tree"]')!
   const src = container.querySelector('[aria-label="src"]')!
@@ -35,7 +36,7 @@ test('hydrates expanded nested items and keeps the server DOM', () => {
   expect(container.querySelector('[aria-label="index.ts"] [data-slot="tree-guide"]')).toBe(guide)
 })
 
-test('hydrates keyboard interaction on server-rendered items', () => {
+it('hydrates keyboard interaction on server-rendered items', () => {
   const { container } = hydrateFixture(FIXTURE, 'renderTreeFixture', () => <TreeHydrationFixture />)
   const src = container.querySelector<HTMLElement>('[aria-label="src"]')!
   src.focus()
@@ -49,7 +50,7 @@ test('hydrates keyboard interaction on server-rendered items', () => {
   expect(src.getAttribute('aria-expanded')).toBe('false')
 })
 
-test('hydrates the default checkbox in each row when checkable', () => {
+it('hydrates the default checkbox in each row when checkable', () => {
   const { container } = hydrateFixture(FIXTURE, 'renderCheckableTreeFixture', () => (
     <TreeHydrationFixture checkable />
   ))
@@ -59,4 +60,42 @@ test('hydrates the default checkbox in each row when checkable', () => {
   expect(container.querySelector('[aria-label="index.ts"]')?.getAttribute('aria-checked')).toBe(
     'true',
   )
+})
+
+it('reads JSX children getters once in ItemLabel and ItemTrigger', () => {
+  let labelReads = 0
+  let triggerReads = 0
+
+  const view = render(() => {
+    const tree = createTree<string>({
+      items: () => ['Docs'],
+      getKey: (name) => name,
+    })
+
+    return (
+      <tree.Tree
+        aria-label="Folders"
+        itemRender={(item) => (
+          <tree.Item item={item}>
+            {createComponent(tree.ItemTrigger, {
+              get children() {
+                triggerReads += 1
+                return <span>&gt;</span>
+              },
+            })}
+            {createComponent(tree.ItemLabel, {
+              get children() {
+                labelReads += 1
+                return <span>{item.label}</span>
+              },
+            })}
+          </tree.Item>
+        )}
+      />
+    )
+  })
+
+  expect(triggerReads).toBe(1)
+  expect(labelReads).toBe(1)
+  view.unmount()
 })

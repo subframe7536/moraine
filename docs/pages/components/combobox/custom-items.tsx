@@ -1,7 +1,6 @@
 import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
-
-const STATUSES: ComboboxT.Item[] = [
+const STATUSES: Array<ComboboxT.Item> = [
   {
     label: 'Backlog',
     value: 'backlog',

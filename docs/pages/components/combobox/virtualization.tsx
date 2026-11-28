@@ -1,8 +1,7 @@
 import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
 import { createListVirtualizer } from '@src/virtualizer'
-
-const ITEMS: ComboboxT.Item<string>[] = Array.from({ length: 10_000 }, (_, index) => ({
+const ITEMS: Array<ComboboxT.Item<string>> = Array.from({ length: 10_000 }, (_, index) => ({
   value: `option-${index}`,
   label: `Option ${index + 1}`,
 }))

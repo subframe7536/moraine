@@ -1,4 +1,4 @@
-function createFileList(files: File[]): FileList | undefined {
+function createFileList(files: Array<File>): FileList | undefined {
   if (typeof DataTransfer === 'undefined') {
     return undefined
   }
@@ -16,7 +16,10 @@ function createFileList(files: File[]): FileList | undefined {
   }
 }
 
-export function syncNativeInputFiles(input: HTMLInputElement | undefined, files: File[]): void {
+export function syncNativeInputFiles(
+  input: HTMLInputElement | undefined,
+  files: Array<File>,
+): void {
   if (!input) {
     return
   }

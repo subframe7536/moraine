@@ -1,7 +1,6 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { getTransformOrigin } from './transform-origin'
-
 describe('getTransformOrigin', () => {
   const geometry = {
     gutter: 8,
@@ -10,7 +9,7 @@ describe('getTransformOrigin', () => {
     y: 48,
   }
 
-  test('uses the aligned edge until collision shift breaks it', () => {
+  it('uses the aligned edge until collision shift breaks it', () => {
     expect(getTransformOrigin('bottom-start', 'ltr', geometry)).toBe('0% -8px')
     expect(getTransformOrigin('bottom-start', 'rtl', geometry)).toBe('100% -8px')
     expect(getTransformOrigin('bottom-start', 'ltr', { ...geometry, shift: { x: 2 } })).toBe(
@@ -18,7 +17,7 @@ describe('getTransformOrigin', () => {
     )
   })
 
-  test('uses the anchor center on the side axis when overlap shifts the popup', () => {
+  it('uses the anchor center on the side axis when overlap shifts the popup', () => {
     expect(
       getTransformOrigin('bottom', 'ltr', {
         ...geometry,

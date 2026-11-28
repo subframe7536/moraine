@@ -1,5 +1,6 @@
 import type { Placement } from '@floating-ui/dom'
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor, Component } from 'solid-js'
 
 import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
 import type {
@@ -16,7 +17,6 @@ import type {
 } from '../shared/overlay/types'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariants } from './base-select.style-types'
-
 export type BaseSelectValue = string | number
 
 /**
@@ -84,7 +84,7 @@ export interface BaseSelectPopupProps extends OverlayDismissProps, OverlayPositi
    * `['top', 'bottom-end']`).
    * @default true
    */
-  flip?: boolean | Placement[]
+  flip?: boolean | Array<Placement>
   /**
    * Whether the popup may slide along its main axis to remain visible.
    * @default true
@@ -158,7 +158,7 @@ export interface BaseSelectItemBehaviorProps<TItem extends BaseSelectT.Item> {
    * />
    * ```
    */
-  isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean
+  isItemDisabled?: (item: TItem, values: ReadonlyArray<TItem['value']>) => boolean
 }
 
 /**
@@ -209,20 +209,20 @@ export interface BaseSelectSelection<TValue extends BaseSelectValue> {
    * Controlled selection, always an array. `undefined` keeps it uncontrolled; `[]` keeps it
    * controlled and empty. Single mode uses at most the first value.
    */
-  value?: readonly TValue[]
+  value?: ReadonlyArray<TValue>
 
   /**
    * Initial selection when `value` is not set. Read once on creation; a native form reset
    * restores it.
    * @default []
    */
-  defaultValue?: readonly TValue[]
+  defaultValue?: ReadonlyArray<TValue>
 
   /**
    * Called with the new array of selected values when the user changes the selection. Not
    * called for prop updates, when the selection is unchanged, or while disabled or read-only.
    */
-  onValueChange?: (value: TValue[]) => void
+  onValueChange?: (value: Array<TValue>) => void
 }
 
 /**
@@ -261,8 +261,8 @@ export namespace BaseSelectT {
 
   /** Stable composition surface available to children of BaseSelect. */
   export interface Context<TItem extends Item = Item> {
-    items: Accessor<readonly TItem[]>
-    value: Accessor<TItem['value'][]>
+    items: Accessor<ReadonlyArray<TItem>>
+    value: Accessor<Array<TItem['value']>>
     open: Accessor<boolean>
     setOpen: (open: boolean) => void
     highlightedValue: Accessor<TItem['value'] | undefined>
@@ -278,7 +278,7 @@ export namespace BaseSelectT {
     listboxId: Accessor<string>
     itemId: (value: BaseSelectValue) => string
     itemDisabled: (item: TItem) => boolean
-    change: (values: readonly TItem['value'][]) => void
+    change: (values: ReadonlyArray<TItem['value']>) => void
     select: (item: TItem) => void
     keyDown: (event: KeyboardEvent, textInput?: boolean) => void
     registerCompositionDiscarder: (discard: () => void) => void
@@ -290,7 +290,7 @@ export namespace BaseSelectT {
     /** Whether the popup is open. */
     open: boolean
     /** Current selected value or values. */
-    value: readonly TItem['value'][]
+    value: ReadonlyArray<TItem['value']>
     /** Whether the control is disabled. */
     disabled: boolean
     /** Whether selection is read-only. */
@@ -323,7 +323,7 @@ export namespace BaseSelectT {
      * be selected. Values must be unique (duplicates log an error in development). Groups and
      * separators are rendering concerns and do not belong here.
      */
-    items?: readonly TItem[]
+    items?: ReadonlyArray<TItem>
     /**
      * Resolves an item from the canonical collection by value.
      *

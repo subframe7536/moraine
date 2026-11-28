@@ -4,7 +4,6 @@ import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults'
 import { DEFAULT_MIX_PERCENT, MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens'
 
 import { formatDocsColorTokenDefault, listDocsColorTokens } from './color-tokens'
-
 function findToken(name: string) {
   const token = listDocsColorTokens().find((item) => item.name === name)
   expect(token, name).toBeDefined()

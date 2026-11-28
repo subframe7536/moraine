@@ -1,13 +1,12 @@
 import { render } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { Button } from '../components/button/button'
 import { MoraineProvider } from '../provider/moraine-provider'
 
 import { defineTheme } from './create-theme'
-
 describe('defineTheme', () => {
-  test('does not freeze or mutate caller input', () => {
+  it('does not freeze or mutate caller input', () => {
     const base = { root: 'p-2' }
     const variants = { size: { sm: { root: 'p-1' } } }
     const compoundVariants = [{ variants: { size: 'sm' as const }, root: 'font-bold' }]
@@ -30,7 +29,7 @@ describe('defineTheme', () => {
     expect(defaultVariants).toEqual({ size: 'sm' })
   })
 
-  test('a child theme layers its classes on top of the theme it extends', () => {
+  it('a child theme layers its classes on top of the theme it extends', () => {
     const parent = defineTheme({ button: { base: { root: 'parent-sentinel' } } })
     const child = defineTheme({
       extends: parent,
@@ -46,7 +45,7 @@ describe('defineTheme', () => {
     expect(className).toContain('child-sentinel')
   })
 
-  test('a child default variant replaces the parent default', () => {
+  it('a child default variant replaces the parent default', () => {
     const parent = defineTheme({
       button: {
         defaultVariants: { size: 'sm' },
@@ -72,7 +71,7 @@ describe('defineTheme', () => {
     expect(className).not.toContain('small-sentinel')
   })
 
-  test('keeps the base, middle, and child layers of a multi-level extends chain', () => {
+  it('keeps the base, middle, and child layers of a multi-level extends chain', () => {
     const base = defineTheme({ button: { base: { root: 'base-sentinel' } } })
     const middle = defineTheme({ extends: base, button: { base: { root: 'middle-sentinel' } } })
     const child = defineTheme({ extends: middle, button: { base: { root: 'child-sentinel' } } })

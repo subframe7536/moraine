@@ -3,7 +3,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { PaginationStyleSlot, PaginationStyleVariants } from './pagination.style-types'
-
 export const paginationDataAttributes = {
   prev: /* @__PURE__ */ createDataAttributes('disabled', 'loading', 'text'),
   item: /* @__PURE__ */ createDataAttributes('current', 'disabled', 'loading'),

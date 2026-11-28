@@ -1,17 +1,9 @@
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  untrack,
-} from 'solid-js'
+import { createEffect, createMemo, createSignal, merge, onSettled, untrack } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createEventListenerMap } from '../../shared/event-listener'
+import { attachEventListenerMap } from '../../shared/event-listener'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { createId } from '../../shared/utils'
+import { createId, mergeDefinedProps } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../shared/overlay/dom'
 import { createOverlayMenuOpen } from '../shared/overlay/menu'
 import type { OverlayMenuFocusStrategy } from '../shared/overlay/menu'
@@ -20,11 +12,10 @@ import { getContextMenuTriggerAccessibility } from '../shared/overlay/trigger'
 
 import { contextMenuDataAttributes } from './context-menu.recipe'
 import type { ContextMenuProps } from './context-menu.types'
-
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 const CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE = 10
-const CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY = 1_000
-const CONTEXT_MENU_SUPPRESSION_DELAY = 1_000
+const CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY = 1000
+const CONTEXT_MENU_SUPPRESSION_DELAY = 1000
 
 function isTouchOrPen(pointerType: string): boolean {
   return pointerType === 'touch' || pointerType === 'pen'
@@ -48,7 +39,7 @@ function hasLongPressMovedBeyondTolerance(
  * Menu triggered by right-click or long press on its child content.
  */
 export function createContextMenu(props: ContextMenuProps) {
-  const merged = mergeProps(
+  const merged = mergeDefinedProps(
     {
       placement: 'right' as const,
       align: 'start' as const,
@@ -98,6 +89,7 @@ export function createContextMenu(props: ContextMenuProps) {
       return
     }
 
+    // Context menu entry points run from unowned timers and pointer handlers.
     setAutoFocusStrategy(strategy)
     setAnchorPoint({ x, y })
     commitOpen(true)
@@ -210,7 +202,7 @@ export function createContextMenu(props: ContextMenuProps) {
     }, CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY)
   }
 
-  onCleanup(() => {
+  onSettled(() => () => {
     clearLongPressTimeout()
     pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
     suppressionWindow?.clearTimeout(suppressionTimeoutId)
@@ -235,65 +227,64 @@ export function createContextMenu(props: ContextMenuProps) {
     )
   }
 
-  createEffect(
-    on(ownerDocument, (currentDocument) => {
-      if (!currentDocument) {
-        return
-      }
-      createEventListenerMap(
-        currentDocument,
-        {
-          pointerdown: (event) => {
-            const guard = pointerEventGuard
-            if (
-              guard &&
-              event.pointerId === guard.pointerId &&
-              event.pointerType === guard.pointerType
-            ) {
-              event.preventDefault()
-            }
-          },
-          contextmenu: (event) => {
-            if (consumeSuppressedContextMenu(event)) {
-              return
-            }
-
-            if (merged.disabled) {
-              return
-            }
-
-            const targetInsideTrigger =
-              isNode(event.target) &&
-              Boolean(triggerElement() && containsComposed(triggerElement()!, event.target))
-            const pointerInsideTrigger = isPointerInsideTrigger(event)
-
-            // Let the trigger handler compose user callbacks for events targeted inside the trigger.
-            if (targetInsideTrigger || !pointerInsideTrigger) {
-              return
-            }
-
+  createEffect(ownerDocument, (currentDocument) => {
+    if (!currentDocument) {
+      return
+    }
+    const detach = attachEventListenerMap(
+      currentDocument,
+      {
+        pointerdown: (event) => {
+          const guard = pointerEventGuard
+          if (
+            guard &&
+            event.pointerId === guard.pointerId &&
+            event.pointerType === guard.pointerType
+          ) {
             event.preventDefault()
-            event.stopPropagation()
-
-            if (open()) {
-              commitOpen(false)
-              return
-            }
-
-            openFromPoint(event.clientX, event.clientY)
-          },
+          }
         },
-        true,
-      )
-      onCleanup(() => {
-        clearLongPressTimeout()
-        pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
-        suppressionWindow?.clearTimeout(suppressionTimeoutId)
-        pointerEventGuard = undefined
-        suppressedContextMenu = undefined
-      })
-    }),
-  )
+        contextmenu: (event) => {
+          if (consumeSuppressedContextMenu(event)) {
+            return
+          }
+
+          if (merged.disabled) {
+            return
+          }
+
+          const trigger = triggerElement()
+          const targetInsideTrigger =
+            isNode(event.target) && Boolean(trigger && containsComposed(trigger, event.target))
+          const pointerInsideTrigger = isPointerInsideTrigger(event)
+
+          // Let the trigger handler compose user callbacks for events targeted inside the trigger.
+          if (targetInsideTrigger || !pointerInsideTrigger) {
+            return
+          }
+
+          event.preventDefault()
+          event.stopPropagation()
+
+          if (open()) {
+            commitOpen(false)
+            return
+          }
+
+          openFromPoint(event.clientX, event.clientY)
+        },
+      },
+      true,
+    )
+    return () => {
+      detach()
+      clearLongPressTimeout()
+      pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
+      suppressionWindow?.clearTimeout(suppressionTimeoutId)
+      pointerEventGuard = undefined
+      suppressedContextMenu = undefined
+    }
+  })
 
   const onContextMenu = (event: MouseEvent): void => {
     if (consumeSuppressedContextMenu(event)) {
@@ -368,7 +359,6 @@ export function createContextMenu(props: ContextMenuProps) {
       return
     }
     longPressWindow = currentWindow
-    // oxlint-disable-next-line subf/solid-reactivity -- Read current disabled state when the timer fires.
     longPressTimeoutId = currentWindow.setTimeout(() => {
       longPressTimeoutId = 0
       longPressWindow = undefined
@@ -444,8 +434,14 @@ export function createContextMenu(props: ContextMenuProps) {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
-  const triggerAccessibility = createMemo(() =>
-    getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)),
+  const triggerAccessibility = createMemo(
+    () => getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)),
+    {
+      equals: (prev, next) =>
+        prev.ariaDisabled === next.ariaDisabled &&
+        prev.disabled === next.disabled &&
+        prev.tabIndex === next.tabIndex,
+    },
   )
 
   const triggerDataAttrs = contextMenuDataAttributes.trigger({
@@ -453,8 +449,10 @@ export function createContextMenu(props: ContextMenuProps) {
     disabled: () => merged.disabled,
     expanded: open,
   })
-  const triggerProps = mergeProps(triggerDataAttrs, {
-    id: resolvedId(),
+  const triggerProps = merge(triggerDataAttrs, {
+    get id() {
+      return resolvedId()
+    },
     get 'aria-controls'() {
       return open() ? contentId() : undefined
     },
@@ -469,7 +467,7 @@ export function createContextMenu(props: ContextMenuProps) {
     get 'aria-disabled'() {
       return triggerAccessibility().ariaDisabled
     },
-    get tabIndex() {
+    get tabindex() {
       return triggerAccessibility().tabIndex
     },
     onContextMenu: (event: MouseEvent) => {

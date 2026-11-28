@@ -1,5 +1,4 @@
 import type { MoraineThemeColors, MorainePresetTheme } from './theme-types.ts'
-
 export const DEFAULT_THEME_COLORS = {
   light: {
     background: 'rgb(255, 255, 255)',

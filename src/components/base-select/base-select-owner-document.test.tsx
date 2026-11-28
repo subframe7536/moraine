@@ -1,25 +1,24 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import type { JSX } from '@solidjs/web'
+import { describe, expect, it } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { Combobox } from '../combobox/combobox'
 import { MultiSelect } from '../multi-select/multi-select'
 import { Select } from '../select/select'
-
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
 ]
 
-const fixtures: [string, () => JSX.Element][] = [
+const fixtures: Array<[string, () => JSX.Element]> = [
   ['Select', () => <Select items={ITEMS} defaultOpen />],
   ['Combobox', () => <Combobox items={ITEMS} defaultOpen />],
   ['MultiSelect', () => <MultiSelect items={ITEMS} defaultOpen />],
 ]
 
-describe('BaseSelect owner document', () => {
-  test.each(fixtures)(
+describe('baseSelect owner document', () => {
+  it.each(fixtures)(
     '%s keeps its portal, ARIA target, and dismissal in the trigger document',
     async (_, fixture) => {
       const frame = document.createElement('iframe')

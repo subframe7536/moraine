@@ -1,13 +1,13 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { mergeDefinedProps } from '../../shared/utils'
 import { OverlayMenu } from '../shared/overlay/menu'
 
 import { useContextMenuContext } from './context-menu-context'
 import { contextMenuRecipe } from './context-menu.recipe'
 import type { ContextMenuT } from './context-menu.types'
-
 /**
  * Popup list of actions for the surrounding `ContextMenu`, described by the `items` model: items,
  * groups, separators, checkbox and radio items, and nested submenus. Place it inside `ContextMenu`;
@@ -32,7 +32,8 @@ import type { ContextMenuT } from './context-menu.types'
  * ```
  */
 export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'items',
     'itemRender',
     'headerRender',
@@ -41,11 +42,14 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
     'expandIcon',
     'class',
     'style',
-  ])
+  )
   const context = useContextMenuContext()
 
-  const merged = mergeProps({ checkedIcon: 'icon-check', expandIcon: 'icon-chevron-right' }, local)
-  const { slots } = useRecipe(contextMenuRecipe, local, {
+  const merged = mergeDefinedProps(
+    { checkedIcon: 'icon-check', expandIcon: 'icon-chevron-right' },
+    props,
+  )
+  const { slots } = useRecipe(contextMenuRecipe, props, {
     slot: 'content',
     context: () => ({ variants: { size: context.size?.() }, ...context.slotOverrides }),
   })

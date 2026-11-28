@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { For, Show } from 'solid-js'
 
 import { Collapsible, Icon, cn } from '../../../../../src'
 import type { PresentationPropItem } from '../../../../build/api-doc/presentation'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
-
 export type PropDoc = PresentationPropItem
 
 export const REFERENCE_ROOT_CLASS =
@@ -91,7 +90,7 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
 
         <Show when={props.prop.examplesHtml?.length}>
           <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
-            {props.prop.examplesHtml!.length > 1 ? 'Examples' : 'Example'}
+            {(props.prop.examplesHtml?.length ?? 0) > 1 ? 'Examples' : 'Example'}
           </dt>
           <dd class="m-0 gap-2 grid min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
             <For each={props.prop.examplesHtml}>
@@ -154,7 +153,7 @@ export function PropRowItem(props: { prop: PropDoc }): JSX.Element {
   )
 }
 
-export function PropRows(props: { props: PropDoc[] }): JSX.Element {
+export function PropRows(props: { props: Array<PropDoc> }): JSX.Element {
   return (
     <div class={REFERENCE_ROOT_CLASS}>
       <div

@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential recursive resolution keeps override ordering deterministic.
 import { existsSync, readFileSync } from 'node:fs'
 
 import path from 'pathe'
@@ -5,7 +6,6 @@ import type { ESTree } from 'vite'
 
 import { getIdentifierName, parseTypeScript } from './ast.ts'
 import type { DataAttributeTargetApi, DefaultValue } from './types.ts'
-
 export interface RecipeVariantApi {
   name: string
   values: Array<string | number | boolean>
@@ -13,9 +13,9 @@ export interface RecipeVariantApi {
 }
 
 export interface RecipeApi {
-  slots: string[]
-  variants: RecipeVariantApi[]
-  dataAttributes: DataAttributeTargetApi[]
+  slots: Array<string>
+  variants: Array<RecipeVariantApi>
+  dataAttributes: Array<DataAttributeTargetApi>
 }
 
 interface RecipeModule {
@@ -273,7 +273,7 @@ export class RecipeExtractor {
 
   async #extractSlots(
     config: ResolvedExpression & { expression: ESTree.ObjectExpression },
-  ): Promise<string[]> {
+  ): Promise<Array<string>> {
     const properties = await this.#objectProperties(config, 'recipe config', true)
     const base = properties.find((property) => property.name === 'base')
     if (!base) {
@@ -287,7 +287,7 @@ export class RecipeExtractor {
 
   async #extractVariants(
     config: ResolvedExpression & { expression: ESTree.ObjectExpression },
-  ): Promise<RecipeVariantApi[]> {
+  ): Promise<Array<RecipeVariantApi>> {
     const configProperties = await this.#objectProperties(config, 'recipe config', true)
     const variantsProperty = configProperties.find((property) => property.name === 'variants')
     const defaultsProperty = configProperties.find(
@@ -320,7 +320,7 @@ export class RecipeExtractor {
       variantsProperty.value,
       'variants',
     )
-    const variants: RecipeVariantApi[] = []
+    const variants: Array<RecipeVariantApi> = []
     for (const variant of await this.#objectProperties(variantsObject, 'variants', true)) {
       const options = await this.#resolveObject(
         variant.module,
@@ -351,13 +351,13 @@ export class RecipeExtractor {
   async #extractContract(
     module: RecipeModule,
     exportName: string,
-  ): Promise<Array<{ target: string; attributes: string[] }>> {
+  ): Promise<Array<{ target: string; attributes: Array<string> }>> {
     const binding = await this.#resolveBinding(module, exportName)
     if (!binding) {
       return []
     }
     const object = await this.#resolveObject(binding.module, binding.expression, exportName)
-    const targets: Array<{ target: string; attributes: string[] }> = []
+    const targets: Array<{ target: string; attributes: Array<string> }> = []
     for (const property of await this.#objectProperties(object, `${exportName} targets`)) {
       const names = await this.#extractContractMember(
         property.module,
@@ -373,7 +373,7 @@ export class RecipeExtractor {
     module: RecipeModule,
     expression: ESTree.Expression,
     use: string,
-  ): Promise<string[]> {
+  ): Promise<Array<string>> {
     const resolved = await this.#resolveExpression(module, expression, use)
     const current = resolved.expression
     if (current.type === 'MemberExpression' && !current.computed) {

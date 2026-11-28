@@ -3,7 +3,6 @@ import { existsSync, readdirSync } from 'node:fs'
 import path from 'pathe'
 
 import type { DocsSurface } from '../../shared/docs-route.ts'
-
 export interface DocsPageContext {
   absolutePath: string
   pagesRoot: string
@@ -69,7 +68,7 @@ function deriveRoute(relativePath: string) {
   const sectionSegment = segments.find((segment) =>
     /^(\(overview\)|\(guides\)|\(styling\))$/.test(segment),
   )
-  const section = sectionSegment?.replace(/[()]/g, '') ?? ''
+  const section = sectionSegment?.replaceAll(/[()]/g, '') ?? ''
   if (!section) {
     throw new Error(`[docs-plugin] unknown docs section in ${relativePath}`)
   }
@@ -103,12 +102,12 @@ export function resolveDocsPageContext(absolutePath: string): DocsPageContext {
   }
 }
 
-export function collectFiles(dir: string, predicate: (file: string) => boolean): string[] {
+export function collectFiles(dir: string, predicate: (file: string) => boolean): Array<string> {
   if (!existsSync(dir)) {
     return []
   }
 
-  const files: string[] = []
+  const files: Array<string> = []
   const entries = readdirSync(dir, { withFileTypes: true }).sort((left, right) =>
     left.name.localeCompare(right.name),
   )
@@ -128,7 +127,7 @@ export function collectFiles(dir: string, predicate: (file: string) => boolean):
   return files
 }
 
-export function collectMarkdownFiles(dir: string): string[] {
+export function collectMarkdownFiles(dir: string): Array<string> {
   return collectFiles(dir, (file) => file.endsWith('.mdx'))
 }
 

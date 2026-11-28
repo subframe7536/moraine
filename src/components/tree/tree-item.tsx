@@ -1,22 +1,10 @@
-import type { JSX } from 'solid-js'
-import {
-  For,
-  Index,
-  Show,
-  createMemo,
-  createEffect,
-  createSignal,
-  on,
-  onCleanup,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, Repeat, Show, createMemo, createEffect, createSignal, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 
 import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-context'
 import { TreeItemAction } from './tree-item-action'
@@ -32,7 +20,6 @@ import {
   treeRecipe,
 } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 const ACTION_SELECTOR = '[data-slot="tree-action"]'
 const INTERACTIVE_SELECTOR = `a, button, input, select, textarea, label, [role="checkbox"], ${ACTION_SELECTOR}`
 const POINTER_FOCUS_SELECTOR =
@@ -56,7 +43,6 @@ function isFromDescendant(event: Event, selector: string): boolean {
 
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
-  const [lastHeight, setLastHeight] = createSignal(0)
   const transition = () => Boolean(context.variants.transition)
   const disclosure = createDisclosureState({
     open: () => props.item.expanded,
@@ -66,6 +52,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     // would inflate `scrollHeight` past the height the group settles at.
     measure: (element) => element.offsetHeight,
   })
+  const lastHeight = createMemo<number>((previous = 0) => disclosure.contentHeight() || previous)
   const allowHeightMotion = () => transition() && !disclosure.initialOpen()
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
   // A memo, so the toggle counter below sees only real state changes, not every height measurement.
@@ -83,41 +70,32 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   // progress, so the opposite animation takes over. Toggles while transitions are off do not count.
   // Every change after mount is a user toggle, so it reads `transition` rather than
   // `allowHeightMotion`, whose `initialOpen` input updates only after this first open.
-  const toggles = createMemo<number>(
-    on(visualExpanded, (_expanded, _previous, count?: number): number =>
-      count === undefined ? 0 : untrack(transition) ? count + 1 : count,
-    ),
-  )
+  const toggles = createMemo<number>((count?: number): number => {
+    visualExpanded()
+    return count === undefined ? 0 : untrack(transition) ? count + 1 : count
+  })
   const [settledToggles, setSettledToggles] = createSignal(untrack(toggles))
   const animating = () => allowHeightMotion() && toggles() !== settledToggles()
   const finish = () => setSettledToggles(untrack(toggles))
   let contentElement: HTMLElement | undefined
   createEffect(
-    on(
-      toggles,
-      () => {
-        // No animation runs under reduced motion, so `animationend` never fires.
-        requestAnimationFrame(() => {
-          if (contentElement?.getAnimations?.().length === 0) {
-            finish()
-          }
-        })
-      },
-      { defer: true },
-    ),
+    toggles,
+    () => {
+      // No animation runs under reduced motion, so `animationend` never fires.
+      const rafId = requestAnimationFrame(() => {
+        if (contentElement?.getAnimations?.().length === 0) {
+          finish()
+        }
+      })
+      return () => cancelAnimationFrame(rafId)
+    },
+    { defer: true },
   )
   const settle = (event: AnimationEvent) => {
     if (event.target === event.currentTarget) {
       finish()
     }
   }
-  createEffect(
-    on(disclosure.contentHeight, (height) => {
-      if (height > 0) {
-        setLastHeight(height)
-      }
-    }),
-  )
   const {
     slots: { content: contentSlot },
   } = useRecipe(
@@ -156,14 +134,21 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   )
 
   const [shell, setShell] = createSignal<HTMLDivElement>()
-  bindElement(shell, disclosure.registerContentElement)
+  createEffect(shell, (node) => {
+    if (!node) {
+      return
+    }
+    return disclosure.registerContentElement(node)
+  })
 
   return (
     <div
-      ref={(element) => {
-        contentElement = element
-        setShell(element)
-      }}
+      ref={[
+        (element) => {
+          contentElement = element
+        },
+        setShell,
+      ]}
       aria-hidden={disclosure.ariaHidden()}
       hidden={disclosure.hidden() && !allowHeightMotion()}
       inert={disclosure.inert()}
@@ -175,7 +160,12 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       <Show when={disclosure.shouldMount()}>
         {(_mounted) => {
           const [list, setList] = createSignal<HTMLUListElement>()
-          bindElement(list, disclosure.registerMeasureElement)
+          createEffect(list, (node) => {
+            if (!node) {
+              return
+            }
+            return disclosure.registerMeasureElement(node)
+          })
           return (
             <ul ref={setList} role="group" class={TREE_LIST_CLASS}>
               <TreeItemList items={props.item.children} />
@@ -189,7 +179,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
 
 /** Renders the given items through the tree's item renderer. */
 export function TreeItemList(props: {
-  items: readonly TreeT.ItemInstance<unknown>[]
+  items: ReadonlyArray<TreeT.ItemInstance<unknown>>
 }): JSX.Element {
   const context = useTreeContext()
   return <For each={props.items}>{(item) => <context.RenderItem item={item} />}</For>
@@ -219,7 +209,8 @@ export function TreeItemList(props: {
  * ```
  */
 export function TreeItem(props: TreeT.ItemProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'item',
     'children',
     'ref',
@@ -229,55 +220,49 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     'onKeyDown',
     'onFocusIn',
     'onMouseDown',
-  ])
+  )
   const context = useTreeContext()
   const itemContext = useTreeItemContext()
-  const row = () => (itemContext?.item === local.item ? itemContext.row : undefined)
+  const row = () => (itemContext?.item === props.item ? itemContext.row : undefined)
   const [itemElement, setItemElement] = createSignal<HTMLElement>()
   // Re-register when a reused row renders another item key.
   createEffect(
-    on([itemElement, () => local.item.key], ([element, key]) => {
+    () => [itemElement(), props.item.key] as const,
+    ([element, key]) => {
       if (element) {
-        onCleanup(context.state.navigation.registerElement(key, element))
+        return context.state.navigation.registerElement(key, element)
       }
-    }),
+    },
   )
   // Virtual row wiring (such as the measured index attribute) is owned and applied after rest.
   // Its `style` merges through the enforced recipe layer and its `ref` through the composed ref.
-  const rowAttributes = () => {
-    const current = row()
-    if (!current) {
-      return undefined
-    }
-    const { ref: _ref, style: _style, ...attributes } = current
-    return attributes
-  }
+  const rowAttributes = createMemo(() => omit(row() ?? {}, 'ref', 'style'))
   const {
     slots: { item: itemSlot, row: rowSlot, guide: guideSlot },
     variants,
-  } = useRecipe(treeRecipe, local, {
+  } = useRecipe(treeRecipe, props, {
     slot: 'item',
     data: {
       item: treeDataAttributes.item({
-        checked: () => local.item.checkedState === 'checked',
-        disabled: () => local.item.disabled,
-        expanded: () => local.item.expanded,
-        indeterminate: () => local.item.checkedState === 'indeterminate',
-        leaf: () => local.item.leaf,
-        loading: () => local.item.loading,
-        selected: () => local.item.selected,
+        checked: () => props.item.checkedState === 'checked',
+        disabled: () => props.item.disabled,
+        expanded: () => props.item.expanded,
+        indeterminate: () => props.item.checkedState === 'indeterminate',
+        leaf: () => props.item.leaf,
+        loading: () => props.item.loading,
+        selected: () => props.item.selected,
       }),
       row: treeDataAttributes.row({
-        disabled: () => local.item.disabled,
-        expanded: () => local.item.expanded,
-        leaf: () => local.item.leaf,
-        selected: () => local.item.selected,
+        disabled: () => props.item.disabled,
+        expanded: () => props.item.expanded,
+        leaf: () => props.item.leaf,
+        selected: () => props.item.selected,
       }),
     },
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
     own: {
       item: () => ({
-        style: { '--mo-tree-level': local.item.level - 1 },
+        style: { '--mo-tree-level': props.item.level - 1 },
       }),
       row: () => ({
         style: TREE_ROW_PADDING_STYLE,
@@ -290,7 +275,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     <TreeItemProvider
       value={{
         get item() {
-          return local.item
+          return props.item
         },
         get row() {
           return row()
@@ -300,62 +285,82 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
       <li
         data-slot="tree-item"
         role="treeitem"
-        aria-label={local.item.label}
+        aria-label={props.item.label}
         {...itemSlot}
         {...rest}
         {...rowAttributes()}
-        tabIndex={
-          local.item.disabled
+        tabindex={
+          props.item.disabled
             ? undefined
-            : context.state.navigation.tabStopKey() === local.item.key
+            : context.state.navigation.isTabStop(props.item.key)
               ? 0
               : -1
         }
-        aria-level={local.item.level}
-        aria-posinset={local.item.posInSet}
-        aria-setsize={local.item.setSize}
-        aria-expanded={local.item.hasChildren ? local.item.expanded : undefined}
-        aria-selected={context.state.selectionMode() === 'none' ? undefined : local.item.selected}
+        aria-level={props.item.level}
+        aria-posinset={props.item.posInSet}
+        aria-setsize={props.item.setSize}
+        aria-expanded={
+          props.item.hasChildren ? (props.item.expanded ? 'true' : 'false') : undefined
+        }
+        aria-selected={
+          context.state.selectionMode() === 'none'
+            ? undefined
+            : props.item.selected
+              ? 'true'
+              : 'false'
+        }
         aria-checked={
           context.options.checkable
-            ? local.item.checkedState === 'indeterminate'
+            ? props.item.checkedState === 'indeterminate'
               ? 'mixed'
-              : local.item.checkedState === 'checked'
+              : props.item.checkedState === 'checked'
+                ? 'true'
+                : 'false'
             : undefined
         }
-        aria-disabled={local.item.disabled ? true : undefined}
-        aria-busy={local.item.loading ? true : undefined}
-        ref={(element: HTMLElement) => {
-          setItemElement(element)
-          callRef(row()?.ref, element)
-          callRef(local.ref, element)
-        }}
+        aria-disabled={props.item.disabled ? 'true' : undefined}
+        aria-busy={props.item.loading ? 'true' : undefined}
+        ref={[
+          setItemElement,
+          (element: HTMLElement) => {
+            const ref = untrack(() => row()?.ref)
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          },
+          (element: HTMLLIElement) => {
+            const ref = untrack(() => props.ref)
+            if (typeof ref === 'function') {
+              ref(element)
+            }
+          },
+        ]}
         onClick={(event: MouseEvent) => {
           if (
-            !callHandler(event, local.onClick).defaultPrevented &&
+            !callHandler(event, props.onClick).defaultPrevented &&
             belongsToItem(event) &&
             !isFromDescendant(event, INTERACTIVE_SELECTOR) &&
-            !local.item.disabled
+            !props.item.disabled
           ) {
-            context.state.handleClick(event, local.item.key)
+            context.state.handleClick(event, props.item.key)
           }
         }}
         onKeyDown={(event: KeyboardEvent) => {
-          if (!callHandler(event, local.onKeyDown).defaultPrevented) {
-            context.state.navigation.onKeyDown(event, local.item.key)
+          if (!callHandler(event, props.onKeyDown).defaultPrevented) {
+            context.state.navigation.onKeyDown(event, props.item.key)
           }
         }}
         onFocusIn={(event: FocusEvent) => {
-          callHandler(event, local.onFocusIn)
-          if (belongsToItem(event) && !local.item.disabled) {
-            context.state.setFocusedKey(local.item.key)
+          callHandler(event, props.onFocusIn)
+          if (belongsToItem(event) && !props.item.disabled) {
+            context.state.setFocusedKey(props.item.key)
           }
         }}
         onMouseDown={(event: MouseEvent) => {
           if (
-            !callHandler(event, local.onMouseDown).defaultPrevented &&
+            !callHandler(event, props.onMouseDown).defaultPrevented &&
             belongsToItem(event) &&
-            !local.item.disabled &&
+            !props.item.disabled &&
             isFromDescendant(event, POINTER_FOCUS_SELECTOR) &&
             !isFromDescendant(event, ACTION_SELECTOR)
           ) {
@@ -367,17 +372,17 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         }}
       >
         <div data-slot="tree-row" {...rowSlot}>
-          <Show when={variants.indentGuide && local.item.level > 1}>
+          <Show when={variants.indentGuide && props.item.level > 1}>
             <span data-slot="tree-guides" aria-hidden="true" class={TREE_GUIDES_CLASS}>
-              <Index each={Array.from({ length: local.item.level - 1 })}>
+              <Repeat count={Math.max(0, props.item.level - 1)}>
                 {() => <span data-slot="tree-guide" {...guideSlot} />}
-              </Index>
+              </Repeat>
             </span>
           </Show>
-          {local.children}
+          {props.children}
         </div>
-        <Show when={!context.props.virtualizer && local.item.hasChildren}>
-          <TreeItemGroup item={local.item} />
+        <Show when={!context.props.virtualizer && props.item.hasChildren}>
+          <TreeItemGroup item={props.item} />
         </Show>
       </li>
     </TreeItemProvider>

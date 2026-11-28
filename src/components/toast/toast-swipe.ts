@@ -1,6 +1,5 @@
 import type { Accessor } from 'solid-js'
 import { createSignal } from 'solid-js'
-
 const SWIPE_THRESHOLD = 45
 const SWIPE_VELOCITY = 0.11
 const SWIPE_MIN_DISTANCE = 12
@@ -25,6 +24,10 @@ function isAwaySwipe(
     return true
   }
   return isTop ? y < 0 : y > 0
+}
+
+function getDampening(delta: number): number {
+  return 1 / (1.5 + Math.abs(delta) / 20)
 }
 
 export interface CreateToastSwipeOptions {
@@ -74,7 +77,6 @@ export function createToastSwipe(options: CreateToastSwipeOptions) {
     if (!dragAxis && (Math.abs(xDelta) > 1 || Math.abs(yDelta) > 1)) {
       dragAxis = Math.abs(xDelta) > Math.abs(yDelta) ? 'x' : 'y'
     }
-    const getDampening = (delta: number) => 1 / (1.5 + Math.abs(delta) / 20)
     if (dragAxis === 'x') {
       const align = options.align()
       let movement = xDelta

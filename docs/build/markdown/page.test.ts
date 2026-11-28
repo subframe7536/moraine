@@ -1,11 +1,10 @@
 // @vitest-environment node
 
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import type { ComponentApi } from '../api-doc/types.ts'
 
 import { createDocsMdxOptions } from './page.ts'
-
 const BUTTON_API_DOC: ComponentApi = {
   key: 'button',
   name: 'Button',
@@ -51,14 +50,14 @@ const FRONTMATTER = {
 }
 
 describe('createDocsMdxOptions', () => {
-  test('uses the default MDX route path resolver', () => {
+  it('uses the default MDX route path resolver', () => {
     const projectRoot = '/tmp/moraine-project'
     const options = createDocsMdxOptions(projectRoot)
 
-    expect(options.transformPath).toBeUndefined()
+    expect('transformPath' in options).toBe(false)
   })
 
-  test('extends the built-in MDX route with docs metadata and layout content', async () => {
+  it('extends the built-in MDX route with docs metadata and layout content', async () => {
     const projectRoot = '/tmp/moraine-project'
     const options = createDocsMdxOptions(projectRoot)
     const extension = await options.extendLoad?.(
@@ -72,9 +71,7 @@ describe('createDocsMdxOptions', () => {
       },
       {
         path: 'components/button/index.tsx',
-        routeId: '/components/button',
         sourcePath: 'pages/components/button/index.mdx',
-        moduleId: '/tmp/button.mdx.solid-file-router.tsx',
       },
     )
 
@@ -103,13 +100,16 @@ describe('createDocsMdxOptions', () => {
         { name: 'twitter:description', content: 'Button description.' },
       ],
     })
-    expect(extension?.mdxContent).toContain('<components.Markdown')
-    expect(extension?.mdxContent).toContain('<MDXContent {...props} />')
-    expect(extension?.mdxContent).toContain('metadata={')
-    expect(extension?.mdxContent).toContain('markdownPath={"/components/button.md"}')
+    expect(extension?.mdxContent).toContain('<MoraineMdxComponents.Markdown')
+    expect(extension?.mdxContent).toContain('<MDXContent {...props}')
+    expect(extension?.mdxContent).toContain('routePath={"/components/button"}')
+    expect(extension?.mdxContent).not.toContain('metadata={')
+    expect(extension?.mdxContent).not.toContain('frontmatter={')
+    expect(extension?.mdxContent).not.toContain('onThisPageEntries={')
+    expect(extension?.mdxContent).not.toContain('markdownPath={')
   })
 
-  test('adds generated API sections after MDX headings', async () => {
+  it('adds generated API sections after MDX headings', async () => {
     const options = createDocsMdxOptions('/tmp/moraine-project')
     const extension = await options.extendLoad?.(
       {
@@ -122,9 +122,7 @@ describe('createDocsMdxOptions', () => {
       },
       {
         path: 'components/(general)/button/index.tsx',
-        routeId: '/components/button',
         sourcePath: 'pages/components/(general)/button/index.mdx',
-        moduleId: '/tmp/button.mdx.solid-file-router.tsx',
       },
     )
 
@@ -137,7 +135,7 @@ describe('createDocsMdxOptions', () => {
     })
   })
 
-  test('preserves MDX heading metadata for pages without an API document', async () => {
+  it('preserves MDX heading metadata for pages without an API document', async () => {
     const options = createDocsMdxOptions('/tmp/moraine-project')
     const extension = await options.extendLoad?.(
       {
@@ -150,9 +148,7 @@ describe('createDocsMdxOptions', () => {
       },
       {
         path: 'components/(form)/input/index.tsx',
-        routeId: '/components/input',
         sourcePath: 'pages/components/(form)/input/index.mdx',
-        moduleId: '/tmp/input.mdx.solid-file-router.tsx',
       },
     )
 
@@ -162,7 +158,7 @@ describe('createDocsMdxOptions', () => {
     })
   })
 
-  test('uses ordinary documentation metadata for Getting Started', async () => {
+  it('uses ordinary documentation metadata for Getting Started', async () => {
     const extension = await createDocsMdxOptions('/tmp/moraine-project').extendLoad?.(
       {
         source: '## Install',
@@ -179,9 +175,7 @@ describe('createDocsMdxOptions', () => {
       },
       {
         path: 'docs/(overview)/getting-started.tsx',
-        routeId: '/docs/getting-started',
         sourcePath: 'pages/docs/(overview)/getting-started.mdx',
-        moduleId: '/tmp/start.mdx.solid-file-router.tsx',
       },
     )
 
@@ -192,6 +186,74 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.routeConfig?.metadata).toMatchObject({
       title: 'Getting Started | Moraine',
       canonical: 'https://moraine.subf.dev/docs/getting-started',
+    })
+  })
+
+  it('defers apiDoc highlighting to virtual:api-doc/<key> when lazyApiDoc is enabled', async () => {
+    const options = createDocsMdxOptions('/tmp/moraine-project', { lazyApiDoc: true })
+    expect(options.mdastPlugins?.length).toBe(5)
+
+    const extension = await options.extendLoad?.(
+      {
+        source: '## Usage\n\nUse Button.',
+        code: 'function MDXContent() {}',
+        component: 'MDXContent',
+        frontmatter: FRONTMATTER,
+        routeConfig: {},
+        data: { __moraineOnThisPageEntries: [{ id: 'button', label: 'Button', level: 1 }] },
+      },
+      {
+        path: 'components/button/index.tsx',
+        sourcePath: 'pages/components/button/index.mdx',
+      },
+    )
+
+    expect(extension?.routeConfig?.info).toMatchObject({
+      key: 'button',
+      sections: [
+        { id: 'button', label: 'Button', level: 1 },
+        { id: 'api-reference', label: 'API Reference', level: 1 },
+        { id: 'api-props', label: 'Props', level: 2 },
+      ],
+    })
+    expect(extension?.mdxContent).toContain('apiDoc={__moraineApiDoc}')
+  })
+
+  it('extracts matching routeConfig in lightweight extendRoute without highlighting or anatomy validation', async () => {
+    const options = createDocsMdxOptions('/tmp/moraine-project', { lazyApiDoc: true })
+    const routeExtension = await options.extendRoute?.(
+      {
+        source: [
+          '# Button',
+          '## Usage',
+          '### With `icon`',
+          '## Usage',
+          '###### Deep heading ignored',
+          '<Anatomy value={{root: {missing: true}}} />',
+        ].join('\n\n'),
+        frontmatter: FRONTMATTER,
+        routeConfig: {},
+      },
+      {
+        path: 'components/button/index.tsx',
+        sourcePath: 'pages/components/button/index.mdx',
+      },
+    )
+
+    expect(routeExtension).toEqual({
+      info: expect.objectContaining({
+        key: 'button',
+        sections: [
+          { id: 'usage', label: 'Usage', level: 1 },
+          { id: 'with-icon', label: 'With icon', level: 2 },
+          { id: 'usage-2', label: 'Usage', level: 1 },
+          { id: 'api-reference', label: 'API Reference', level: 1 },
+          { id: 'api-props', label: 'Props', level: 2 },
+        ],
+      }),
+      metadata: expect.objectContaining({
+        title: 'Button | Moraine',
+      }),
     })
   })
 })

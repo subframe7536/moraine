@@ -1,11 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, onFlush, untrack } from 'solid-js'
 
-import {
-  attachEventListenerMap,
-  createEventListener,
-  createEventListenerMap,
-} from '../../shared/event-listener'
+import { attachEventListener, attachEventListenerMap } from '../../shared/event-listener'
 import type { BaseDialogContext } from '../base-dialog/base-dialog-context'
 import { containsComposed, getActiveElement, isElement } from '../shared/overlay/dom'
 import { containsOverlayContentAbove } from '../shared/overlay/overlay-stack'
@@ -20,7 +16,6 @@ import {
   snapPointHeightCss,
 } from './drawer-snap-points'
 import type { DrawerT } from './drawer.types'
-
 const AXIS_LOCK_SLOP = 6
 const AXIS_LOCK_BIAS = 2
 const MIN_SWIPE_THRESHOLD = 10
@@ -62,7 +57,11 @@ function getElementTranslate(element: HTMLElement): { x: number; y: number } | n
   if (!match) {
     return null
   }
-  const parts = match[2]!.split(',').map(Number.parseFloat)
+  const rawParts = match[2]
+  if (!rawParts) {
+    return null
+  }
+  const parts = rawParts.split(',').map(Number.parseFloat)
   return match[1] === '3d'
     ? { x: parts[12] ?? 0, y: parts[13] ?? 0 }
     : { x: parts[4] ?? 0, y: parts[5] ?? 0 }
@@ -230,6 +229,8 @@ interface DragState {
    */
   crossAxisTarget: boolean
   abandoned: boolean
+  /** Synchronous mirror of `swiping` for same-tick gesture checks before Solid 2 flushes. */
+  claimed: boolean
   /**
    * Reversed past `REVERSE_CANCEL_THRESHOLD` after locking the dismiss axis: the
    * release snaps back instead of settling or dismissing.
@@ -268,6 +269,7 @@ function createDrag(
     scrollRtl,
     crossAxisTarget,
     abandoned: false,
+    claimed: false,
     cancelled: false,
     moved: false,
     lastX: x,
@@ -291,6 +293,28 @@ export interface DrawerSwipeController {
   progress: Accessor<number>
   /** Binds the gesture to the content element for the element's lifetime. */
   attach: (element: HTMLElement) => void
+}
+
+function returnFalse(): boolean {
+  return false
+}
+
+function clearContentSelection(content: HTMLElement): void {
+  const selection = content.ownerDocument.getSelection?.()
+  if (!selection || selection.isCollapsed) {
+    return
+  }
+  const anchor =
+    selection.anchorNode instanceof Element
+      ? selection.anchorNode
+      : selection.anchorNode?.parentElement
+  const focus =
+    selection.focusNode instanceof Element
+      ? selection.focusNode
+      : selection.focusNode?.parentElement
+  if (anchor && content.contains(anchor) && focus && content.contains(focus)) {
+    selection.removeAllRanges()
+  }
 }
 
 /**
@@ -345,7 +369,7 @@ export function createDrawerSwipe(
     }
     const clampedHeight = clamp(resolvedHeight, 0, Math.min(popupHeight(), viewportHeight()))
     const targetOffset = Math.max(0, popupHeight() - clampedHeight)
-    return points[closestSnapPointIndex(points, targetOffset)]!.offset
+    return points[closestSnapPointIndex(points, targetOffset)]?.offset ?? 0
   })
 
   // Declared snap points keep a pure-CSS offset (element height minus snap
@@ -457,10 +481,10 @@ export function createDrawerSwipe(
     const direction = Math.sign(d)
     const currentOffset = snapPointOffset()
     let targetOffset = clamp(currentOffset + d, 0, size)
-    let target: ResolvedDrawerSnapPoint
+    let target: ResolvedDrawerSnapPoint | undefined
     if (drawer.snapToSequentialPoints) {
       const ordered = [...points].sort((a, b) => a.offset - b.offset)
-      target = ordered[closestSnapPointIndex(ordered, targetOffset)]!
+      target = ordered[closestSnapPointIndex(ordered, targetOffset)]
       if (velocity * direction >= SNAP_VELOCITY_THRESHOLD) {
         const adjacent = ordered[closestSnapPointIndex(ordered, currentOffset) + direction]
         if (!adjacent) {
@@ -482,19 +506,24 @@ export function createDrawerSwipe(
           size,
         )
       }
-      target = points[closestSnapPointIndex(points, targetOffset)]!
+      target = points[closestSnapPointIndex(points, targetOffset)]
       // A fast dismiss flick closes only from the lowest snap point; elsewhere the
       // velocity-projected target below picks the resting point.
       let maxOffset = 0
-      for (let index = 0; index < points.length; index += 1) {
-        if (points[index]!.offset > maxOffset) {
-          maxOffset = points[index]!.offset
+      for (const point of points) {
+        if (point.offset > maxOffset) {
+          maxOffset = point.offset
         }
       }
       if (velocity >= FAST_SWIPE_VELOCITY && d > 0 && currentOffset >= maxOffset) {
         closeSwipe()
         return
       }
+    }
+
+    if (!target) {
+      clearDragDisplacement()
+      return
     }
 
     // Snap point release: choose between the closest snap point and closing.
@@ -509,8 +538,8 @@ export function createDrawerSwipe(
   function closeSwipe(): void {
     // Keep the last movement so the exit animation starts from the drag position.
     modal.updateOpen(false)
-    queueMicrotask(() => {
-      if (modal.open()) {
+    onFlush(() => {
+      if (!drag && modal.open()) {
         // A controlled parent refused the close: animate back to rest.
         resetDrag()
       }
@@ -528,7 +557,7 @@ export function createDrawerSwipe(
     if (drag === state) {
       drag = null
     }
-    const settle = released && swiping() && !state.abandoned && !state.cancelled
+    const settle = released && state.claimed && !state.abandoned && !state.cancelled
     setSwiping(false)
     if (settle) {
       settleDrag(state, endX, endY, timeStamp)
@@ -538,7 +567,7 @@ export function createDrawerSwipe(
   }
 
   /** Whether another overlay opened above this drawer (e.g. a nested drawer). */
-  let blocked: () => boolean = () => false
+  let blocked: () => boolean = returnFalse
 
   function updateDrag(state: DragState, x: number, y: number, timeStamp?: number): boolean {
     // Returns true once the gesture owns the drag (caller may preventDefault).
@@ -570,7 +599,7 @@ export function createDrawerSwipe(
     state.lastX = x
     state.lastY = y
 
-    if (!swiping()) {
+    if (!state.claimed) {
       if (Math.abs(main) < AXIS_LOCK_SLOP && Math.abs(cross) < AXIS_LOCK_SLOP) {
         return false
       }
@@ -612,6 +641,7 @@ export function createDrawerSwipe(
           setBaseline((vert ? translate.y : translate.x) * sign - snapPointOffset())
         }
       }
+      state.claimed = true
       setSwiping(true)
     }
 
@@ -637,25 +667,16 @@ export function createDrawerSwipe(
     return true
   }
 
-  function clearContentSelection(content: HTMLElement): void {
-    const selection = content.ownerDocument.getSelection?.()
-    if (!selection || selection.isCollapsed) {
-      return
+  let remeasureSize: VoidFunction | undefined
+  // A nested stack pins the popup's measured size; once it fully unmounts,
+  // re-measure so a height changed while pinned is picked up.
+  createEffect(drawer.nested.openCount, (count) => {
+    if (count === 0) {
+      remeasureSize?.()
     }
-    const anchor =
-      selection.anchorNode instanceof Element
-        ? selection.anchorNode
-        : selection.anchorNode?.parentElement
-    const focus =
-      selection.focusNode instanceof Element
-        ? selection.focusNode
-        : selection.focusNode?.parentElement
-    if (anchor && content.contains(anchor) && focus && content.contains(focus)) {
-      selection.removeAllRanges()
-    }
-  }
+  })
 
-  function attach(content: HTMLElement): void {
+  function attach(content: HTMLElement): VoidFunction {
     // The content mounts fresh on each open; drop any state left by a swipe close.
     drag = null
     resetDrag()
@@ -669,7 +690,10 @@ export function createDrawerSwipe(
     // stack pins it to the frontmost height), so measurements are skipped and
     // the last unforced size is kept as its own.
     function measureSize(): void {
-      if (drawer.nested.openCount() === 0) {
+      // `popupHeight() === 0` covers a mount into an already-open stack: the
+      // first report can land before this attach runs, so the unmeasured
+      // popup must still capture a size instead of staying pinned at 0.
+      if (untrack(drawer.nested.openCount) === 0 || untrack(popupHeight) === 0) {
         drawer.nested.setPopupHeight(content.offsetHeight)
         setPopupWidth(content.offsetWidth)
       }
@@ -687,6 +711,7 @@ export function createDrawerSwipe(
         setRootFontSize(fontSize)
       }
     }
+    remeasureSize = measureSize
     measureSize()
     measureViewport()
 
@@ -766,7 +791,7 @@ export function createDrawerSwipe(
           }
           // A descendant claiming the gesture for itself while the swipe is
           // still pending wins for the rest of the drag.
-          if (!swiping() && moveEvent.defaultPrevented) {
+          if (!state.claimed && moveEvent.defaultPrevented) {
             state.abandoned = true
             return
           }
@@ -805,7 +830,10 @@ export function createDrawerSwipe(
       if (shouldIgnoreSwipeForTextSelection(content)) {
         return
       }
-      const touch = event.touches[0]!
+      const touch = event.touches[0]
+      if (!touch) {
+        return
+      }
       const vert = vertical()
       const targets = findScrollableTargets(event.target, content, vert)
       const crossAxisMarker =
@@ -835,7 +863,7 @@ export function createDrawerSwipe(
         // The browser already committed this touch to native scrolling or
         // pinch. An unclaimed gesture cannot be taken back; a claimed one
         // keeps tracking so the popup still follows the finger.
-        if (!swiping()) {
+        if (!state.claimed) {
           state.abandoned = true
           return
         }
@@ -847,7 +875,7 @@ export function createDrawerSwipe(
       }
       // A descendant claiming the gesture for itself while the swipe is still
       // pending wins for the rest of the drag.
-      if (!swiping() && event.defaultPrevented) {
+      if (!state.claimed && event.defaultPrevented) {
         state.abandoned = true
         return
       }
@@ -891,56 +919,57 @@ export function createDrawerSwipe(
       endDrag(state, false)
     }
 
-    createEventListener(ownerWindow, 'resize', () => {
-      measureSize()
-      measureViewport()
-    })
+    const cleanups: Array<VoidFunction> = [
+      attachEventListener(ownerWindow, 'resize', () => {
+        measureSize()
+        measureViewport()
+      }),
+    ]
     // Visual viewport changes (mobile chrome, on-screen keyboard) resize the
     // layout viewport for snap-point resolution without a window resize.
     const visualViewport = ownerWindow?.visualViewport
     if (visualViewport) {
-      createEventListenerMap(visualViewport, {
-        resize: measureViewport,
-        scroll: measureViewport,
-      })
+      cleanups.push(
+        attachEventListenerMap(visualViewport, {
+          resize: measureViewport,
+          scroll: measureViewport,
+        }),
+      )
     }
-    // A nested stack pins the popup's measured size; once it fully unmounts,
-    // re-measure so a height changed while pinned is picked up.
-    createEffect(
-      on(drawer.nested.openCount, (count) => {
-        if (count === 0) {
-          measureSize()
-        }
+    cleanups.push(
+      attachEventListenerMap(content, {
+        pointerdown: onPointerDown,
+        touchstart: onTouchStart,
+      }),
+      // Touch continuation is tracked on the document: touch events dispatch to
+      // the gesture's original target, which may leave the DOM mid-drag (list
+      // virtualization, conditional content), silently stranding the gesture.
+      attachEventListenerMap(ownerDocument, {
+        touchmove: [onTouchMove, { passive: false }],
+        touchend: onTouchEnd,
+        touchcancel: onTouchCancel,
       }),
     )
-    createEventListenerMap(content, {
-      pointerdown: onPointerDown,
-      touchstart: onTouchStart,
-    })
-    // Touch continuation is tracked on the document: touch events dispatch to
-    // the gesture's original target, which may leave the DOM mid-drag (list
-    // virtualization, conditional content), silently stranding the gesture.
-    createEventListenerMap(ownerDocument, {
-      touchmove: [onTouchMove, { passive: false }],
-      touchend: onTouchEnd,
-      touchcancel: onTouchCancel,
-    })
 
     if (typeof ResizeObserver === 'function') {
       const observer = new ResizeObserver(measureSize)
       observer.observe(content)
-      onCleanup(() => observer.disconnect())
+      cleanups.push(() => observer.disconnect())
     }
 
-    onCleanup(() => {
+    return () => {
+      for (const cleanup of cleanups) {
+        cleanup()
+      }
       drag?.docCleanup?.()
       drag = null
       swipeElement = null
+      remeasureSize = undefined
       // The root-level channel signals outlive this content; drop the measured
       // size so a remount reports 0 first and ancestors transition like on the
       // first open instead of snapping to a stale height.
       drawer.nested.setPopupHeight(0)
-    })
+    }
   }
 
   return {

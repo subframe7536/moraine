@@ -1,7 +1,6 @@
 import { Badge } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
-
 interface AuditEvent {
   id: string
   timestamp: string
@@ -12,35 +11,45 @@ interface AuditEvent {
   severity: 'low' | 'medium' | 'high' | 'critical'
 }
 
-const AUDIT_EVENTS: AuditEvent[] = Array.from({ length: 30 }, (_, i) => {
-  const severities: AuditEvent['severity'][] = ['low', 'medium', 'high', 'critical']
-  const actions = [
-    'iam.role.assume',
-    's3.object.put',
-    'auth.mfa.verify',
-    'kms.key.decrypt',
-    'k8s.pod.restart',
-    'db.cluster.snapshot',
-    'api.token.generate',
-  ]
-  const actors = [
-    'dev-deployer@internal.corp',
-    'admin.ops@internal.corp',
-    'github-actions[bot]',
-    'security-scanner@internal.corp',
-    'app-backend-svc',
-  ]
-  const pad = (n: number) => String(n).padStart(2, '0')
+const pad = (n: number) => String(n).padStart(2, '0')
+
+const SEVERITIES: readonly [AuditEvent['severity'], ...Array<AuditEvent['severity']>] = [
+  'low',
+  'medium',
+  'high',
+  'critical',
+]
+
+const ACTIONS = [
+  'iam.role.assume',
+  's3.object.put',
+  'auth.mfa.verify',
+  'kms.key.decrypt',
+  'k8s.pod.restart',
+  'db.cluster.snapshot',
+  'api.token.generate',
+] as const
+
+const ACTORS = [
+  'dev-deployer@internal.corp',
+  'admin.ops@internal.corp',
+  'github-actions[bot]',
+  'security-scanner@internal.corp',
+  'app-backend-svc',
+] as const
+
+const AUDIT_EVENTS: Array<AuditEvent> = Array.from({ length: 30 }, (_, i) => {
   const date = `2026-10-25 10:${pad(59 - i)}:${pad((i * 7) % 60)}`
+  const action = ACTIONS[i % ACTIONS.length] ?? ACTIONS[0]
 
   return {
     id: `EVT-${1000 + i}`,
     timestamp: date,
-    actor: actors[i % actors.length]!,
-    action: actions[i % actions.length]!,
-    resource: `arn:aws:prod:service/${actions[i % actions.length]!.split('.')[0]}-${(i % 5) + 1}`,
+    actor: ACTORS[i % ACTORS.length] ?? ACTORS[0],
+    action,
+    resource: `arn:aws:prod:service/${action.split('.')[0]}-${(i % 5) + 1}`,
     ip: `192.168.${(i % 10) + 1}.${((i * 13) % 254) + 1}`,
-    severity: severities[i % severities.length]!,
+    severity: SEVERITIES[i % SEVERITIES.length] ?? SEVERITIES[0],
   }
 })
 
@@ -51,7 +60,7 @@ const SEVERITY = {
   critical: { label: 'Critical', tone: 'danger' },
 } as const
 
-const COLUMNS: DataTableT.Column<AuditEvent>[] = [
+const COLUMNS: Array<DataTableT.Column<AuditEvent>> = [
   {
     accessorKey: 'timestamp',
     header: 'Timestamp',

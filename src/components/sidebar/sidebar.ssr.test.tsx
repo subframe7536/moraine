@@ -1,11 +1,10 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
-import { afterEach, expect, test, vi } from 'vitest'
+import { afterEach, expect, vi, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Sidebar } from './sidebar'
 import { useSidebarContext } from './sidebar-context'
-
 function FixtureContent() {
   const frame = useSidebarContext()
 
@@ -60,10 +59,12 @@ afterEach(() => {
   window.matchMedia = originalMatchMedia
 })
 
-test('turns the server desktop markup into one drawer trigger on a mobile client', async () => {
-  window.matchMedia = vi
-    .fn()
-    .mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })
+it('turns the server desktop markup into one drawer trigger on a mobile client', async () => {
+  window.matchMedia = vi.fn<(query: string) => MediaQueryList>().mockReturnValue({
+    matches: true,
+    addEventListener: vi.fn<(...args: Array<any>) => void>(),
+    removeEventListener: vi.fn<(...args: Array<any>) => void>(),
+  } as unknown as MediaQueryList)
   const { container } = hydrateFixture(
     '/src/components/sidebar/sidebar.ssr.fixture.tsx',
     'renderSidebarFixture',
@@ -105,7 +106,7 @@ test('turns the server desktop markup into one drawer trigger on a mobile client
   ).toBe('sidebar-fixture')
 })
 
-test('renders the rail and pixel width custom property on the server', async () => {
+it('renders the rail and pixel width custom property on the server', async () => {
   const markup = renderSsrFixture(
     '/src/components/sidebar/sidebar.ssr.fixture.tsx',
     'renderSidebarRailFixture',
@@ -113,9 +114,11 @@ test('renders the rail and pixel width custom property on the server', async () 
   expect(markup).toContain('--mo-sidebar-width:256px')
   expect(markup).toContain('aria-valuenow="256"')
 
-  window.matchMedia = vi
-    .fn()
-    .mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })
+  window.matchMedia = vi.fn<(query: string) => MediaQueryList>().mockReturnValue({
+    matches: false,
+    addEventListener: vi.fn<(...args: Array<any>) => void>(),
+    removeEventListener: vi.fn<(...args: Array<any>) => void>(),
+  } as unknown as MediaQueryList)
   const { container } = hydrateFixture(
     '/src/components/sidebar/sidebar.ssr.fixture.tsx',
     'renderSidebarRailFixture',

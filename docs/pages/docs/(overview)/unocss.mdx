@@ -63,9 +63,9 @@ export default defineConfig({
 Place `unocss.config.ts` and `vite.config.ts` in the application root. Register the UnoCSS plugin before Solid's plugin:
 
 ```ts title="vite.config.ts"
+import solid from '@solidjs/vite-plugin'
 import UnoCSS from '@subf/unocss/vite'
 import { defineConfig } from 'vite'
-import solid from 'vite-plugin-solid'
 
 export default defineConfig({
   plugins: [UnoCSS(), solid()],
@@ -75,7 +75,7 @@ export default defineConfig({
 Import the generated CSS once in the application entry so every route has it:
 
 ```tsx title="src/main.tsx"
-import { render } from 'solid-js/web'
+import { render } from '@solidjs/web'
 
 import { App } from './App'
 import 'virtual:uno.css'

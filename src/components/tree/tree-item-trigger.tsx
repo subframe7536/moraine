@@ -1,16 +1,16 @@
-import type { JSX } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, resolvePropsChildren } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItemContext } from './tree-context'
+import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { TREE_TRIGGER_ICON_CLASS, treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 /**
  * Expand chevron of the surrounding `tree.Item`; clicking it toggles the branch. It is hidden from
  * assistive technology and out of the tab order because the `treeitem` owns expansion, invisible
@@ -37,16 +37,18 @@ import type { TreeT } from './tree.types'
 export function TreeItemTrigger<T extends ValidComponent = 'span'>(
   props: TreeT.ItemTriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as TreeT.ItemTriggerProps, [
+  const local = props as TreeT.ItemTriggerProps
+  const rest = omit(
+    props as TreeT.ItemTriggerProps,
     'as',
     'icon',
     'children',
     'class',
     'style',
     'onClick',
-  ])
+  )
   const context = useTreeContext()
-  const item = useTreeItemContext()!.item
+  const itemContext = requireTreeItemContext()
   // The treeitem is the only tab stop. Keep custom hosts out of the tab order, and stop a button
   // host from acting as a form's implicit submit button.
   const ownedHostAttributes = () => {
@@ -54,7 +56,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     if (host === undefined || host === 'span') {
       return undefined
     }
-    return host === 'button' ? { tabIndex: -1, type: 'button' as const } : { tabIndex: -1 }
+    return host === 'button' ? { tabindex: -1, type: 'button' as const } : { tabindex: -1 }
   }
   const {
     slots: { trigger: triggerSlot },
@@ -62,19 +64,21 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     slot: 'trigger',
     data: {
       trigger: treeDataAttributes.trigger({
-        expanded: () => item.expanded,
-        leaf: () => item.leaf,
-        loading: () => item.loading,
+        expanded: () => itemContext.item.expanded,
+        leaf: () => itemContext.item.leaf,
+        loading: () => itemContext.item.loading,
       }),
     },
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
+  const resolvedChildren = resolvePropsChildren(local)
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
+
   return (
-    <Dynamic
-      component={local.as ?? 'span'}
+    <Root
       data-slot="tree-trigger"
-      aria-hidden={true}
+      aria-hidden={'true'}
       {...triggerSlot}
       {...rest}
       {...ownedHostAttributes()}
@@ -82,16 +86,16 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
         const custom = callHandler(event, local.onClick)
         event.preventDefault()
         if (!custom.defaultPrevented) {
-          item.toggle()
+          itemContext.item.toggle()
         }
       }}
     >
       <Show
-        when={local.children}
+        when={hasContent(resolvedChildren())}
         fallback={
           <Icon
             name={
-              item.loading
+              itemContext.item.loading
                 ? (context.props.loadingIcon ?? 'icon-loading')
                 : (local.icon ?? (context.props.expandIcon || 'icon-chevron-right'))
             }
@@ -100,8 +104,8 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
           />
         }
       >
-        {local.children}
+        {resolvedChildren()}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

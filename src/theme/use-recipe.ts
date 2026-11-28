@@ -1,7 +1,8 @@
+import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import type { ClassValue } from 'cn'
-import type { Accessor, JSX, Owner } from 'solid-js'
-import { getOwner, mergeProps } from 'solid-js'
-import { isServer } from 'solid-js/web'
+import type { Accessor, Owner } from 'solid-js'
+import { getOwner, merge } from 'solid-js'
 
 import { useMoraineContext } from '../provider/moraine-context'
 import { createLazyMemo } from '../shared/create-lazy-memo'
@@ -17,7 +18,6 @@ import type {
 import { compileRecipe, matchEntries } from './recipe'
 import type { DataAttributeBag } from './style-contract'
 import type { SlotClassValue } from './style-types'
-
 export type SlotValue = {
   class?: SlotClassValue
   style?: JSX.CSSProperties
@@ -130,7 +130,7 @@ export function mergeSlotBindingData(
   extra?: { class?: ClassValue; style?: JSX.CSSProperties },
   cn?: Cn,
 ): SlotBinding {
-  const merged = mergeProps(
+  const merged = merge(
     {
       get class() {
         if (!extra?.class || !cn) {
@@ -150,13 +150,13 @@ export function mergeSlotBindingData(
   return merged
 }
 
-/** Client: lazy memo under `owner`. Server: the plain computation, evaluated on every read. */
+/** Lazy memo under `owner`; identical owner tree on server so hydration child ids align. */
 function memo<T>(
   fn: () => T,
   owner: Owner | null,
   equals?: (prev: T, next: T) => boolean,
 ): Accessor<T> {
-  return isServer ? fn : createLazyMemo(fn, { owner, equals })
+  return createLazyMemo(fn, { owner, equals })
 }
 
 function sameStyle(prev: object | undefined, next: object | undefined): boolean {
@@ -181,7 +181,7 @@ function sameSlotValue(prev: SlotValue | undefined, next: SlotValue | undefined)
 }
 
 /** Later sources win; `undefined` / `null` values never overwrite earlier ones. */
-function mergeStyles(...sources: (object | undefined)[]): JSX.CSSProperties {
+function mergeStyles(...sources: Array<object | undefined>): JSX.CSSProperties {
   const style: Style = {}
   for (const source of sources) {
     for (const key in source) {
@@ -203,14 +203,14 @@ function isEmptyStyle(style: JSX.CSSProperties): boolean {
 
 /**
  * Client: one object with fixed keys (`class`, `style`, then each `data-*`) as getters, so a
- * plain-object `mergeProps` keeps every key reactive.
+ * plain-object `merge` keeps every key reactive.
  * Server: a view whose keys are computed when the element renders and omit an empty `class` /
  * `style`, because `ssrElement` prints `style=""` for any present `style` key.
  */
 function binding(
   cls: Accessor<string | undefined>,
   style: Accessor<JSX.CSSProperties>,
-  data: (DataAttributeBag | undefined)[],
+  data: Array<DataAttributeBag | undefined>,
 ): SlotBinding {
   const target = {
     get class() {
@@ -355,7 +355,7 @@ export function useRecipe<R extends RecipeDefinition>(
   }
 
   const slots = {} as { [K in Slots]: SlotBinding }
-  for (const slot of definition.slots as Slots[]) {
+  for (const slot of definition.slots as Array<Slots>) {
     slots[slot] = createSlot(slot)
   }
 

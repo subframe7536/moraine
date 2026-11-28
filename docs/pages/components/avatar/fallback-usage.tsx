@@ -1,5 +1,4 @@
 import { Avatar } from '@src'
-
 export function FallbackUsage() {
   return (
     <div class="flex gap-4 items-center">

@@ -1,6 +1,5 @@
 import { PinInput } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function CustomSeparator() {
   const [value, setValue] = createSignal('')
 

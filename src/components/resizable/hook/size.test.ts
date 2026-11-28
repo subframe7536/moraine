@@ -1,15 +1,14 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { normalizePanelSizes, normalizeSizeVector } from './size'
-
 describe('size', () => {
-  test('normalizeSizeVector handles zero, negative and non-finite inputs', () => {
+  it('normalizeSizeVector handles zero, negative and non-finite inputs', () => {
     expect(normalizeSizeVector([0, 0, 0])).toEqual([0.333333, 0.333333, 0.333334])
     expect(normalizeSizeVector([1, -1, Number.NaN, Number.POSITIVE_INFINITY])).toEqual([1, 0, 0, 0])
     expect(normalizeSizeVector([Number.NaN, Number.POSITIVE_INFINITY])).toEqual([0.5, 0.5])
   })
 
-  test('normalizePanelSizes keeps provided controlled sizes and fills undefined sizes with remainder', () => {
+  it('normalizePanelSizes keeps provided controlled sizes and fills undefined sizes with remainder', () => {
     expect(
       normalizePanelSizes({
         panelCount: 3,
@@ -21,7 +20,7 @@ describe('size', () => {
     ).toEqual([0.2, 0.4, 0.4])
   })
 
-  test('normalizePanelSizes falls back undefined controlled sizes to zero when provided sum exceeds one', () => {
+  it('normalizePanelSizes falls back undefined controlled sizes to zero when provided sum exceeds one', () => {
     expect(
       normalizePanelSizes({
         panelCount: 3,
@@ -33,7 +32,7 @@ describe('size', () => {
     ).toEqual([0.571429, 0.428571, 0])
   })
 
-  test('normalizePanelSizes prefers defaultSize for uncontrolled items in mixed controlled mode', () => {
+  it('normalizePanelSizes prefers defaultSize for uncontrolled items in mixed controlled mode', () => {
     expect(
       normalizePanelSizes({
         panelCount: 3,
@@ -45,7 +44,7 @@ describe('size', () => {
     ).toEqual([0.2, 0.4, 0.4])
   })
 
-  test('normalizePanelSizes clamps mixed controlled/default sizes by min and max', () => {
+  it('normalizePanelSizes clamps mixed controlled/default sizes by min and max', () => {
     expect(
       normalizePanelSizes({
         panelCount: 3,

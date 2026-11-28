@@ -1,5 +1,6 @@
-import type { Accessor, JSX } from 'solid-js'
-import { children, createMemo, createSignal } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createSignal } from 'solid-js'
 
 import { Tabs, cn } from '../../../../../src/index'
 import {
@@ -11,7 +12,6 @@ import {
 } from '../markdown.recipe'
 
 import { CodeBlock } from './code-block'
-
 export interface CodeTabItem {
   label?: string
   title?: string
@@ -19,27 +19,15 @@ export interface CodeTabItem {
   lang?: string
   code?: string
   html?: string
-  highlightedLines?: number[] | string
-}
-
-export interface CodeTabsItemProps extends CodeTabItem {
-  children?: JSX.Element
-}
-
-export function CodeTabsItem(props: CodeTabsItemProps) {
-  return {
-    kind: 'CodeTabs.Item',
-    props,
-  } as unknown as JSX.Element
+  highlightedLines?: Array<number> | string
 }
 
 export interface CodeTabsProps {
   groupId?: string
-  items?: CodeTabItem[]
+  items?: Array<CodeTabItem>
   defaultValue?: string
   class?: string
   style?: JSX.CSSProperties
-  children?: JSX.Element
 }
 
 const tabGroupSignals = new Map<string, [Accessor<string>, (val: string) => void]>()
@@ -55,47 +43,7 @@ function getGroupSignal(groupId: string, initial: string) {
 }
 
 export function CodeTabs(props: CodeTabsProps) {
-  const resolvedChildren = children(() => props.children)
-  const items = createMemo<CodeTabItem[]>(() => {
-    if (props.items && props.items.length > 0) {
-      return props.items
-    }
-    const list: CodeTabItem[] = []
-    const raw = resolvedChildren()
-    const childArray = Array.isArray(raw) ? raw : raw ? [raw] : []
-    for (const child of childArray) {
-      if (!child) {
-        continue
-      }
-      if (typeof child === 'object' && child !== null && 'props' in child) {
-        const itemProps = (child as any).props as CodeTabsItemProps
-        const childContent = itemProps.children
-        let codeText = itemProps.code
-        if (!codeText) {
-          if (typeof childContent === 'string') {
-            codeText = childContent.trim()
-          } else if (Array.isArray(childContent)) {
-            codeText = childContent
-              .map((c) => (typeof c === 'string' ? c : ''))
-              .join('')
-              .trim()
-          }
-        }
-        const val = itemProps.value ?? itemProps.title ?? itemProps.label ?? itemProps.lang ?? ''
-        const title = itemProps.title ?? itemProps.label ?? itemProps.lang
-        list.push({
-          label: itemProps.label ?? title ?? val,
-          title,
-          value: val,
-          lang: itemProps.lang,
-          code: codeText,
-          html: itemProps.html,
-          highlightedLines: itemProps.highlightedLines,
-        })
-      }
-    }
-    return list
-  })
+  const items = () => props.items ?? []
 
   const fallbackDefault = () =>
     props.defaultValue ?? items()[0]?.value ?? items()[0]?.title ?? items()[0]?.label
@@ -141,23 +89,19 @@ export function CodeTabs(props: CodeTabsProps) {
         return {
           label,
           value: val,
-          get content() {
-            return (
-              <CodeBlock
-                variant="tabs"
-                lang={item.lang}
-                code={item.code}
-                html={item.html}
-                highlightedLines={item.highlightedLines}
-              />
-            )
-          },
+          content: () => (
+            <CodeBlock
+              variant="tabs"
+              lang={item.lang}
+              code={item.code}
+              html={item.html}
+              highlightedLines={item.highlightedLines}
+            />
+          ),
         }
       })}
     />
   )
 }
-
-CodeTabs.Item = CodeTabsItem
 
 export const DocsCodeTabs = CodeTabs

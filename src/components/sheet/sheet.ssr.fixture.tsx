@@ -1,10 +1,10 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
+import { merge } from 'solid-js'
 
 import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import { Sheet } from './sheet'
-import { SheetContentProvider } from './sheet-context'
-
+import { SheetProvider, useSheetContext } from './sheet-context'
 export function renderSheetFixture(): string {
   return renderToString(() => (
     <>
@@ -55,25 +55,31 @@ export function renderSheetFixture(): string {
   ))
 }
 
-export function renderPartsFixture(): string {
-  return renderToString(() => {
-    const registration = createContentAnatomy()
-    return (
-      <Sheet>
-        <SheetContentProvider
-          value={{
-            ...registration,
-            variants: { inset: false, side: 'right' },
-          }}
-        >
-          <Sheet.Header>
-            <Sheet.Title id="server-sheet-title">Real title</Sheet.Title>
-            <Sheet.Description>Details</Sheet.Description>
-          </Sheet.Header>
-          <Sheet.Body>Body</Sheet.Body>
-          <Sheet.Footer>Actions</Sheet.Footer>
-        </SheetContentProvider>
-      </Sheet>
-    )
+function PartsWithContent() {
+  const sheet = useSheetContext()
+  const registration = createContentAnatomy()
+  const value = merge(sheet, {
+    content: {
+      ...registration,
+      variants: { inset: false, side: 'right' as const },
+    },
   })
+  return (
+    <SheetProvider value={value}>
+      <Sheet.Header>
+        <Sheet.Title id="server-sheet-title">Real title</Sheet.Title>
+        <Sheet.Description>Details</Sheet.Description>
+      </Sheet.Header>
+      <Sheet.Body>Body</Sheet.Body>
+      <Sheet.Footer>Actions</Sheet.Footer>
+    </SheetProvider>
+  )
+}
+
+export function renderPartsFixture(): string {
+  return renderToString(() => (
+    <Sheet>
+      <PartsWithContent />
+    </Sheet>
+  ))
 }

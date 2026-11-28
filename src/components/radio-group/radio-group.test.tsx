@@ -1,8 +1,8 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field'
@@ -11,16 +11,15 @@ import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { RadioGroup } from './radio-group'
-
-describe('RadioGroup', () => {
-  test('forwards root ref', () => {
+describe('radioGroup', () => {
+  it('forwards root ref', () => {
     let rootEl: HTMLDivElement | undefined
     render(() => <RadioGroup ref={(el) => (rootEl = el)} items={['A', 'B']} />)
     expect(rootEl).toBeInstanceOf(HTMLDivElement)
     expect(rootEl?.getAttribute('data-slot')).toBe('radio-group')
   })
 
-  test('names the radiogroup by the Field label and describes it by the Field description', () => {
+  it('names the radiogroup by the Field label and describes it by the Field description', () => {
     const screen = render(() => (
       <Field label="Plan" description="Select one plan">
         <RadioGroup items={['Basic', 'Pro']} />
@@ -35,7 +34,7 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('aria-describedby')).toContain(description.id)
   })
 
-  test('names the radiogroup by its legend', () => {
+  it('names the radiogroup by its legend', () => {
     const screen = render(() => (
       <RadioGroup legend="Visibility" items={['Public', 'Private']} required />
     ))
@@ -47,7 +46,7 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('aria-labelledby')).toBe(legend.id)
   })
 
-  test('exposes required, disabled and readonly state through aria and data attributes', () => {
+  it('exposes required, disabled and readonly state through aria and data attributes', () => {
     const disabledScreen = render(() => <RadioGroup required disabled items={['Basic', 'Pro']} />)
     const disabledGroup = disabledScreen.getByRole('radiogroup')
     const disabledRadio = disabledScreen.getByRole<HTMLInputElement>('radio', { name: 'Basic' })
@@ -80,7 +79,7 @@ describe('RadioGroup', () => {
     expect(readOnlyRadio.getAttribute('aria-readonly')).toBe('true')
   })
 
-  test('maps object items using default value/label/description fields', () => {
+  it('maps object items using default value/label/description fields', () => {
     const items = [{ value: 'pro', label: 'Pro', description: 'Best value' }]
     const screen = render(() => <RadioGroup items={items} />)
 
@@ -89,7 +88,7 @@ describe('RadioGroup', () => {
     expect(screen.getByText('Best value')).not.toBeNull()
   })
 
-  test('associates the hidden inputs with an external form through the form prop', () => {
+  it('associates the hidden inputs with an external form through the form prop', () => {
     const screen = render(() => (
       <>
         <form id="external-form" />
@@ -109,7 +108,7 @@ describe('RadioGroup', () => {
     }
   })
 
-  test('resets selection when the associated external form resets', async () => {
+  it('resets selection when the associated external form resets', async () => {
     const screen = render(() => (
       <>
         <form id="external-form" />
@@ -131,8 +130,8 @@ describe('RadioGroup', () => {
     expect(new FormData(externalForm).getAll('plan')).toEqual(['A'])
   })
 
-  test('supports uncontrolled selection changes', async () => {
-    const onChange = vi.fn()
+  it('supports uncontrolled selection changes', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B']} defaultValue="A" onValueChange={onChange} />
     ))
@@ -150,8 +149,8 @@ describe('RadioGroup', () => {
     expect(radioB.checked).toBe(true)
   })
 
-  test('changes selection with arrow keys', async () => {
-    const onChange = vi.fn()
+  it('changes selection with arrow keys', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
     ))
@@ -174,8 +173,8 @@ describe('RadioGroup', () => {
     expect(onChange).toHaveBeenCalledWith('C')
   })
 
-  test('moves focus without selecting on Shift+Arrow and Home/End', async () => {
-    const onChange = vi.fn()
+  it('moves focus without selecting on Shift+Arrow and Home/End', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
     ))
@@ -205,8 +204,8 @@ describe('RadioGroup', () => {
     expect(onChange).toHaveBeenCalledWith('B')
   })
 
-  test('does not wrap selection when loop is false', () => {
-    const onChange = vi.fn()
+  it('does not wrap selection when loop is false', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B']} defaultValue="A" loop={false} onValueChange={onChange} />
     ))
@@ -227,8 +226,8 @@ describe('RadioGroup', () => {
     expect(radioB.checked).toBe(true)
   })
 
-  test('selects with Space on keyup and ignores Enter', async () => {
-    const onChange = vi.fn()
+  it('selects with Space on keyup and ignores Enter', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => <RadioGroup items={['A', 'B']} onValueChange={onChange} />)
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
 
@@ -242,6 +241,7 @@ describe('RadioGroup', () => {
 
     const spaceUp = new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: ' ' })
     radioA.dispatchEvent(spaceUp)
+    flush()
 
     expect(spaceUp.defaultPrevented).toBe(true)
     expect(onChange).toHaveBeenCalledOnce()
@@ -256,11 +256,11 @@ describe('RadioGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('forwards Field focus boundaries only when focus enters or leaves the group', () => {
-    const emit = vi.fn()
+  it('forwards Field focus boundaries only when focus enters or leaves the group', () => {
+    const emit = vi.fn<(...args: Array<any>) => void>()
     const binding: FieldBinding = {
       emit,
-      setValue: vi.fn(),
+      setValue: vi.fn<(...args: Array<any>) => void>(),
     }
     const screen = render(() => (
       <>
@@ -283,9 +283,9 @@ describe('RadioGroup', () => {
     expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
   })
 
-  test('calls user onFocus once when focus enters the group and onBlur when it leaves', () => {
-    const onFocus = vi.fn()
-    const onBlur = vi.fn()
+  it('calls user onFocus once when focus enters the group and onBlur when it leaves', () => {
+    const onFocus = vi.fn<(...args: Array<any>) => void>()
+    const onBlur = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <RadioGroup items={['A', 'B']} onFocus={onFocus} onBlur={onBlur} />
@@ -306,9 +306,9 @@ describe('RadioGroup', () => {
     expect(onBlur).toHaveBeenCalledTimes(1)
   })
 
-  test('still calls user onFocusIn and onFocusOut for every item focus change', () => {
-    const onFocusIn = vi.fn()
-    const onFocusOut = vi.fn()
+  it('still calls user onFocusIn and onFocusOut for every item focus change', () => {
+    const onFocusIn = vi.fn<(...args: Array<any>) => void>()
+    const onFocusOut = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <>
         <RadioGroup items={['A', 'B']} onFocusIn={onFocusIn} onFocusOut={onFocusOut} />
@@ -331,7 +331,7 @@ describe('RadioGroup', () => {
     expect(onFocusOut).toHaveBeenCalledTimes(2)
   })
 
-  test('marks a Form.Field radio group touched on entry and validates only after focus leaves', async () => {
+  it('marks a Form.Field radio group touched on entry and validates only after focus leaves', async () => {
     const schema = v.object({
       plan: v.pipe(
         v.string(),
@@ -353,6 +353,7 @@ describe('RadioGroup', () => {
     const pro = screen.getByRole<HTMLInputElement>('radio', { name: 'pro' })
 
     basic.focus()
+    flush()
     expect(form.isTouched).toBe(true)
 
     pro.focus()
@@ -364,8 +365,8 @@ describe('RadioGroup', () => {
     expect(screen.getByRole('radiogroup').getAttribute('aria-invalid')).toBe('true')
   })
 
-  test('allows Shift+Arrow navigation and ignores Alt/Ctrl/Meta navigation', async () => {
-    const onChange = vi.fn()
+  it('allows Shift+Arrow navigation and ignores Alt/Ctrl/Meta navigation', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
     ))
@@ -391,7 +392,7 @@ describe('RadioGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('uses horizontal RTL direction and skips disabled items', async () => {
+  it('uses horizontal RTL direction and skips disabled items', async () => {
     const screen = render(() => (
       <RadioGroup
         dir="rtl"
@@ -410,7 +411,7 @@ describe('RadioGroup', () => {
     expect(radioC.checked).toBe(true)
   })
 
-  test('assigns one roving tab stop for empty, stale, and all-disabled groups', () => {
+  it('assigns one roving tab stop for empty, stale, and all-disabled groups', () => {
     const empty = render(() => <RadioGroup items={[]} />)
     expect(empty.queryAllByRole('radio')).toHaveLength(0)
     empty.unmount()
@@ -429,8 +430,8 @@ describe('RadioGroup', () => {
     ])
   })
 
-  test('keeps controlled value until parent updates', async () => {
-    const onChange = vi.fn()
+  it('keeps controlled value until parent updates', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['A', 'B']} value="A" onValueChange={onChange} />
     ))
@@ -449,9 +450,9 @@ describe('RadioGroup', () => {
     })
   })
 
-  test('synchronizes explicit controlled values with Field and restores rejected DOM state', async () => {
+  it('synchronizes explicit controlled values with Field and restores rejected DOM state', async () => {
     const [value, setValue] = createSignal('A')
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -475,17 +476,17 @@ describe('RadioGroup', () => {
     expect(radioB.checked).toBe(false)
     expect(getInput(form)).toEqual({ plan: 'A' })
 
-    setValue('B')
+    flush(() => setValue('B'))
     expect(radioB.checked).toBe(true)
     expect(getInput(form)).toEqual({ plan: 'B' })
 
-    setInput(form, { path: ['plan'], input: 'A' })
+    flush(() => setInput(form, { path: ['plan'], input: 'A' }))
     expect(radioB.checked).toBe(true)
     expect(getInput(form)).toEqual({ plan: 'B' })
   })
 
-  test('reacts to external Formisch input without publishing callbacks', () => {
-    const onChange = vi.fn()
+  it('reacts to external Formisch input without publishing callbacks', () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -501,14 +502,14 @@ describe('RadioGroup', () => {
       ),
     )
 
-    setInput(form, { path: ['plan'], input: 'B' })
+    flush(() => setInput(form, { path: ['plan'], input: 'B' }))
 
     expect(screen.getByRole<HTMLInputElement>('radio', { name: 'B' }).checked).toBe(true)
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('uses unique item identity and canonicalizes duplicate values to the first item', async () => {
-    const onChange = vi.fn()
+  it('uses unique item identity and canonicalizes duplicate values to the first item', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <RadioGroup
@@ -537,7 +538,7 @@ describe('RadioGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('links item labels and descriptions while retaining Field group messages', () => {
+  it('links item labels and descriptions while retaining Field group messages', () => {
     const screen = render(() => (
       <Field label="Plan" description="Choose one">
         <RadioGroup
@@ -564,8 +565,8 @@ describe('RadioGroup', () => {
     }
   })
 
-  test('moves focus to the next tab stop when a focused item is removed', async () => {
-    const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+  it('moves focus to the next tab stop when a focused item is removed', async () => {
+    const [items, setItems] = createSignal<Array<string | { value: string; label: string }>>([
       'A',
       'B',
       'C',
@@ -574,18 +575,18 @@ describe('RadioGroup', () => {
     const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
     radioB.focus()
-    setItems((current) => current.filter((item) => item !== 'B'))
+    flush(() => setItems((current) => current.filter((item) => item !== 'B')))
     await Promise.resolve()
 
     expect(document.activeElement).toBe(screen.getByRole<HTMLInputElement>('radio', { name: 'A' }))
   })
 
-  test('restores focus after removing a focused item inside an open shadow root', async () => {
+  it('restores focus after removing a focused item inside an open shadow root', async () => {
     const host = document.createElement('div')
     const shadow = host.attachShadow({ mode: 'open' })
     document.body.append(host)
     try {
-      const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+      const [items, setItems] = createSignal<Array<string | { value: string; label: string }>>([
         'A',
         'B',
       ])
@@ -595,7 +596,7 @@ describe('RadioGroup', () => {
       const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
       radioB.focus()
-      setItems((current) => current.filter((item) => item !== 'B'))
+      flush(() => setItems((current) => current.filter((item) => item !== 'B')))
       await Promise.resolve()
 
       expect(shadow.activeElement).toBe(screen.getByRole<HTMLInputElement>('radio', { name: 'A' }))
@@ -605,7 +606,7 @@ describe('RadioGroup', () => {
     }
   })
 
-  test('restores focus after removing a focused item in its owner document', async () => {
+  it('restores focus after removing a focused item in its owner document', async () => {
     const frame = document.createElement('iframe')
     document.body.append(frame)
     const frameDocument = frame.contentDocument
@@ -614,7 +615,7 @@ describe('RadioGroup', () => {
     }
 
     try {
-      const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+      const [items, setItems] = createSignal<Array<string | { value: string; label: string }>>([
         'A',
         'B',
       ])
@@ -624,7 +625,7 @@ describe('RadioGroup', () => {
       const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
       radioB.focus()
-      setItems((current) => current.filter((item) => item !== 'B'))
+      flush(() => setItems((current) => current.filter((item) => item !== 'B')))
       await Promise.resolve()
 
       expect(frameDocument.activeElement).toBe(
@@ -636,19 +637,19 @@ describe('RadioGroup', () => {
     }
   })
 
-  test('reports the orientation to assistive technology', () => {
+  it('reports the orientation to assistive technology', () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} orientation="horizontal" />)
 
     expect(screen.getByRole('radiogroup').getAttribute('aria-orientation')).toBe('horizontal')
   })
 
-  test('defaults the orientation to vertical', () => {
+  it('defaults the orientation to vertical', () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} />)
 
     expect(screen.getByRole('radiogroup').getAttribute('aria-orientation')).toBe('vertical')
   })
 
-  test.each(['card', 'table'] as const)(
+  it.each(['card', 'table'] as const)(
     'marks the selected %s item for state styles',
     async (variant) => {
       const screen = render(() => (
@@ -671,8 +672,8 @@ describe('RadioGroup', () => {
     },
   )
 
-  test('respects canceled group clicks and nested interactive label descendants', async () => {
-    const onChange = vi.fn()
+  it('respects canceled group clicks and nested interactive label descendants', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const canceled = render(() => (
       <RadioGroup
         variant="card"
@@ -697,9 +698,9 @@ describe('RadioGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('preserves native FormData, required validity, readonly submission, and reset snapshots', async () => {
+  it('preserves native FormData, required validity, readonly submission, and reset snapshots', async () => {
     const [defaultValue, setDefaultValue] = createSignal('A')
-    const onChange = vi.fn()
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <form>
         <RadioGroup
@@ -717,7 +718,7 @@ describe('RadioGroup', () => {
 
     expect(form.checkValidity()).toBe(true)
     expect(new FormData(form).getAll('plan')).toEqual(['A'])
-    setDefaultValue('B')
+    flush(() => setDefaultValue('B'))
     fireEvent.click(radioB)
     expect(new FormData(form).getAll('plan')).toEqual(['B'])
 
@@ -748,7 +749,7 @@ describe('RadioGroup', () => {
     )
   })
 
-  test.each([
+  it.each([
     ['table', true],
     ['list', false],
   ] as const)(
@@ -771,8 +772,8 @@ describe('RadioGroup', () => {
     },
   )
 
-  test('sets aria-readonly and prevents changes when readOnly', async () => {
-    const onChange = vi.fn()
+  it('sets aria-readonly and prevents changes when readOnly', async () => {
+    const onChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <RadioGroup items={['Dogs', 'Cats', 'Dragons']} readOnly onValueChange={onChange} />
     ))
@@ -789,7 +790,7 @@ describe('RadioGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('applies class and style overrides to their slots', () => {
+  it('applies class and style overrides to their slots', () => {
     const screen = render(() => (
       <RadioGroup
         items={['A']}

@@ -1,10 +1,9 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
-import { createEventListener, createEventListenerMap } from '../../../shared/event-listener'
+import { attachEventListener, attachEventListenerMap } from '../../../shared/event-listener'
 
 import { getActiveElement } from './dom'
-
 /**
  * Tracks the on-screen keyboard inset below the visual viewport while `open`
  * and `content` are set, and keeps the focused element inside it visible.
@@ -16,7 +15,8 @@ export function createKeyboardInset(
   const [keyboardInset, setKeyboardInset] = createSignal(0)
 
   createEffect(
-    on([open, content], ([isOpen, contentElement]) => {
+    () => [open(), content()],
+    ([isOpen, contentElement]) => {
       if (!isOpen || !contentElement) {
         return
       }
@@ -46,15 +46,17 @@ export function createKeyboardInset(
       }
 
       update()
-      createEventListenerMap(keyboardViewport, {
+      const detachViewport = attachEventListenerMap(keyboardViewport, {
         resize: update,
         scroll: update,
       })
-      createEventListener(view, 'resize', update)
-      onCleanup(() => {
+      const detachView = attachEventListener(view, 'resize', update)
+      return () => {
+        detachViewport()
+        detachView()
         setKeyboardInset(0)
-      })
-    }),
+      }
+    },
   )
 
   return keyboardInset

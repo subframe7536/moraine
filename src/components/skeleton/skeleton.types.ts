@@ -2,7 +2,6 @@ import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { SkeletonStyleSlot, SkeletonStyleVariants } from './skeleton.style-types'
-
 export namespace SkeletonT {
   export type Kind = 'single'
   export type Slot<T = unknown> = SkeletonStyleSlot<T>

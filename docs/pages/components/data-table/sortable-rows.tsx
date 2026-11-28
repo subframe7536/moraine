@@ -3,7 +3,6 @@ import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createListSortable } from '@src/dnd'
 import { createSignal } from 'solid-js'
-
 interface Release {
   id: string
   version: string
@@ -11,7 +10,7 @@ interface Release {
   status: string
 }
 
-const RELEASES: Release[] = [
+const RELEASES: Array<Release> = [
   { id: 'r1', version: '2.4.0', owner: 'Elena', status: 'Ready' },
   { id: 'r2', version: '2.3.2', owner: 'Marcus', status: 'In review' },
   { id: 'r3', version: '2.3.1', owner: 'Priya', status: 'Blocked' },
@@ -45,7 +44,7 @@ export default function SortableRowsExample() {
       { accessorKey: 'version', header: 'Version' },
       { accessorKey: 'owner', header: 'Owner' },
       { accessorKey: 'status', header: 'Status' },
-    ] satisfies DataTableT.Column<Release>[],
+    ] satisfies Array<DataTableT.Column<Release>>,
     getRowId: (row) => row.id,
     columnSortable: false,
   })

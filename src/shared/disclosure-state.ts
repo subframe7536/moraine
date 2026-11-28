@@ -3,17 +3,15 @@ import {
   createEffect,
   createMemo,
   createRenderEffect,
-  createRoot,
   createSignal,
-  on,
   onCleanup,
+  onFlush,
   untrack,
 } from 'solid-js'
 
 import { attachEventListener, attachEventListenerMap } from './event-listener'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
-
 export interface CreateDisclosureStateOptions {
   /** Reactive open state accessor */
   open: Accessor<boolean>
@@ -59,7 +57,7 @@ export interface DisclosureState {
   /** `hidden` attribute value for the content shell (`''`, `'until-found'`, or absent). */
   hiddenAttr: Accessor<'' | 'until-found' | undefined>
   inert: Accessor<true | undefined>
-  ariaHidden: Accessor<true | undefined>
+  ariaHidden: Accessor<'true' | undefined>
 
   shouldMount: () => boolean
 
@@ -124,23 +122,11 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     return value === 'until-found' ? 'until-found' : value ? '' : undefined
   })
   const inert = () => (closed() ? (true as const) : undefined)
-  const ariaHidden = () => (closed() ? (true as const) : undefined)
+  const ariaHidden = () => (closed() ? ('true' as const) : undefined)
 
-  const [hasToggled, setHasToggled] = createSignal(false)
-
-  createEffect(
-    on(
-      options.open,
-      (isOpen, wasOpen) => {
-        if (isOpen !== wasOpen) {
-          setHasToggled(true)
-        }
-      },
-      { defer: true },
-    ),
+  const initialOpen = createMemo<boolean>((previous) =>
+    previous === false ? false : options.open(),
   )
-
-  const initialOpen = createMemo(() => options.open() && !hasToggled())
 
   function shouldMount(): boolean {
     if (forceMount()) {
@@ -150,8 +136,8 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   }
 
   const [contentHeight, setContentHeight] = createSignal(0)
-  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
-  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>()
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>(undefined)
+  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>(undefined)
 
   let contentEl: HTMLElement | undefined
   // One record per registration, so releasing a duplicate removes only its own entry.
@@ -179,11 +165,17 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     })
   }
 
-  createEffect(
-    on(options.open, () => {
-      queueContentHeightMeasurement()
-    }),
-  )
+  createEffect(options.open, () => {
+    let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled && contentEl?.isConnected) {
+        measureContentHeight(contentEl)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  })
 
   function observeMeasureElement(element: HTMLElement | undefined): void {
     if (element === contentEl) {
@@ -209,9 +201,29 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }
   }
 
+  if (options.onBeforeMatch) {
+    // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
+    // attribute so `until-found` survives jsdom and hydrated SSR markup.
+    createRenderEffect(
+      () => [contentElement(), hiddenAttr()] as const,
+      ([element, value]) => {
+        if (!element) {
+          return
+        }
+        if (value === undefined) {
+          element.removeAttribute('hidden')
+        } else {
+          element.setAttribute('hidden', value)
+        }
+      },
+    )
+  }
+
   function restoreTriggerFocus(): void {
-    const content = contentElement()
-    const trigger = triggerElement()
+    // Snapshot reads inside an effect callback: the tracked dep is `open`;
+    // whichever elements are current when it closes get the focus check.
+    const content = untrack(contentElement)
+    const trigger = untrack(triggerElement)
 
     if (contentHasFocus || content?.contains(content.ownerDocument.activeElement)) {
       contentHasFocus = false
@@ -219,13 +231,11 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }
   }
 
-  createEffect(
-    on(options.open, (isOpen) => {
-      if (!isOpen) {
-        restoreTriggerFocus()
-      }
-    }),
-  )
+  createEffect(options.open, (isOpen) => {
+    if (!isOpen) {
+      restoreTriggerFocus()
+    }
+  })
 
   function registerContentElement(element: HTMLElement): () => void {
     removeContentFocusListeners?.()
@@ -237,7 +247,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       contentHasFocus = true
     }
     const onFocusOut = (event: FocusEvent) => {
-      if (options.open() && !element.contains(event.relatedTarget as Node | null)) {
+      if (untrack(options.open) && !element.contains(event.relatedTarget as Node | null)) {
         contentHasFocus = false
       }
     }
@@ -250,44 +260,31 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     const releasePresence = presence.registerElement(element)
 
     let removeBeforeMatch: (() => void) | undefined
-    let stopHiddenSync: (() => void) | undefined
     if (options.onBeforeMatch) {
       const reveal = options.onBeforeMatch
-      // oxlint-disable-next-line subf/solid-reactivity -- The listener reads hiddenAttr lazily on each beforematch.
       removeBeforeMatch = attachEventListener(element, 'beforematch', () => {
         reveal()
-        // The reveal strips `hidden`; restore it when the open was refused.
-        const value = hiddenAttr()
-        if (value !== undefined) {
-          element.setAttribute('hidden', value)
-        }
-      })
-      // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
-      // attribute so `until-found` survives jsdom and hydrated SSR markup.
-      stopHiddenSync = createRoot((dispose) => {
-        createRenderEffect(() => {
+        // Wait for Solid 2's microtask commit before checking whether the open was refused.
+        onFlush(() => {
+          if (!element.isConnected) {
+            return
+          }
           const value = hiddenAttr()
-          if (value === undefined) {
-            element.removeAttribute('hidden')
-          } else {
+          if (value !== undefined) {
             element.setAttribute('hidden', value)
           }
         })
-        return dispose
       })
     }
 
     return () => {
-      stopHiddenSync?.()
       removeBeforeMatch?.()
       releasePresence()
       removeListeners()
       if (removeContentFocusListeners === removeListeners) {
         removeContentFocusListeners = undefined
       }
-      if (untrack(contentElement) === element) {
-        setContentElementSignal(undefined)
-      }
+      setContentElementSignal((current) => (current === element ? undefined : current))
     }
   }
 
@@ -302,7 +299,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
         return
       }
       measureRegistrations.splice(index, 1)
-      observeMeasureElement(measureRegistrations[measureRegistrations.length - 1]?.element)
+      observeMeasureElement(measureRegistrations.at(-1)?.element)
     }
   }
 

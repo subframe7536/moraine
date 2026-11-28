@@ -1,7 +1,6 @@
 import { Accordion } from '@src'
 import type { AccordionT } from '@src'
 import { createSignal } from 'solid-js'
-
 const FAQ_ITEMS = [
   {
     value: 'q1',
@@ -14,10 +13,10 @@ const FAQ_ITEMS = [
     content:
       'Moraine uses atomic class styling with official presets and plugins for UnoCSS and Tailwind CSS.',
   },
-] satisfies AccordionT.Item[]
+] satisfies Array<AccordionT.Item>
 
 export function OpenItems() {
-  const [active, setActive] = createSignal<string[]>(['q1'])
+  const [active, setActive] = createSignal<Array<string>>(['q1'])
 
   return (
     <div class="max-w-md w-full space-y-3">

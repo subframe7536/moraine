@@ -1,10 +1,9 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal, untrack } from 'solid-js'
-import type { JSX } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import type { JSX } from '@solidjs/web'
+import { createSignal, flush, untrack } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { useOverlayInteraction } from './interaction'
-
 function RebindableInteraction(props: {
   onEscape: () => void
   setContent: (setContent: (content: HTMLElement) => void) => void
@@ -26,8 +25,8 @@ function RebindableInteraction(props: {
 }
 
 describe('useOverlayInteraction', () => {
-  test('rebinds document interactions when the mounted content changes documents', async () => {
-    const onEscape = vi.fn()
+  it('rebinds document interactions when the mounted content changes documents', async () => {
+    const onEscape = vi.fn<(...args: Array<any>) => void>()
     const foreignDocument = document.implementation.createHTMLDocument('foreign')
     let setContent: (content: HTMLElement) => void = () => undefined
     const screen = render(() => (
@@ -40,7 +39,7 @@ describe('useOverlayInteraction', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(onEscape).toHaveBeenCalledTimes(1)
 
-    setContent(foreignDocument.createElement('div'))
+    flush(() => setContent(foreignDocument.createElement('div')))
     await Promise.resolve()
 
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -52,12 +51,12 @@ describe('useOverlayInteraction', () => {
     expect(onEscape).toHaveBeenCalledTimes(2)
   })
 
-  test('does not trigger onPointerOutside when pointerdown starts inside and releases outside', () => {
-    const onPointerOutside = vi.fn()
+  it('does not trigger onPointerOutside when pointerdown starts inside and releases outside', () => {
+    const onPointerOutside = vi.fn<(...args: Array<any>) => void>()
     const content = document.createElement('div')
     const outside = document.createElement('div')
-    document.body.appendChild(content)
-    document.body.appendChild(outside)
+    document.body.append(content)
+    document.body.append(outside)
 
     const screen = render(() => {
       useOverlayInteraction({

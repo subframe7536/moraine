@@ -1,5 +1,4 @@
 import { ContextMenu } from '@src'
-
 export function ItemsUsage() {
   return (
     <div class="max-w-md w-full">

@@ -1,6 +1,5 @@
 import { Field, PinInput } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function Masked() {
   const [pin, setPin] = createSignal('')
 

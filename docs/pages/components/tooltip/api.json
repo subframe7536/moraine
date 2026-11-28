@@ -67,7 +67,7 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | Placement[]",
+          "type": "boolean | Array<Placement>",
           "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. An array is an ordered list of fallback `Placement`\nvalues tried in order (each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`).",
           "default": {
             "kind": "literal",
@@ -112,7 +112,7 @@
         {
           "name": "mount",
           "optional": true,
-          "type": "Node",
+          "type": "Element | ShadowRoot",
           "description": "DOM node the portal mounts into. Defaults to `document.body` (resolved from the trigger's\ndocument when available)."
         },
         {
@@ -293,7 +293,7 @@
         {
           "name": "kbds",
           "optional": true,
-          "type": "KbdT.Key[]",
+          "type": "Array<KbdT.Key>",
           "description": "Keys shown as keycaps after the text, for example `['command', 's']`. Names such as `meta`,\n`ctrl`, `shift` and `command` render as symbols. This only displays the shortcut; it does not\nregister it. Set `kbdVariant` on the `Tooltip` root to change the keycap style.",
           "examples": [
             "import { Button, Tooltip } from 'moraine'\n\n<Tooltip>\n  <Tooltip.Trigger as={Button}>Search</Tooltip.Trigger>\n  <Tooltip.Content kbds={['meta', 'k']}>Search the docs</Tooltip.Content>\n</Tooltip>"

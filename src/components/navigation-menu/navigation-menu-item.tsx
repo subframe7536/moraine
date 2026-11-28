@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createSignal, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createSignal, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createId } from '../../shared/utils'
@@ -8,7 +8,6 @@ import { NavigationMenuItemProvider, useNavigationMenuContext } from './navigati
 import type { NavigationMenuItemContextValue } from './navigation-menu-context'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
-
 /**
  * One entry of a `NavigationMenu.List`, rendered as an `li`. It holds either a
  * `NavigationMenu.Trigger` with its `NavigationMenu.Content` panel, or a direct
@@ -33,10 +32,10 @@ import type { NavigationMenuT } from './navigation-menu.types'
  */
 export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Element {
   const context = useNavigationMenuContext()
-  const [local, rest] = splitProps(props, ['value', 'disabled', 'class', 'style'])
+  const rest = omit(props, 'value', 'disabled', 'class', 'style')
   const {
     slots: { item: itemSlot },
-  } = useRecipe(navigationMenuRecipe, local, {
+  } = useRecipe(navigationMenuRecipe, props, {
     slot: 'item',
     data: {
       item: navigationMenuDataAttributes.item(() => ({
@@ -46,24 +45,36 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
     },
     context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
-  const value = createId(() => local.value, 'navigation-menu-item')
-  const [trigger, setTrigger] = createSignal<HTMLButtonElement>()
+  const value = createId(() => props.value, 'navigation-menu-item')
+  const [trigger, setTrigger] = createSignal<HTMLButtonElement | undefined>(undefined)
   const [content, setContent] = createSignal<HTMLDivElement>()
-  const [contentTrees, setContentTrees] = createSignal<JSX.Element[]>([])
-  const [triggerOptions, setTriggerOptions] = createSignal<NavigationMenuT.TriggerProps>()
+  const [contentTrees, setContentTrees] = createSignal<Array<JSX.Element>>([])
+  const [triggerOptions, setTriggerOptions] = createSignal<{ disabled?: boolean } | undefined>(
+    undefined,
+  )
   const item: NavigationMenuItemContextValue = {
     value,
     disabled: () =>
-      Boolean(context.options.disabled || local.disabled || triggerOptions()?.disabled),
+      Boolean(context.options.disabled || props.disabled || triggerOptions()?.disabled),
     trigger,
     setTrigger,
     content,
     setContent,
     contentTrees,
     registerContent: (tree) => {
-      setContentTrees((trees) => [...trees, tree])
-      return () =>
-        queueMicrotask(() => setContentTrees((trees) => trees.filter((node) => node !== tree)))
+      let active = true
+      onSettled(() => {
+        if (!active) {
+          return
+        }
+        setContentTrees((trees) => [...trees, tree])
+        return () => {
+          setContentTrees((trees) => trees.filter((node) => node !== tree))
+        }
+      })
+      return () => {
+        active = false
+      }
     },
     setTriggerOptions,
   }

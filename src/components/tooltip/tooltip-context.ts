@@ -5,7 +5,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { createPopper } from '../shared/overlay/popper'
 
 import type { TooltipProps, TooltipT } from './tooltip.types'
-
 export interface TooltipContextValue {
   options: TooltipProps
   popper: ReturnType<typeof createPopper>

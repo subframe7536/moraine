@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ElementProps, InputElementProps } from '../../shared/types'
@@ -21,9 +22,9 @@ interface CommandPaletteBaseRenderProps<TItem extends CommandPaletteT.Item = Com
   /** Whether at least one command is visible after filtering. */
   hasItems: boolean
   /** All groups built from `items`, unfiltered; ungrouped commands form label-less groups. */
-  groups: CommandPaletteT.Group<TItem>[]
+  groups: Array<CommandPaletteT.Group<TItem>>
   /** Groups that still have visible commands after filtering, each holding only those commands. */
-  visibleGroups: CommandPaletteT.Group<TItem>[]
+  visibleGroups: Array<CommandPaletteT.Group<TItem>>
 }
 
 export namespace CommandPaletteT {
@@ -55,7 +56,7 @@ export namespace CommandPaletteT {
      * Extra search terms that are not displayed, such as synonyms. They are matched by the
      * built-in filter only; ignored when `getItemSearchText` is set or `filterMethod` is a function.
      */
-    keywords?: string[]
+    keywords?: Array<string>
     /**
      * Icon rendered before the label in the default item content. Ignored when `leadingRender`
      * is set.
@@ -65,7 +66,7 @@ export namespace CommandPaletteT {
      * Keyboard shortcut keys shown after the label in the default item content. Ignored when
      * `trailingRender` is set.
      */
-    kbds?: KbdT.Key[]
+    kbds?: Array<KbdT.Key>
     /**
      * Content or render function shown before the label, such as an icon. Receives the row state.
      * Ignored when the palette sets `itemRender`.
@@ -102,7 +103,7 @@ export namespace CommandPaletteT {
      */
     label?: string
     /** Child items in this group. While searching, a group with no matching items is hidden. */
-    children?: TItem[]
+    children?: Array<TItem>
   }
 
   /** An entry of `items`: a command, or a group of commands. */
@@ -200,7 +201,7 @@ export namespace CommandPaletteT {
      * />
      * ```
      */
-    items?: Entry<TItem>[]
+    items?: Array<Entry<TItem>>
     /**
      * Placeholder text for the search input. It is also the input's accessible name unless
      * `inputProps` sets `aria-label` or `aria-labelledby`.

@@ -1,13 +1,12 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
-import { expect, test, vi } from 'vitest'
+import { expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { MultiSelect } from './multi-select'
-
-test('hydrates MultiSelect with one input and stable secondary trigger', () => {
-  const onChange = vi.fn()
+it('hydrates MultiSelect with one input and stable secondary trigger', () => {
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const { container } = hydrateFixture(
     '/src/components/multi-select/multi-select.ssr.fixture.tsx',
     'renderMultiSelectFixture',

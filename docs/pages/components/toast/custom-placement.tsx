@@ -1,5 +1,4 @@
 import { Button, Toast } from '@src'
-
 export function CustomPlacement() {
   return (
     <div class="flex flex-wrap gap-3 items-center">

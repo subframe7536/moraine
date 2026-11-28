@@ -1,12 +1,11 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, on } from 'solid-js'
+import { createEffect, createMemo } from 'solid-js'
 
 import { syncNativeInputFiles } from './file-input-sync'
 import type { FileUploadT } from './file-upload.types'
 import { constrainFileCount, filterAcceptedFiles } from './file-validation'
-
 export interface CreateFileSelectionOptions {
-  value: Accessor<File | File[] | null>
+  value: Accessor<File | Array<File> | null>
   multiple: Accessor<boolean>
   accept: Accessor<string | undefined>
   maxFiles: Accessor<number | undefined>
@@ -15,17 +14,17 @@ export interface CreateFileSelectionOptions {
   disabled: Accessor<boolean>
   readOnly: Accessor<boolean>
   input: Accessor<HTMLInputElement | undefined>
-  commit: (value: File | File[] | null) => void
+  commit: (value: File | Array<File> | null) => void
   onValueInvalid: (details: FileUploadT.ValueInvalidDetails) => void
 }
 
 export function createFileSelection(options: CreateFileSelectionOptions): {
-  selectedFiles: Accessor<File[]>
+  selectedFiles: Accessor<Array<File>>
   interactive: Accessor<boolean>
-  addFiles: (files: File[]) => void
+  addFiles: (files: Array<File>) => void
   removeFileAt: (index: number) => void
 } {
-  const selectedFiles = createMemo<File[]>(() => {
+  const selectedFiles = createMemo<Array<File>>(() => {
     const value = options.value()
     if (Array.isArray(value)) {
       return value
@@ -36,16 +35,17 @@ export function createFileSelection(options: CreateFileSelectionOptions): {
   const interactive = () => !options.disabled() && !options.readOnly()
 
   createEffect(
-    on([options.input, selectedFiles], ([input, files]) => {
+    () => [options.input(), selectedFiles()],
+    ([input, files]) => {
       syncNativeInputFiles(input, files)
-    }),
+    },
   )
 
-  function commit(files: File[]): void {
+  function commit(files: Array<File>): void {
     options.commit(options.multiple() ? [...files] : (files[0] ?? null))
   }
 
-  function addFiles(files: File[]): void {
+  function addFiles(files: Array<File>): void {
     if (files.length === 0) {
       return
     }

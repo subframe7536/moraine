@@ -2,7 +2,6 @@ import { Badge, Button, ButtonGroup, ToggleButton } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { Show, createSignal } from 'solid-js'
-
 interface ServerNode {
   id: string
   name: string
@@ -12,7 +11,7 @@ interface ServerNode {
   status: 'running' | 'stopped' | 'terminated'
 }
 
-const NODES: ServerNode[] = [
+const NODES: Array<ServerNode> = [
   {
     id: 'node-us-east-1a',
     name: 'api-ingress-gateway-01',
@@ -69,7 +68,7 @@ const NODE_STATUS = {
   terminated: { label: 'Terminated', tone: 'neutral' },
 } as const
 
-const COLUMNS: DataTableT.Column<ServerNode>[] = [
+const COLUMNS: Array<DataTableT.Column<ServerNode>> = [
   {
     accessorKey: 'id',
     header: 'Node ID',

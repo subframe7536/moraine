@@ -21,7 +21,6 @@ import { createDataAttributes } from '../theme/style-contract'
 import type { DataAttributeContract } from '../theme/style-contract'
 
 import type { DataTableStyleSlot, DataTableStyleVariants } from './data-table.style-types'
-
 export const dataTableDataAttributes = {
   row: /* @__PURE__ */ createDataAttributes('selected', 'expanded', 'empty'),
   head: /* @__PURE__ */ createDataAttributes('pinned', 'pinned-edge'),

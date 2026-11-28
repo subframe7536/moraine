@@ -1,9 +1,8 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { acquireAriaHideOutside } from './aria-hide'
-
 describe('acquireAriaHideOutside', () => {
-  test('keeps a shadow host accessible and observes both light and shadow siblings', async () => {
+  it('keeps a shadow host accessible and observes both light and shadow siblings', async () => {
     const outside = document.createElement('main')
     const host = document.createElement('div')
     const shadowRoot = host.attachShadow({ mode: 'open' })
@@ -34,7 +33,7 @@ describe('acquireAriaHideOutside', () => {
     addedOutside.remove()
   })
 
-  test('restores nested shadow modal isolation in stack order', () => {
+  it('restores nested shadow modal isolation in stack order', () => {
     const outside = document.createElement('main')
     const host = document.createElement('div')
     const shadowRoot = host.attachShadow({ mode: 'open' })

@@ -1,8 +1,8 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { createSignal, For, Show } from 'solid-js'
+import { For, Show, createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Button } from '../button/index'
@@ -15,14 +15,13 @@ import { Select } from '../select/select'
 
 import { BaseSelect } from './base-select'
 import { createBaseSelectSearchInput } from './base-select-search-input'
-
 const items = [
   { value: 1, label: 'Alpha', extra: 'first' },
   { value: 2, label: 'Beta', extra: 'second' },
   { value: 3, label: 'Disabled', disabled: true, extra: 'third' },
 ]
 
-test('keeps an independent BaseSelect owner inside a Select item render', () => {
+it('keeps an independent BaseSelect owner inside a Select item render', () => {
   render(() => (
     <Select
       items={[{ value: 'outer', label: 'Outer' }]}
@@ -42,7 +41,7 @@ test('keeps an independent BaseSelect owner inside a Select item render', () => 
   expect(document.body.querySelector('[data-slot="base-select-trigger"]')).not.toBeNull()
 })
 
-test('only the Trigger toggles the popup; pressing the Control surface does not', () => {
+it('only the Trigger toggles the popup; pressing the Control surface does not', () => {
   const screen = render(() => (
     <BaseSelect items={items}>
       <BaseSelect.Control>
@@ -59,7 +58,7 @@ test('only the Trigger toggles the popup; pressing the Control surface does not'
   expect(trigger.getAttribute('aria-expanded')).toBe('true')
 })
 
-test('opens from a Trigger rendered without a Control wrapper', () => {
+it('opens from a Trigger rendered without a Control wrapper', () => {
   const screen = render(() => (
     <BaseSelect items={items}>
       <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
@@ -69,7 +68,7 @@ test('opens from a Trigger rendered without a Control wrapper', () => {
   expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('true')
 })
 
-test('BaseSelect.Control exposes inherited field state attributes', () => {
+it('baseSelect.Control exposes inherited field state attributes', () => {
   const screen = render(() => (
     <FieldProvider
       value={{
@@ -91,7 +90,7 @@ test('BaseSelect.Control exposes inherited field state attributes', () => {
   expect(control.getAttribute('data-invalid')).toBe('')
 })
 
-test('uses completed primary presses for outside dismissal', () => {
+it('uses completed primary presses for outside dismissal', () => {
   const screen = render(() => (
     <>
       <button type="button" data-testid="outside">
@@ -115,7 +114,7 @@ test('uses completed primary presses for outside dismissal', () => {
   expect(trigger.getAttribute('aria-expanded')).toBe('false')
 })
 
-test('supports a custom searchable Control without BaseSelect.Trigger', () => {
+it('supports a custom searchable Control without BaseSelect.Trigger', () => {
   function SearchControl() {
     const state = BaseSelect.useContext()
     const [value, setValue] = createSignal('')
@@ -152,7 +151,7 @@ test('supports a custom searchable Control without BaseSelect.Trigger', () => {
   expect(input.getAttribute('aria-expanded')).toBe('false')
 })
 
-test('custom search input exposes reactive ARIA and input attributes', () => {
+it('custom search input exposes reactive ARIA and input attributes', () => {
   const [enabled, setEnabled] = createSignal(true)
   const [readOnly, setReadOnly] = createSignal(false)
   const [maxLength, setMaxLength] = createSignal(4)
@@ -188,27 +187,27 @@ test('custom search input exposes reactive ARIA and input attributes', () => {
   expect(input.maxLength).toBe(4)
   expect(input.getAttribute('autocomplete')).toBe('off email')
 
-  setEnabled(false)
+  flush(() => setEnabled(false))
   expect(input.readOnly).toBe(true)
   expect(input.getAttribute('aria-autocomplete')).toBe('none')
-  setEnabled(true)
-  setReadOnly(true)
+  flush(() => setEnabled(true))
+  flush(() => setReadOnly(true))
   expect(input.getAttribute('aria-autocomplete')).toBe('none')
-  setMaxLength(8)
+  flush(() => setMaxLength(8))
   expect(input.maxLength).toBe(8)
 })
 
-test('custom search input commits only completed composition and discards stale drafts', () => {
+it('custom search input commits only completed composition and discards stale drafts', () => {
   let searchValue = () => ''
   let setSearchValue = (_value: string) => ''
   let isComposing = () => false
-  const onValueChange = vi.fn()
+  const onValueChange = vi.fn<(...args: Array<any>) => void>()
 
   function SearchControl() {
     const state = BaseSelect.useContext()
     const [value, setValue] = createSignal('')
     function updateValue(next: string): string {
-      setValue(next)
+      flush(() => setValue(next))
       onValueChange(next)
       return next
     }
@@ -243,7 +242,7 @@ test('custom search input commits only completed composition and discards stale 
   fireEvent.compositionStart(input)
   fireEvent.input(input, { target: { value: '未完' } })
   expect(isComposing()).toBe(true)
-  setSearchValue('server')
+  flush(() => setSearchValue('server'))
   expect(isComposing()).toBe(false)
   fireEvent.compositionEnd(input, { target: { value: '未完' } })
   expect(input.value).toBe('server')
@@ -251,7 +250,7 @@ test('custom search input commits only completed composition and discards stale 
   expect(onValueChange).toHaveBeenCalledTimes(2)
 })
 
-test('warns when multiple composition discarders are registered', () => {
+it('warns when multiple composition discarders are registered', () => {
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   try {
     const MultiSearch = () => {
@@ -297,9 +296,9 @@ function Parts() {
     </>
   )
 }
-describe('BaseSelect selection and form', () => {
-  test.each([false, true])('owns uncontrolled selection, multiple=%s', (multiple) => {
-    const change = vi.fn()
+describe('baseSelect selection and form', () => {
+  it.each([false, true])('owns uncontrolled selection, multiple=%s', (multiple) => {
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() =>
       multiple ? (
         <form>
@@ -319,13 +318,21 @@ describe('BaseSelect selection and form', () => {
     expect(change).toHaveBeenLastCalledWith([1])
     expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe(String(multiple))
-    if (multiple) {
-      fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[0]!)
-      expect(change).toHaveBeenLastCalledWith([])
-    }
   })
-  test.each([false, true])('controlled values remain authoritative, multiple=%s', (multiple) => {
-    const change = vi.fn()
+  it('toggles off an active option when multiple is true', () => {
+    const change = vi.fn<(...args: Array<any>) => void>()
+    render(() => (
+      <BaseSelect items={items} multiple defaultOpen onValueChange={change}>
+        <Parts />
+      </BaseSelect>
+    ))
+    fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[0]!)
+    expect(change).toHaveBeenLastCalledWith([1])
+    fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[0]!)
+    expect(change).toHaveBeenLastCalledWith([])
+  })
+  it.each([false, true])('controlled values remain authoritative, multiple=%s', (multiple) => {
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() =>
       multiple ? (
         <BaseSelect items={items} multiple value={[1]} defaultOpen onValueChange={change}>
@@ -341,8 +348,8 @@ describe('BaseSelect selection and form', () => {
     expect(change).toHaveBeenLastCalledWith(multiple ? [1, 2] : [2])
     expect(screen.getByRole('combobox').textContent).toBe('Alpha')
   })
-  test.each(['disabled', 'readOnly'] as const)('blocks root %s mutations', (key) => {
-    const change = vi.fn()
+  it.each(['disabled', 'readOnly'] as const)('blocks root %s mutations', (key) => {
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseSelect items={items} {...{ [key]: true }} defaultOpen onValueChange={change}>
         <Parts />
@@ -352,12 +359,12 @@ describe('BaseSelect selection and form', () => {
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Enter' })
     expect(change).not.toHaveBeenCalled()
   })
-  test.each([
+  it.each([
     [false, false],
     [false, true],
     [true, false],
     [true, true],
-  ])('exposes listbox read-only semantics, multiple=%s readOnly=%s', (multiple, readOnly) => {
+  ])('exposes listbox read-only semantics, multiple=%s readonly=%s', (multiple, readOnly) => {
     render(() => (
       <BaseSelect items={items} defaultOpen multiple={multiple} readOnly={readOnly}>
         <Parts />
@@ -367,8 +374,8 @@ describe('BaseSelect selection and form', () => {
     expect(listbox.getAttribute('aria-readonly')).toBe(readOnly ? 'true' : null)
     expect(listbox.getAttribute('aria-multiselectable')).toBe(multiple ? 'true' : null)
   })
-  test('disabled items cannot be selected and closeOnSelect can be overridden', () => {
-    const change = vi.fn()
+  it('disabled items cannot be selected and closeOnSelect can be overridden', () => {
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseSelect items={items} defaultOpen closeOnSelect={false} onValueChange={change}>
         <Parts />
@@ -382,7 +389,7 @@ describe('BaseSelect selection and form', () => {
     fireEvent.click(second)
     expect(second.getAttribute('data-highlighted')).toBe('')
   })
-  test('resolves unknown controlled values without inventing raw items', () => {
+  it('resolves unknown controlled values without inventing raw items', () => {
     const screen = render(() => (
       <BaseSelect items={items} value={[99]}>
         <Parts />
@@ -390,7 +397,7 @@ describe('BaseSelect selection and form', () => {
     ))
     expect(screen.getByRole('combobox').textContent).toBe('Choose')
   })
-  test('validates required and focuses the trigger', () => {
+  it('validates required and focuses the trigger', () => {
     const screen = render(() => (
       <form>
         <BaseSelect items={items} required name="choice">
@@ -402,7 +409,7 @@ describe('BaseSelect selection and form', () => {
     expect(form.checkValidity()).toBe(false)
     expect(document.activeElement).toBe(screen.getByRole('combobox'))
   })
-  test('marks the trigger invalid after native validation fails and clears it on reset', async () => {
+  it('marks the trigger invalid after native validation fails and clears it on reset', async () => {
     const screen = render(() => (
       <form>
         <BaseSelect items={items} required name="choice">
@@ -422,7 +429,7 @@ describe('BaseSelect selection and form', () => {
     await waitFor(() => expect(trigger.hasAttribute('aria-invalid')).toBe(false))
     expect(trigger.hasAttribute('data-invalid')).toBe(false)
   })
-  test('resets uncontrolled values and omits disabled controls from submission', async () => {
+  it('resets uncontrolled values and omits disabled controls from submission', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (
       <form>
@@ -443,12 +450,12 @@ describe('BaseSelect selection and form', () => {
     expect(new FormData(form).get('choice')).toBe('2')
     form.reset()
     await waitFor(() => expect(new FormData(form).get('choice')).toBe('1'))
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(new FormData(form).has('choice')).toBe(false)
   })
 })
-describe('BaseSelect composition', () => {
-  test('renders an unstyled button without a layout wrapper', () => {
+describe('baseSelect composition', () => {
+  it('renders an unstyled button without a layout wrapper', () => {
     const screen = render(() => (
       <BaseSelect items={items}>
         <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
@@ -460,8 +467,8 @@ describe('BaseSelect composition', () => {
     expect(trigger.getAttribute('type')).toBe('button')
     expect(trigger.parentElement).toBe(screen.container)
   })
-  test('composes consumer refs and events with a Moraine Button', () => {
-    const ref = vi.fn()
+  it('composes consumer refs and events with a Moraine Button', () => {
+    const ref = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseSelect items={items}>
         <BaseSelect.Trigger as={Button} ref={ref} onClick={(event) => event.preventDefault()}>
@@ -474,7 +481,7 @@ describe('BaseSelect composition', () => {
     fireEvent.click(trigger)
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
-  test('listbox is composition-only and empty groups do not suppress Empty', () => {
+  it('listbox is composition-only and empty groups do not suppress Empty', () => {
     const screen = render(() => (
       <BaseSelect items={[]} defaultOpen>
         <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
@@ -489,7 +496,7 @@ describe('BaseSelect composition', () => {
     expect(listbox.contains(within(document.body).getByText('Empty'))).toBe(false)
     expect(screen.getByRole('combobox').getAttribute('aria-controls')).toBe(listbox.id)
   })
-  test('connects group headings and excludes decorative separators from navigation', () => {
+  it('connects group headings and excludes decorative separators from navigation', () => {
     const screen = render(() => (
       <BaseSelect items={items} multiple defaultOpen>
         <BaseSelect.Trigger as="div">Choose</BaseSelect.Trigger>
@@ -522,7 +529,7 @@ describe('BaseSelect composition', () => {
         ?.textContent,
     ).toBe('Beta')
   })
-  test('only associates groups with an existing nested label and preserves explicit labels', () => {
+  it('only associates groups with an existing nested label and preserves explicit labels', () => {
     render(() => (
       <BaseSelect items={items} defaultOpen>
         <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
@@ -552,7 +559,7 @@ describe('BaseSelect composition', () => {
     expect(named.getAttribute('aria-label')).toBe('Named options')
     expect(named.hasAttribute('aria-labelledby')).toBe(false)
   })
-  test.each(['ArrowDown', 'ArrowUp', 'Enter', ' '])('%s opens the trigger', (key) => {
+  it.each(['ArrowDown', 'ArrowUp', 'Enter', ' '])('%s opens the trigger', (key) => {
     const screen = render(() => (
       <BaseSelect items={items}>
         <Parts />
@@ -563,8 +570,8 @@ describe('BaseSelect composition', () => {
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Escape' })
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
   })
-  test('typeahead uses the raw label resolver', () => {
-    const change = vi.fn()
+  it('typeahead uses the raw label resolver', () => {
+    const change = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <BaseSelect items={items} getItemLabel={(item) => item.extra} onValueChange={change}>
         <Parts />
@@ -573,7 +580,7 @@ describe('BaseSelect composition', () => {
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 's' })
     expect(change).toHaveBeenCalledWith([2])
   })
-  test('arrow navigation respects loop=false', () => {
+  it('arrow navigation respects loop=false', () => {
     const screen = render(() => (
       <BaseSelect items={items} loop={false} defaultOpen>
         <Parts />
@@ -598,7 +605,7 @@ describe('BaseSelect composition', () => {
       '',
     )
   })
-  test('arrow navigation does not crash when items array is empty', () => {
+  it('arrow navigation does not crash when items array is empty', () => {
     const screen = render(() => (
       <BaseSelect items={[]} defaultOpen>
         <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
@@ -615,7 +622,7 @@ describe('BaseSelect composition', () => {
   })
 })
 describe('canonical collection and search view', () => {
-  test.each([false, true])(
+  it.each([false, true])(
     'filtered selection still displays and serializes, multiple=%s',
     (multiple) => {
       const screen = render(() => (
@@ -634,11 +641,11 @@ describe('canonical collection and search view', () => {
         within(document.body).getAllByRole('option', { hidden: true })[0]!.textContent,
       ).toContain('Beta')
       expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
-      if (multiple) {
-        expect(
-          screen.container.querySelector('[data-slot="multi-select-tag"]')?.textContent,
-        ).toContain('Alpha')
-      }
+      expect(
+        screen.container
+          .querySelector('[data-slot="multi-select-tag"]')
+          ?.textContent?.includes('Alpha') ?? false,
+      ).toBe(multiple)
       fireEvent.input(screen.getByRole('combobox'), { target: { value: 'missing' } })
       expect(within(document.body).getByText('No items')).not.toBeNull()
       expect(within(document.body).getByRole('listbox', { hidden: true })).not.toBeNull()
@@ -647,11 +654,11 @@ describe('canonical collection and search view', () => {
   )
 })
 
-test('virtual rows remain a small view of canonical selection and compose both refs', () => {
+it('virtual rows remain a small view of canonical selection and compose both refs', () => {
   const leaves = Array.from({ length: 4000 }, (_, value) => ({ value, label: `Item ${value}` }))
-  const userRef = vi.fn()
-  const virtualRef = vi.fn()
-  const scroll = vi.fn()
+  const userRef = vi.fn<(...args: Array<any>) => void>()
+  const virtualRef = vi.fn<(...args: Array<any>) => void>()
+  const scroll = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <form>
       <MultiSelect
@@ -694,8 +701,8 @@ test('virtual rows remain a small view of canonical selection and compose both r
   expect(screen.container.querySelectorAll('input[type="hidden"]')).toHaveLength(0)
 })
 
-test('owns Form context synchronization and treats an unmatched empty field as no selection', () => {
-  const change = vi.fn()
+it('owns Form context synchronization and treats an unmatched empty field as no selection', () => {
+  const change = vi.fn<(...args: Array<any>) => void>()
   const { screen, value: form } = renderWithOwner(
     () =>
       createForm({
@@ -715,13 +722,12 @@ test('owns Form context synchronization and treats an unmatched empty field as n
   expect(screen.getByRole('combobox').textContent).toBe('Choose')
   fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[1]!)
   expect(getInput(form)).toEqual({ choice: 2 })
-  expect(change).toHaveBeenCalledWith([2])
-  setInput(form, { path: ['choice'], input: '' })
+  flush(() => setInput(form, { path: ['choice'], input: '' }))
   expect(screen.getByRole('combobox').textContent).toBe('Choose')
-  expect(change).toHaveBeenCalledOnce()
+  expect(change).toHaveBeenCalledExactlyOnceWith([2])
 })
 
-test('uses raw BaseSelect items to recognize an empty-string Form.Field value', () => {
+it('uses raw BaseSelect items to recognize an empty-string Form.Field value', () => {
   const { screen } = renderWithOwner(
     () =>
       createForm({
@@ -742,12 +748,12 @@ test('uses raw BaseSelect items to recognize an empty-string Form.Field value', 
   expect(screen.getByRole('combobox').textContent).toBe('1')
 })
 
-test('normalizes controlled multiple values before synchronizing Form.Field', () => {
-  const [controlled, setControlled] = createSignal<readonly string[]>(['a', 'a'], {
+it('normalizes controlled multiple values before synchronizing Form.Field', () => {
+  const [controlled, setControlled] = createSignal<ReadonlyArray<string>>(['a', 'a'], {
     equals: false,
   })
   const [fieldValue, setFieldValue] = createSignal<unknown>(['a', 'a'])
-  const onInput = vi.fn((value: unknown) => setFieldValue(value))
+  const onInput = vi.fn<(value: unknown) => any>((value) => setFieldValue(value))
   const binding: FieldBinding = {
     name: 'choices',
     path: ['choices'],
@@ -776,19 +782,19 @@ test('normalizes controlled multiple values before synchronizing Form.Field', ()
   expect(onInput).toHaveBeenCalledExactlyOnceWith(['a'])
   onInput.mockClear()
 
-  setControlled(['a', 'a'])
-  setControlled(['a'])
+  flush(() => setControlled(['a', 'a']))
+  flush(() => setControlled(['a']))
   expect(onInput).not.toHaveBeenCalled()
 
-  setControlled(['a', 'b'])
+  flush(() => setControlled(['a', 'b']))
   expect(onInput).toHaveBeenCalledExactlyOnceWith(['a', 'b'])
   onInput.mockClear()
 
-  setControlled(['b', 'a'])
+  flush(() => setControlled(['b', 'a']))
   expect(onInput).toHaveBeenCalledExactlyOnceWith(['b', 'a'])
 })
 
-test('diagnoses raw BaseSelect duplicate values once without filtering or throwing', () => {
+it('diagnoses raw BaseSelect duplicate values once without filtering or throwing', () => {
   const duplicate = { value: 'raw-base-duplicate', label: 'Duplicate' }
   const [source, setSource] = createSignal([duplicate, { ...duplicate }], { equals: false })
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
@@ -808,12 +814,12 @@ test('diagnoses raw BaseSelect duplicate values once without filtering or throwi
   expect(error).toHaveBeenCalledOnce()
   expect(error).toHaveBeenCalledWith(expect.stringContaining('invalid consumer input'))
 
-  setSource([duplicate, { ...duplicate }])
+  flush(() => setSource([duplicate, { ...duplicate }]))
   expect(error).toHaveBeenCalledOnce()
   error.mockRestore()
 })
 
-test('enforces explicit item boundary, prevents DOM leakage, and keeps item prop reactive', () => {
+it('enforces explicit item boundary, prevents DOM leakage, and keeps item prop reactive', () => {
   const initialItem = {
     value: 'alpha',
     label: 'Alpha',
@@ -823,7 +829,7 @@ test('enforces explicit item boundary, prevents DOM leakage, and keeps item prop
     disabled: false,
   }
   const [item, setItem] = createSignal(initialItem)
-  const onChange = vi.fn()
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   let renderStateItem: typeof initialItem | undefined
   render(() => (
     <BaseSelect items={[item()]} defaultOpen closeOnSelect={false} onValueChange={onChange}>
@@ -871,7 +877,7 @@ test('enforces explicit item boundary, prevents DOM leakage, and keeps item prop
     customField: 456,
     disabled: true,
   }
-  setItem(updatedItem)
+  flush(() => setItem(updatedItem))
 
   // DOM node must not be replaced
   expect(within(document.body).getByTestId('option-item')).toBe(initialElement)
@@ -883,14 +889,14 @@ test('enforces explicit item boundary, prevents DOM leakage, and keeps item prop
   fireEvent.click(option)
   expect(onChange).not.toHaveBeenCalled()
 
-  setItem({ ...updatedItem, disabled: false })
+  flush(() => setItem({ ...updatedItem, disabled: false }))
   fireEvent.click(option)
   expect(onChange).toHaveBeenCalledWith(['beta'])
   expect(option.getAttribute('aria-selected')).toBe('true')
 })
 
-test('uses the canonical item disabled state for equivalent rendered items', () => {
-  const onChange = vi.fn()
+it('uses the canonical item disabled state for equivalent rendered items', () => {
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   render(() => (
     <BaseSelect
       items={[{ value: 'locked', label: 'Canonical', disabled: true }]}
@@ -912,7 +918,7 @@ test('uses the canonical item disabled state for equivalent rendered items', () 
   expect(onChange).not.toHaveBeenCalled()
 })
 
-test('does not serialize an empty single selection as a named value', () => {
+it('does not serialize an empty single selection as a named value', () => {
   const screen = render(() => (
     <form>
       <BaseSelect name="choice" items={[{ value: 'apple', label: 'Apple' }]}>
@@ -924,7 +930,7 @@ test('does not serialize an empty single selection as a named value', () => {
   expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual([])
 })
 
-test('submits a single selection as one named value that validates as required', () => {
+it('submits a single selection as one named value that validates as required', () => {
   const screen = render(() => (
     <form>
       <BaseSelect
@@ -943,7 +949,7 @@ test('submits a single selection as one named value that validates as required',
   expect(new FormData(form).getAll('choice')).toEqual(['apple'])
 })
 
-test('submits every multi-select value under the shared name', () => {
+it('submits every multi-select value under the shared name', () => {
   const screen = render(() => (
     <form>
       <BaseSelect
@@ -966,7 +972,7 @@ test('submits every multi-select value under the shared name', () => {
   expect(new FormData(form).getAll('choice')).toEqual(['apple', 'orange', 'pear'])
 })
 
-test('submits duplicate serialized values without collapsing them', () => {
+it('submits duplicate serialized values without collapsing them', () => {
   const screen = render(() => (
     <form>
       <BaseSelect
@@ -989,7 +995,7 @@ test('submits duplicate serialized values without collapsing them', () => {
   expect(new FormData(form).getAll('choice')).toEqual(['same', 'same', 'same'])
 })
 
-test('supports an empty-string value with required validation and form submission', () => {
+it('supports an empty-string value with required validation and form submission', () => {
   const screen = render(() => (
     <form>
       <BaseSelect
@@ -1011,7 +1017,7 @@ test('supports an empty-string value with required validation and form submissio
   expect(new FormData(form).getAll('choice')).toEqual([''])
 })
 
-test('supports getItemByValue to recognize canonical selection when navigation items omit it', () => {
+it('supports getItemByValue to recognize canonical selection when navigation items omit it', () => {
   const canonical = [
     { value: '', label: 'Empty' },
     { value: 'apple', label: 'Apple' },
@@ -1058,9 +1064,11 @@ test('supports getItemByValue to recognize canonical selection when navigation i
   expect(screenWithoutResolver.getByRole('combobox').textContent).toBe('0')
 })
 
-test('resolves canonical item disabled state and passes canonical item to isItemDisabled', () => {
-  const onChange = vi.fn()
-  const isItemDisabled = vi.fn((item: any, _values) => item.customFlag === true)
+it('resolves canonical item disabled state and passes canonical item to isItemDisabled', () => {
+  const onChange = vi.fn<(...args: Array<any>) => void>()
+  const isItemDisabled = vi.fn<(item: any, _values: any) => any>(
+    (item, _values) => item.customFlag === true,
+  )
   const canonicalItem1 = {
     value: 'target-1',
     label: 'Canonical Target 1',
@@ -1146,8 +1154,8 @@ function dispatchKey(
   return event
 }
 
-test('ignores IME keyCode 229 navigation and selection', () => {
-  const onChange = vi.fn()
+it('ignores IME keyCode 229 navigation and selection', () => {
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   render(() => (
     <BaseSelect items={items} defaultOpen onValueChange={onChange}>
       <Parts />
@@ -1165,8 +1173,8 @@ test('ignores IME keyCode 229 navigation and selection', () => {
   expect(onChange).not.toHaveBeenCalled()
 })
 
-test('matches a hidden form input change to the corresponding item', () => {
-  const onChange = vi.fn()
+it('matches a hidden form input change to the corresponding item', () => {
+  const onChange = vi.fn<(...args: Array<any>) => void>()
   const screen = render(() => (
     <form>
       <BaseSelect items={items} name="choice" onValueChange={onChange}>
@@ -1183,7 +1191,7 @@ test('matches a hidden form input change to the corresponding item', () => {
   expect(input.value).toBe('2')
 })
 
-test('does not highlight from a stationary pointer move', () => {
+it('does not highlight from a stationary pointer move', () => {
   const screen = render(() => (
     <BaseSelect items={items} defaultOpen>
       <Parts />
@@ -1204,10 +1212,11 @@ test('does not highlight from a stationary pointer move', () => {
   Object.defineProperty(moving, 'movementX', { value: 1 })
   Object.defineProperty(moving, 'movementY', { value: 0 })
   options[0]!.dispatchEvent(moving)
+  flush()
   expect(options[0]?.getAttribute('data-highlighted')).toBe('')
 })
 
-test('prevents mousedown default on options so the focus owner is not blurred', () => {
+it('prevents mousedown default on options so the focus owner is not blurred', () => {
   render(() => (
     <BaseSelect items={items} defaultOpen>
       <Parts />

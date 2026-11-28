@@ -1,8 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup, onFlush, untrack } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
-
 export interface CreateTransitionPresenceOptions {
   open: Accessor<boolean>
   onExitComplete?: () => void
@@ -105,7 +104,11 @@ function getChangedAnimationEntries(
 export function createTransitionPresence(
   options: CreateTransitionPresenceOptions,
 ): TransitionPresenceState {
-  const [present, setPresent] = createSignal(options.open())
+  // Opening makes the content present immediately; closing keeps it present until `endExit`
+  // clears it once the exit animations settle.
+  const [present, setPresent] = createSignal<boolean>(
+    (previous) => options.open() || (previous ?? false),
+  )
   const dataAttrs = {
     get 'data-closed'() {
       return options.open() ? undefined : ''
@@ -123,6 +126,7 @@ export function createTransitionPresence(
   let exitTimeout: ReturnType<typeof setTimeout> | undefined
   let nextRegistrationId = 0
   let disposed = false
+  let exitFinished = false
 
   const clearPendingAnimations = (): void => {
     if (exitTimeout !== undefined) {
@@ -133,19 +137,26 @@ export function createTransitionPresence(
     measuredElements.clear()
   }
 
+  const endExit = (): void => {
+    exitFinished = true
+    clearPendingAnimations()
+    setPresent(false)
+  }
+
+  // Runs from animation events, microtasks, and timers, outside any reactive scope.
   const finishHiding = (): void => {
     if (
+      exitFinished ||
       options.open() ||
+      !present() ||
       pendingAnimations.size > 0 ||
       Array.from(trackedElements.keys()).some((element) => !measuredElements.has(element))
     ) {
       return
     }
 
-    const completed = present()
-    clearPendingAnimations()
-    setPresent(false)
-    if (completed && !disposed) {
+    endExit()
+    if (!disposed) {
       options.onExitComplete?.()
     }
   }
@@ -184,7 +195,7 @@ export function createTransitionPresence(
     measuredElements.delete(element)
     animationNames.set(
       element,
-      options.open() && !entries.some((entry) => entry.name === '*')
+      untrack(options.open) && !entries.some((entry) => entry.name === '*')
         ? entries.map((entry) => entry.name)
         : [],
     )
@@ -234,7 +245,6 @@ export function createTransitionPresence(
     measuredElements.delete(element)
     animationNames.delete(element)
     pendingAnimations.delete(element)
-    // oxlint-disable-next-line subf/solid-reactivity -- Owner teardown releases before `disposed` is set, so settle after it.
     queueMicrotask(() => {
       if (!disposed) {
         finishHiding()
@@ -270,28 +280,31 @@ export function createTransitionPresence(
   })
 
   createEffect(
-    on([options.open, revision], ([open]) => {
+    () => [options.open(), present(), !options.open() && present() ? revision() : 0] as const,
+    ([open, isPresent]) => {
       const currentElements = Array.from(new Set(registrations.values()))
 
       if (open) {
+        exitFinished = false
         clearPendingAnimations()
-        setPresent(true)
         return
       }
 
-      if (!present()) {
+      if (!isPresent || exitFinished) {
         return
       }
 
       if (currentElements.length === 0) {
-        finishHiding()
+        endExit()
+        if (!disposed) {
+          options.onExitComplete?.()
+        }
         return
       }
 
       let cancelled = false
 
-      // oxlint-disable-next-line subf/solid-reactivity -- Measure committed exit styles after this effect, checking the latest open state before completing.
-      queueMicrotask(() => {
+      onFlush(() => {
         if (cancelled || disposed) {
           return
         }
@@ -342,14 +355,14 @@ export function createTransitionPresence(
         }
       })
 
-      onCleanup(() => {
+      return () => {
         cancelled = true
         if (exitTimeout !== undefined) {
           clearTimeout(exitTimeout)
           exitTimeout = undefined
         }
-      })
-    }),
+      }
+    },
   )
 
   return {

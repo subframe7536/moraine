@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -7,7 +8,6 @@ import type { FieldT } from '../field'
 
 import type { defaultSliderMessages } from './slider.messages'
 import type { SliderStyleSlot, SliderStyleVariants } from './slider.style-types'
-
 export namespace SliderT {
   export type Kind = 'single'
   export type Slot<T = unknown> = SliderStyleSlot<T>
@@ -19,15 +19,15 @@ export namespace SliderT {
   export type Messages = ComponentMessages<typeof defaultSliderMessages>
   export type Translations = Partial<Messages>
 
-  export type Value = number | number[]
+  export type Value = number | Array<number>
 
   export interface ChildrenRenderProps<TValue = Value> {
     /** Current public value: a number for one thumb, or an array for a range. */
     value: TValue
     /** Current thumb values in ascending order. */
-    values: number[]
+    values: Array<number>
     /** Position of each thumb along the track, from `0` to `1`. */
-    percentages: number[]
+    percentages: Array<number>
     /** Whether a pointer drag is in progress. */
     dragging: boolean
     /** Physical edge where the filled range starts, after `orientation`, `reversed`, and direction. */

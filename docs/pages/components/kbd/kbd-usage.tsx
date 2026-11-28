@@ -1,5 +1,4 @@
 import { Kbd } from '@src'
-
 export function KbdUsage() {
   return (
     <div class="flex flex-wrap gap-3 items-center">

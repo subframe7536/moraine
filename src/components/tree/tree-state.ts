@@ -1,11 +1,10 @@
 import type { Accessor } from 'solid-js'
 import {
-  batch,
   createEffect,
   createMemo,
-  createSelector,
+  createProjection,
   createSignal,
-  on,
+  onSettled,
   untrack,
 } from 'solid-js'
 
@@ -24,7 +23,6 @@ import {
 } from './tree-registry'
 import type { LoadedChildren, TreeNode, TreeRegistry } from './tree-registry'
 import type { TreeT } from './tree.types'
-
 /**
  * Stable per-key item handle. Kept as a class instance so Solid stores never wrap it in a proxy.
  */
@@ -76,7 +74,7 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   get parentKey(): string | undefined {
     return this.node.parentKey
   }
-  get children(): readonly TreeT.ItemInstance<T>[] {
+  get children(): ReadonlyArray<TreeT.ItemInstance<T>> {
     return this.node.childrenKeys.flatMap((key) => this.state.getItem(key) ?? [])
   }
   get label(): string {
@@ -95,7 +93,7 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
     return this.state.isLoading(this.key)
   }
   get focused(): boolean {
-    return this.state.navigation.focusedKey() === this.key
+    return this.state.navigation.isFocused(this.key)
   }
   get checkedState(): TreeT.CheckedState {
     return this.state.getCheckedState(this.key)
@@ -127,13 +125,13 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
 export interface TreeState<T> extends TreeT.Methods<T> {
   options: TreeT.Options<T>
   registry: Accessor<TreeRegistry<T>>
-  expandedKeys: Accessor<readonly string[]>
-  selectedKeys: Accessor<readonly string[]>
-  checkedKeys: Accessor<readonly string[]>
-  loadingKeys: Accessor<readonly string[]>
-  flattenedKeys: Accessor<readonly string[]>
-  flattenedItems: Accessor<readonly TreeT.ItemInstance<T>[]>
-  rootItems: () => readonly TreeT.ItemInstance<T>[]
+  expandedKeys: Accessor<ReadonlyArray<string>>
+  selectedKeys: Accessor<ReadonlyArray<string>>
+  checkedKeys: Accessor<ReadonlyArray<string>>
+  loadingKeys: Accessor<ReadonlyArray<string>>
+  flattenedKeys: Accessor<ReadonlyArray<string>>
+  flattenedItems: Accessor<ReadonlyArray<TreeT.ItemInstance<T>>>
+  rootItems: () => ReadonlyArray<TreeT.ItemInstance<T>>
   selectionMode: () => TreeT.SelectionMode
   navigation: TreeNavigation
   isExpanded: (key: string) => boolean
@@ -146,11 +144,10 @@ export interface TreeState<T> extends TreeT.Methods<T> {
 
 export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   const [focusedKey, setFocusedKey] = createSignal<string | undefined>()
-  const [loadingKeys, setLoadingKeys] = createSignal<readonly string[]>([])
+  const [loadingKeys, setLoadingKeys] = createSignal<ReadonlyArray<string>>([])
   const [loaded, setLoaded] = createSignal<Readonly<Record<string, LoadedChildren<T>>>>({})
   const inFlight = new Map<string, Promise<boolean>>()
   const handles = new Map<string, TreeItemHandle<T>>()
-  let state!: TreeState<T>
 
   // Memoized so lazy loads rebuild the registry against the same source items.
   const items = createMemo(() => options.items())
@@ -165,27 +162,49 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   })
 
   const isDisabled = (key: string): boolean => Boolean(state.registry().nodes.get(key)?.disabled)
-  const loadingSet = createMemo(() => new Set(loadingKeys()))
+  let previousLoadingKeys = new Set<string>()
+  const loadingMap = createProjection<Record<string, boolean>>((draft) => {
+    const nextKeys = new Set(loadingKeys())
+    for (const key of nextKeys) {
+      if (!previousLoadingKeys.has(key)) {
+        draft[key] = true
+      }
+    }
+    for (const key of previousLoadingKeys) {
+      if (!nextKeys.has(key)) {
+        delete draft[key]
+      }
+    }
+    previousLoadingKeys = nextKeys
+  }, {})
+
+  let disposed = false
+  onSettled(() => () => {
+    disposed = true
+  })
 
   async function runLoad(
     key: string,
     item: T,
-    loadChildren: (item: T) => Promise<readonly T[]>,
+    loadChildren: (item: T) => Promise<ReadonlyArray<T>>,
   ): Promise<boolean> {
-    let children: readonly T[]
+    let children: ReadonlyArray<T>
     try {
       children = await loadChildren(item)
     } catch (error) {
-      setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
-      options.onLoadChildrenError?.({ item, error })
+      if (!disposed) {
+        setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
+        options.onLoadChildrenError?.({ item, error })
+      }
       return false
     } finally {
       inFlight.delete(key)
     }
-    batch(() => {
-      setLoaded((previous) => ({ ...previous, [key]: { raw: item, children } }))
-      setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
-    })
+    if (disposed) {
+      return false
+    }
+    setLoaded((previous) => ({ ...previous, [key]: { raw: item, children } }))
+    setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
     options.onLoadChildrenSuccess?.({ item, children })
     return true
   }
@@ -209,17 +228,30 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   }
 
   // Expansion
-  const [expandedKeys, setExpandedKeys] = createControllableValue<readonly string[]>({
+  const [expandedKeys, setExpandedKeys] = createControllableValue<ReadonlyArray<string>>({
     value: () => options.expandedKeys,
     defaultValue: () => options.defaultExpandedKeys ?? [],
     onChange: (keys) => options.onExpandedKeysChange?.([...keys]),
   })
   const expandedSet = createMemo(() => new Set(expandedKeys()))
-  const isExpanded = createSelector<ReadonlySet<string>, string>(expandedSet, (key, set) =>
-    set.has(key),
-  )
+  let previousExpanded: ReadonlySet<string> = new Set()
+  const expandedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = expandedSet()
+    for (const key of previousExpanded) {
+      if (!next.has(key)) {
+        delete draft[key]
+      }
+    }
+    for (const key of next) {
+      if (!previousExpanded.has(key)) {
+        draft[key] = true
+      }
+    }
+    previousExpanded = next
+  }, {})
+  const isExpanded = (key: string): boolean => expandedMap[key] === true
 
-  function addExpanded(keys: readonly string[]): void {
+  function addExpanded(keys: ReadonlyArray<string>): void {
     setExpandedKeys((previous) => {
       const existing = new Set(previous)
       const added = keys.filter((key) => !existing.has(key))
@@ -260,7 +292,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   }
 
   function expandAll(): void {
-    const branches: string[] = []
+    const branches: Array<string> = []
     for (const node of registry().nodes.values()) {
       if (node.hasChildren && !node.disabled) {
         branches.push(node.key)
@@ -284,21 +316,33 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       const expanded = expandedSet()
       return flattenKeys(registry(), (key) => expanded.has(key))
     },
-    undefined,
     { equals: sameKeys },
   )
 
   // Selection
   const selectionMode = (): TreeT.SelectionMode => options.selectionMode ?? 'single'
-  const [selectedKeys, setSelectedKeys] = createControllableValue<readonly string[]>({
+  const [selectedKeys, setSelectedKeys] = createControllableValue<ReadonlyArray<string>>({
     value: () => options.selectedKeys,
     defaultValue: () => options.defaultSelectedKeys ?? [],
     onChange: (keys) => options.onSelectedKeysChange?.([...keys]),
   })
   const selectedSet = createMemo(() => new Set(selectedKeys()))
-  const isSelected = createSelector<ReadonlySet<string>, string>(selectedSet, (key, set) =>
-    set.has(key),
-  )
+  let previousSelected: ReadonlySet<string> = new Set()
+  const selectedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = selectedSet()
+    for (const key of previousSelected) {
+      if (!next.has(key)) {
+        delete draft[key]
+      }
+    }
+    for (const key of next) {
+      if (!previousSelected.has(key)) {
+        draft[key] = true
+      }
+    }
+    previousSelected = next
+  }, {})
+  const isSelected = (key: string): boolean => selectedMap[key] === true
   let anchorKey: string | undefined
   let rangeSnapshot = new Set<string>()
 
@@ -352,7 +396,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     if (selectionMode() !== 'multiple') {
       return
     }
-    const keys: string[] = []
+    const keys: Array<string> = []
     for (const node of registry().nodes.values()) {
       if (!node.disabled) {
         keys.push(node.key)
@@ -394,8 +438,8 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     const max = Math.max(from, to)
     const next = new Set(rangeSnapshot)
     for (let i = min; i <= max; i++) {
-      const candidate = visible[i]!
-      if (!isDisabled(candidate)) {
+      const candidate = visible[i]
+      if (candidate !== undefined && !isDisabled(candidate)) {
         next.add(candidate)
       }
     }
@@ -403,7 +447,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   }
 
   // Checked
-  const [storedCheckedKeys, setStoredCheckedKeys] = createControllableValue<readonly string[]>({
+  const [storedCheckedKeys, setStoredCheckedKeys] = createControllableValue<ReadonlyArray<string>>({
     value: () => options.checkedKeys,
     defaultValue: () => options.defaultCheckedKeys ?? [],
     onChange: (keys) => options.onCheckedKeysChange?.([...keys]),
@@ -413,13 +457,12 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   )
   // Stored keys outside the current registry, such as unloaded lazy children, stay checked so
   // they apply once their items load. `checkedKeys` reports them so it matches `onCheckedKeysChange`.
-  const unknownCheckedKeys = (): string[] => {
+  const unknownCheckedKeys = (): Array<string> => {
     const nodes = registry().nodes
     return storedCheckedKeys().filter((storedKey) => !nodes.has(storedKey))
   }
   const checkedKeys = createMemo(
     () => [...collectCheckedKeys(checkedStates()), ...unknownCheckedKeys()],
-    undefined,
     { equals: sameKeys },
   )
   const getCheckedState = (key: string): TreeT.CheckedState =>
@@ -446,7 +489,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     const subtree = [
       key,
       ...getDescendantKeys(current, key).filter(
-        (childKey) => !current.nodes.get(childKey)!.disabled,
+        (childKey) => !current.nodes.get(childKey)?.disabled,
       ),
     ]
     if (checked) {
@@ -499,24 +542,23 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
 
   // Moves focus off the current item once it is hidden or becomes disabled.
   createEffect(
-    on(
-      [flattenedKeys, registry],
-      ([visible, { nodes }]) => {
-        const current = untrack(focusedKey)
-        if (current === undefined || (visible.includes(current) && !nodes.get(current)?.disabled)) {
-          return
-        }
-        const fallback = untrack(navigation.tabStopKey)
-        if (fallback !== undefined && fallback !== current) {
-          navigation.focus(fallback, { dom: untrack(navigation.isFocusWithin) })
-        }
-      },
-      { defer: true },
-    ),
+    () => [flattenedKeys(), registry()],
+    ([visible, { nodes }]) => {
+      const current = untrack(focusedKey)
+      if (current === undefined || (visible.includes(current) && !nodes.get(current)?.disabled)) {
+        return
+      }
+      const fallback = untrack(navigation.tabStopKey)
+      if (fallback !== undefined && fallback !== current) {
+        navigation.focus(fallback, { dom: untrack(navigation.isFocusWithin) })
+      }
+    },
+    { defer: true },
   )
 
   createEffect(
-    on([registry, expandedKeys], ([current, keys]) => {
+    () => [registry(), expandedKeys()],
+    ([current, keys]) => {
       for (const key of keys) {
         const node = current.nodes.get(key)
         if (node?.needsLoad) {
@@ -528,7 +570,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
           })
         }
       }
-    }),
+    },
   )
 
   function handleClick(event: MouseEvent, key: string): void {
@@ -553,10 +595,13 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     }
   }
 
-  const rootItems = createMemo(() => registry().rootKeys.flatMap((key) => getItem(key) ?? []))
+  const rootItems = createMemo(() => registry().rootKeys.flatMap((key) => getItem(key) ?? []), {
+    equals: (prev, next) =>
+      prev.length === next.length && prev.every((item, index) => item === next[index]),
+  })
   const flattenedItems = createMemo(() => flattenedKeys().flatMap((key) => getItem(key) ?? []))
 
-  state = {
+  const state: TreeState<T> = {
     options,
     registry,
     expandedKeys,
@@ -593,13 +638,26 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       if (!item || item.disabled) {
         return
       }
+      // `flattenedKeys()` cannot see the `expandTo` write it precedes, so
+      // reachability is checked structurally: the item becomes visible when
+      // every ancestor on its path can be (and just was) expanded.
+      const ancestors = getAncestorKeys(registry(), key)
+      const needsExpand = ancestors.some((ancestorKey) => !expandedSet().has(ancestorKey))
       expandTo(key)
-      if (flattenedKeys().includes(key)) {
-        navigation.focus(key)
+      if (ancestors.every((ancestorKey) => !isDisabled(ancestorKey))) {
+        if (needsExpand) {
+          queueMicrotask(() => {
+            if (!disposed) {
+              navigation.focus(key)
+            }
+          })
+        } else {
+          navigation.focus(key)
+        }
       }
     },
     getItem,
-    isLoading: (key) => loadingSet().has(key),
+    isLoading: (key) => loadingMap[key] === true,
   }
 
   return state

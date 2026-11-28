@@ -1,6 +1,5 @@
 import { Button, Icon, Input, InputGroup } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 const targetURL = 'https://github.com/subframe7536/moraine'
 
 export function Actions() {
@@ -38,7 +37,7 @@ export function Actions() {
             size="icon-sm"
             variant="ghost"
             aria-label="Toggle favorite"
-            aria-pressed={favorite()}
+            aria-pressed={favorite() ? 'true' : 'false'}
             onClick={() => setFavorite((value) => !value)}
           >
             <Show when={favorite()} fallback={<Icon name="i-lucide:star" />}>

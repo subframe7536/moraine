@@ -1,9 +1,8 @@
+import { renderToString } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { Empty } from './empty'
 import type { EmptyT } from './empty.types'
-
 export function EmptyHydrationFixture(props: {
   size?: EmptyT.Variants['size']
   title?: string

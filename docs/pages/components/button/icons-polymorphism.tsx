@@ -1,5 +1,4 @@
 import { Button } from '@src'
-
 export function IconsPolymorphism() {
   return (
     <div class="flex flex-wrap gap-3 items-center">

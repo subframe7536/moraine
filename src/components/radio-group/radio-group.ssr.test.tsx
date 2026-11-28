@@ -1,15 +1,14 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { RadioGroup } from './radio-group'
-
 const FIXTURE_PATH = '/src/components/radio-group/radio-group.ssr.fixture.tsx'
 
-describe('RadioGroup SSR Hydration', () => {
-  test('hydrates item identity, descriptions, checked state, and the first keyboard action', () => {
+describe('radioGroup SSR Hydration', () => {
+  it('hydrates item identity, descriptions, checked state, and the first keyboard action', () => {
     const [value, setValue] = createSignal('pro')
 
     const { container } = hydrateFixture(FIXTURE_PATH, 'renderRadioGroupFixture', () =>
@@ -48,7 +47,7 @@ describe('RadioGroup SSR Hydration', () => {
     expect(document.activeElement).toBe(inputs[2])
   })
 
-  test('hydrates items that have a label or description on only some entries without mismatch', () => {
+  it('hydrates items that have a label or description on only some entries without mismatch', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 

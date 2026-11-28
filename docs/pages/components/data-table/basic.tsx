@@ -1,7 +1,6 @@
 import { Badge } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
-
 interface Member {
   id: string
   name: string
@@ -11,7 +10,7 @@ interface Member {
   joined: string
 }
 
-const MEMBERS: Member[] = [
+const MEMBERS: Array<Member> = [
   {
     id: 'u1',
     name: 'Alice Johnson',
@@ -120,7 +119,7 @@ const ROLE_TONE = {
 // Sort roles by rank instead of alphabetically.
 const ROLE_RANK: Record<Member['role'], number> = { Owner: 0, Admin: 1, Member: 2, Viewer: 3 }
 
-const COLUMNS: DataTableT.Column<Member>[] = [
+const COLUMNS: Array<DataTableT.Column<Member>> = [
   {
     accessorKey: 'name',
     header: 'Member',

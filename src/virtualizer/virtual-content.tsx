@@ -1,9 +1,7 @@
-import type { JSX } from 'solid-js'
-import { Show } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Show, dynamicComponent } from 'solid-js'
 
 import type { ListVirtualizer, VirtualRowProps } from './virtualizer.types'
-
 // Imported by the main entry: it must not import `@tanstack/virtual-core` or a module that does.
 
 /**
@@ -12,7 +10,7 @@ import type { ListVirtualizer, VirtualRowProps } from './virtualizer.types'
  */
 export function VirtualContent<TEntry>(props: {
   virtualizer: ListVirtualizer<TEntry> | undefined
-  entries: readonly TEntry[]
+  entries: ReadonlyArray<TEntry>
   scrollElement: HTMLElement | undefined
   render: (entry: TEntry, index: number, rowProps: VirtualRowProps) => JSX.Element
   /** Non-virtual content. */
@@ -20,14 +18,16 @@ export function VirtualContent<TEntry>(props: {
 }): JSX.Element {
   return (
     <Show when={props.virtualizer} fallback={props.fallback}>
-      {(virtualizer) => (
-        <Dynamic
-          component={virtualizer().virtualRender}
-          entries={props.entries}
-          scrollElement={props.scrollElement}
-          render={props.render}
-        />
-      )}
+      {(virtualizer) => {
+        const VirtualRows = dynamicComponent(() => virtualizer().virtualRender)
+        return (
+          <VirtualRows
+            entries={props.entries}
+            scrollElement={props.scrollElement}
+            render={props.render}
+          />
+        )
+      }}
     </Show>
   )
 }

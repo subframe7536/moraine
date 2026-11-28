@@ -1,8 +1,8 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
+import { merge } from 'solid-js'
 
 import { Drawer } from './drawer'
-import { createDrawerContentRegistration, DrawerContentProvider } from './drawer-context'
-
+import { createDrawerContentRegistration, DrawerProvider, useDrawerContext } from './drawer-context'
 export function renderDrawerFixture(): string {
   return renderToString(() => (
     <>
@@ -48,25 +48,31 @@ export function renderDrawerFixture(): string {
   ))
 }
 
-export function renderPartsFixture(): string {
-  return renderToString(() => {
-    const registration = createDrawerContentRegistration()
-    return (
-      <Drawer>
-        <DrawerContentProvider
-          value={{
-            ...registration,
-            variants: { side: 'bottom' },
-          }}
-        >
-          <Drawer.Header>
-            <Drawer.Title id="server-drawer-title">Real title</Drawer.Title>
-            <Drawer.Description>Details</Drawer.Description>
-          </Drawer.Header>
-          <Drawer.Body>Body</Drawer.Body>
-          <Drawer.Footer>Actions</Drawer.Footer>
-        </DrawerContentProvider>
-      </Drawer>
-    )
+function PartsWithContent() {
+  const drawer = useDrawerContext()
+  const registration = createDrawerContentRegistration()
+  const value = merge(drawer, {
+    content: {
+      ...registration,
+      variants: { side: 'bottom' as const },
+    },
   })
+  return (
+    <DrawerProvider value={value}>
+      <Drawer.Header>
+        <Drawer.Title id="server-drawer-title">Real title</Drawer.Title>
+        <Drawer.Description>Details</Drawer.Description>
+      </Drawer.Header>
+      <Drawer.Body>Body</Drawer.Body>
+      <Drawer.Footer>Actions</Drawer.Footer>
+    </DrawerProvider>
+  )
+}
+
+export function renderPartsFixture(): string {
+  return renderToString(() => (
+    <Drawer>
+      <PartsWithContent />
+    </Drawer>
+  ))
 }

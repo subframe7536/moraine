@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { InputGroupStyleSlot, InputGroupStyleVariants } from './input-group.style-types'
-
 interface InputGroupPartBase<T extends ValidComponent = 'div'> {
   /**
    * The HTML element or component to render as.

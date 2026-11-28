@@ -1,14 +1,13 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { createTree } from './tree'
-
 interface Node {
   id: string
   name: string
-  children?: Node[]
+  children?: Array<Node>
 }
 
-const DATA: Node[] = [
+const DATA: Array<Node> = [
   {
     id: 'src',
     name: 'src',

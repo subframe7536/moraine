@@ -16,9 +16,9 @@ import { createBaseSelectSearchInput } from 'moraine/utils'
 ## Options and result
 
 ```ts
-interface BaseSelectSearchInputOptions {
+interface BaseSelectSearchInputOptions<TItem extends BaseSelectT.Item = BaseSelectT.Item> {
   state: Pick<
-    BaseSelectT.Context,
+    BaseSelectT.Context<TItem>,
     | 'id'
     | 'listboxId'
     | 'open'

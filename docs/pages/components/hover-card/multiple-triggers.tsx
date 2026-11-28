@@ -1,5 +1,4 @@
 import { Avatar, HoverCard, Icon } from '@src'
-
 const profiles = {
   ananya: {
     name: 'Ananya Rao',

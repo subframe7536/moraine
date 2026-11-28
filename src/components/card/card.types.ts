@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { CardStyleSlot, CardStyleVariants } from './card.style-types'
-
 export namespace CardT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = CardStyleSlot<T>

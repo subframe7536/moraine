@@ -1,5 +1,4 @@
 import { Separator } from '@src'
-
 export function SeparatorUsage() {
   return (
     <div class="max-w-md w-full space-y-4">

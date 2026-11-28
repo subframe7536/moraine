@@ -1,7 +1,7 @@
 import { waitFor } from '@solidjs/testing-library'
 import type { SortingState } from '@tanstack/table-core'
-import { createSignal } from 'solid-js'
-import { afterEach, expect, test, vi } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { afterEach, expect, vi, it } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../test-util/ssr-test'
 
@@ -10,7 +10,6 @@ import {
   VirtualColumnsDataTableFixture,
   VirtualRowsDataTableFixture,
 } from './data-table-features.ssr.fixture'
-
 const FIXTURE = '/src/data-table/data-table-features.ssr.fixture.tsx'
 
 afterEach(() => {
@@ -23,7 +22,7 @@ function bodyRow(container: HTMLElement, text: string): HTMLTableRowElement {
   )!
 }
 
-function priorities(container: HTMLElement): string[] {
+function priorities(container: HTMLElement): Array<string> {
   return [...container.querySelectorAll('[data-slot="data-table-sort-index"]')].map(
     (element) => element.textContent ?? '',
   )
@@ -34,7 +33,7 @@ function summary(container: HTMLElement): string | null | undefined {
     ?.textContent
 }
 
-test('server-renders tree indentation, sort priorities, and the row count', () => {
+it('server-renders tree indentation, sort priorities, and the row count', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(FIXTURE, 'renderDataTableFeaturesFixture')
 
@@ -58,7 +57,7 @@ test('server-renders tree indentation, sort priorities, and the row count', () =
   expect(summary(container)).toBe('4 rows')
 })
 
-test('hydrates the new table features and keeps them reactive', () => {
+it('hydrates the new table features and keeps them reactive', () => {
   const errorSpy = vi.spyOn(console, 'error')
   const [sorting, setSorting] = createSignal<SortingState>([
     { id: 'kind', desc: false },
@@ -76,18 +75,18 @@ test('hydrates the new table features and keeps them reactive', () => {
   expect(summary(container)).toBe('4 rows')
 
   // Hydrated nodes stay in place and keep reacting.
-  setSorting([{ id: 'size', desc: true }])
+  flush(() => setSorting([{ id: 'size', desc: true }]))
   expect(priorities(container)).toEqual([])
   expect(bodyRow(container, 'components').querySelector('td[data-tree]')).toBe(treeCell)
 
   const checkbox = bodyRow(container, 'README.md').querySelector<HTMLElement>('[role="checkbox"]')!
-  checkbox.click()
+  flush(() => checkbox.click())
   expect(summary(container)).toBe('1 of 4 selected')
 
   expect(errorSpy).not.toHaveBeenCalled()
 })
 
-test('hydrates an empty virtual shell, then renders windowed columns', async () => {
+it('hydrates an empty virtual shell, then renders windowed columns', async () => {
   const errorSpy = vi.spyOn(console, 'error')
   const markup = renderSsrFixture(FIXTURE, 'renderVirtualColumnsDataTableFixture')
   // The server cannot measure the viewport, so it sends the header and an empty body shell.
@@ -128,7 +127,7 @@ test('hydrates an empty virtual shell, then renders windowed columns', async () 
   expect(errorSpy).not.toHaveBeenCalled()
 })
 
-test('hydrates a rows-only virtual table without a colgroup', async () => {
+it('hydrates a rows-only virtual table without a colgroup', async () => {
   const errorSpy = vi.spyOn(console, 'error')
   const { container } = hydrateFixture(FIXTURE, 'renderVirtualRowsDataTableFixture', () => (
     <VirtualRowsDataTableFixture />

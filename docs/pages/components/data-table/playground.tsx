@@ -2,7 +2,6 @@ import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 interface Employee {
   id: string
   name: string
@@ -11,9 +10,9 @@ interface Employee {
 }
 
 // Stable references, so toggling `empty` swaps the array only when the switch changes.
-const NO_EMPLOYEES: Employee[] = []
+const NO_EMPLOYEES: Array<Employee> = []
 
-const EMPLOYEES: Employee[] = [
+const EMPLOYEES: Array<Employee> = [
   { id: '1', name: 'Alice Johnson', role: 'Engineer', department: 'Platform' },
   { id: '2', name: 'Bob Smith', role: 'Designer', department: 'Product' },
   { id: '3', name: 'Charlie Brown', role: 'Intern', department: 'Platform' },
@@ -28,7 +27,7 @@ const EMPLOYEES: Employee[] = [
   { id: '12', name: 'Laura Croft', role: 'Engineer', department: 'Security' },
 ]
 
-const COLUMNS: DataTableT.Column<Employee>[] = [
+const COLUMNS: Array<DataTableT.Column<Employee>> = [
   { accessorKey: 'name', header: 'Name', size: 200, footer: 'Total' },
   { accessorKey: 'role', header: 'Role', size: 180 },
   {

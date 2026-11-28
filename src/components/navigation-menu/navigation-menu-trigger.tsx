@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { Show, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { onSettled, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -23,7 +23,6 @@ import {
   navigationMenuRecipe,
 } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
-
 /**
  * Button that opens the `NavigationMenu.Content` panel of the surrounding `NavigationMenu.Item`
  * on hover, click, or keyboard, and shows a chevron icon after its children. It must be placed
@@ -54,16 +53,20 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   if (!item) {
     throw new Error('NavigationMenu.Trigger must be used within NavigationMenu.Item')
   }
-  item.setTriggerOptions(props)
-  onCleanup(() => item.setTriggerOptions(undefined))
-  const [local, rest] = splitProps(props as NavigationMenuT.TriggerProps<T> & { id?: string }, [
+  onSettled(() => {
+    item.setTriggerOptions(props)
+    return () => item.setTriggerOptions(undefined)
+  })
+  const local = props as NavigationMenuT.TriggerProps<T> & { id?: string }
+  const rest = omit(
+    props as NavigationMenuT.TriggerProps<T> & { id?: string },
     'as',
     'id',
     'disabled',
     'children',
     'class',
     'style',
-  ])
+  )
   const {
     slots: { trigger: triggerSlot, triggerIcon: triggerIconSlot },
   } = useRecipe(navigationMenuRecipe, local, {
@@ -115,7 +118,7 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   return (
     <>
       <PopperTrigger
-        as={local.as}
+        as={local.as as ValidComponent}
         {...attributes}
         context={{
           options: context.options,
@@ -136,7 +139,7 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
         type="button"
         id={triggerId()}
         disabled={disabled()}
-        aria-haspopup={false}
+        aria-haspopup={'false'}
         {...navigationMenuControlData}
         {...triggerSlot}
       >
@@ -149,7 +152,7 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
       </PopperTrigger>
       <Show when={expanded()}>
         <span
-          tabIndex={0}
+          tabindex={0}
           {...navigationMenuFocusGuardData}
           aria-hidden="true"
           class={NAVIGATION_MENU_FOCUS_GUARD_CLASS}

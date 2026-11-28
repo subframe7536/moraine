@@ -1,18 +1,17 @@
 import { useLocation } from '@solidjs/router'
-import type { JSX } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, Show, createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
 import { FOCUS_VISIBLE_RING_CLASS } from '../../../../../src/theme/recipe-common.recipe'
 import { useTableOfContents } from '../../../hooks/use-table-of-contents'
 import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
-
 function getOnThisPageIndentStyle(level: number) {
   const indentLevel = Math.max(0, level - 1)
   return { 'padding-inline-start': `${indentLevel * 0.75}rem` }
 }
 
-export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }) {
+export function OnThisPage(props: { entries: Array<OnThisPageEntry>; class?: string }) {
   const location = useLocation()
   const [nav, setNav] = createSignal<HTMLElement>()
   const [list, setList] = createSignal<HTMLElement>()
@@ -32,37 +31,43 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
     () => nav()?.closest<HTMLElement>('[data-slot="sidebar-inset"]') ?? undefined,
   )
 
-  const measure = () => {
-    const element = list()
-    if (!element) {
-      return
-    }
+  const measure = (element: HTMLElement) => {
     const next = new Map<string, [number, number]>()
     for (const anchor of element.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')) {
-      next.set(anchor.dataset.tocId!, [anchor.offsetTop, anchor.offsetTop + anchor.offsetHeight])
+      const tocId = anchor.dataset.tocId
+      if (tocId) {
+        next.set(tocId, [anchor.offsetTop, anchor.offsetTop + anchor.offsetHeight])
+      }
     }
     setPositions(next)
     setListHeight(element.offsetHeight)
   }
 
-  onMount(() => {
-    const element = list()
+  createEffect(list, (element) => {
     if (!element) {
       return
     }
-    const resizeObserver = new ResizeObserver(measure)
+    const resizeObserver = new ResizeObserver(() => measure(element))
     resizeObserver.observe(element)
-    measure()
-    onCleanup(() => resizeObserver.disconnect())
+    return () => resizeObserver.disconnect()
   })
 
-  createEffect(on(() => props.entries, measure))
+  createEffect(
+    () => [props.entries, list()] as const,
+    ([, element]) => {
+      if (element) {
+        measure(element)
+      }
+    },
+  )
 
   const blockStyle = createMemo((): JSX.CSSProperties | undefined => {
     const ids = activeIds()
     const cached = positions()
-    const first = ids.length ? cached.get(ids[0]!) : undefined
-    const last = ids.length ? cached.get(ids[ids.length - 1]!) : undefined
+    const firstId = ids[0]
+    const lastId = ids.at(-1)
+    const first = firstId ? cached.get(firstId) : undefined
+    const last = lastId ? cached.get(lastId) : undefined
     const height = listHeight()
     if (!first || !last || height <= 0) {
       return undefined
@@ -73,20 +78,21 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
   })
 
   createEffect(
-    on(blockStyle, (style) => {
-      if (style && !loaded() && loadedFrame === undefined) {
+    () => [blockStyle(), loaded()] as const,
+    ([style, isLoaded]) => {
+      if (style && !isLoaded && loadedFrame === undefined) {
         loadedFrame = requestAnimationFrame(() => {
           loadedFrame = undefined
           setLoaded(true)
         })
       }
-    }),
+    },
   )
 
   // The nav is its own scroll container; keep the active entry inside it.
   createEffect(
-    on(primaryActiveId, (id) => {
-      const element = list()
+    () => [primaryActiveId(), list()] as const,
+    ([id, element]) => {
       if (!id || !element) {
         return
       }
@@ -96,7 +102,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
           return
         }
       }
-    }),
+    },
   )
 
   return (

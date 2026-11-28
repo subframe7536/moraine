@@ -1,9 +1,8 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { SlotClassValue, SlotStyleValue } from '../../../../theme/style-types'
 import type { ButtonT } from '../../../button'
 import type { IconT } from '../../../icon'
-
 export type FeedbackId = string | number
 
 export type FeedbackCloseReason = 'action' | 'cancel' | 'dismiss' | 'timeout' | 'api'

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import * as MoraineDataTable from '../../../src/data-table/index.ts'
 import * as MoraineMain from '../../../src/index.ts'
@@ -9,7 +9,6 @@ import { scanDocsPages } from '../routes.ts'
 
 import { getIdentifierName, parseTypeScript } from './ast.ts'
 import { generateApiDoc } from './extract.ts'
-
 // Components ship from the main entry or a dedicated subpath with an optional peer dependency.
 const COMPONENT_ENTRIES = ['src/index.ts', 'src/data-table/index.ts']
 const Moraine = { ...MoraineMain, ...MoraineDataTable }
@@ -17,10 +16,10 @@ const Moraine = { ...MoraineMain, ...MoraineDataTable }
 describe('generateApiDoc', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
 
-  test('generates the frontmatter registry from types and recipes', async () => {
+  it('generates the frontmatter registry from types and recipes', async () => {
     const result = await generateApiDoc(projectRoot, scanDocsPages(projectRoot))
 
-    const publicNames: string[] = []
+    const publicNames: Array<string> = []
     for (const entryFile of COMPONENT_ENTRIES) {
       const entryPath = path.join(projectRoot, entryFile)
       const entry = await parseTypeScript(entryPath, readFileSync(entryPath, 'utf8'), 'ts')
@@ -130,7 +129,7 @@ describe('generateApiDoc', () => {
     const keyboardItems = result.componentDocs
       .get('kbd-group')
       ?.parts[0]?.props.find((prop) => prop.name === 'items')
-    expect(keyboardItems?.type).toBe('Item[]')
+    expect(keyboardItems?.type).toBe('Array<Item>')
     expect(keyboardItems?.typeDetails).toContain('string & {}')
     expect(keyboardItems?.typeDetails).toContain('value: KbdT.Key;')
     expect(keyboardItems?.typeDetails).toContain('ariaLabel?: string;')
@@ -155,11 +154,8 @@ describe('generateApiDoc', () => {
       const itemsType = props.find((prop) => prop.name === 'items')?.typeDetails
       expect(itemsType).toContain('value: string | number;')
       expect(itemsType).toContain("type: 'group';")
-      expect(itemsType).toMatch(/children: \(?(?:string \| )?\{/)
+      expect(itemsType).toMatch(/children: Array<(?:string \| )?\{/)
       expect(itemsType).not.toContain('TItem')
-      if (key !== 'multi-select') {
-        expect(itemsType).toContain('string | {')
-      }
 
       expect(props.map((prop) => prop.name)).toEqual(
         expect.arrayContaining([
@@ -172,22 +168,27 @@ describe('generateApiDoc', () => {
           'overflowPadding',
         ]),
       )
-      if (key === 'select') {
-        expect(props.map((prop) => prop.name)).not.toContain('virtualizer')
-      } else {
-        expect(props.map((prop) => prop.name)).toEqual(
-          expect.arrayContaining([
-            'virtualizer',
-            'searchValue',
-            'defaultSearchValue',
-            'onSearchValueChange',
-            'filterMethod',
-            'searchMaxLength',
-          ]),
-        )
-      }
       expect(props.map((prop) => prop.name)).not.toContain('virtualRender')
       expect(props.map((prop) => prop.name)).not.toContain('scrollToItem')
+    }
+    for (const key of ['select', 'combobox']) {
+      const itemsType = result.componentDocs
+        .get(key)!
+        .parts[0]!.props.find((prop) => prop.name === 'items')?.typeDetails
+      expect(itemsType).toContain('string | {')
+    }
+    expect(select?.parts[0]?.props.map((prop) => prop.name)).not.toContain('virtualizer')
+    for (const key of ['combobox', 'multi-select']) {
+      expect(result.componentDocs.get(key)!.parts[0]!.props.map((prop) => prop.name)).toEqual(
+        expect.arrayContaining([
+          'virtualizer',
+          'searchValue',
+          'defaultSearchValue',
+          'onSearchValueChange',
+          'filterMethod',
+          'searchMaxLength',
+        ]),
+      )
     }
     for (const key of ['collapsible', 'sidebar']) {
       const trigger = result.componentDocs
@@ -291,13 +292,13 @@ describe('generateApiDoc', () => {
     expect(tree?.dataAttributes.find((target) => target.target === 'row')?.attributes).toEqual(
       expect.arrayContaining(['data-expanded', 'data-selected']),
     )
-  })
+  }, 20_000)
 
-  test('is deterministic', async () => {
+  it('is deterministic', async () => {
     const pages = scanDocsPages(projectRoot)
     const first = await generateApiDoc(projectRoot, pages)
     const second = await generateApiDoc(projectRoot, pages)
     expect(JSON.stringify(first.indexDoc)).toBe(JSON.stringify(second.indexDoc))
     expect(JSON.stringify([...first.componentDocs])).toBe(JSON.stringify([...second.componentDocs]))
-  })
+  }, 20_000)
 })

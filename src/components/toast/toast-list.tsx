@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -9,12 +10,11 @@ import { resolveToastOptions } from './toast-store'
 import type { ToastHostDefaults, ToastRecord, ToastStore } from './toast-store'
 import { toastDataAttributes, toastRecipe } from './toast.recipe'
 import type { ToastT } from './toast.types'
-
 const TOAST_FALLBACK_HEIGHT = 58
 
 export interface ToastListProps {
   positionKey: string
-  filteredToasts: ToastRecord[]
+  filteredToasts: Array<ToastRecord>
   host: ToastHostDefaults
   store: ToastStore
   expanded?: boolean
@@ -29,19 +29,29 @@ export interface ToastListProps {
 export function ToastList(props: ToastListProps): JSX.Element {
   const [isHovered, setIsHovered] = createSignal(false)
   const [isInteracting, setIsInteracting] = createSignal(false)
-  const position = createMemo<Partial<ToastT.Variants>>(() => {
-    const [placement, align] = props.positionKey.split('-')
-    return {
-      placement: placement as ToastT.Variants['placement'],
-      align: align as OverlayAlign,
-    }
-  })
+  const position = createMemo<Partial<ToastT.Variants>>(
+    () => {
+      const [placement, align] = props.positionKey.split('-')
+      return {
+        placement: placement as ToastT.Variants['placement'],
+        align: align as OverlayAlign,
+      }
+    },
+    {
+      equals: (prev, next) => prev.placement === next.placement && prev.align === next.align,
+    },
+  )
 
-  const groupToasts = createMemo(() =>
-    props.filteredToasts.filter((toast) => {
-      const options = resolveToastOptions(toast.options, props.host)
-      return `${options.placement}-${options.align}` === props.positionKey
-    }),
+  const groupToasts = createMemo(
+    () =>
+      props.filteredToasts.filter((toast) => {
+        const options = resolveToastOptions(toast.options, props.host)
+        return `${options.placement}-${options.align}` === props.positionKey
+      }),
+    {
+      equals: (prev, next) =>
+        prev.length === next.length && prev.every((toast, index) => toast === next[index]),
+    },
   )
 
   const layoutExpanded = () => Boolean(props.expanded) || isHovered()
@@ -131,7 +141,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
     <Show when={groupToasts().length > 0}>
       <ul
         data-slot="toast-list"
-        tabIndex={-1}
+        tabindex={-1}
         {...listSlot}
         onMouseEnter={() => setIsHovered(true)}
         onMouseMove={() => setIsHovered(true)}

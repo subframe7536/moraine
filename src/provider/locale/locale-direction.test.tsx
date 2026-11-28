@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, vi, it } from 'vitest'
 
 import { Dialog } from '../../components/dialog/dialog'
 import { DropdownMenu } from '../../components/dropdown-menu/dropdown-menu'
@@ -7,12 +7,11 @@ import { Popover } from '../../components/popover/popover'
 import { Sheet } from '../../components/sheet/sheet'
 import { Slider } from '../../components/slider/slider'
 import { MoraineProvider } from '../moraine-provider'
-
-describe('Moraine direction', () => {
-  test('flips slider arrow keys from html dir without a provider', () => {
+describe('moraine direction', () => {
+  it('flips slider arrow keys from html dir without a provider', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.setAttribute('dir', 'rtl')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     try {
       const screen = render(() => <Slider defaultValue={45} onValueChange={onValueChange} />)
       const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement
@@ -29,10 +28,10 @@ describe('Moraine direction', () => {
     }
   })
 
-  test('flips slider arrow keys from the provider without a dir attribute', () => {
+  it('flips slider arrow keys from the provider without a dir attribute', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.removeAttribute('dir')
-    const onValueChange = vi.fn()
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     try {
       const screen = render(() => (
         <MoraineProvider dir="rtl">
@@ -54,8 +53,8 @@ describe('Moraine direction', () => {
     }
   })
 
-  test('lets a dir attribute on the slider win over the provider', () => {
-    const onValueChange = vi.fn()
+  it('lets a dir attribute on the slider win over the provider', () => {
+    const onValueChange = vi.fn<(...args: Array<any>) => void>()
     const screen = render(() => (
       <MoraineProvider dir="rtl">
         <Slider dir="ltr" defaultValue={45} onValueChange={onValueChange} />
@@ -69,7 +68,7 @@ describe('Moraine direction', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(46)
   })
 
-  test('opens a dropdown submenu with the logical RTL arrow from the provider', async () => {
+  it('opens a dropdown submenu with the logical RTL arrow from the provider', async () => {
     const previousDirection = document.documentElement.dir
     document.documentElement.dir = ''
     try {
@@ -106,7 +105,7 @@ describe('Moraine direction', () => {
     }
   })
 
-  test('sets dir on portaled popover, dialog, and sheet content', () => {
+  it('sets dir on portaled popover, dialog, and sheet content', () => {
     render(() => (
       <MoraineProvider dir="rtl">
         <Popover open>
@@ -134,7 +133,7 @@ describe('Moraine direction', () => {
     )
   })
 
-  test('lets a dir attribute on portaled content win over the provider', () => {
+  it('lets a dir attribute on portaled content win over the provider', () => {
     render(() => (
       <MoraineProvider dir="rtl">
         <Popover open>

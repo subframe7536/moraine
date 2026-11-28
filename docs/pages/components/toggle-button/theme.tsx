@@ -1,6 +1,5 @@
 import { ButtonGroup, MoraineProvider, ToggleButton } from '@src'
 import { defineTheme } from '@src/theme'
-
 const theme = defineTheme({
   toggleButton: {
     defaultVariants: { variant: 'outline', activeVariant: 'solid', size: 'sm' },

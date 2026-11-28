@@ -1,8 +1,7 @@
-import { createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { createSelectableCollectionNavigation } from './selectable-collection-navigation'
-
 interface TestItem {
   value: string
   disabled?: boolean
@@ -13,14 +12,14 @@ describe('createSelectableCollectionNavigation', () => {
     return {
       key,
       target: target ?? document.createElement('div'),
-      preventDefault: vi.fn(),
+      preventDefault: vi.fn<(...args: Array<any>) => void>(),
     } as unknown as KeyboardEvent
   }
 
   describe('orientation-aware navigation', () => {
-    test('uses ArrowDown/ArrowUp for vertical orientation', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
-      const onSelect = vi.fn()
+    it('uses ArrowDown/ArrowUp for vertical orientation', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -40,9 +39,9 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('a')
     })
 
-    test('ignores horizontal arrow keys in vertical orientation', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
+    it('ignores horizontal arrow keys in vertical orientation', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -56,9 +55,9 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).not.toHaveBeenCalled()
     })
 
-    test('uses ArrowRight/ArrowLeft for horizontal LTR orientation', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
-      const onSelect = vi.fn()
+    it('uses ArrowRight/ArrowLeft for horizontal LTR orientation', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -80,10 +79,10 @@ describe('createSelectableCollectionNavigation', () => {
     })
   })
 
-  describe('RTL-aware horizontal navigation', () => {
-    test('flips arrow keys for RTL horizontal orientation', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
-      const onSelect = vi.fn()
+  describe('rtl-aware horizontal navigation', () => {
+    it('flips arrow keys for RTL horizontal orientation', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -106,9 +105,9 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('a')
     })
 
-    test('detects direction from element computed style when getDirection not provided', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
+    it('detects direction from element computed style when getDirection not provided', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -117,7 +116,7 @@ describe('createSelectableCollectionNavigation', () => {
 
       const rtlElement = document.createElement('div')
       rtlElement.dir = 'rtl'
-      document.body.appendChild(rtlElement)
+      document.body.append(rtlElement)
 
       const leftEvent = createMockKeyboardEvent('ArrowLeft', rtlElement)
       onNavigationKeyDown(leftEvent, 'a', 'horizontal')
@@ -127,9 +126,9 @@ describe('createSelectableCollectionNavigation', () => {
       document.body.removeChild(rtlElement)
     })
 
-    test('RTL does not affect vertical orientation', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
+    it('rtl does not affect vertical orientation', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -144,10 +143,10 @@ describe('createSelectableCollectionNavigation', () => {
     })
   })
 
-  describe('Home and End keys', () => {
-    test('Home jumps to first enabled item', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
-      const onSelect = vi.fn()
+  describe('home and End keys', () => {
+    it('home jumps to first enabled item', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -161,9 +160,9 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('a')
     })
 
-    test('End jumps to last enabled item', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
-      const onSelect = vi.fn()
+    it('end jumps to last enabled item', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -177,14 +176,14 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('c')
     })
 
-    test('Home/End skip disabled items', () => {
-      const [items] = createSignal<TestItem[]>([
+    it('home/End skip disabled items', () => {
+      const items = (): Array<TestItem> => [
         { value: 'a', disabled: true },
         { value: 'b' },
         { value: 'c', disabled: true },
         { value: 'd' },
-      ])
-      const onSelect = vi.fn()
+      ]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -203,10 +202,10 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('d')
     })
 
-    test('Home and End are no-ops when already at the enabled boundary', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
-      const focusValue = vi.fn()
+    it('home and End are no-ops when already at the enabled boundary', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const focusValue = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
@@ -227,11 +226,11 @@ describe('createSelectableCollectionNavigation', () => {
   })
 
   describe('activation modes', () => {
-    test('automatic mode calls onSelect immediately', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
-      const focusValue = vi.fn()
-      const [activationMode] = createSignal<'automatic' | 'manual'>('automatic')
+    it('automatic mode calls onSelect immediately', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const focusValue = vi.fn<(...args: Array<any>) => void>()
+      const activationMode = (): 'automatic' | 'manual' => 'automatic'
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -248,11 +247,11 @@ describe('createSelectableCollectionNavigation', () => {
       expect(focusValue).toHaveBeenCalledWith('b')
     })
 
-    test('manual mode only focuses without selecting', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
-      const focusValue = vi.fn()
-      const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
+    it('manual mode only focuses without selecting', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const focusValue = vi.fn<(...args: Array<any>) => void>()
+      const activationMode = (): 'automatic' | 'manual' => 'manual'
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -269,10 +268,10 @@ describe('createSelectableCollectionNavigation', () => {
       expect(focusValue).toHaveBeenCalledWith('b')
     })
 
-    test('manual mode activates on Enter', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
-      const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
+    it('manual mode activates on Enter', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const activationMode = (): 'automatic' | 'manual' => 'manual'
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -288,10 +287,10 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('b')
     })
 
-    test('manual mode activates on Space', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
-      const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
+    it('manual mode activates on Space', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const activationMode = (): 'automatic' | 'manual' => 'manual'
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -307,11 +306,11 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('b')
     })
 
-    test('manual mode can focus from an undefined current value', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
-      const focusValue = vi.fn()
-      const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
+    it('manual mode can focus from an undefined current value', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const focusValue = vi.fn<(...args: Array<any>) => void>()
+      const activationMode = (): 'automatic' | 'manual' => 'manual'
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -330,9 +329,9 @@ describe('createSelectableCollectionNavigation', () => {
     })
   })
 
-  test('ignores printable keys', () => {
-    const [items] = createSignal<TestItem[]>([{ value: 'apple' }, { value: 'banana' }])
-    const onSelect = vi.fn()
+  it('ignores printable keys', () => {
+    const items = (): Array<TestItem> => [{ value: 'apple' }, { value: 'banana' }]
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
     const { onNavigationKeyDown } = createSelectableCollectionNavigation({
       items,
       getValue: (item) => item.value,
@@ -346,10 +345,10 @@ describe('createSelectableCollectionNavigation', () => {
     expect(onSelect).not.toHaveBeenCalled()
   })
 
-  test('does not handle an event already canceled by the caller', () => {
-    const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-    const onSelect = vi.fn()
-    const getDirection = vi.fn(() => 'ltr' as const)
+  it('does not handle an event already canceled by the caller', () => {
+    const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+    const onSelect = vi.fn<(...args: Array<any>) => void>()
+    const getDirection = vi.fn<() => any>(() => 'ltr' as const)
     const { onNavigationKeyDown } = createSelectableCollectionNavigation({
       items,
       getValue: (item) => item.value,
@@ -366,10 +365,10 @@ describe('createSelectableCollectionNavigation', () => {
   })
 
   describe('looping behavior', () => {
-    test('wraps from last to first when loop is true', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
-      const onSelect = vi.fn()
-      const [loop] = createSignal(true)
+    it('wraps from last to first when loop is true', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const loop = () => true
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -384,10 +383,10 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('a')
     })
 
-    test('wraps from first to last when loop is true', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
-      const onSelect = vi.fn()
-      const [loop] = createSignal(true)
+    it('wraps from first to last when loop is true', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const loop = () => true
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -402,10 +401,10 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('c')
     })
 
-    test('stops at boundaries when loop is false', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
-      const onSelect = vi.fn()
-      const [loop] = createSignal(false)
+    it('stops at boundaries when loop is false', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
+      const loop = () => false
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -422,13 +421,13 @@ describe('createSelectableCollectionNavigation', () => {
   })
 
   describe('disabled items', () => {
-    test('skips disabled items during navigation', () => {
-      const [items] = createSignal<TestItem[]>([
+    it('skips disabled items during navigation', () => {
+      const items = (): Array<TestItem> => [
         { value: 'a' },
         { value: 'b', disabled: true },
         { value: 'c' },
-      ])
-      const onSelect = vi.fn()
+      ]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -443,9 +442,9 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('c')
     })
 
-    test('ignores Enter and Space when current item is disabled', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b', disabled: true }])
-      const onSelect = vi.fn()
+    it('ignores Enter and Space when current item is disabled', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b', disabled: true }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -465,20 +464,20 @@ describe('createSelectableCollectionNavigation', () => {
   })
 
   describe('edge cases', () => {
-    test('recovers from a current value removed from the dynamic collection', () => {
-      const [items, setItems] = createSignal<TestItem[]>([
+    it('recovers from a current value removed from the dynamic collection', () => {
+      const [items, setItems] = createSignal<Array<TestItem>>([
         { value: 'a' },
         { value: 'b' },
         { value: 'c' },
       ])
-      const onSelect = vi.fn()
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
       })
 
-      setItems((current) => current.filter((item) => item.value !== 'a'))
+      flush(() => setItems((current) => current.filter((item) => item.value !== 'a')))
 
       onNavigationKeyDown(createMockKeyboardEvent('ArrowDown'), 'a', 'vertical')
       expect(onSelect).toHaveBeenLastCalledWith('b')
@@ -487,9 +486,9 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenLastCalledWith('c')
     })
 
-    test('handles Spacebar legacy key name', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
+    it('handles Spacebar legacy key name', () => {
+      const items = (): Array<TestItem> => [{ value: 'a' }, { value: 'b' }]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -504,9 +503,9 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).toHaveBeenCalledWith('a')
     })
 
-    test('handles empty items array gracefully', () => {
-      const [items] = createSignal<TestItem[]>([])
-      const onSelect = vi.fn()
+    it('handles empty items array gracefully', () => {
+      const items = (): Array<TestItem> => []
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
@@ -520,12 +519,12 @@ describe('createSelectableCollectionNavigation', () => {
       expect(onSelect).not.toHaveBeenCalled()
     })
 
-    test('handles all items disabled', () => {
-      const [items] = createSignal<TestItem[]>([
+    it('handles all items disabled', () => {
+      const items = (): Array<TestItem> => [
         { value: 'a', disabled: true },
         { value: 'b', disabled: true },
-      ])
-      const onSelect = vi.fn()
+      ]
+      const onSelect = vi.fn<(...args: Array<any>) => void>()
 
       const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,

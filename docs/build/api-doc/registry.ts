@@ -1,3 +1,4 @@
+// oxlint-disable eslint/no-await-in-loop -- Sequential registration keeps validation error ordering deterministic.
 import { existsSync, readFileSync } from 'node:fs'
 
 import path from 'pathe'
@@ -10,7 +11,6 @@ import type { DocsPageSource } from '../routes.ts'
 
 import { getIdentifierName, parseTypeScript } from './ast.ts'
 import type { AccessApi } from './types.ts'
-
 export interface RegisteredPart {
   id: string
   name: string
@@ -28,7 +28,7 @@ export interface RegisteredComponent {
   typesPath: string
   recipePath?: string
   namespaceName: string
-  parts: RegisteredPart[]
+  parts: Array<RegisteredPart>
 }
 
 interface TypesHeader {
@@ -95,7 +95,7 @@ function namespaceRequiresRecipe(node: ESTree.TSModuleDeclaration): boolean {
 async function readTypesHeader(absolutePath: string): Promise<TypesHeader> {
   const source = readFileSync(absolutePath, 'utf8')
   const parsed = await parseTypeScript(absolutePath, source, 'ts')
-  const candidates: TypesHeader[] = []
+  const candidates: Array<TypesHeader> = []
 
   for (const statement of parsed.program.body) {
     const declaration =
@@ -121,12 +121,13 @@ async function readTypesHeader(absolutePath: string): Promise<TypesHeader> {
     })
   }
 
-  if (candidates.length !== 1) {
+  const [candidate] = candidates
+  if (!candidate || candidates.length !== 1) {
     throw new Error(
       `[api-doc] Expected exactly one exported <Component>T namespace with Kind in ${absolutePath}; found ${candidates.length}.`,
     )
   }
-  return candidates[0]!
+  return candidate
 }
 
 /** Components whose public parts are members of a `create*` factory result. */
@@ -138,7 +139,7 @@ export const FACTORY_COMPONENTS: Readonly<
       rootMember: string
       instanceName?: string
       propsTypeName?: string
-      fixedParts?: readonly FrontmatterApiPart[]
+      fixedParts?: ReadonlyArray<FrontmatterApiPart>
     }
   >
 > = {
@@ -165,9 +166,9 @@ function partRegistration(part: string | FrontmatterApiPart): FrontmatterApiPart
 
 export async function loadApiRegistry(
   projectRoot: string,
-  pages: readonly DocsPageSource[],
-): Promise<RegisteredComponent[]> {
-  const registered: RegisteredComponent[] = []
+  pages: ReadonlyArray<DocsPageSource>,
+): Promise<Array<RegisteredComponent>> {
+  const registered: Array<RegisteredComponent> = []
   const seenKeys = new Set<string>()
   const seenComponents = new Set<string>()
 
@@ -222,7 +223,7 @@ export async function loadApiRegistry(
         }
       : { kind: 'export', name: header.componentName }
     const factoryInstance = factoryComponent?.instanceName ?? key
-    const parts: RegisteredPart[] = [
+    const parts: Array<RegisteredPart> = [
       {
         id: factoryComponent ? `${key}-${toKebabCase(factoryComponent.rootMember)}` : key,
         name: factoryComponent

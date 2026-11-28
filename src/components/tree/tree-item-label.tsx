@@ -1,14 +1,15 @@
-import type { JSX } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
+import { resolvePropsChildren } from '../../shared/utils'
 
-import { useTreeContext, useTreeItemContext } from './tree-context'
+import { requireTreeItemContext, useTreeContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 /**
  * Text of the surrounding `tree.Item`: its `label` from `getItemLabel`, or `children` instead.
  * Renders a `span`; pass `as` for another element.
@@ -32,13 +33,9 @@ import type { TreeT } from './tree.types'
 export function TreeItemLabel<T extends ValidComponent = 'span'>(
   props: TreeT.ItemLabelProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as TreeT.ItemLabelProps, [
-    'as',
-    'children',
-    'class',
-    'style',
-  ])
-  const item = useTreeItemContext()!.item
+  const local = props as TreeT.ItemLabelProps
+  const rest = omit(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
+  const itemContext = requireTreeItemContext()
   const context = useTreeContext()
   const {
     slots: { label: labelSlot },
@@ -47,11 +44,14 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
+  const resolvedChildren = resolvePropsChildren(local)
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'span')
+
   return (
-    <Dynamic component={local.as ?? 'span'} data-slot="tree-label" {...labelSlot} {...rest}>
-      <Show when={local.children} fallback={item.label}>
-        {local.children}
+    <Root data-slot="tree-label" {...labelSlot} {...rest}>
+      <Show when={hasContent(resolvedChildren())} fallback={itemContext.item.label}>
+        {resolvedChildren()}
       </Show>
-    </Dynamic>
+    </Root>
   )
 }

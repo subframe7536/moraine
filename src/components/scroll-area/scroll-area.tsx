@@ -1,19 +1,19 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   For,
   Show,
   createEffect,
   createMemo,
   createSignal,
-  on,
-  onCleanup,
-  splitProps,
+  omit,
+  onSettled,
+  untrack,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { EMPTY_AXIS_METRICS, createScrollMetrics } from '../../shared/scroll-metrics'
 import type { AxisMetrics } from '../../shared/scroll-metrics'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 
 import {
   SCROLL_AREA_SCROLLBAR_CLASS,
@@ -23,7 +23,6 @@ import {
   scrollAreaRecipe,
 } from './scroll-area.recipe'
 import type { ScrollAreaProps, ScrollAreaT } from './scroll-area.types'
-
 type Orientation = NonNullable<ScrollAreaT.Variants['orientation']>
 type ScrollbarWidth = NonNullable<ScrollAreaT.Variants['scrollbarWidth']>
 type ScrollbarMode = NonNullable<ScrollAreaT.Variants['scrollbarMode']>
@@ -76,7 +75,7 @@ function sameOverflow(a: ScrollAreaT.Overflow, b: ScrollAreaT.Overflow): boolean
 function createReleaseDelay(delay: () => number) {
   const [active, setActive] = createSignal(false)
   let timer: ReturnType<typeof setTimeout> | undefined
-  onCleanup(() => clearTimeout(timer))
+  onSettled(() => () => clearTimeout(timer))
   return {
     active,
     hold(): void {
@@ -98,7 +97,7 @@ function createReleaseDelay(delay: () => number) {
  *
  * @example
  * ```tsx
- * import { For } from 'solid-js'
+ * import { For, omit } from 'solid-js'
  * import { ScrollArea } from 'moraine'
  *
  * <ScrollArea class="h-48 w-full" role="region" aria-label="Recent activity">
@@ -109,7 +108,8 @@ function createReleaseDelay(delay: () => number) {
  * ```
  */
 export function ScrollArea(props: ScrollAreaProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'ref',
     'viewportRef',
     'children',
@@ -128,15 +128,15 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     'onScroll',
     'onPointerEnter',
     'onPointerLeave',
-    'tabIndex',
+    'tabindex',
     'class',
     'style',
     'classes',
     'styles',
-  ])
+  )
   const [viewport, setViewport] = createSignal<HTMLDivElement>()
   const [dragging, setDragging] = createSignal<ScrollAreaT.Axis>()
-  const hideDelay = () => local.scrollHideDelay ?? 600
+  const hideDelay = () => props.scrollHideDelay ?? 600
   const scrolling = createReleaseDelay(hideDelay)
   const hovering = createReleaseDelay(hideDelay)
   const metrics = createScrollMetrics(viewport, () => {
@@ -148,7 +148,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     slots: { root: rootSlot, viewport: viewportSlot, content: contentSlot, corner: cornerSlot },
     variants,
     slotWith,
-  } = useRecipe(scrollAreaRecipe, local, {
+  } = useRecipe(scrollAreaRecipe, props, {
     data: {
       root: scrollAreaDataAttributes.root(() => ({
         orientation: orientation(),
@@ -166,9 +166,9 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     own: {
       viewport: () => (fade() ? { style: SCROLL_AREA_SHADOW_STYLE } : undefined),
       root: () =>
-        local.fadeSize === undefined
+        props.fadeSize === undefined
           ? undefined
-          : { style: { '--scroll-area-shadow-size': `${Math.max(0, local.fadeSize)}px` } },
+          : { style: { '--scroll-area-shadow-size': `${Math.max(0, props.fadeSize)}px` } },
     },
     enforced: {
       root: () => {
@@ -191,14 +191,14 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   const fade = (): boolean => variants.fade ?? false
   const scrollbarWidth = (): ScrollbarWidth => variants.scrollbarWidth ?? 'normal'
   const scrollbarMode = (): ScrollbarMode => variants.scrollbarMode ?? 'hover'
-  const axes = (): readonly ScrollAreaT.Axis[] => AXES[orientation()]
+  const axes = (): ReadonlyArray<ScrollAreaT.Axis> => AXES[orientation()]
   const axisMetrics = (axis: ScrollAreaT.Axis): AxisMetrics =>
     axes().includes(axis) ? metrics()[axis] : EMPTY_AXIS_METRICS
   const customScrollbar = () => scrollbarMode() !== 'native' && scrollbarMode() !== 'hidden'
 
   const overflow = createMemo(
     (): ScrollAreaT.Overflow => {
-      const threshold = Math.max(0, local.scrollThreshold ?? 0)
+      const threshold = Math.max(0, props.scrollThreshold ?? 0)
       const edges = (axis: ScrollAreaT.Axis): ScrollAreaT.AxisOverflow => {
         const { extent, position } = axisMetrics(axis)
         // Scroll positions may be fractional while client and scroll sizes are integers.
@@ -206,7 +206,6 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       }
       return { x: edges('x'), y: edges('y') }
     },
-    undefined,
     { equals: sameOverflow },
   )
 
@@ -232,40 +231,38 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     orientation() === 'both' && scrollbarVisible('x') && scrollbarVisible('y')
 
   createEffect(
-    on(
-      overflow,
-      (current, previous) => {
-        local.onOverflowChange?.(current)
-        if (!previous) {
-          return
+    overflow,
+    (current, previous) => {
+      props.onOverflowChange?.(current)
+      if (!previous) {
+        return
+      }
+      for (const axis of ['x', 'y'] as const) {
+        if (untrack(() => axisMetrics(axis).extent) <= 0) {
+          continue
         }
-        for (const axis of ['x', 'y'] as const) {
-          if (axisMetrics(axis).extent <= 0) {
-            continue
+        const reachedStart = previous[axis].start && !current[axis].start
+        const reachedEnd = previous[axis].end && !current[axis].end
+        if (axis === 'y') {
+          if (reachedStart) {
+            props.onTopReached?.()
           }
-          const reachedStart = previous[axis].start && !current[axis].start
-          const reachedEnd = previous[axis].end && !current[axis].end
-          if (axis === 'y') {
-            if (reachedStart) {
-              local.onTopReached?.()
-            }
-            if (reachedEnd) {
-              local.onBottomReached?.()
-            }
-          } else {
-            // `start`/`end` are logical: in RTL they sit at the right and left edges.
-            const rtl = metrics().rtl
-            if (reachedStart) {
-              ;(rtl ? local.onRightReached : local.onLeftReached)?.()
-            }
-            if (reachedEnd) {
-              ;(rtl ? local.onLeftReached : local.onRightReached)?.()
-            }
+          if (reachedEnd) {
+            props.onBottomReached?.()
+          }
+        } else {
+          // `start`/`end` are logical: in RTL they sit at the right and left edges.
+          const rtl = untrack(() => metrics().rtl)
+          if (reachedStart) {
+            ;(rtl ? props.onRightReached : props.onLeftReached)?.()
+          }
+          if (reachedEnd) {
+            ;(rtl ? props.onLeftReached : props.onRightReached)?.()
           }
         }
-      },
-      { defer: true },
-    ),
+      }
+    },
+    { defer: true },
   )
 
   function thumbStyle(axis: ScrollAreaT.Axis): JSX.CSSProperties {
@@ -277,7 +274,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     return AXIS_CONFIG[axis].thumbStyle(offset, size)
   }
 
-  let drag: { pointer: number; thumb: number } | undefined
+  let drag: { axis: 'x' | 'y'; pointer: number; thumb: number } | undefined
 
   /** Scrolls so the thumb starts `thumbOffset` px into its track. */
   function scrollToThumb(axis: ScrollAreaT.Axis, track: HTMLElement, thumbOffset: number): void {
@@ -304,28 +301,25 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       data-slot="scroll-area"
       {...rootSlot}
       {...rest}
-      ref={(element) => callRef(local.ref, element)}
+      ref={props.ref}
       onPointerEnter={(event) => {
         hovering.hold()
-        callHandler(event, local.onPointerEnter)
+        callHandler(event, props.onPointerEnter)
       }}
       onPointerLeave={(event) => {
         hovering.release()
-        callHandler(event, local.onPointerLeave)
+        callHandler(event, props.onPointerLeave)
       }}
     >
       <div
         data-slot="scroll-area-viewport"
         {...viewportSlot}
-        tabIndex={local.tabIndex ?? (canScroll() ? 0 : -1)}
-        ref={(element) => {
-          setViewport(element)
-          callRef(local.viewportRef, element)
-        }}
-        onScroll={(event) => callHandler(event, local.onScroll)}
+        tabindex={props.tabindex ?? (canScroll() ? 0 : -1)}
+        ref={[setViewport, props.viewportRef]}
+        onScroll={(event) => callHandler(event, props.onScroll)}
       >
         <div data-slot="scroll-area-content" {...contentSlot}>
-          {local.children}
+          {props.children}
         </div>
       </div>
       <Show when={customScrollbar()}>
@@ -363,12 +357,12 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
                     start = pointer - config.thumbSize(thumb) / 2
                     scrollToThumb(axis, track, start)
                   }
-                  drag = { pointer, thumb: start }
+                  drag = { axis, pointer, thumb: start }
                   track.setPointerCapture?.(event.pointerId)
                   setDragging(axis)
                 }}
                 onPointerMove={(event) => {
-                  if (drag && dragging() === axis) {
+                  if (drag && drag.axis === axis) {
                     const track = event.currentTarget
                     scrollToThumb(
                       axis,

@@ -1,10 +1,9 @@
 import { render } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { createContextProvider } from './create-context-provider'
-
 describe('createContextProvider', () => {
-  test('creates a required context that throws when missing', () => {
+  it('creates a required context that throws when missing', () => {
     interface TestContext {
       value: number
     }
@@ -21,7 +20,7 @@ describe('createContextProvider', () => {
     )
   })
 
-  test('creates a required context that works inside provider', () => {
+  it('creates a required context that works inside provider', () => {
     interface TestContext {
       value: number
     }
@@ -42,7 +41,7 @@ describe('createContextProvider', () => {
     expect(screen.getByTestId('value').textContent).toBe('42')
   })
 
-  test('creates an optional context with defaultValue', () => {
+  it('creates an optional context with defaultValue', () => {
     interface TestContext {
       value: number
     }
@@ -70,7 +69,7 @@ describe('createContextProvider', () => {
     expect(screen2.getByTestId('value').textContent).toBe('42')
   })
 
-  test('optional context nests correctly', () => {
+  it('optional context nests correctly', () => {
     interface TestContext {
       value: number
     }
@@ -106,7 +105,7 @@ describe('createContextProvider', () => {
     expect(innerValue).toBe(20)
   })
 
-  test('creates an optional context with null defaultValue', () => {
+  it('creates an optional context with null defaultValue', () => {
     interface TestContext {
       value: number
     }

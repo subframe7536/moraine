@@ -1,8 +1,7 @@
-import { createEffect, createMemo, createSignal, on, onCleanup, onMount, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled, untrack } from 'solid-js'
 
 import { getDomSlotName } from '../../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../../build/api-doc/types'
-
 interface SlotDescriptor {
   name: string
   domName: string
@@ -29,10 +28,16 @@ function getPortalRoot(element: HTMLElement, preview: HTMLElement): HTMLElement 
     : undefined
 }
 
-function getOwnedRoots(preview: HTMLElement, slotByDomName?: Map<string, string>): HTMLElement[] {
+function getOwnedRoots(
+  preview: HTMLElement,
+  slotByDomName?: Map<string, string>,
+): Array<HTMLElement> {
   const roots = [preview]
   for (let index = 0; index < roots.length; index++) {
-    const root = roots[index]!
+    const root = roots[index]
+    if (!root) {
+      continue
+    }
     for (const element of root.querySelectorAll<HTMLElement>(
       '[aria-controls], [aria-describedby]',
     )) {
@@ -66,8 +71,8 @@ function getOwnedRoots(preview: HTMLElement, slotByDomName?: Map<string, string>
 }
 
 function sameNodes(
-  previous: Map<string, HTMLElement[]>,
-  next: Map<string, HTMLElement[]>,
+  previous: Map<string, Array<HTMLElement>>,
+  next: Map<string, Array<HTMLElement>>,
 ): boolean {
   if (previous.size !== next.size) {
     return false
@@ -85,12 +90,13 @@ function sameNodes(
   return true
 }
 
-function sameBoxes(previous: HighlightBox[], next: HighlightBox[]): boolean {
+function sameBoxes(previous: Array<HighlightBox>, next: Array<HighlightBox>): boolean {
   return (
     previous.length === next.length &&
     previous.every((box, index) => {
-      const current = next[index]!
+      const current = next[index]
       return (
+        current !== undefined &&
         Math.abs(box.top - current.top) < 0.5 &&
         Math.abs(box.left - current.left) < 0.5 &&
         Math.abs(box.width - current.width) < 0.5 &&
@@ -186,20 +192,20 @@ export function createDocsPlaygroundSlots(props: {
   api: ComponentApi
   preview: () => HTMLElement | undefined
 }) {
-  const slots: SlotDescriptor[] = untrack(() =>
+  const slots: Array<SlotDescriptor> = untrack(() =>
     props.api.slots.map((name) => ({
       name,
       domName: getDomSlotName(props.api.key, name),
     })),
   )
   const slotByDomName = new Map(slots.map((slot) => [slot.domName, slot.name]))
-  const [nodes, setNodes] = createSignal(new Map<string, HTMLElement[]>())
+  const [nodes, setNodes] = createSignal(new Map<string, Array<HTMLElement>>())
   const [listHovered, setListHovered] = createSignal<string>()
   const [previewHovered, setPreviewHovered] = createSignal<string>()
   const [hoveredElement, setHoveredElement] = createSignal<HTMLElement>()
   const [autoHover, setAutoHoverState] = createSignal(false)
   const [locked, setLocked] = createSignal<string>()
-  const [boxes, setBoxes] = createSignal<HighlightBox[]>([])
+  const [boxes, setBoxes] = createSignal<Array<HighlightBox>>([])
   const activeSlot = createMemo(() => listHovered() ?? previewHovered() ?? locked())
   const clearHighlight = () => {
     setListHovered(undefined)
@@ -207,18 +213,28 @@ export function createDocsPlaygroundSlots(props: {
     setHoveredElement(undefined)
     setLocked(undefined)
   }
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      clearHighlight()
+    }
+  }
 
-  onMount(() => {
+  onSettled(() => {
     const preview = props.preview()
     if (!preview) {
       return
     }
-    const doc = preview.ownerDocument
-    let roots: HTMLElement[] = [preview]
+    // Nodes cloned from a `<template>` keep the template's inert document (where `body` is null)
+    // until inserted into the live document.
+    const doc = preview.ownerDocument?.body ? preview.ownerDocument : document
+    if (!doc.body) {
+      return
+    }
+    let roots: Array<HTMLElement> = [preview]
 
     const scan = () => {
       roots = getOwnedRoots(preview, slotByDomName)
-      const next = new Map<string, HTMLElement[]>()
+      const next = new Map<string, Array<HTMLElement>>()
       for (const root of roots) {
         if (root.hasAttribute('data-slot')) {
           const slot = slotByDomName.get(root.dataset.slot ?? '')
@@ -241,10 +257,12 @@ export function createDocsPlaygroundSlots(props: {
       if (!sameNodes(nodes(), next)) {
         setNodes(next)
       }
-      if (locked() && !next.has(locked()!)) {
+      const currentLocked = locked()
+      if (currentLocked && !next.has(currentLocked)) {
         setLocked(undefined)
       }
-      if (hoveredElement() && !hoveredElement()!.isConnected) {
+      const currentHovered = hoveredElement()
+      if (currentHovered && !currentHovered.isConnected) {
         setHoveredElement(undefined)
         setPreviewHovered(undefined)
       }
@@ -273,11 +291,6 @@ export function createDocsPlaygroundSlots(props: {
       setPreviewHovered(undefined)
       setHoveredElement(undefined)
     }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        clearHighlight()
-      }
-    }
     const observer = new MutationObserver(scan)
     observer.observe(doc.body, {
       childList: true,
@@ -288,70 +301,69 @@ export function createDocsPlaygroundSlots(props: {
     doc.addEventListener('pointermove', onPointerMove)
     doc.addEventListener('keydown', onKeyDown)
     scan()
-    onCleanup(() => {
+    return () => {
       observer.disconnect()
       doc.removeEventListener('pointermove', onPointerMove)
       doc.removeEventListener('keydown', onKeyDown)
-    })
+    }
   })
 
   createEffect(
-    on(
-      [activeSlot, nodes, hoveredElement, autoHover, listHovered],
-      ([slot, currentNodes, currentHoveredElement, isAutoHover, currentListHovered]) => {
-        const isHoveringElement = Boolean(
-          isAutoHover && currentHoveredElement && !currentListHovered,
-        )
-        const elements: HTMLElement[] = slot
-          ? isHoveringElement && currentHoveredElement
-            ? [currentHoveredElement]
-            : (currentNodes.get(slot) ?? [])
-          : []
-        const view = props.preview()?.ownerDocument.defaultView
-        if (!view || elements.length === 0) {
-          setBoxes([])
-          return
-        }
+    () => [activeSlot(), nodes(), hoveredElement(), autoHover(), listHovered()],
+    ([slot, currentNodes, currentHoveredElement, isAutoHover, currentListHovered]) => {
+      const isHoveringElement = Boolean(isAutoHover && currentHoveredElement && !currentListHovered)
+      const elements: Array<HTMLElement> = slot
+        ? isHoveringElement && currentHoveredElement
+          ? [currentHoveredElement]
+          : (currentNodes.get(slot) ?? [])
+        : []
+      const ownerDoc = props.preview()?.ownerDocument
+      const doc = ownerDoc?.defaultView ? ownerDoc : document
+      const view = doc.defaultView
+      if (!view || elements.length === 0) {
+        setBoxes([])
+        return
+      }
 
-        let frame = 0
-        const update = () => {
-          frame = 0
-          const doc = props.preview()?.ownerDocument ?? document
-          const next = elements.flatMap((element) => {
-            const box = getVisibleHighlightBox(element, view, doc)
-            return box ? [box] : []
-          })
-          if (!sameBoxes(boxes(), next)) {
-            setBoxes(next)
-          }
-        }
-        const schedule = () => {
-          if (!frame) {
-            frame = view.requestAnimationFrame(update)
-          }
-        }
-        const resizeObserver =
-          typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(schedule)
-        const preview = props.preview()
-        if (preview) {
-          resizeObserver?.observe(preview)
-        }
-        for (const element of elements) {
-          resizeObserver?.observe(element)
-        }
-        view.addEventListener('resize', schedule)
-        view.addEventListener('scroll', schedule, true)
-        schedule()
-        onCleanup(() => {
-          if (frame) {
-            view.cancelAnimationFrame(frame)
-          }
-          resizeObserver?.disconnect()
-          view.removeEventListener('resize', schedule)
-          view.removeEventListener('scroll', schedule, true)
+      let frame = 0
+      const update = () => {
+        frame = 0
+        const previewDoc = props.preview()?.ownerDocument
+        const currentDoc = previewDoc?.defaultView ? previewDoc : document
+        const next = elements.flatMap((element) => {
+          const box = getVisibleHighlightBox(element, view, currentDoc)
+          return box ? [box] : []
         })
-      },
-    ),
+        if (!sameBoxes(boxes(), next)) {
+          setBoxes(next)
+        }
+      }
+      const schedule = () => {
+        if (!frame) {
+          frame = view.requestAnimationFrame(update)
+        }
+      }
+      const resizeObserver =
+        typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(schedule)
+      const preview = props.preview()
+      if (preview) {
+        resizeObserver?.observe(preview)
+      }
+      for (const element of elements) {
+        resizeObserver?.observe(element)
+      }
+      view.addEventListener('resize', schedule)
+      view.addEventListener('scroll', schedule, true)
+      schedule()
+      return () => {
+        if (frame) {
+          view.cancelAnimationFrame(frame)
+        }
+        resizeObserver?.disconnect()
+        view.removeEventListener('resize', schedule)
+        view.removeEventListener('scroll', schedule, true)
+      }
+    },
   )
 
   function setAutoHover(value: boolean) {

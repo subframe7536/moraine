@@ -1,22 +1,20 @@
-import type { JSX } from 'solid-js'
-import { createMemo, createSignal, Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { createEffect, createMemo, createSignal, Show, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
-import { bindElement } from '../../shared/element-binding'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
 import { defaultAlertMessages } from './alert.messages'
 import { alertDataAttributes, alertRecipe } from './alert.recipe'
 import type { AlertT } from './alert.types'
-
 const ALERT_TONE_ICONS: Record<string, IconT.Name> = {
   info: 'icon-info',
   success: 'icon-success',
@@ -43,7 +41,9 @@ const ALERT_TONE_ICONS: Record<string, IconT.Name> = {
  * ```
  */
 export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>): JSX.Element {
-  const [local, rest] = splitProps(props as AlertT.Props<T> & { ref?: unknown }, [
+  const local = props as AlertT.Props<T> & { ref?: unknown }
+  const rest = omit(
+    props as AlertT.Props<T> & { ref?: unknown },
     'as',
     'title',
     'description',
@@ -65,7 +65,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     'children',
     'ref',
     'translations',
-  ])
+  )
 
   const messages = useMessages('alert', defaultAlertMessages, () => local.translations)
 
@@ -80,9 +80,9 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     onExitComplete: () => local.onExitComplete?.(),
   })
 
-  const title = createMemo(() => local.title)
-  const description = createMemo(() => local.description)
-  const actions = createMemo(() => local.actions)
+  const title = createLazyMemo(() => local.title)
+  const description = createLazyMemo(() => local.description)
+  const actions = createLazyMemo(() => local.actions)
   const hasDescription = () => hasContent(description())
   const isFullWidth = () => Boolean(local.fullWidth)
   const hasClose = () => Boolean(local.closable)
@@ -133,23 +133,34 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
   const defaultRole = () => (isUrgent() ? 'alert' : 'status')
   const defaultAriaLive = () => (isUrgent() ? 'assertive' : 'polite')
 
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+
   return (
     <Show when={presence.present()}>
       {(_present) => {
         const [element, setElement] = createSignal<HTMLElement>()
-        bindElement(element, presence.registerElement)
+        createEffect(element, (node) => {
+          if (!node) {
+            return
+          }
+          return presence.registerElement(node)
+        })
         return (
-          <Dynamic
-            component={local.as ?? 'div'}
+          <Root
             data-slot="alert"
             role={defaultRole()}
             aria-live={defaultAriaLive()}
             {...rootSlot}
-            {...rest}
-            ref={(element: HTMLElement) => {
-              setElement(element)
-              callRef(local.ref, element)
-            }}
+            {...(rest as Record<string, unknown>)}
+            ref={[
+              setElement,
+              (element: HTMLElement) => {
+                const ref = untrack(() => local.ref)
+                if (typeof ref === 'function') {
+                  ref(element)
+                }
+              },
+            ]}
           >
             <Show when={hasIcon()}>
               <div data-slot="alert-icon" {...iconSlot}>
@@ -189,7 +200,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
                 <Icon name={local.closeIcon ?? 'icon-close'} />
               </button>
             </Show>
-          </Dynamic>
+          </Root>
         )
       }}
     </Show>

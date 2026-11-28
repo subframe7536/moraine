@@ -1,12 +1,11 @@
+import type { JSX } from '@solidjs/web'
 import type { Header, RowData } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createUniqueId, splitProps, untrack } from 'solid-js'
+import { For, Show, createMemo, createUniqueId, merge } from 'solid-js'
 
 import { Icon } from '../components/icon'
 import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
 import type { KeyBindingOptions } from '../shared/keyboard'
 import { createKeyDownHandler } from '../shared/keyboard'
-import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 
 import { useDataTableContext } from './data-table-context'
@@ -20,7 +19,6 @@ import {
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 import { FlexRender } from './flex-render'
-
 const SORT_ICONS = {
   asc: 'icon-arrow-up',
   desc: 'icon-arrow-down',
@@ -75,7 +73,7 @@ export function DataTableHeader<TData extends RowData>(props: {
                   <DataTableHeadCell
                     table={props.table}
                     header={header}
-                    side={sides().get(header)!}
+                    side={sides().get(header) ?? false}
                     index={index()}
                     headProps={props.headProps}
                   />
@@ -123,29 +121,32 @@ function DataTableHeadCell<TData extends RowData>(props: {
         ? messages.sortedDescending
         : messages.sort
   }
-  // `For` keeps one header per head cell, so the binding reads it once.
-  const header = untrack(() => props.header)
-  const headSlot = ctx.cellSlot('head', header.column, pin, () => header.getSize(), 'header', {
-    data: dataTableDataAttributes.head({
-      pinned: pin.side,
-      pinnedEdge: () => pin.edge() && pin.side(),
-    }),
-  })
-  // `headProps` runs once per head cell, here, so it can call cell-level hooks.
-  const [extraOwned, extraRest] = splitProps(
-    untrack(
-      () =>
-        props.headProps?.({
-          get header() {
-            return props.header
-          },
-          get index() {
-            return props.index
-          },
-        }) ?? {},
-    ),
-    ['ref'],
+  const headSlot = ctx.createCellSlot(
+    'head',
+    () => props.header.column,
+    pin,
+    () => props.header.getSize(),
+    'header',
+    {
+      data: dataTableDataAttributes.head({
+        pinned: pin.side,
+        pinnedEdge: () => pin.edge() && pin.side(),
+      }),
+    },
   )
+  // `headProps` runs once per head cell (and re-runs if `props.headProps` changes), so it can
+  // call cell-level hooks without tracking `header` or `index`.
+  const extraProps = createMemo(() =>
+    props.headProps?.({
+      get header() {
+        return props.header
+      },
+      get index() {
+        return props.index
+      },
+    }),
+  )
+  const mergedExtra = merge(() => extraProps() ?? {})
   const sortIconSlot = ctx.slotWith('sortIcon', {
     data: dataTableDataAttributes.sortIcon({ sorted: () => column().getIsSorted() }),
   })
@@ -154,9 +155,8 @@ function DataTableHeadCell<TData extends RowData>(props: {
     <th
       data-slot="data-table-head"
       {...headSlot}
-      {...extraRest}
-      ref={(element) => callRef(extraOwned.ref, element)}
-      colSpan={props.header.colSpan}
+      {...mergedExtra}
+      colspan={props.header.colSpan}
       // Only the sorted header carries `aria-sort`.
       aria-sort={sorted() === 'none' ? undefined : ARIA_SORT[sorted() as 'asc' | 'desc']}
     >
@@ -280,7 +280,7 @@ function DataTableResizer<TData extends RowData>(props: {
       aria-valuenow={props.header.getSize()}
       aria-valuemin={minSize()}
       aria-valuemax={maxSize()}
-      tabIndex={0}
+      tabindex={0}
       {...resizerSlot}
       onMouseDown={(event) => props.header.getResizeHandler()(event)}
       onTouchStart={(event) => props.header.getResizeHandler()(event)}

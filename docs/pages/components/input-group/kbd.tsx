@@ -1,5 +1,4 @@
 import { Icon, Input, InputGroup, KbdGroup } from '@src'
-
 export function KeyboardShortcut() {
   return (
     <InputGroup class="max-w-sm">

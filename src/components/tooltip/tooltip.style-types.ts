@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface TooltipStyleSlot<T = unknown> {
   /** Element that opens the tooltip. */
   trigger?: T

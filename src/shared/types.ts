@@ -1,7 +1,7 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { SlotClassValue, SlotStyleValue } from '../theme/style-types'
-
 export type ElementProps<
   T extends HTMLElement = HTMLElement,
   A extends JSX.HTMLAttributes<T> = JSX.HTMLAttributes<T>,
@@ -36,26 +36,12 @@ export type Tags = MoraineTypeConfig extends { simpleHtmlTags: true }
   ? keyof JSX.HTMLElementTags
   : keyof JSX.IntrinsicElements
 
+// oxlint-disable-next-line typescript/no-explicit-any -- contravariant component props variance
 export type ValidComponent = Tags | Component<any> | (string & {})
 
 type CommonRootProps = { [x: string]: unknown }
 
-type LowerCaseEvents = Lowercase<
-  Extract<keyof JSX.CustomEventHandlersCamelCase<HTMLElement>, string>
->
-
-type StrictedAttributeKeys =
-  | LowerCaseEvents
-  | `on:${string}`
-  | `oncapture:${string}`
-  | `use:${string}`
-  | `prop:${string}`
-  | `attr:${string}`
-  | `bool:${string}`
-
-type StrictedAttributes<T extends Tags> = T extends unknown
-  ? Omit<JSX.IntrinsicElements[T], StrictedAttributeKeys>
-  : never
+type StrictedAttributes<T extends Tags> = T extends unknown ? JSX.IntrinsicElements[T] : never
 
 type Override<A, B> = Omit<A, keyof B> & B
 
@@ -71,9 +57,9 @@ export type NullableVariantProps<Variants> = {
 }
 
 type ComponentBaseProps<Base, Variants, Classes, Styles, HasElement extends boolean = true> = Base &
-  ([Variants] extends [never] ? {} : NullableVariantProps<Variants>) &
+  ([Variants] extends [never] ? unknown : NullableVariantProps<Variants>) &
   ([Classes] extends [never]
-    ? {}
+    ? unknown
     : {
         /**
          * Classes for individual parts of the component, keyed by slot name. A slot is a named part
@@ -101,7 +87,7 @@ type ComponentBaseProps<Base, Variants, Classes, Styles, HasElement extends bool
         classes?: Classes
       }) &
   ([Styles] extends [never]
-    ? {}
+    ? unknown
     : {
         /**
          * Inline styles for individual parts of the component, keyed by slot name like `classes`.
@@ -140,13 +126,13 @@ type ComponentBaseProps<Base, Variants, Classes, Styles, HasElement extends bool
          */
         style?: SlotStyleValue
       }
-    : {})
+    : unknown)
 
 type RootProps<T extends ValidComponent> = T extends Tags
   ? MoraineTypeConfig extends { simpleRootAttributes: true }
     ? CommonRootProps
     : StrictedAttributes<T>
-  : T extends (props: infer P) => any
+  : T extends (props: infer P) => unknown
     ? P
     : CommonRootProps
 
@@ -189,5 +175,5 @@ export type BaseProps<
   : Override<
       RootProps<DefaultTag<TElement, TDefault>>,
       ComponentBaseProps<Base, Variants, Classes, Styles> &
-        (AcceptsChildren extends true ? {} : { children?: never })
+        (AcceptsChildren extends true ? unknown : { children?: never })
     >

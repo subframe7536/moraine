@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os'
 
 import path from 'pathe'
 import { onTestFinished } from 'vitest'
-
 export async function createFileFixture(files: Record<string, string>): Promise<string> {
   const root = await mkdtemp(path.join(tmpdir(), 'moraine-docs-'))
   onTestFinished(() => rm(root, { recursive: true, force: true }))

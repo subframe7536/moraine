@@ -1,7 +1,6 @@
 import { Avatar, HoverCard } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function HoverCardPlayground() {
   return (
     <DocsPlayground

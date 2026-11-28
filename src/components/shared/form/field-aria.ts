@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 /** Keep caller IDs first and append generated IDs once, preserving their semantic order. */
 

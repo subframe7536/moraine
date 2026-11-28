@@ -1,5 +1,5 @@
 import { KeyboardSensor, PointerSensor } from '@dnd-kit/dom'
-import { createEffect, createMemo, mergeProps, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, merge } from 'solid-js'
 
 import type { TreeT } from '../components/tree/tree.types'
 
@@ -182,22 +182,21 @@ export function createTreeSortable<T>(
   // Hovering inside a collapsed item expands it, which also loads lazy children.
   const expandDelay = options.expandDelay ?? 600
   if (expandDelay !== false) {
-    createEffect(
-      on(
-        () => {
-          const state = sortable.state()
-          return state?.position === 'inside' ? String(state.targetId) : undefined
-        },
-        (key) => {
-          const item = key === undefined ? undefined : tree.getItem(key)
-          if (!item || item.expanded || !item.hasChildren) {
-            return
-          }
-          const timer = setTimeout(() => tree.expand(item.key), expandDelay)
-          onCleanup(() => clearTimeout(timer))
-        },
-      ),
-    )
+    const hoverExpandKey = createMemo(() => {
+      const state = sortable.state()
+      if (state?.position !== 'inside') {
+        return undefined
+      }
+      const item = tree.getItem(String(state.targetId))
+      return item && !item.expanded && item.hasChildren ? item.key : undefined
+    })
+    createEffect(hoverExpandKey, (key) => {
+      if (key === undefined) {
+        return
+      }
+      const timer = setTimeout(() => tree.expand(key), expandDelay)
+      return () => clearTimeout(timer)
+    })
   }
 
   const useNode = (item: TreeT.ItemInstance<T>): TreeSortableNode => {
@@ -208,21 +207,22 @@ export function createTreeSortable<T>(
       positions: () =>
         (options.canNest?.(item) ?? true) ? ['before', 'inside', 'after'] : ['before', 'after'],
     })
-    const props = mergeProps(
+    const [element, setElement] = createSignal<HTMLElement>()
+    createEffect(element, (el) => {
+      if (!el) {
+        return
+      }
+      // The item element also holds its child group, so drops measure against the row.
+      const row = el.querySelector<HTMLElement>(ROW_SELECTOR)
+      if (row) {
+        node.targetRef(row)
+      }
+    })
+    const props = merge(
       {
-        ref: (element: HTMLElement) => {
-          node.ref(element)
-          // The item element also holds its child group, so drops measure against the row.
-          const attachRow = (): boolean => {
-            const row = element.querySelector<HTMLElement>(ROW_SELECTOR)
-            if (row) {
-              node.targetRef(row)
-            }
-            return row !== null
-          }
-          if (!attachRow()) {
-            queueMicrotask(attachRow)
-          }
+        ref: (el: HTMLElement) => {
+          node.ref(el)
+          setElement(el)
         },
       },
       node.attributes,
@@ -237,9 +237,9 @@ export function createTreeSortable<T>(
 /** Accessors `moveTreeNode` uses to read and rebuild items. */
 export interface MoveTreeNodeAccess<T> {
   getKey: (item: T) => string
-  getChildren: (item: T) => readonly T[] | undefined
+  getChildren: (item: T) => ReadonlyArray<T> | undefined
   /** Returns a copy of `item` with `children`. */
-  withChildren: (item: T, children: T[]) => T
+  withChildren: (item: T, children: Array<T>) => T
 }
 
 /**
@@ -247,14 +247,14 @@ export interface MoveTreeNodeAccess<T> {
  * as reported by `TreeMoveEvent`. Unchanged branches keep their identity.
  */
 export function moveTreeNode<T>(
-  items: readonly T[],
+  items: ReadonlyArray<T>,
   move: Pick<TreeMoveEvent<unknown>, 'key' | 'parentKey' | 'index'>,
   access: MoveTreeNodeAccess<T>,
-): T[] {
+): Array<T> {
   let moved: T | undefined
-  const remove = (list: readonly T[]): T[] => {
+  const remove = (list: ReadonlyArray<T>): Array<T> => {
     let changed = false
-    const next: T[] = []
+    const next: Array<T> = []
     for (const item of list) {
       if (access.getKey(item) === move.key) {
         moved = item
@@ -262,20 +262,22 @@ export function moveTreeNode<T>(
         continue
       }
       const children = access.getChildren(item)
-      const nextChildren = children ? remove(children) : undefined
-      if (children && nextChildren !== children) {
-        changed = true
-        next.push(access.withChildren(item, nextChildren!))
-      } else {
-        next.push(item)
+      if (children) {
+        const nextChildren = remove(children)
+        if (nextChildren !== children) {
+          changed = true
+          next.push(access.withChildren(item, nextChildren))
+          continue
+        }
       }
+      next.push(item)
     }
-    return changed ? next : (list as T[])
+    return changed ? next : (list as Array<T>)
   }
-  const insert = (list: readonly T[], parentKey: string | undefined): T[] => {
+  const insert = (list: ReadonlyArray<T>, parentKey: string | undefined, node: T): Array<T> => {
     if (parentKey === move.parentKey) {
       const next = list.slice()
-      next.splice(Math.min(move.index, next.length), 0, moved!)
+      next.splice(Math.min(move.index, next.length), 0, node)
       return next
     }
     let changed = false
@@ -283,10 +285,10 @@ export function moveTreeNode<T>(
       const children = access.getChildren(item)
       if (access.getKey(item) === move.parentKey) {
         changed = true
-        return access.withChildren(item, insert(children ?? [], access.getKey(item)))
+        return access.withChildren(item, insert(children ?? [], access.getKey(item), node))
       }
       if (children) {
-        const nextChildren = insert(children, access.getKey(item))
+        const nextChildren = insert(children, access.getKey(item), node)
         if (nextChildren !== children) {
           changed = true
           return access.withChildren(item, nextChildren)
@@ -294,12 +296,12 @@ export function moveTreeNode<T>(
       }
       return item
     })
-    return changed ? next : (list as T[])
+    return changed ? next : (list as Array<T>)
   }
 
   const removed = remove(items)
   if (moved === undefined) {
     return items.slice()
   }
-  return insert(removed, undefined)
+  return insert(removed, undefined, moved)
 }

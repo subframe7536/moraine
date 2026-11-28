@@ -4,7 +4,7 @@
  */
 
 function normalizePath(filePath: string): string {
-  return filePath.replace(/\\/g, '/')
+  return filePath.replaceAll('\\', '/')
 }
 
 function isComponentFile(filePath: string): boolean {
@@ -64,51 +64,205 @@ function isEntryOrBarrelFile(filePath: string): boolean {
   )
 }
 
-function isSlotsAccess(obj: any): boolean {
+interface AstNode {
+  type?: string
+  parent?: AstNode
+  [key: string]: unknown
+}
+
+interface IdentifierNode extends AstNode {
+  type: 'Identifier' | 'JSXIdentifier'
+  name: string
+}
+
+interface LiteralNode extends AstNode {
+  type: 'Literal'
+  value: unknown
+}
+
+interface MemberExpressionNode extends AstNode {
+  type: 'MemberExpression'
+  object?: AstNode
+  property?: AstNode
+  computed?: boolean
+}
+
+interface ConditionalExpressionNode extends AstNode {
+  type: 'ConditionalExpression'
+  consequent?: AstNode
+  alternate?: AstNode
+}
+
+interface BinaryOrLogicalNode extends AstNode {
+  type: 'LogicalExpression' | 'BinaryExpression'
+  left?: AstNode
+  right?: AstNode
+}
+
+interface PropertyNode extends AstNode {
+  type: 'Property' | 'MethodDefinition'
+  key?: AstNode
+  value?: AstNode
+  computed?: boolean
+}
+
+interface ObjectExpressionNode extends AstNode {
+  type: 'ObjectExpression'
+  properties: Array<AstNode>
+}
+
+interface ArrayExpressionNode extends AstNode {
+  type: 'ArrayExpression'
+  elements: Array<AstNode | null>
+}
+
+interface CallExpressionNode extends AstNode {
+  type: 'CallExpression'
+  callee: AstNode
+  arguments: Array<AstNode>
+}
+
+interface JSXExpressionContainerNode extends AstNode {
+  type: 'JSXExpressionContainer'
+  expression: AstNode
+}
+
+interface JSXAttributeNode extends AstNode {
+  type?: 'JSXAttribute'
+  name?: AstNode
+  value?: AstNode
+}
+
+interface JSXSpreadAttributeNode extends AstNode {
+  type?: 'JSXSpreadAttribute'
+  argument?: AstNode
+}
+
+interface JSXOpeningElementNode extends AstNode {
+  type?: 'JSXOpeningElement'
+  name?: AstNode
+  attributes?: Array<AstNode>
+}
+
+interface JSXElementNode extends AstNode {
+  type?: 'JSXElement'
+  openingElement?: JSXOpeningElementNode
+  children?: Array<AstNode>
+}
+
+interface FunctionNode extends AstNode {
+  type?: 'FunctionDeclaration' | 'FunctionExpression' | 'ArrowFunctionExpression'
+  id?: AstNode
+  params?: Array<AstNode>
+  body?: AstNode
+}
+
+interface VariableDeclaratorNode extends AstNode {
+  type?: 'VariableDeclarator'
+  id?: AstNode
+  init?: AstNode | null
+}
+
+interface ExportSpecifierNode extends AstNode {
+  exported?: AstNode
+  local?: AstNode
+}
+
+interface ModuleDeclarationNode extends AstNode {
+  source?: LiteralNode | null
+}
+
+interface ExportNamedDeclarationNode extends ModuleDeclarationNode {
+  declaration?: AstNode | null
+  specifiers?: Array<ExportSpecifierNode>
+}
+
+interface RuleContext {
+  filename: string
+  report: (descriptor: { node: AstNode; messageId: string; data?: Record<string, string> }) => void
+}
+
+type RuleVisitor = (node: AstNode) => void
+
+interface RuleListeners {
+  JSXAttribute: RuleVisitor
+  JSXSpreadAttribute: RuleVisitor
+  JSXOpeningElement: RuleVisitor
+  JSXElement: RuleVisitor
+  CallExpression: RuleVisitor
+  ImportDeclaration: RuleVisitor
+  ExportNamedDeclaration: RuleVisitor
+  ExportAllDeclaration: RuleVisitor
+  FunctionDeclaration: RuleVisitor
+  VariableDeclarator: RuleVisitor
+}
+
+function isIdentifier(node: AstNode | null | undefined): node is IdentifierNode {
+  return node?.type === 'Identifier' || node?.type === 'JSXIdentifier'
+}
+
+function isLiteral(node: AstNode | null | undefined): node is LiteralNode {
+  return node?.type === 'Literal'
+}
+
+function isMemberExpression(node: AstNode | null | undefined): node is MemberExpressionNode {
+  return node?.type === 'MemberExpression'
+}
+
+function isProperty(node: AstNode | null | undefined): node is PropertyNode {
+  return node?.type === 'Property' || node?.type === 'MethodDefinition'
+}
+
+function isSlotsAccess(obj: AstNode | null | undefined): boolean {
   if (!obj) {
     return false
   }
-  if (obj.type === 'Identifier' && obj.name === 'slots') {
+  if (obj.type === 'Identifier' && (obj as IdentifierNode).name === 'slots') {
     return true
   }
   if (
-    obj.type === 'MemberExpression' &&
+    isMemberExpression(obj) &&
     obj.property?.type === 'Identifier' &&
-    obj.property.name === 'slots'
+    (obj.property as IdentifierNode).name === 'slots'
   ) {
     return true
   }
   return false
 }
 
-function findSlotsClassOrStyleAccess(node: any): any {
+function findSlotsClassOrStyleAccess(node: AstNode | null | undefined): AstNode | null {
   if (!node) {
     return null
   }
-  if (node.type === 'MemberExpression') {
-    const propName = node.property?.name
+  if (isMemberExpression(node)) {
+    const propName = isIdentifier(node.property) ? node.property.name : undefined
     if (propName === 'class' || propName === 'style') {
-      if (node.object?.type === 'MemberExpression' && isSlotsAccess(node.object.object)) {
+      if (isMemberExpression(node.object) && isSlotsAccess(node.object.object)) {
         return node
       }
-      if (node.object?.type === 'Identifier' && node.object.name.endsWith('Slot')) {
+      if (
+        node.object?.type === 'Identifier' &&
+        (node.object as IdentifierNode).name.endsWith('Slot')
+      ) {
         return node
       }
     }
     return findSlotsClassOrStyleAccess(node.object)
   }
   if (node.type === 'ConditionalExpression') {
+    const cond = node as ConditionalExpressionNode
     return (
-      findSlotsClassOrStyleAccess(node.consequent) || findSlotsClassOrStyleAccess(node.alternate)
+      findSlotsClassOrStyleAccess(cond.consequent) || findSlotsClassOrStyleAccess(cond.alternate)
     )
   }
   if (node.type === 'LogicalExpression' || node.type === 'BinaryExpression') {
-    return findSlotsClassOrStyleAccess(node.left) || findSlotsClassOrStyleAccess(node.right)
+    const expr = node as BinaryOrLogicalNode
+    return findSlotsClassOrStyleAccess(expr.left) || findSlotsClassOrStyleAccess(expr.right)
   }
   if (node.type === 'ObjectExpression') {
-    for (const prop of node.properties) {
+    for (const prop of (node as ObjectExpressionNode).properties) {
       if (prop.type === 'Property') {
-        const found = findSlotsClassOrStyleAccess(prop.value)
+        const found = findSlotsClassOrStyleAccess((prop as PropertyNode).value)
         if (found) {
           return found
         }
@@ -116,7 +270,7 @@ function findSlotsClassOrStyleAccess(node: any): any {
     }
   }
   if (node.type === 'ArrayExpression') {
-    for (const el of node.elements) {
+    for (const el of (node as ArrayExpressionNode).elements) {
       const found = findSlotsClassOrStyleAccess(el)
       if (found) {
         return found
@@ -124,7 +278,7 @@ function findSlotsClassOrStyleAccess(node: any): any {
     }
   }
   if (node.type === 'CallExpression') {
-    for (const arg of node.arguments) {
+    for (const arg of (node as CallExpressionNode).arguments) {
       const found = findSlotsClassOrStyleAccess(arg)
       if (found) {
         return found
@@ -149,36 +303,39 @@ function isSlotHostFile(filePath: string): boolean {
 const REST_NAMES = new Set(['rest', 'others'])
 
 /** Returns the printed callee of a `*DataAttributes.<slot>(...)` or `*DataAttributes(...)` call. */
-function dataAttributesCallee(callee: any): string | undefined {
-  if (callee?.type === 'Identifier' && callee.name.endsWith('DataAttributes')) {
-    return callee.name
+function dataAttributesCallee(callee: AstNode | undefined): string | undefined {
+  if (callee?.type === 'Identifier' && (callee as IdentifierNode).name.endsWith('DataAttributes')) {
+    return (callee as IdentifierNode).name
   }
   if (
-    callee?.type === 'MemberExpression' &&
+    isMemberExpression(callee) &&
     callee.object?.type === 'Identifier' &&
-    callee.object.name.endsWith('DataAttributes')
+    (callee.object as IdentifierNode).name.endsWith('DataAttributes')
   ) {
-    const property = callee.computed ? '[...]' : `.${callee.property?.name}`
-    return `${callee.object.name}${property}`
+    const property = callee.computed
+      ? '[...]'
+      : `.${isIdentifier(callee.property) ? callee.property.name : undefined}`
+    return `${(callee.object as IdentifierNode).name}${property}`
   }
   return undefined
 }
 
-function propertyKeyName(property: any): string | undefined {
-  if (property?.type !== 'Property' || property.computed) {
+function propertyKeyName(property: AstNode | undefined): string | undefined {
+  if (property?.type !== 'Property' || (property as PropertyNode).computed) {
     return undefined
   }
-  return property.key?.type === 'Identifier'
-    ? property.key.name
-    : typeof property.key?.value === 'string'
-      ? property.key.value
+  const key = (property as PropertyNode).key
+  return key?.type === 'Identifier'
+    ? (key as IdentifierNode).name
+    : isLiteral(key) && typeof key.value === 'string'
+      ? key.value
       : undefined
 }
 
 /** `data: { slot: <call> }` (useRecipe) or `data: <call>` (slotWith). */
-function isSlotDataEntry(call: any): boolean {
+function isSlotDataEntry(call: CallExpressionNode): boolean {
   const property = call.parent
-  if (property?.type !== 'Property' || property.value !== call) {
+  if (property?.type !== 'Property' || (property as PropertyNode).value !== call) {
     return false
   }
   if (propertyKeyName(property) === 'data') {
@@ -186,38 +343,44 @@ function isSlotDataEntry(call: any): boolean {
   }
   const slots = property.parent
   const dataProperty = slots?.type === 'ObjectExpression' ? slots.parent : undefined
-  return dataProperty?.value === slots && propertyKeyName(dataProperty) === 'data'
+  return (
+    isProperty(dataProperty) &&
+    dataProperty.value === slots &&
+    propertyKeyName(dataProperty) === 'data'
+  )
 }
 
 /** Slot name for `{...slots.<slot>}` with a static key. */
-function staticSlotsMember(argument: any): string | undefined {
+function staticSlotsMember(argument: AstNode | undefined): string | undefined {
   if (
-    argument?.type === 'MemberExpression' &&
+    isMemberExpression(argument) &&
     !argument.computed &&
     argument.object?.type === 'Identifier' &&
-    argument.object.name === 'slots' &&
+    (argument.object as IdentifierNode).name === 'slots' &&
     argument.property?.type === 'Identifier'
   ) {
-    return argument.property.name
+    return (argument.property as IdentifierNode).name
   }
   return undefined
 }
 
 /** Printed name of a slot binding spread: `xSlot`, `slots.x`, `slots[k]`, or `slotWith(...)`. */
-function slotBindingName(argument: any): string | undefined {
-  if (argument?.type === 'Identifier' && argument.name.endsWith('Slot')) {
-    return argument.name
+function slotBindingName(argument: AstNode | undefined): string | undefined {
+  if (argument?.type === 'Identifier' && (argument as IdentifierNode).name.endsWith('Slot')) {
+    return (argument as IdentifierNode).name
   }
-  if (argument?.type === 'MemberExpression' && isSlotsAccess(argument.object)) {
-    return argument.computed ? 'slots[...]' : `slots.${argument.property?.name}`
+  if (isMemberExpression(argument) && isSlotsAccess(argument.object)) {
+    return argument.computed
+      ? 'slots[...]'
+      : `slots.${isIdentifier(argument.property) ? argument.property.name : undefined}`
   }
   if (argument?.type === 'CallExpression') {
-    const callee = argument.callee
+    const callee = (argument as CallExpressionNode).callee
     const name =
       callee?.type === 'Identifier'
-        ? callee.name
-        : callee?.type === 'MemberExpression'
-          ? callee.property?.name
+        ? (callee as IdentifierNode).name
+        : isMemberExpression(callee) && isIdentifier(callee.property)
+          ? callee.property.name
           : undefined
     if (name === 'slotWith') {
       return 'slotWith(...)'
@@ -302,7 +465,7 @@ function toPascalCase(name: string): string {
   return clean.charAt(0).toUpperCase() + clean.slice(1)
 }
 
-function isJsxNode(node: any): boolean {
+function isJsxNode(node: AstNode | null | undefined): boolean {
   if (!node) {
     return false
   }
@@ -310,15 +473,16 @@ function isJsxNode(node: any): boolean {
     return true
   }
   if (node.type === 'ConditionalExpression') {
-    return isJsxNode(node.consequent) || isJsxNode(node.alternate)
+    const cond = node as ConditionalExpressionNode
+    return isJsxNode(cond.consequent) || isJsxNode(cond.alternate)
   }
   if (node.type === 'LogicalExpression') {
-    return isJsxNode(node.right)
+    return isJsxNode((node as BinaryOrLogicalNode).right)
   }
   return false
 }
 
-function functionReturnsJsx(fnNode: any): boolean {
+function functionReturnsJsx(fnNode: FunctionNode | null | undefined): boolean {
   if (!fnNode) {
     return false
   }
@@ -332,7 +496,7 @@ function functionReturnsJsx(fnNode: any): boolean {
   }
 
   let found = false
-  function search(current: any) {
+  function search(current: AstNode | null | undefined) {
     if (!current || found) {
       return
     }
@@ -345,7 +509,7 @@ function functionReturnsJsx(fnNode: any): boolean {
       return
     }
     if (current.type === 'ReturnStatement') {
-      if (isJsxNode(current.argument)) {
+      if (isJsxNode(current.argument as AstNode | undefined)) {
         found = true
         return
       }
@@ -358,11 +522,11 @@ function functionReturnsJsx(fnNode: any): boolean {
       if (Array.isArray(child)) {
         for (const item of child) {
           if (item && typeof item === 'object') {
-            search(item)
+            search(item as AstNode)
           }
         }
       } else if (child && typeof child === 'object') {
-        search(child)
+        search(child as AstNode)
       }
     }
   }
@@ -372,42 +536,46 @@ function functionReturnsJsx(fnNode: any): boolean {
 }
 
 const REF_LIFECYCLE_CALL =
-  /^(?:onCleanup|onMount|createEffect|createRenderEffect|createComputed|createEventListener(?:Map)?|attachEventListener(?:Map)?|register[A-Z]\w*)$/
+  /^(?:onCleanup|onSettled|createEffect|createRenderEffect|createComputed|createEventListener(?:Map)?|attachEventListener(?:Map)?|register[A-Z]\w*)$/
 
-function calleeName(callee: any): string | undefined {
+function calleeName(callee: AstNode | undefined): string | undefined {
   if (callee?.type === 'Identifier') {
-    return callee.name
+    return (callee as IdentifierNode).name
   }
-  if (callee?.type === 'MemberExpression' && !callee.computed) {
-    return callee.property?.name
+  if (isMemberExpression(callee) && !callee.computed && isIdentifier(callee.property)) {
+    return callee.property.name
   }
   return undefined
 }
 
-function isRefKey(key: any): boolean {
+function isRefKey(key: AstNode | undefined): boolean {
   return (
-    (key?.type === 'Identifier' && key.name === 'ref') ||
-    (key?.type === 'Literal' && key.value === 'ref')
+    (key?.type === 'Identifier' && (key as IdentifierNode).name === 'ref') ||
+    (isLiteral(key) && key.value === 'ref')
   )
 }
 
 /** Whether a function node is a ref callback: `ref={(el) => ...}`, `ref: (el) => ...`, or `ref(el) {}`. */
-function isRefCallback(fn: any): boolean {
+function isRefCallback(fn: FunctionNode): boolean {
   const parent = fn.parent
   if (!parent) {
     return false
   }
   if (parent.type === 'JSXExpressionContainer') {
     const attribute = parent.parent
-    return attribute?.type === 'JSXAttribute' && attribute.name?.name === 'ref'
+    if (attribute?.type !== 'JSXAttribute') {
+      return false
+    }
+    const attrName = (attribute as JSXAttributeNode).name
+    return isIdentifier(attrName) && attrName.name === 'ref'
   }
-  if (parent.type === 'Property' || parent.type === 'MethodDefinition') {
+  if (isProperty(parent)) {
     return parent.value === fn && isRefKey(parent.key)
   }
   return false
 }
 
-function nearestFunction(node: any): any {
+function nearestFunction(node: AstNode): FunctionNode | undefined {
   let current = node.parent
   while (current) {
     if (
@@ -415,7 +583,7 @@ function nearestFunction(node: any): any {
       current.type === 'FunctionExpression' ||
       current.type === 'FunctionDeclaration'
     ) {
-      return current
+      return current as FunctionNode
     }
     current = current.parent
   }
@@ -439,11 +607,14 @@ export default {
             'Do not pass a slot binding "class" or "style" to JSX attributes. Spread the binding ("{...<slot>Slot}") or use "slotWith" / "overrides".',
         },
       },
-      create(context: any) {
+      create(context: RuleContext): Pick<RuleListeners, 'JSXAttribute' | 'JSXSpreadAttribute'> {
         return {
-          JSXAttribute(node: any) {
+          JSXAttribute(rawNode: AstNode) {
+            const node = rawNode as JSXAttributeNode
             if (node.value?.type === 'JSXExpressionContainer') {
-              const invalid = findSlotsClassOrStyleAccess(node.value.expression)
+              const invalid = findSlotsClassOrStyleAccess(
+                (node.value as JSXExpressionContainerNode).expression,
+              )
               if (invalid) {
                 context.report({
                   node: invalid,
@@ -452,7 +623,8 @@ export default {
               }
             }
           },
-          JSXSpreadAttribute(node: any) {
+          JSXSpreadAttribute(rawNode: AstNode) {
+            const node = rawNode as JSXSpreadAttributeNode
             const invalid = findSlotsClassOrStyleAccess(node.argument)
             if (invalid) {
               context.report({
@@ -477,12 +649,13 @@ export default {
             'Pass "{{callee}}(...)" as a slot entry of the `data` option of useRecipe or slotWith, so the slot binding carries it.',
         },
       },
-      create(context: any): Record<string, any> {
+      create(context: RuleContext): Pick<RuleListeners, 'CallExpression'> {
         if (!isSlotHostFile(context.filename)) {
-          return {}
+          return {} as Pick<RuleListeners, 'CallExpression'>
         }
         return {
-          CallExpression(node: any) {
+          CallExpression(rawNode: AstNode) {
+            const node = rawNode as CallExpressionNode
             const callee = dataAttributesCallee(node.callee)
             if (callee && !isSlotDataEntry(node)) {
               context.report({ node, messageId: 'mustBind', data: { callee } })
@@ -506,24 +679,31 @@ export default {
             'Destructure the slot binding (`slots: { {{slot}}: {{slot}}Slot }`) and spread "{...{{slot}}Slot}" instead of "{...slots.{{slot}}}".',
         },
       },
-      create(context: any): Record<string, any> {
+      create(context: RuleContext): Pick<RuleListeners, 'JSXOpeningElement'> {
         if (!isSlotHostFile(context.filename)) {
-          return {}
+          return {} as Pick<RuleListeners, 'JSXOpeningElement'>
         }
         return {
-          JSXOpeningElement(node: any) {
+          JSXOpeningElement(rawNode: AstNode) {
+            const node = rawNode as JSXOpeningElementNode
             let rest: string | undefined
             for (const attribute of node.attributes ?? []) {
               if (attribute.type !== 'JSXSpreadAttribute') {
                 continue
               }
-              const argument = attribute.argument
+              const argument = (attribute as JSXSpreadAttributeNode).argument
+              if (!argument) {
+                continue
+              }
               const member = staticSlotsMember(argument)
               if (member) {
                 context.report({ node: argument, messageId: 'destructure', data: { slot: member } })
               }
-              if (argument?.type === 'Identifier' && REST_NAMES.has(argument.name)) {
-                rest ??= argument.name
+              if (
+                argument.type === 'Identifier' &&
+                REST_NAMES.has((argument as IdentifierNode).name)
+              ) {
+                rest ??= (argument as IdentifierNode).name
                 continue
               }
               const binding = slotBindingName(argument)
@@ -545,15 +725,16 @@ export default {
         },
         messages: {
           lifecycleInRef:
-            'Do not call "{{name}}" inside a ref callback. Store the element in a signal and move this work into "bindElement" in the owner that renders it.',
+            'Do not call "{{name}}" inside a ref callback. Store the element in a signal and move this work into "createEffect" or "createRenderEffect" in the owner that renders it.',
         },
       },
-      create(context: any): Record<string, any> {
+      create(context: RuleContext): Pick<RuleListeners, 'CallExpression'> {
         if (!/\/src\//.test(normalizePath(context.filename))) {
-          return {}
+          return {} as Pick<RuleListeners, 'CallExpression'>
         }
         return {
-          CallExpression(node: any) {
+          CallExpression(rawNode: AstNode) {
+            const node = rawNode as CallExpressionNode
             const name = calleeName(node.callee)
             if (!name || !REF_LIFECYCLE_CALL.test(name)) {
               return
@@ -571,40 +752,28 @@ export default {
       meta: {
         type: 'problem',
         docs: {
-          description: "Enforce wrapping createEffect callbacks with Solid's on().",
+          description: 'Enforce the Solid 2 createEffect(compute, apply) two-argument signature.',
         },
         messages: {
           requireOn:
-            'Always wrap "createEffect" callbacks with Solid\'s "on()". Use "on([], () => ...)" for effects with no reactive dependencies.',
+            'Use the Solid 2 "createEffect(compute, apply)" signature: reactive reads go in the first argument, imperative work in the second.',
         },
       },
-      create(context: any): Record<string, any> {
+      create(context: RuleContext): Pick<RuleListeners, 'CallExpression'> {
         if (!isSourceFile(context.filename)) {
-          return {}
+          return {} as Pick<RuleListeners, 'CallExpression'>
         }
         return {
-          CallExpression(node: any) {
-            if (node.callee.type === 'Identifier' && node.callee.name === 'createEffect') {
+          CallExpression(rawNode: AstNode) {
+            const node = rawNode as CallExpressionNode
+            if (
+              node.callee.type === 'Identifier' &&
+              (node.callee as IdentifierNode).name === 'createEffect'
+            ) {
               const firstArg = node.arguments[0]
-              if (!firstArg) {
-                return
-              }
-
-              if (
-                firstArg.type === 'ArrowFunctionExpression' ||
-                firstArg.type === 'FunctionExpression'
-              ) {
+              if (!firstArg || node.arguments.length < 2) {
                 context.report({
-                  node: firstArg,
-                  messageId: 'requireOn',
-                })
-              } else if (
-                firstArg.type === 'CallExpression' &&
-                firstArg.callee.type === 'Identifier' &&
-                firstArg.callee.name !== 'on'
-              ) {
-                context.report({
-                  node: firstArg,
+                  node: firstArg ?? node,
                   messageId: 'requireOn',
                 })
               }
@@ -625,11 +794,18 @@ export default {
             'Never use emitted ".js" or ".jsx" extensions in source import "{{source}}". Omit the extension or use source extension (.ts / .tsx).',
         },
       },
-      create(context: any) {
-        function checkSource(node: any) {
+      create(
+        context: RuleContext,
+      ): Pick<
+        RuleListeners,
+        'ImportDeclaration' | 'ExportNamedDeclaration' | 'ExportAllDeclaration'
+      > {
+        function checkSource(rawNode: AstNode) {
+          const node = rawNode as ModuleDeclarationNode
           const source = node.source?.value
           if (
             typeof source === 'string' &&
+            node.source &&
             (source.startsWith('.') || source.startsWith('@src/') || source.startsWith('moraine/'))
           ) {
             if (source.endsWith('.js') || source.endsWith('.jsx')) {
@@ -660,27 +836,31 @@ export default {
             'String style prop is forbidden. Use a style object (style?: JSX.CSSProperties).',
         },
       },
-      create(context: any): Record<string, any> {
+      create(context: RuleContext): Pick<RuleListeners, 'JSXAttribute'> {
         const normalized = normalizePath(context.filename)
         if (
           normalized.includes('/test/') ||
           normalized.includes('.test.') ||
           normalized.includes('.spec.')
         ) {
-          return {}
+          return {} as Pick<RuleListeners, 'JSXAttribute'>
         }
         return {
-          JSXAttribute(node: any) {
-            if (node.name?.type === 'JSXIdentifier' && node.name.name === 'style') {
-              if (node.value?.type === 'Literal' && typeof node.value.value === 'string') {
+          JSXAttribute(rawNode: AstNode) {
+            const node = rawNode as JSXAttributeNode
+            if (
+              node.name?.type === 'JSXIdentifier' &&
+              (node.name as IdentifierNode).name === 'style'
+            ) {
+              if (isLiteral(node.value) && typeof node.value.value === 'string') {
                 context.report({
                   node: node.value,
                   messageId: 'noStringStyle',
                 })
               } else if (node.value?.type === 'JSXExpressionContainer') {
-                const expr = node.value.expression
+                const expr = (node.value as JSXExpressionContainerNode).expression
                 if (
-                  (expr.type === 'Literal' && typeof expr.value === 'string') ||
+                  (isLiteral(expr) && typeof expr.value === 'string') ||
                   expr.type === 'TemplateLiteral'
                 ) {
                   context.report({
@@ -709,17 +889,22 @@ export default {
             'Function "{{name}}" returns JSX and must be a SolidJS component with a PascalCase name. Use JSX syntax "<{{pascalName}} ... />" instead.',
         },
       },
-      create(context: any): Record<string, any> {
+      create(
+        context: RuleContext,
+      ): Pick<RuleListeners, 'FunctionDeclaration' | 'VariableDeclarator' | 'CallExpression'> {
         const normalized = normalizePath(context.filename)
         if (
           !isComponentFile(context.filename) ||
           (!normalized.endsWith('.tsx') && !normalized.endsWith('.jsx'))
         ) {
-          return {}
+          return {} as Pick<
+            RuleListeners,
+            'FunctionDeclaration' | 'VariableDeclarator' | 'CallExpression'
+          >
         }
         const jsxFunctions = new Set<string>()
 
-        function checkFunction(name: string, fnNode: any, reportNode: any) {
+        function checkFunction(name: string, fnNode: FunctionNode, reportNode: AstNode) {
           if (
             !name ||
             isPascalCase(name) ||
@@ -742,24 +927,27 @@ export default {
         }
 
         return {
-          FunctionDeclaration(node: any) {
+          FunctionDeclaration(rawNode: AstNode) {
+            const node = rawNode as FunctionNode
             if (node.id?.type === 'Identifier') {
-              checkFunction(node.id.name, node, node.id)
+              checkFunction((node.id as IdentifierNode).name, node, node.id)
             }
           },
-          VariableDeclarator(node: any) {
+          VariableDeclarator(rawNode: AstNode) {
+            const node = rawNode as VariableDeclaratorNode
             if (
               node.id?.type === 'Identifier' &&
               node.init &&
               (node.init.type === 'ArrowFunctionExpression' ||
                 node.init.type === 'FunctionExpression')
             ) {
-              checkFunction(node.id.name, node.init, node.id)
+              checkFunction((node.id as IdentifierNode).name, node.init as FunctionNode, node.id)
             }
           },
-          CallExpression(node: any) {
+          CallExpression(rawNode: AstNode) {
+            const node = rawNode as CallExpressionNode
             if (node.callee.type === 'Identifier') {
-              const name = node.callee.name
+              const name = (node.callee as IdentifierNode).name
               if (isPascalCase(name) && !/^[A-Z0-9_]+$/.test(name) && !GLOBAL_BUILTINS.has(name)) {
                 context.report({
                   node,
@@ -799,19 +987,26 @@ export default {
             'Re-exporting from "{{source}}" is disallowed in component files. Export declarations directly where defined and import directly from source.',
         },
       },
-      create(context: any): Record<string, any> {
+      create(
+        context: RuleContext,
+      ): Pick<RuleListeners, 'ExportNamedDeclaration' | 'ExportAllDeclaration'> {
         if (isTestOrFixtureFile(context.filename)) {
-          return {}
+          return {} as Pick<RuleListeners, 'ExportNamedDeclaration' | 'ExportAllDeclaration'>
         }
         const isEntryOrBarrel = isEntryOrBarrelFile(context.filename)
 
         return {
-          ExportNamedDeclaration(node: any) {
+          ExportNamedDeclaration(rawNode: AstNode) {
+            const node = rawNode as ExportNamedDeclarationNode
             if (!node.declaration) {
               if (!node.source) {
                 const names =
                   node.specifiers
-                    ?.map((s: any) => s.exported?.name || s.local?.name)
+                    ?.map((s) => {
+                      const exported = s.exported as { name?: string } | undefined
+                      const local = s.local as { name?: string } | undefined
+                      return exported?.name || local?.name
+                    })
                     .filter(Boolean)
                     .join(', ') || 'bindings'
                 context.report({
@@ -823,18 +1018,54 @@ export default {
                 context.report({
                   node,
                   messageId: 'noReExport',
-                  data: { source: node.source.value },
+                  data: { source: typeof node.source.value === 'string' ? node.source.value : '' },
                 })
               }
             }
           },
-          ExportAllDeclaration(node: any) {
+          ExportAllDeclaration(rawNode: AstNode) {
+            const node = rawNode as ModuleDeclarationNode
             if (!isEntryOrBarrel) {
               context.report({
                 node,
                 messageId: 'noReExport',
-                data: { source: node.source?.value || '' },
+                data: {
+                  source: typeof node.source?.value === 'string' ? node.source.value : '',
+                },
               })
+            }
+          },
+        }
+      },
+    },
+
+    'no-redundant-compute-iife': {
+      meta: {
+        type: 'suggestion',
+        docs: {
+          description:
+            'Disallow zero-argument arrow IIFEs (() => expr)() left over from Solid 1 -> Solid 2 migration.',
+        },
+        messages: {
+          redundantIife:
+            'Avoid zero-argument arrow IIFE "(() => expr)()". Evaluate the expression directly.',
+        },
+      },
+      create(context: RuleContext): Pick<RuleListeners, 'CallExpression'> {
+        if (!isSourceFile(context.filename)) {
+          return {} as Pick<RuleListeners, 'CallExpression'>
+        }
+        return {
+          CallExpression(rawNode: AstNode) {
+            const node = rawNode as CallExpressionNode
+            if (
+              node.arguments.length === 0 &&
+              node.callee.type === 'ArrowFunctionExpression' &&
+              Array.isArray((node.callee as FunctionNode).params) &&
+              ((node.callee as FunctionNode).params?.length ?? 0) === 0 &&
+              (node.callee as FunctionNode).body?.type !== 'BlockStatement'
+            ) {
+              context.report({ node, messageId: 'redundantIife' })
             }
           },
         }
@@ -853,46 +1084,46 @@ export default {
             'A children function whose parameters all have defaults is invoked as an accessor with no arguments, so the defaults apply and render props are never passed. Declare a required parameter to mount it as a render-prop component.',
         },
       },
-      create(context: any): Record<string, any> {
-        function check(expression: any): void {
+      create(context: RuleContext): Pick<RuleListeners, 'JSXElement' | 'JSXAttribute'> {
+        function check(expression: AstNode | undefined): void {
           if (
             expression?.type !== 'ArrowFunctionExpression' &&
             expression?.type !== 'FunctionExpression'
           ) {
             return
           }
-          const params = expression.params ?? []
+          const params = (expression as FunctionNode).params ?? []
           const first = params[0]
-          if (
-            params.length > 0 &&
-            (first.type === 'AssignmentPattern' || first.type === 'RestElement')
-          ) {
+          if (first && (first.type === 'AssignmentPattern' || first.type === 'RestElement')) {
             context.report({ node: expression, messageId: 'accessorCall' })
           }
         }
 
         return {
-          JSXElement(node: any) {
+          JSXElement(rawNode: AstNode) {
+            const node = rawNode as JSXElementNode
             const tagName = node.openingElement?.name
             if (
               tagName?.type === 'JSXIdentifier' &&
-              (tagName.name === 'For' || tagName.name === 'Index')
+              ((tagName as IdentifierNode).name === 'For' ||
+                (tagName as IdentifierNode).name === 'Index')
             ) {
               return
             }
             for (const child of node.children ?? []) {
               if (child.type === 'JSXExpressionContainer') {
-                check(child.expression)
+                check((child as JSXExpressionContainerNode).expression)
               }
             }
           },
-          JSXAttribute(node: any) {
+          JSXAttribute(rawNode: AstNode) {
+            const node = rawNode as JSXAttributeNode
             if (
               node.name?.type === 'JSXIdentifier' &&
-              node.name.name === 'children' &&
+              (node.name as IdentifierNode).name === 'children' &&
               node.value?.type === 'JSXExpressionContainer'
             ) {
-              check(node.value.expression)
+              check((node.value as JSXExpressionContainerNode).expression)
             }
           },
         }

@@ -3,19 +3,18 @@
 import { readFileSync, readdirSync } from 'node:fs'
 
 import path from 'pathe'
-import { describe, expect, test } from 'vitest'
-
+import { describe, expect, it } from 'vitest'
 const projectRoot = path.resolve(__dirname, '../../..')
 
-function collectFiles(root: string): string[] {
+function collectFiles(root: string): Array<string> {
   return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
     const target = path.join(root, entry.name)
     return entry.isDirectory() ? collectFiles(target) : [target]
   })
 }
 
-describe('API documentation architecture guardrails', () => {
-  test('production generator code contains no implementation or runtime discovery path', () => {
+describe('api-doc architecture guardrails', () => {
+  it('production generator code contains no implementation or runtime discovery path', () => {
     const root = path.join(projectRoot, 'docs/build/api-doc')
     const sources = collectFiles(root).filter(
       (file) => file.endsWith('.ts') && !file.endsWith('.test.ts'),
@@ -27,9 +26,9 @@ describe('API documentation architecture guardrails', () => {
     expect(combined).not.toMatch(/createProgram|TypeChecker|ts\.Program/)
   })
 
-  test('component implementations do not declare public data attributes', () => {
+  it('component implementations do not declare public data attributes', () => {
     const sourceRoots = [path.join(projectRoot, 'src/components')]
-    const violations: string[] = []
+    const violations: Array<string> = []
     for (const root of sourceRoots) {
       for (const file of collectFiles(root)) {
         if (

@@ -1,7 +1,6 @@
 import { defineRecipe } from '../../theme/recipe'
 
 import type { AlertDialogStyleSlot, AlertDialogStyleVariants } from './alert-dialog.style-types'
-
 export const ALERT_DIALOG_ICON_CLASS = 'text-xl shrink-0'
 export const ALERT_DIALOG_CENTER_ICON_CLASS =
   'rounded-xl bg-muted flex shrink-0 size-10 items-center justify-center'

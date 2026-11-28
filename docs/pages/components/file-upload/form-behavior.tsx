@@ -1,5 +1,4 @@
 import { FileUpload } from '@src'
-
 export function FormBehavior() {
   return (
     <div class="max-w-md w-full space-y-4">

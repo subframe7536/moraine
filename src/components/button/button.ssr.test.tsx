@@ -1,15 +1,14 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { createSignal, Show } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { Show, createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Button } from './button'
-
-describe('Button SSR Hydration', () => {
-  test('hydrates render children and preserves activation across loading updates', () => {
+describe('button SSR Hydration', () => {
+  it('hydrates render children and preserves activation across loading updates', () => {
     const [loading, setLoading] = createSignal(false)
-    const onClick = vi.fn()
+    const onClick = vi.fn<(...args: Array<any>) => void>()
 
     const { container } = hydrateFixture(
       '/src/components/button/button.ssr.fixture.tsx',
@@ -37,14 +36,14 @@ describe('Button SSR Hydration', () => {
     fireEvent.click(button)
     expect(onClick).toHaveBeenCalledTimes(1)
 
-    setLoading(true)
+    flush(() => setLoading(true))
     expect(button.textContent).toBe('Saving')
     const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
     button.dispatchEvent(pointerDown)
     fireEvent.click(button)
     expect(onClick).toHaveBeenCalledTimes(1)
 
-    setLoading(false)
+    flush(() => setLoading(false))
     fireEvent.click(button)
     expect(onClick).toHaveBeenCalledTimes(2)
   })

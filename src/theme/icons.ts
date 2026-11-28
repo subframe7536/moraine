@@ -43,7 +43,7 @@ export const DEFAULT_ICON_SHORTCUTS = [
   ['icon-tip', 'i-lucide-lightbulb'],
   ['icon-upload', 'i-lucide-upload'],
   ['icon-warning', 'i-lucide-triangle-alert'],
-] as const satisfies [string, string][]
+] as const satisfies Array<[string, string]>
 
 /**
  * Shortcut class for forced colors handling of mask icons, applied by Icon to string icons.

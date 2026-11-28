@@ -1,5 +1,4 @@
 import { Avatar, Badge, HoverCard } from '@src'
-
 export function ProfilePreview() {
   return (
     <p class="text-sm text-foreground leading-6 max-w-xs">

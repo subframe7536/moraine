@@ -3,7 +3,6 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
 import type { CollapsibleStyleSlot } from './collapsible.style-types'
-
 export const collapsibleDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
   trigger: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'expanded'),

@@ -1,14 +1,15 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { renderWithProps } from '../../shared/render-with-props'
+import { resolvePropsChildren } from '../../shared/utils'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
 
 import { useHoverCardContext } from './hover-card-context'
 import { hoverCardContentDataAttributes, hoverCardRecipe } from './hover-card.recipe'
 import type { HoverCardT } from './hover-card.types'
-
 /**
  * Floating `div` shown next to the trigger while a `HoverCard` is open; place it inside
  * `HoverCard`. It stays open while the pointer moves from the trigger into it. Children may be a
@@ -31,9 +32,12 @@ import type { HoverCardT } from './hover-card.types'
  * ```
  */
 export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const rest = omit(props, 'children', 'class', 'style')
 
-  const behavior = useHoverCardContext()!
+  const behavior = useHoverCardContext()
+  if (!behavior) {
+    throw new Error('HoverCard.Content must be used within HoverCard')
+  }
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
     onPointerEnter: (event) => {
       if (event.pointerType === 'mouse' || !event.pointerType) {
@@ -46,7 +50,7 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       }
     },
   }
-  const { slotWith } = useRecipe(hoverCardRecipe, local, {
+  const { slotWith } = useRecipe(hoverCardRecipe, props, {
     slot: 'content',
     context: () => behavior.slotOverrides,
   })
@@ -56,11 +60,11 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       align={behavior.options.align}
       placement={behavior.options.placement ?? 'bottom'}
       forceMount={behavior.options.forceMount}
-      gutter={behavior.options.gutter}
+      gutter={behavior.options.gutter ?? 4}
       shift={behavior.options.shift}
       flip={behavior.options.flip}
       slide={behavior.options.slide}
-      overflowPadding={behavior.options.overflowPadding}
+      overflowPadding={behavior.options.overflowPadding ?? 4}
       inline={behavior.inlinePoint()}
       finalFocus={false}
       closeOnOutsideFocus={false}
@@ -68,12 +72,9 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       onPointerDownOutside={behavior.markInstantClose}
     >
       {(context) => {
-        const contentProps = mergeProps(context.contentProps, contentEvents)
-        const content = resolveChildren(() =>
-          typeof local.children === 'function'
-            ? local.children({ value: behavior.activeValue })
-            : local.children,
-        )
+        const contentProps = merge(context.contentProps, contentEvents)
+        const child = resolvePropsChildren(props as { children?: JSX.Element })
+        const content = createMemo(() => renderWithProps(child(), { value: behavior.activeValue }))
         const contentSlot = slotWith('content', {
           data: hoverCardContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

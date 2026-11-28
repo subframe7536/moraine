@@ -1,7 +1,8 @@
 import type { Placement } from '@floating-ui/dom'
-import type { Accessor, Component, JSX } from 'solid-js'
-import { createSignal, onCleanup, onMount, Show, untrack } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Portal } from '@solidjs/web'
+import type { Accessor, Component } from 'solid-js'
+import { createSignal, flush, onSettled, Show, untrack } from 'solid-js'
 
 import { useLocale } from '../../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../../shared/controllable-value'
@@ -29,7 +30,6 @@ import type {
   OverlayMenuPointerGraceIntent,
 } from './menu.utils'
 import type { OverlayMenuItem, OverlayMenuLayerProps } from './types'
-
 const OPPOSITE_PLACEMENT_SIDE: Record<OverlayPlacement, Placement> = {
   bottom: 'top',
   left: 'right',
@@ -89,7 +89,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
 
   return function SubmenuItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
     const direction = useLocale().dir
-    const submenuId = createId(undefined, `${layerProps.id}-sub`)
+    const submenuId = createId(undefined, () => `${layerProps.id}-sub`)
     const submenuContentId = () => `${submenuId()}-content`
     const [triggerElement, setTriggerElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const [isOpen, setOpenState] = createControllableValue<boolean>({
@@ -122,12 +122,21 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       removePointerExitListener = undefined
     }
 
-    const dismissSubmenu = (): void => {
-      clearOpenTimeout()
-      stopPointerExitWatch()
-      submenuLayerState?.closeSubmenus()
+    const closeSelf = (): void => {
       setOpenState(false)
       setAutoFocusStrategy('none')
+    }
+
+    const dismissSubmenu = (syncFlush = true): void => {
+      clearOpenTimeout()
+      stopPointerExitWatch()
+      submenuLayerState?.closeSubmenus(undefined, undefined, syncFlush)
+      if (syncFlush) {
+        // Close commits per submenu so nested exit motion cascades deepest first.
+        flush(closeSelf)
+      } else {
+        closeSelf()
+      }
     }
 
     const dismissSubmenuOnPointerExit = (point?: [number, number]): void => {
@@ -212,24 +221,24 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       )
     }
 
-    onMount(() => {
-      onCleanup(
-        layer.registerItem({
-          disabled: () => Boolean(itemProps.item.disabled),
-          element: triggerElement,
-          hasSubmenu: true,
-          id: submenuId(),
-          textValue: () => getOverlayMenuTextValue(itemProps.item) ?? triggerElement()?.textContent,
-        }),
-      )
-      onCleanup(
-        layer.registerSubmenu({
-          close: dismissSubmenu,
-          id: submenuId(),
-        }),
-      )
-      onCleanup(clearOpenTimeout)
-      onCleanup(stopPointerExitWatch)
+    onSettled(() => {
+      const unregisterItem = layer.registerItem({
+        disabled: () => Boolean(itemProps.item.disabled),
+        element: triggerElement,
+        hasSubmenu: true,
+        id: submenuId(),
+        textValue: () => getOverlayMenuTextValue(itemProps.item) ?? triggerElement()?.textContent,
+      })
+      const unregisterSubmenu = layer.registerSubmenu({
+        close: dismissSubmenu,
+        id: submenuId(),
+      })
+      return () => {
+        unregisterItem()
+        unregisterSubmenu()
+        clearOpenTimeout()
+        stopPointerExitWatch()
+      }
     })
 
     const closeSubmenu = (): void => {
@@ -361,7 +370,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
           id={submenuId()}
           data-slot={slotName('item')}
           role="menuitem"
-          tabIndex={layer.isHighlighted(submenuId()) ? 0 : -1}
+          tabindex={layer.isHighlighted(submenuId()) ? 0 : -1}
           aria-haspopup="menu"
           aria-controls={isOpen() ? submenuContentId() : undefined}
           aria-expanded={isOpen() ? 'true' : 'false'}
@@ -390,7 +399,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
               closeRoot={layerProps.closeRoot}
               depth={layerProps.depth + 1}
               items={
-                'children' in itemProps.item ? (itemProps.item.children as TItem[]) : undefined
+                'children' in itemProps.item ? (itemProps.item.children as Array<TItem>) : undefined
               }
               getReferenceElement={() => triggerElement()}
               placement={

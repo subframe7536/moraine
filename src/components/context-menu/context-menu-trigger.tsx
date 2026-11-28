@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, onMount, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, mergeDefinedProps } from '../../shared/utils'
 import {
   getContextMenuTriggerAccessibility,
   validateOverlayTrigger,
@@ -18,7 +18,6 @@ import {
   contextMenuRecipe,
 } from './context-menu.recipe'
 import type { ContextMenuT } from './context-menu.types'
-
 /**
  * Surface that opens the surrounding `ContextMenu` from a context-menu gesture, the keyboard
  * context-menu keys, or a touch or pen long press. Place it inside `ContextMenu`; it renders a
@@ -39,12 +38,12 @@ import type { ContextMenuT } from './context-menu.types'
 export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'disabled'])
+  const rest = omit(props, 'as', 'class', 'style', 'disabled')
   const context = useContextMenuContext()
 
   const {
     slots: { trigger: triggerSlot },
-  } = useRecipe(contextMenuRecipe, local, {
+  } = useRecipe(contextMenuRecipe, props, {
     slot: 'trigger',
     data: {
       trigger: contextMenuDataAttributes.trigger(() => ({
@@ -56,35 +55,42 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     context: () => context.slotOverrides,
     own: { trigger: () => ({ class: CONTEXT_MENU_TRIGGER_CLASS }) },
   })
-  const tag = () => local.as ?? 'div'
+  const tag = () => props.as ?? 'div'
   const root = createPolymorphicRoot({
     tag,
     ref: () => rest.ref,
     registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
-  const disabled = () => Boolean(local.disabled ?? context.disabled())
+  const disabled = () => props.disabled ?? context.disabled()
   const a11y = () => getContextMenuTriggerAccessibility(context.triggerElement(), disabled())
   const userEvents = rest as Record<string, unknown>
-  const events: Record<string, (event: Event) => void> = {}
-  for (const key of [
-    'onClick',
-    'onKeyDown',
-    'onContextMenu',
-    'onPointerDown',
-    'onPointerMove',
-    'onPointerUp',
-    'onPointerCancel',
-  ] as const) {
-    // oxlint-disable-next-line subf/solid-reactivity -- Event handler reads reactive disabled state.
-    events[key] = function onEvent(event) {
-      callHandler(event, userEvents[key])
-      if (disabled()) {
-        event.preventDefault()
-      }
-      callHandler(event, context.triggerProps[key])
+  const dispatchTriggerEvent = (
+    key:
+      | 'onClick'
+      | 'onKeyDown'
+      | 'onContextMenu'
+      | 'onPointerDown'
+      | 'onPointerMove'
+      | 'onPointerUp'
+      | 'onPointerCancel',
+    event: Event,
+  ) => {
+    callHandler(event, userEvents[key])
+    if (disabled()) {
+      event.preventDefault()
     }
+    callHandler(event, context.triggerProps[key])
   }
-  const triggerProps = mergeProps(
+  const events = {
+    onClick: (event: Event) => dispatchTriggerEvent('onClick', event),
+    onKeyDown: (event: Event) => dispatchTriggerEvent('onKeyDown', event),
+    onContextMenu: (event: Event) => dispatchTriggerEvent('onContextMenu', event),
+    onPointerDown: (event: Event) => dispatchTriggerEvent('onPointerDown', event),
+    onPointerMove: (event: Event) => dispatchTriggerEvent('onPointerMove', event),
+    onPointerUp: (event: Event) => dispatchTriggerEvent('onPointerUp', event),
+    onPointerCancel: (event: Event) => dispatchTriggerEvent('onPointerCancel', event),
+  }
+  const triggerProps = mergeDefinedProps(
     { 'data-slot': 'context-menu-trigger' },
     context.triggerProps,
     triggerSlot,
@@ -95,7 +101,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       get 'aria-disabled'() {
         return a11y().ariaDisabled
       },
-      get tabIndex() {
+      get tabindex() {
         return a11y().tabIndex
       },
     },
@@ -103,6 +109,17 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     events,
   )
   const binding = root.bind(triggerProps)
-  onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
-  return <Dynamic component={tag()} type={undefined} {...binding} />
+  onSettled(() => {
+    let active = true
+    queueMicrotask(() => {
+      if (active) {
+        validateOverlayTrigger(root.element(), 'ContextMenu')
+      }
+    })
+    return () => {
+      active = false
+    }
+  })
+  const Root = dynamic<ValidComponent>(tag)
+  return <Root type={undefined} {...(binding as Record<string, unknown>)} />
 }

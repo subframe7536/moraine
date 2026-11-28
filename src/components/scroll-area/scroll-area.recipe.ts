@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import { defineRecipe } from '../../theme/recipe'
 import { FOCUS_VISIBLE_RING_CLASS, SCROLLBAR_NONE_CLASS } from '../../theme/recipe-common.recipe'
@@ -6,7 +6,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { ScrollAreaStyleSlot, ScrollAreaStyleVariants } from './scroll-area.style-types'
-
 /** Minimum thumb length in px, so very long content keeps a draggable thumb. */
 export const SCROLL_AREA_THUMB_MIN_SIZE = 20
 

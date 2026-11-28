@@ -1,10 +1,9 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled, untrack } from 'solid-js'
 
 import type { ToastRecord } from './toast-store'
 import type { ToastT } from './toast.types'
 import { DEFAULT_TOAST_DURATION } from './toast.types'
-
 export interface CreateToastTimerOptions {
   toast: () => ToastRecord
   options: Accessor<ToastT.Options>
@@ -27,7 +26,7 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     return options.options().type === 'loading' ? Number.POSITIVE_INFINITY : DEFAULT_TOAST_DURATION
   })
 
-  let remainingTime = untrack(initialDuration)
+  let remainingTime: number | undefined
   let timerId: ReturnType<typeof setTimeout> | undefined
   let bumpTimerId: ReturnType<typeof setTimeout> | undefined
   let closeTimerStartTime = 0
@@ -39,18 +38,21 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     }
   }
 
-  const isPaused = () =>
-    options.isLoading() ||
-    initialDuration() === Number.POSITIVE_INFINITY ||
-    options.paused() ||
-    options.swiping() ||
-    options.running()
+  const isPaused = createMemo(
+    () =>
+      options.isLoading() ||
+      initialDuration() === Number.POSITIVE_INFINITY ||
+      options.paused() ||
+      options.swiping() ||
+      options.running(),
+  )
 
   const startTimer = () => {
     stopTimer()
-    if (isPaused()) {
+    if (untrack(isPaused)) {
       return
     }
+    remainingTime ??= untrack(initialDuration)
     closeTimerStartTime = Date.now()
     if (remainingTime <= 0) {
       options.onTimeout()
@@ -75,7 +77,6 @@ export function createToastTimer(options: CreateToastTimerOptions) {
       clearTimeout(bumpTimerId)
     }
     setIsBumping(false)
-    // oxlint-disable-next-line subf/solid-reactivity -- Bump animation reads the latest duration after this paint.
     queueMicrotask(() => {
       if (disposed) {
         return
@@ -91,44 +92,38 @@ export function createToastTimer(options: CreateToastTimerOptions) {
   }
 
   createEffect(
-    on(
-      () => options.toast().bump,
-      (bump) => {
-        if (bump !== undefined && bump > 0) {
-          handleBump()
-        }
-      },
-      { defer: true },
-    ),
-  )
-
-  createEffect(
-    on(
-      initialDuration,
-      () => {
-        resetCloseTimer()
-        startTimer()
-      },
-      { defer: true },
-    ),
-  )
-
-  createEffect(
-    on(isPaused, (paused) => {
-      if (paused) {
-        if (closeTimerStartTime > 0) {
-          const elapsed = Date.now() - closeTimerStartTime
-          remainingTime = Math.max(0, remainingTime - elapsed)
-          closeTimerStartTime = 0
-        }
-        stopTimer()
-      } else {
-        startTimer()
+    () => options.toast().bump,
+    (bump) => {
+      if (bump !== undefined && bump > 0) {
+        handleBump()
       }
-    }),
+    },
+    { defer: true },
   )
 
-  onCleanup(() => {
+  createEffect(
+    initialDuration,
+    () => {
+      resetCloseTimer()
+      startTimer()
+    },
+    { defer: true },
+  )
+
+  createEffect(isPaused, (paused) => {
+    if (paused) {
+      if (closeTimerStartTime > 0) {
+        const elapsed = Date.now() - closeTimerStartTime
+        remainingTime = Math.max(0, (remainingTime ?? initialDuration()) - elapsed)
+        closeTimerStartTime = 0
+      }
+      stopTimer()
+    } else {
+      startTimer()
+    }
+  })
+
+  onSettled(() => () => {
     disposed = true
     clearTimeout(timerId)
     if (bumpTimerId) {

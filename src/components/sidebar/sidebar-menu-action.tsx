@@ -1,13 +1,12 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * Controls placed over the end of the first row of the enclosing `Sidebar.MenuItem`, such as a
  * `DropdownMenu` trigger, next to its `Sidebar.MenuButton`. The button does not reserve space for
@@ -36,17 +35,12 @@ export function SidebarMenuAction<T extends ValidComponent = 'div'>(
   props: SidebarT.MenuActionProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(props as SidebarT.MenuActionProps, ['as', 'class', 'style'])
+  const local = props as SidebarT.MenuActionProps
+  const rest = omit(props as SidebarT.MenuActionProps, 'as', 'class', 'style')
   const { slotWith } = useSidebarStyles('menuAction', local)
   const menuActionSlot = slotWith('menuAction', {
     data: sidebarDataAttributes.menuAction({ mobile: context.mobile }),
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="sidebar-menu-action"
-      {...menuActionSlot}
-      {...rest}
-    />
-  )
+  const Root = dynamic<ValidComponent>(() => local.as ?? 'div')
+  return <Root data-slot="sidebar-menu-action" {...menuActionSlot} {...rest} />
 }

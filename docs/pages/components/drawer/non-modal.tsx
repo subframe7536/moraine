@@ -1,6 +1,5 @@
 import { Button, Drawer } from '@src'
 import { createSignal } from 'solid-js'
-
 export function NonModal() {
   const [count, setCount] = createSignal(0)
 

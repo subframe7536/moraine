@@ -1,6 +1,6 @@
 import { render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { createSignal, flush } from 'solid-js'
+import { describe, expect, vi, it } from 'vitest'
 
 import { defaultAlertMessages } from '../../components/alert/alert.messages'
 import { defaultBreadcrumbMessages } from '../../components/breadcrumb/breadcrumb.messages'
@@ -31,7 +31,6 @@ import { MoraineProvider } from '../moraine-provider'
 
 import { useLocale, useMessages } from './locale-context'
 import type { MoraineMessagesInput, MoraineMessages } from './messages.types'
-
 const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   alert: defaultAlertMessages,
   dialog: defaultDialogMessages,
@@ -78,8 +77,8 @@ function LocaleProbe() {
   )
 }
 
-describe('Moraine locale', () => {
-  test('uses English messages and en-US locale without a provider', () => {
+describe('moraine locale', () => {
+  it('uses English messages and en-US locale without a provider', () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
@@ -101,7 +100,7 @@ describe('Moraine locale', () => {
     }
   })
 
-  test('detectLocale={false} stays en-US', () => {
+  it('detectLocale={false} stays en-US', () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
@@ -115,7 +114,7 @@ describe('Moraine locale', () => {
     }
   })
 
-  test('root provider detects the browser after mount and a microtask', async () => {
+  it('root provider detects the browser after mount and a microtask', async () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
@@ -140,7 +139,7 @@ describe('Moraine locale', () => {
     }
   })
 
-  test('explicit locale wins over detectLocale', async () => {
+  it('explicit locale wins over detectLocale', async () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
@@ -159,7 +158,7 @@ describe('Moraine locale', () => {
     }
   })
 
-  test('nested detectLocale={false} inherits the parent tag', () => {
+  it('nested detectLocale={false} inherits the parent tag', () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
@@ -179,7 +178,7 @@ describe('Moraine locale', () => {
     }
   })
 
-  test('nested provider omitting locale inherits the parent detected tag', async () => {
+  it('nested provider omitting locale inherits the parent detected tag', async () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
@@ -203,7 +202,7 @@ describe('Moraine locale', () => {
     }
   })
 
-  test('inherits locale, direction, and messages, and lets a child replace them', () => {
+  it('inherits locale, direction, and messages, and lets a child replace them', () => {
     const screen = render(() => (
       <MoraineProvider
         locale="de-DE"
@@ -241,7 +240,7 @@ describe('Moraine locale', () => {
     })
   })
 
-  test('formats NumberInput from the provider locale unless the prop sets one', () => {
+  it('formats NumberInput from the provider locale unless the prop sets one', () => {
     const screen = render(() => (
       <MoraineProvider locale="de-DE">
         <NumberInput aria-label="Inherited" defaultValue={12.5} />
@@ -257,7 +256,7 @@ describe('Moraine locale', () => {
     expect(controlValue(screen.getByRole('spinbutton', { name: 'Explicit' }))).toBe('12.5')
   })
 
-  test('updates an already rendered label when messages change', () => {
+  it('updates an already rendered label when messages change', () => {
     const [close, setClose] = createSignal('Close')
     render(() => (
       <MoraineProvider messages={{ dialog: { close: close() } }}>
@@ -271,11 +270,11 @@ describe('Moraine locale', () => {
       '[data-slot="dialog-content-close"]',
     ) as HTMLButtonElement
     expect(button.getAttribute('aria-label')).toBe('Close')
-    setClose('Fermer')
+    flush(() => setClose('Fermer'))
     expect(button.getAttribute('aria-label')).toBe('Fermer')
   })
 
-  test('clears inherited direction back to document detection when dir is null', () => {
+  it('clears inherited direction back to document detection when dir is null', () => {
     const screen = render(() => (
       <MoraineProvider dir="rtl">
         <LocaleProbe />
@@ -290,7 +289,7 @@ describe('Moraine locale', () => {
     expect(cleared?.dataset.dir).toBe('')
   })
 
-  test('ignores undefined message patch values to preserve base strings', () => {
+  it('ignores undefined message patch values to preserve base strings', () => {
     render(() => (
       <MoraineProvider messages={{ dialog: { close: undefined } }}>
         <Dialog open>
@@ -305,7 +304,7 @@ describe('Moraine locale', () => {
     expect(button.getAttribute('aria-label')).toBe('Close')
   })
 
-  test('nested providers merge and inherit locale state', () => {
+  it('nested providers merge and inherit locale state', () => {
     function NestedProbe() {
       const locale = useLocale()
       const dialog = useMessages('dialog', defaultDialogMessages)
@@ -358,7 +357,7 @@ describe('Moraine locale', () => {
     })
   })
 
-  test('MoraineMessagesInput enforces kbd key constraints', () => {
+  it('moraineMessagesInput enforces kbd key constraints', () => {
     const valid: MoraineMessagesInput = {
       kbd: {
         alt: 'Option',

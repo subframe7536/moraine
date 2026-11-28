@@ -1,5 +1,4 @@
 import { Avatar, Badge, Button, Popover } from '@src'
-
 export function HoverMode() {
   return (
     <div class="flex flex-wrap gap-3 items-center">

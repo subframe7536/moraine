@@ -39,7 +39,7 @@
         {
           "name": "items",
           "optional": true,
-          "type": "Item[]",
+          "type": "Array<Item>",
           "typeDetails": "({\n  /** Text or content of the item. Nothing is rendered for an empty label. */\n  label?: JSX.Element;\n  /** Name of an icon rendered before the label. */\n  icon?: IconT.Name;\n  /** Link destination. Applied only to an interactive item: the current page and disabled items\nrender without `href`, `target`, `rel` and `onClick`. */\n  href?: string;\n  /** Browsing context for the link, such as `'_blank'`. Ignored for the current page and disabled items. */\n  target?: string;\n  /** Link relationship, such as `'noopener'`. Ignored for the current page and disabled items. */\n  rel?: string;\n  /** Marks this item as the current page, rendered as a non-link with `aria-current=\"page\"`. When\nno item sets it, the last item is the current page. The first item with `active` wins. */\n  active?: boolean;\n  /** Whether the item is disabled: it renders as a non-interactive element with\n`aria-disabled=\"true\"` and without `href` or `onClick`. Has no effect on the current page. */\n  disabled?: boolean;\n  /** Click handler for the item's link. Not attached to the current page or disabled items. */\n  onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>;\n})[]",
           "description": "Items of the trail, from the root to the current page. Separators are rendered between\nconsecutive items automatically.",
           "examples": [

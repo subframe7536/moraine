@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 import { hasContent } from './jsx-content'
-
 describe('hasContent', () => {
   it('returns true for numeric zero and valid numbers', () => {
     expect(hasContent(0)).toBe(true)

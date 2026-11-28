@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { createRegion } from './sidebar-region'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * Navigation section of `Sidebar.Content` that holds a `Sidebar.GroupLabel` and a `Sidebar.Menu`.
  * Renders a `div` by default; pass `as` to render another element.
