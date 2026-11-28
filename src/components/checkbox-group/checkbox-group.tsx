@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { DEV, For, Show, createEffect, createMemo, untrack, omit } from 'solid-js'
+import { DEV, For, Show, createEffect, createMemo, createProjection, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { callHandler, createId, mergeDefinedProps } from '../../shared/utils'
@@ -200,6 +200,23 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     isEqual: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
   })
 
+  let previousSelectedKeys = new Set<string>()
+  const selectedMap = createProjection<Record<string, boolean>>((draft) => {
+    const nextKeys = new Set(selectedValues())
+    for (const key of nextKeys) {
+      if (!previousSelectedKeys.has(key)) {
+        draft[key] = true
+      }
+    }
+    for (const key of previousSelectedKeys) {
+      if (!nextKeys.has(key)) {
+        delete draft[key]
+      }
+    }
+    previousSelectedKeys = nextKeys
+  }, {})
+  const isValueSelected = (value: string): boolean => selectedMap[value] === true
+
   let fieldsetEl: HTMLFieldSetElement | undefined
 
   createEffect(
@@ -320,9 +337,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
                 name={field.name()}
                 form={merged.form}
                 bound={false}
-                checked={
-                  item().indeterminate ? 'indeterminate' : selectedValues().includes(item().value)
-                }
+                checked={item().indeterminate ? 'indeterminate' : isValueSelected(item().value)}
                 defaultChecked={initialDefaultValue.includes(item().value)}
                 value={item().value}
                 label={item().label}

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onSettled } from 'solid-js'
 export type ControlKind = 'increment' | 'decrement'
 
 export interface RepeatConfig {
@@ -282,7 +282,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
     }
   }
 
-  onCleanup(() => {
+  onSettled(() => () => {
     clearRepeatTimers(states.increment)
     clearRepeatTimers(states.decrement)
     if (lockCount > 0 && savedSelection) {

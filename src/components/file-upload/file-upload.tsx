@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { For, Show, createMemo, createSignal, untrack, omit, createRenderEffect } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -193,7 +193,7 @@ export function FileUpload<TMultiple extends boolean = false>(
   const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement | undefined>(undefined)
   const [controlElement, setControlElement] = createSignal<HTMLElement | undefined>(undefined)
 
-  createRenderEffect(controlElement, (element) => {
+  createEffect(controlElement, (element) => {
     if (!element) {
       return
     }
@@ -251,27 +251,42 @@ export function FileUpload<TMultiple extends boolean = false>(
   const labelId = () => `${field.id()}-label`
   const descriptionId = () => (description() ? `${field.id()}-description` : undefined)
   const invalid = createMemo(() => field.invalid() || nativeInvalid())
-  const labelling = createMemo<{ 'aria-labelledby'?: string; 'aria-label'?: string }>(() => {
-    const labelledBy = field.ariaAttrs()['aria-labelledby'] || (label() ? labelId() : undefined)
+  const labelling = createMemo<{ 'aria-labelledby'?: string; 'aria-label'?: string }>(
+    () => {
+      const labelledBy = field.ariaAttrs()['aria-labelledby'] || (label() ? labelId() : undefined)
 
-    return labelledBy
-      ? { 'aria-labelledby': labelledBy }
-      : { 'aria-label': props['aria-label'] || messages().label }
-  })
-  const controlAriaAttrs = createMemo(() => {
-    const attrs = { ...field.ariaAttrs() }
-    const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
+      return labelledBy
+        ? { 'aria-labelledby': labelledBy }
+        : { 'aria-label': props['aria-label'] || messages().label }
+    },
+    {
+      equals: (prev, next) =>
+        prev['aria-labelledby'] === next['aria-labelledby'] &&
+        prev['aria-label'] === next['aria-label'],
+    },
+  )
+  const controlAriaAttrs = createMemo(
+    () => {
+      const attrs = { ...field.ariaAttrs() }
+      const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
 
-    if (describedBy) {
-      attrs['aria-describedby'] = describedBy
-    }
-    Object.assign(attrs, labelling())
-    if (invalid()) {
-      attrs['aria-invalid'] = 'true'
-    }
+      if (describedBy) {
+        attrs['aria-describedby'] = describedBy
+      }
+      Object.assign(attrs, labelling())
+      if (invalid()) {
+        attrs['aria-invalid'] = 'true'
+      }
 
-    return attrs
-  })
+      return attrs
+    },
+    {
+      equals: (prev, next) => {
+        const keys = Object.keys(next) as Array<keyof typeof next>
+        return Object.keys(prev).length === keys.length && keys.every((k) => prev[k] === next[k])
+      },
+    },
+  )
 
   const itemSlots = {
     file: fileSlot,

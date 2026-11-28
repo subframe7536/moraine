@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createMemo, createSignal, Show, omit } from 'solid-js'
+import { createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -65,7 +65,6 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   const [internalValue, setInternalValue] = createSignal(
     () => props.value ?? props.defaultValue ?? props.min ?? 0,
   )
-
   // The fill is empty only at `min`, which is not necessarily 0.
   const isAtMin = () => internalValue() <= (props.min ?? 0)
 
@@ -110,15 +109,6 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   // state through `peer-*` selectors.
   function Overlay(state: SliderT.ChildrenRenderProps<number>): JSX.Element {
     const isEmpty = () => (state.percentages[0] ?? 0) === 0
-
-    createEffect(
-      () => state.values[0],
-      (val) => {
-        if (val !== undefined) {
-          setInternalValue(val)
-        }
-      },
-    )
 
     // Fill edge on the root: the minimum fill plus the value's share of the remaining width,
     // matching the range inside the inset track. At `min`, the fill collapses to 0.

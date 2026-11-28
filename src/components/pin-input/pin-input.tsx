@@ -1,10 +1,10 @@
 import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import {
   createEffect,
   createMemo,
   createSignal,
   Repeat,
-  onCleanup,
   onSettled,
   Show,
   untrack,
@@ -13,6 +13,7 @@ import {
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
@@ -227,6 +228,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   onSettled(() => {
     updateInputsRef()
+    return () => {
+      inputEls.length = 0
+    }
   })
 
   createEffect(
@@ -237,10 +241,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
     },
     { defer: true },
   )
-
-  onCleanup(() => {
-    inputEls.length = 0
-  })
 
   createEffect(
     chars,
@@ -290,9 +290,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
       if (raw === '') {
         const next = [...chars()]
         next[idx] = ''
-        element.value = currentSlotChar
+        element.value = props.value === undefined ? '' : currentSlotChar
         setChars(next)
-        element.value = chars()[idx] ?? ''
       } else {
         // Restore the rejected character and keep the slot selected, matching focus behavior.
         element.value = currentSlotChar
@@ -306,9 +305,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
     if (validChars.length > 1) {
       const next = spliceChars(chars(), idx, validChars, length())
       const nextJoined = next.join('')
-      element.value = currentSlotChar
+      element.value = props.value === undefined ? (next[idx] ?? '') : currentSlotChar
       setChars(next)
-      element.value = chars()[idx] ?? ''
       queueAction(nextJoined, Math.min(idx + validChars.length, length() - 1))
       return
     }
@@ -316,9 +314,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
     const next = [...chars()]
     next[idx] = validChars[0] ?? ''
     const nextJoined = next.join('')
-    element.value = currentSlotChar
+    element.value = props.value === undefined ? (next[idx] ?? '') : currentSlotChar
     setChars(next)
-    element.value = chars()[idx] ?? ''
 
     if (idx < length() - 1) {
       queueAction(nextJoined, idx + 1)
@@ -355,9 +352,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
     return separatorPositions()?.has(index + 1) ?? false
   }
 
-  let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
-
   onSettled(() => {
+    let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
     if (props.autoFocus) {
       autoFocusTimeoutId = setTimeout(() => {
         if (!field.disabled()) {
@@ -365,11 +361,10 @@ export function PinInput(props: PinInputProps): JSX.Element {
         }
       }, props.autoFocusDelay ?? 0)
     }
-  })
-
-  onCleanup(() => {
-    if (autoFocusTimeoutId !== undefined) {
-      clearTimeout(autoFocusTimeoutId)
+    return () => {
+      if (autoFocusTimeoutId !== undefined) {
+        clearTimeout(autoFocusTimeoutId)
+      }
     }
   })
 
@@ -387,6 +382,24 @@ export function PinInput(props: PinInputProps): JSX.Element {
   // While an IME composition is active, intermediate text is exposed through `input`
   // as an accumulating string; committing per event would fill too many slots.
   const [composing, setComposing] = createSignal(false)
+
+  // Sync slot input DOM values on the client without a JSX `value` binding, which
+  // Solid 2 re-applies on any spread/attribute update and would overwrite IME drafts.
+  createEffect(
+    () => [chars(), composing()] as const,
+    ([currentChars, isComposing]) => {
+      if (isComposing) {
+        return
+      }
+      for (let i = 0; i < inputEls.length; i++) {
+        const el = inputEls[i]
+        const nextVal = currentChars[i] ?? ''
+        if (el && el.value !== nextVal) {
+          el.value = nextVal
+        }
+      }
+    },
+  )
 
   const moveToStart = (event: KeyEvent<HTMLInputElement>) => {
     event.stopPropagation()
@@ -551,7 +564,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
             const next = spliceChars(createEmptyChars(length()), 0, validChars, length())
             const nextJoined = next.join('')
             setChars(next)
-            event.currentTarget.value = joinedValue()
+            event.currentTarget.value = props.value === undefined ? nextJoined : joinedValue()
             if (nextJoined !== '') {
               queueAction(nextJoined, Math.min(validChars.length, length()) - 1)
             }
@@ -594,7 +607,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 disabled={field.disabled()}
                 readonly={field.readOnly()}
                 required={field.required()}
-                value={chars()[idx] ?? ''}
+                {...(isServer ? { value: chars()[idx] ?? '' } : {})}
                 aria-label={messages().input({ index: idx + 1, length: length() })}
                 aria-invalid={
                   field.ariaAttrs()['aria-invalid'] || (nativeInvalid() ? 'true' : undefined)
@@ -695,20 +708,25 @@ export function PinInput(props: PinInputProps): JSX.Element {
               />
 
               <Show when={hasSeparator(idx)}>
-                <span
-                  data-slot="pin-input-separator"
-                  role="presentation"
-                  aria-hidden="true"
-                  {...separatorSlot}
-                >
-                  <Show
-                    when={typeof props.separator === 'function' && props.separator}
-                    fallback={(props.separator as JSX.Element) ?? '•'}
-                    keyed
-                  >
-                    {(Separator) => <Separator index={idx} />}
-                  </Show>
-                </span>
+                {(_shown) => {
+                  const separator = createLazyMemo(() => props.separator)
+                  return (
+                    <span
+                      data-slot="pin-input-separator"
+                      role="presentation"
+                      aria-hidden="true"
+                      {...separatorSlot}
+                    >
+                      <Show
+                        when={typeof separator() === 'function' && separator()}
+                        fallback={(separator() as JSX.Element) ?? '•'}
+                        keyed
+                      >
+                        {(Separator) => <Separator index={idx} />}
+                      </Show>
+                    </span>
+                  )
+                }}
               </Show>
             </>
           )

@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, flush } from 'solid-js'
+import { createMemo, createSignal, untrack } from 'solid-js'
 
 import {
   formatLocaleNumber,
@@ -98,31 +98,31 @@ export function createNumberInput(options: CreateNumberInputOptions) {
   })
 
   // Draft text exists only while actively typing uncommitted or partial input.
-  const [draftText, setDraftText] = createSignal<string>()
-
-  // Sync external numeric or locale changes without clobbering accepted manual text: a draft that
-  // no longer parses to the current value is dropped when the value or locale changes, while
-  // typing alone (which may leave partial text such as `-`) never clears it.
-  createEffect(
-    () => {
-      const value = currentValue()
-      const locale = options.locale()
-      const draft = draftText()
-      const parsed =
-        draft === undefined ? undefined : parseLocaleNumber(draft, locale, options.formatOptions())
-      const stale =
-        draft !== undefined &&
-        (parsed === undefined || !Object.is(clamp(parsed, options.min(), options.max()), value))
-      return { value, locale, stale }
-    },
-    (next, previous) => {
-      const changed =
-        !previous || !Object.is(next.value, previous.value) || next.locale !== previous.locale
-      if (changed && next.stale) {
-        setDraftText(undefined)
-      }
-    },
-  )
+  // Re-derives on external numeric or locale changes: a draft that no longer parses to
+  // the current value is dropped synchronously without clobbering accepted manual text.
+  const [draftText, setDraftText] = createSignal<string | undefined>((previous) => {
+    const value = currentValue()
+    const locale = options.locale()
+    if (previous === undefined) {
+      return undefined
+    }
+    const parsed = parseLocaleNumber(
+      previous,
+      locale,
+      untrack(() => options.formatOptions()),
+    )
+    const stale =
+      parsed === undefined ||
+      !Object.is(
+        clamp(
+          parsed,
+          untrack(() => options.min()),
+          untrack(() => options.max()),
+        ),
+        value,
+      )
+    return stale ? undefined : previous
+  })
 
   function commitValue(nextValue: number): boolean {
     if (options.disabled() || options.readOnly() || !Number.isFinite(nextValue)) {
@@ -200,21 +200,13 @@ export function createNumberInput(options: CreateNumberInputOptions) {
   function stepBy(amount: number): boolean {
     const wasDirty = draftText() !== undefined
     const nextValue = getSteppedValue(getStepBase(), amount)
-    const boundedValue = clamp(nextValue, options.min(), options.max())
     const changed = commitValue(nextValue)
 
     if (changed) {
-      // `commitValue` stages the write; drain so `currentValue` reflects the
-      // committed (or propagated controlled) value like a synchronous read.
-      try {
-        flush()
-      } catch {
-        // Scope-specific flush behavior
-      }
-      if (Object.is(currentValue(), boundedValue)) {
+      if (options.explicitControlledValue() === undefined) {
         setDraftText(undefined)
-        return true
       }
+      return true
     }
 
     if (!wasDirty) {

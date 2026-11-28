@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Setter } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled } from 'solid-js'
 
 import { useLocale, useMessages } from '../../../provider/locale/locale-context'
 import { formatLocaleNumber } from '../../../provider/locale/number'
@@ -159,10 +159,20 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   const normalizeValues = (value: SliderValue | undefined) =>
     normalizeSliderValues(value, merged.min, merged.min, merged.max)
   const getInitialValues = () => normalizeValues(merged.defaultValue) ?? [merged.min]
-  const [currentValues, setCurrentValues] = createControllableValue<Array<number>>({
+  const [rawValues, setCurrentValues] = createControllableValue<Array<number>>({
     value: () => normalizeValues(merged.value),
     defaultValue: getInitialValues,
   })
+  const currentValues = createMemo<Array<number>>(
+    () => {
+      const values = rawValues()
+      if (merged.value !== undefined) {
+        return values
+      }
+      return normalizeSliderValues(values, merged.min, merged.min, merged.max) ?? [merged.min]
+    },
+    { equals: areValuesEqual },
+  )
 
   const [dragging, setDragging] = createSignal(false)
   const definedStep = createMemo(() => {
@@ -219,8 +229,9 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     },
   )
 
-  const getSliderEdges = createMemo(() =>
-    resolveSliderEdges(merged.orientation, merged.reversed, direction() === 'rtl'),
+  const getSliderEdges = createMemo(
+    () => resolveSliderEdges(merged.orientation, merged.reversed, direction() === 'rtl'),
+    { equals: (prev, next) => prev.startEdge === next.startEdge && prev.endEdge === next.endEdge },
   )
   const isActionDisabled = createMemo(() => options.disabled?.() || merged.readOnly)
   const interactionValues = () => pendingValues ?? currentValues()
@@ -269,13 +280,16 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       ...merged.styles?.marker,
     }
   }
-  const rangeBounds = createMemo(() => {
-    const values = currentValues()
-    return {
-      start: values.length > 1 ? Math.min(...values) : merged.min,
-      end: Math.max(...values),
-    }
-  })
+  const rangeBounds = createMemo(
+    () => {
+      const values = currentValues()
+      return {
+        start: values.length > 1 ? Math.min(...values) : merged.min,
+        end: Math.max(...values),
+      }
+    },
+    { equals: (prev, next) => prev.start === next.start && prev.end === next.end },
+  )
   const isMarkerInRange = (index: number): boolean => {
     const value = getMarkerValue(index)
     const { start, end } = rangeBounds()
@@ -310,20 +324,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     },
   )
 
-  createEffect(
-    () => [merged.value, currentValues(), merged.min, merged.max],
-    ([value, displayed, min, max]) => {
-      if (value !== undefined) {
-        return
-      }
-      const normalized = normalizeSliderValues(displayed, min, min, max) ?? [min]
-      if (!areValuesEqual(displayed, normalized)) {
-        setCurrentValues(normalized)
-      }
-    },
-  )
-
-  onCleanup(() => {
+  onSettled(() => () => {
     if (activePointerId !== undefined && activePointerTarget?.hasPointerCapture(activePointerId)) {
       activePointerTarget.releasePointerCapture(activePointerId)
     }

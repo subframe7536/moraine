@@ -54,8 +54,9 @@ export function Field<T extends ValidComponent = 'div'>(
   )
   const isRequired = () => Boolean(props.required)
   const rawLabel = createMemo(() => props.label)
-  const labelHidden = () => !hasContent(rawLabel()) && Boolean(props.hiddenLabel)
-  const label = () => (hasContent(rawLabel()) ? rawLabel() : props.hiddenLabel)
+  const rawHiddenLabel = createMemo(() => props.hiddenLabel)
+  const labelHidden = () => !hasContent(rawLabel()) && Boolean(rawHiddenLabel())
+  const label = () => (hasContent(rawLabel()) ? rawLabel() : rawHiddenLabel())
   const description = createMemo(() => props.description)
   const hint = createMemo(() => props.hint)
   const help = createMemo(() => props.help)
@@ -139,29 +140,37 @@ export function Field<T extends ValidComponent = 'div'>(
   const shouldShowError = () => hasContent(resolvedError())
   const showError = () => error() !== false && shouldShowError()
   const showHelp = () => !showError() && hasContent(help())
-  const fieldAriaAttrs = createMemo<Record<string, string | boolean | undefined>>(() => {
-    const describedBy = [
-      ...new Set(
-        [
-          showHint() ? `${ariaId()}-hint` : undefined,
-          showDescription() ? `${ariaId()}-description` : undefined,
-          showError() ? `${ariaId()}-error` : undefined,
-          showHelp() ? `${ariaId()}-help` : undefined,
-        ].filter((id): id is string => Boolean(id)),
-      ),
-    ]
-    const attrs: Record<string, string | boolean | undefined> = {}
-    if (hasContent(resolvedError())) {
-      attrs['aria-invalid'] = 'true'
-    }
-    if (showLabel()) {
-      attrs['aria-labelledby'] = `${ariaId()}-label`
-    }
-    if (describedBy.length > 0) {
-      attrs['aria-describedby'] = describedBy.join(' ')
-    }
-    return attrs
-  })
+  const fieldAriaAttrs = createMemo<Record<string, string | boolean | undefined>>(
+    () => {
+      const describedBy = [
+        ...new Set(
+          [
+            showHint() ? `${ariaId()}-hint` : undefined,
+            showDescription() ? `${ariaId()}-description` : undefined,
+            showError() ? `${ariaId()}-error` : undefined,
+            showHelp() ? `${ariaId()}-help` : undefined,
+          ].filter((id): id is string => Boolean(id)),
+        ),
+      ]
+      const attrs: Record<string, string | boolean | undefined> = {}
+      if (hasContent(resolvedError())) {
+        attrs['aria-invalid'] = 'true'
+      }
+      if (showLabel()) {
+        attrs['aria-labelledby'] = `${ariaId()}-label`
+      }
+      if (describedBy.length > 0) {
+        attrs['aria-describedby'] = describedBy.join(' ')
+      }
+      return attrs
+    },
+    {
+      equals: (prev, next) => {
+        const keys = Object.keys(next)
+        return Object.keys(prev).length === keys.length && keys.every((k) => prev[k] === next[k])
+      },
+    },
+  )
 
   const fieldContextValue: FieldContextOptions = {
     get error() {

@@ -87,8 +87,10 @@ describe('numberInput', () => {
 
     spinbutton.focus()
     fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
-    spinbutton.dispatchEvent(
-      new WheelEvent('wheel', { deltaY: -1, bubbles: true, cancelable: true }),
+    flush(() =>
+      spinbutton.dispatchEvent(
+        new WheelEvent('wheel', { deltaY: -1, bubbles: true, cancelable: true }),
+      ),
     )
     expect(spinbutton.value).toBe('7')
     expect(onStep).toHaveBeenCalledWith({
@@ -453,7 +455,7 @@ describe('numberInput', () => {
       cancelable: true,
       deltaY: -100,
     })
-    spinbutton.dispatchEvent(wheelUpEvent)
+    flush(() => spinbutton.dispatchEvent(wheelUpEvent))
 
     expect(spinbutton.value).toBe('6')
     expect(wheelUpEvent.defaultPrevented).toBe(true)
@@ -463,7 +465,7 @@ describe('numberInput', () => {
       cancelable: true,
       deltaY: 100,
     })
-    spinbutton.dispatchEvent(wheelDownEvent)
+    flush(() => spinbutton.dispatchEvent(wheelDownEvent))
 
     expect(spinbutton.value).toBe('4')
     expect(wheelDownEvent.defaultPrevented).toBe(true)
@@ -507,7 +509,7 @@ describe('numberInput', () => {
       })
 
       spinbutton.focus()
-      spinbutton.dispatchEvent(wheelEvent)
+      flush(() => spinbutton.dispatchEvent(wheelEvent))
       expect(spinbutton.value).toBe('2')
       expect(wheelEvent.defaultPrevented).toBe(true)
 
@@ -522,7 +524,7 @@ describe('numberInput', () => {
       expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('none')
       increment.dispatchEvent(createFramePointerEvent('pointerup', 2))
       expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('text')
-      increment.click()
+      flush(() => increment.click())
       expect(spinbutton.value).toBe('3')
 
       increment.dispatchEvent(createFramePointerEvent('pointerdown', 3))
@@ -617,7 +619,7 @@ describe('numberInput', () => {
       deltaY: 0,
       shiftKey: true,
     })
-    spinbutton.dispatchEvent(shiftedHorizontalEvent)
+    flush(() => spinbutton.dispatchEvent(shiftedHorizontalEvent))
 
     expect(spinbutton.value).toBe('10')
     expect(shiftedHorizontalEvent.defaultPrevented).toBe(true)

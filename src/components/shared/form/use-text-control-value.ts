@@ -61,35 +61,40 @@ export function useTextControlValue<
     const externalValue = getExternalValue()
     return externalValue !== undefined ? externalValue : initialDefaultValue
   })
+  const isControlled = createMemo(() => options.value() !== undefined)
   const valueProps = createMemo<{
     defaultValue?: string | number
-  }>(() => {
-    const domValue = initialValue === null ? '' : initialValue
-    if (options.value() !== undefined) {
-      return initialDefaultValue !== undefined
-        ? { defaultValue: initialDefaultValue === null ? '' : initialDefaultValue }
-        : {}
-    }
+  }>(
+    () => {
+      const domValue = initialValue === null ? '' : initialValue
+      if (isControlled()) {
+        return initialDefaultValue !== undefined
+          ? { defaultValue: initialDefaultValue === null ? '' : initialDefaultValue }
+          : {}
+      }
 
-    if (initialDefaultValue !== undefined) {
-      return { defaultValue: initialDefaultValue === null ? '' : initialDefaultValue }
-    }
+      if (initialDefaultValue !== undefined) {
+        return { defaultValue: initialDefaultValue === null ? '' : initialDefaultValue }
+      }
 
-    return domValue !== undefined ? { defaultValue: domValue } : {}
-  })
+      return domValue !== undefined ? { defaultValue: domValue } : {}
+    },
+    { equals: (prev, next) => prev.defaultValue === next.defaultValue },
+  )
 
   // `value` is emitted for SSR markup only. Solid 2 re-applies the stateful
   // `value` property on every spread pass, so a client-side binding would
   // reset the DOM value on any unrelated prop update — e.g. clobbering
   // composition drafts. Client updates flow through `restoreValue`.
-  const controlledValueProps = createMemo<{ value?: string | number }>(() => {
+  const EMPTY_VALUE_PROPS: { value?: string | number } = {}
+  const controlledValueProps = (): { value?: string | number } => {
     if (!isServer) {
-      return {}
+      return EMPTY_VALUE_PROPS
     }
 
     const value = options.value()
-    return value === undefined ? {} : { value: value === null ? '' : value }
-  })
+    return value === undefined ? EMPTY_VALUE_PROPS : { value: value === null ? '' : value }
+  }
 
   function applyValue(value: string): ModifierValue<TModifiers> {
     return applyInputModifiers<ModifierValue<TModifiers>>(value, options.modifiers())

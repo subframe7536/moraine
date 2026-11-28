@@ -105,6 +105,14 @@ export function useFormField(
   const id = localId
   const path = createMemo<FieldPath | undefined>(
     () => fieldContext?.binding?.path?.slice() ?? fieldContext?.path?.slice(),
+    {
+      equals: (prev, next) =>
+        prev === next ||
+        (prev !== undefined &&
+          next !== undefined &&
+          prev.length === next.length &&
+          prev.every((segment, index) => segment === next[index])),
+    },
   )
   const name = createMemo(() => {
     if (props?.name !== undefined) {
@@ -157,31 +165,39 @@ export function useFormField(
     () => fieldContext?.binding?.runtimeState ?? EMPTY_RUNTIME_STATE,
   )
 
-  const ariaAttrs = createMemo<JSX.AriaAttributes>(() => {
-    const fromField = fieldContext?.ariaAttrs?.() ?? options.defaultAriaAttrs ?? {}
-    const attrs: JSX.AriaAttributes = {}
+  const ariaAttrs = createMemo<JSX.AriaAttributes>(
+    () => {
+      const fromField = fieldContext?.ariaAttrs?.() ?? options.defaultAriaAttrs ?? {}
+      const attrs: JSX.AriaAttributes = {}
 
-    if (invalid()) {
-      attrs['aria-invalid'] = 'true'
-    }
-    if (required()) {
-      attrs['aria-required'] = 'true'
-    }
-    if (disabled()) {
-      attrs['aria-disabled'] = 'true'
-    }
-    if (readOnly()) {
-      attrs['aria-readonly'] = 'true'
-    }
-    if (typeof fromField['aria-describedby'] === 'string') {
-      attrs['aria-describedby'] = fromField['aria-describedby']
-    }
-    if (typeof fromField['aria-labelledby'] === 'string') {
-      attrs['aria-labelledby'] = fromField['aria-labelledby']
-    }
+      if (invalid()) {
+        attrs['aria-invalid'] = 'true'
+      }
+      if (required()) {
+        attrs['aria-required'] = 'true'
+      }
+      if (disabled()) {
+        attrs['aria-disabled'] = 'true'
+      }
+      if (readOnly()) {
+        attrs['aria-readonly'] = 'true'
+      }
+      if (typeof fromField['aria-describedby'] === 'string') {
+        attrs['aria-describedby'] = fromField['aria-describedby']
+      }
+      if (typeof fromField['aria-labelledby'] === 'string') {
+        attrs['aria-labelledby'] = fromField['aria-labelledby']
+      }
 
-    return attrs
-  })
+      return attrs
+    },
+    {
+      equals: (prev, next) => {
+        const keys = Object.keys(next) as Array<keyof JSX.AriaAttributes>
+        return Object.keys(prev).length === keys.length && keys.every((k) => prev[k] === next[k])
+      },
+    },
+  )
 
   function setFormValue(nextValue: unknown): void {
     fieldContext?.binding?.setValue(nextValue)

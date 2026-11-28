@@ -1,6 +1,6 @@
 import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createMemo, onCleanup, untrack } from 'solid-js'
+import { createMemo, onSettled, untrack } from 'solid-js'
 
 import { createObjectUrl, revokeObjectUrl } from './file-input-sync'
 import { isImageFile } from './file-validation'
@@ -44,7 +44,7 @@ export function createFilePreviews(options: {
     return changed ? next : previous
   })
 
-  onCleanup(() => {
+  onSettled(() => () => {
     for (const url of untrack(previewUrls).values()) {
       revokeObjectUrl(url)
     }

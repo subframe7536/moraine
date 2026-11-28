@@ -1,6 +1,16 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { For, Show, createEffect, createMemo, onCleanup, onSettled, untrack, omit } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createProjection,
+  onCleanup,
+  onSettled,
+  untrack,
+  omit,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
@@ -201,11 +211,38 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     return normalizedItems().find((item) => !item.disabled && !field.disabled())?.id
   })
 
+  let previousSelectedId: string | undefined
+  const selectedMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = selectedItemId()
+    if (previousSelectedId !== undefined && previousSelectedId !== next) {
+      delete draft[previousSelectedId]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousSelectedId = next
+  }, {})
+
+  let previousTabbableId: string | undefined
+  const tabbableMap = createProjection<Record<string, boolean>>((draft) => {
+    const next = tabbableItemId()
+    if (previousTabbableId !== undefined && previousTabbableId !== next) {
+      delete draft[previousTabbableId]
+    }
+    if (next !== undefined) {
+      draft[next] = true
+    }
+    previousTabbableId = next
+  }, {})
+
   createEffect(tabbableItemId, (itemId) => {
     field.setControlRef(itemId ? inputRefs.get(itemId) : undefined)
   })
   function isSelected(item: NormalizedRadioGroupItem): boolean {
-    return item.id === selectedItemId()
+    return selectedMap[item.id] === true
+  }
+  function isTabbable(item: NormalizedRadioGroupItem): boolean {
+    return tabbableMap[item.id] === true
   }
 
   function syncInputCheckedState(): void {
@@ -435,7 +472,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         .filter(Boolean)
                         .join(' ') || undefined
                     }
-                    tabindex={item.id === tabbableItemId() ? 0 : -1}
+                    tabindex={isTabbable(item) ? 0 : -1}
                     class={PEER_CLASS}
                     data-slot="radio-group-input"
                     onChange={(event) => {

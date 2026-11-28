@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, flush, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { areCharArraysEqual, normalizeChars } from './pin-input-value'
 import type { PinInputT } from './pin-input.types'
@@ -66,24 +66,21 @@ export function createPinInput(options: CreatePinInputOptions) {
         }
         return normalizeChars(controlled, options.length(), options.validationType(), normalize())
       }
+      const formVal = options.fieldValue()
+      if (formVal !== undefined) {
+        const formStr = formVal as string
+        const local = uncontrolledChars()
+        if (local.length === options.length() && local.join('') === formStr) {
+          return local
+        }
+        if (prev.length === options.length() && prev.join('') === formStr) {
+          return prev
+        }
+        return normalizeChars(formStr, options.length(), options.validationType(), normalize())
+      }
       return uncontrolledChars()
     },
     { equals: areCharArraysEqual },
-  )
-
-  // Field writes flow back into uncontrolled slots; hole positions survive round trip
-  createEffect(
-    () => {
-      const formVal = options.fieldValue()
-      return formVal === undefined
-        ? undefined
-        : normalizeChars(formVal as string, options.length(), options.validationType(), normalize())
-    },
-    (next) => {
-      if (next && next.join('') !== untrack(uncontrolledChars).join('')) {
-        setUncontrolledChars(() => next)
-      }
-    },
   )
 
   // Controlled prop updates mirror into Field
@@ -135,7 +132,12 @@ export function createPinInput(options: CreatePinInputOptions) {
         options.completeValue(completeStr)
       }
     } else {
-      pendingAction = { index: focusIndex, complete: completeStr, joined }
+      const existing = pendingAction && pendingAction.joined === joined ? pendingAction : undefined
+      pendingAction = {
+        index: focusIndex ?? existing?.index,
+        complete: completeStr ?? existing?.complete,
+        joined,
+      }
     }
   }
 
@@ -182,19 +184,17 @@ export function createPinInput(options: CreatePinInputOptions) {
 
     emittedChars = next
     const controlledValue = options.value?.()
-    flush(() => {
-      if (controlledValue === undefined) {
-        setUncontrolledChars(() => next)
-        options.setFormFieldValue(nextJoined)
-      } else {
-        options.setFormFieldValue(controlledValue)
-      }
-    })
+    if (controlledValue === undefined) {
+      setUncontrolledChars(() => next)
+      options.setFormFieldValue(nextJoined)
+    } else {
+      options.setFormFieldValue(controlledValue)
+    }
 
-    flush(() => options.onValueChange?.()?.(nextJoined))
+    options.onValueChange?.()?.(nextJoined)
 
     if (nextComplete) {
-      if (chars().join('') === nextJoined) {
+      if (controlledValue === undefined) {
         options.completeValue(nextJoined)
       } else {
         queueAction(nextJoined, undefined, nextJoined)
