@@ -18,8 +18,8 @@ import type {
 import { highlightCodeBlock, parseCodeGroupId } from '../core/shiki.ts'
 import { toKebabCase } from '../core/strings.ts'
 
-import { readCodeTabSource } from './mdx.ts'
-import type { MdxNode } from './mdx.ts'
+import { getMdxAttributeValue, readCodeTabSource } from './mdx.ts'
+import type { CodeTabSource, MdxNode } from './mdx.ts'
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   DOCS_INLINE_CODE_CLASS,
@@ -322,11 +322,23 @@ export function createDocsCodePlugin() {
   })
 }
 
-async function renderCodeTabItem(node: MdxNode, source?: string) {
-  const item = readCodeTabSource(node, source)
-  if (!item) {
-    throw new Error('[docs-mdx] invalid CodeTabs item')
-  }
+const PACKAGE_MANAGER_COMMANDS = [
+  { title: 'pnpm', prefix: 'pnpm add' },
+  { title: 'bun', prefix: 'bun add' },
+  { title: 'npm', prefix: 'npm install' },
+  { title: 'yarn', prefix: 'yarn add' },
+] as const
+
+function createPackageInstallSources(packageName: string): Array<CodeTabSource> {
+  return PACKAGE_MANAGER_COMMANDS.map(({ title, prefix }) => ({
+    lang: 'shell',
+    title,
+    code: `${prefix} ${packageName}`,
+    highlightedLines: [],
+  }))
+}
+
+async function highlightCodeTabItem(item: CodeTabSource) {
   const result = await highlightCodeBlock({
     code: item.code,
     language: item.lang,
@@ -342,6 +354,14 @@ async function renderCodeTabItem(node: MdxNode, source?: string) {
     html: result.html,
     highlightedLines: result.highlightedLines,
   }
+}
+
+async function renderCodeTabItem(node: MdxNode, source?: string) {
+  const item = readCodeTabSource(node, source)
+  if (!item) {
+    throw new Error('[docs-mdx] invalid CodeTabs item')
+  }
+  return highlightCodeTabItem(item)
 }
 
 async function groupCodeBlocks(node: MdastNode, ctx: MdastVisitorContext): Promise<void> {
@@ -428,7 +448,41 @@ export function createDocsCodeTabsPlugin(): ReturnType<typeof defineMdastPlugin>
         (child) => child.name === 'CodeTabs.Item' || child.type === 'code',
       )
       if (itemElements.length === 0) {
-        return
+        const packageAttr = getMdxAttributeValue(codeTabs, 'package')
+        const packageName = typeof packageAttr === 'string' ? packageAttr.trim() : ''
+        if (!packageName) {
+          return
+        }
+
+        const items = await Promise.all(
+          createPackageInstallSources(packageName).map((item) => highlightCodeTabItem(item)),
+        )
+        const attributes = node.attributes.filter(
+          (attr) => attr.type !== 'mdxJsxAttribute' || attr.name !== 'package',
+        )
+        if (
+          !attributes.some((attr) => attr.type === 'mdxJsxAttribute' && attr.name === 'groupId')
+        ) {
+          attributes.push({
+            type: 'mdxJsxAttribute',
+            name: 'groupId',
+            value: 'install',
+          })
+        }
+        attributes.push({
+          type: 'mdxJsxAttribute',
+          name: 'items',
+          value: {
+            type: 'mdxJsxAttributeValueExpression',
+            value: JSON.stringify(items),
+          },
+        })
+
+        return {
+          ...node,
+          attributes,
+          children: [],
+        }
       }
 
       const items = await Promise.all(
