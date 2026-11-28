@@ -1,7 +1,7 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, onSettled, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled, untrack } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -84,7 +84,9 @@ export function createNavigationMenuState(
   const open = createMemo(() => mounted() && activeItem() !== undefined)
   const activeTrigger = createMemo(() => activeItem()?.trigger())
   const activeContent = createMemo(() => activeItem()?.content())
-  const [reference, setReference] = createSignal<HTMLButtonElement | undefined>(undefined)
+  const reference = createMemo<HTMLButtonElement | undefined>(
+    (previous) => activeTrigger() ?? previous,
+  )
   const [initialPosition, setInitialPosition] = createSignal<Coords | undefined>(undefined)
   const [focusRequest, setFocusRequest] = createSignal<string | undefined>(undefined)
   const presence = createTransitionPresence({ open })
@@ -248,16 +250,16 @@ export function createNavigationMenuState(
     return true
   }
 
-  onSettled(() =>
+  onSettled(() => {
     queueMicrotask(() => {
       if (alive) {
         setMounted(true)
       }
-    }),
-  )
-  onCleanup(() => {
-    alive = false
-    cancelTimers()
+    })
+    return () => {
+      alive = false
+      cancelTimers()
+    }
   })
 
   // The last trigger the panel was anchored to, so switching triggers can start from its position.
@@ -281,7 +283,6 @@ export function createNavigationMenuState(
       } else {
         setInitialPosition(undefined)
       }
-      setReference(trigger)
     },
   )
 

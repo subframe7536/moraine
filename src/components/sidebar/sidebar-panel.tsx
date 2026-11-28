@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { Show, createEffect, createRenderEffect, createSignal, omit } from 'solid-js'
+import { Show, createEffect, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
@@ -66,7 +66,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     const [element, setElement] = createSignal<HTMLElement>()
     // Publish only the inline panel so `Rail` can measure it, even while closed.
     const publishedElement = () => (contentProps.mobile ? undefined : element())
-    createRenderEffect(publishedElement, (node) => {
+    createEffect(publishedElement, (node) => {
       if (!node) {
         return
       }

@@ -1,6 +1,14 @@
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { Show, createMemo, createRenderEffect, createSignal, onCleanup, omit } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createRenderEffect,
+  createSignal,
+  onCleanup,
+  omit,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -158,7 +166,7 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
     >
       {(_present) => {
         const [element, setElement] = createSignal<HTMLDivElement>()
-        createRenderEffect(element, (current) => {
+        createEffect(element, (current) => {
           if (!current) {
             return
           }

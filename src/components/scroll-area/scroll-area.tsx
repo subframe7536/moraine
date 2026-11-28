@@ -5,9 +5,9 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
-  untrack,
   omit,
+  onSettled,
+  untrack,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -75,7 +75,7 @@ function sameOverflow(a: ScrollAreaT.Overflow, b: ScrollAreaT.Overflow): boolean
 function createReleaseDelay(delay: () => number) {
   const [active, setActive] = createSignal(false)
   let timer: ReturnType<typeof setTimeout> | undefined
-  onCleanup(() => clearTimeout(timer))
+  onSettled(() => () => clearTimeout(timer))
   return {
     active,
     hold(): void {

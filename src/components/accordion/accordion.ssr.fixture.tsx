@@ -10,11 +10,11 @@ export function AccordionHydrationFixture(props: {
     <Accordion
       id="ssr-accordion"
       defaultValue={['first']}
-      expandIcon={
+      expandIcon={() => (
         <svg data-testid="trailing">
           <path d="M0 0h1" />
         </svg>
-      }
+      )}
       items={[
         { value: 'first', label: <span>First</span>, content: <p>First panel</p> },
         {

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createMemo, createSignal, untrack, omit } from 'solid-js'
+import { createMemo, createSignal, omit, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -128,9 +128,14 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     defaultValue: () => props.defaultOpen ?? true,
     onChange: (nextOpen) => props.onOpenChange?.(nextOpen),
   })
-  const [uncontrolledMobileOpen, setUncontrolledMobileOpen] = createSignal(
-    untrack(() => props.defaultMobileOpen ?? false),
-  )
+  const initialMobileOpen = untrack(() => props.defaultMobileOpen ?? false)
+  // Leaving mobile closes an uncontrolled drawer without reporting it.
+  const [uncontrolledMobileOpen, setUncontrolledMobileOpen] = createSignal<boolean>((previous) => {
+    if (!mobile()) {
+      return previous === undefined ? initialMobileOpen : false
+    }
+    return previous ?? initialMobileOpen
+  })
   const mobileOpen = () => props.mobileOpen ?? uncontrolledMobileOpen()
 
   function setMobileOpen(nextOpen: boolean): void {
@@ -156,13 +161,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const maxWidth = () => Math.max(minWidth(), props.maxWidth ?? 480)
   const [resizing, setResizing] = createSignal(false)
   const [panelElement, setPanelElement] = createSignal<HTMLElement>()
-
-  // Leaving mobile closes an uncontrolled drawer without reporting it.
-  createEffect(mobile, (isMobileLayout, previous) => {
-    if (previous === true && isMobileLayout === false) {
-      setUncontrolledMobileOpen(false)
-    }
-  })
 
   const open = createMemo(() => (mobile() ? mobileOpen() : desktopOpen()))
 

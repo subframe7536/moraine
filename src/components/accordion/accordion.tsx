@@ -1,17 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import {
-  DEV,
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  untrack,
-  omit,
-  createRenderEffect,
-} from 'solid-js'
+import { DEV, For, Show, createEffect, createMemo, createSignal, onSettled, omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import type { SlotOverrides } from '../../provider'
@@ -66,7 +55,7 @@ function AccordionItemPanel(props: {
   )
 
   const [element, setElement] = createSignal<HTMLDivElement>()
-  createRenderEffect(element, (node) => {
+  createEffect(element, (node) => {
     if (!node) {
       return
     }
@@ -161,7 +150,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
   )
 
   const rootId = createId(() => merged.id, 'accordion')
-  const expandIcon = createMemo(() => merged.expandIcon)
+  const expandIcon = () => merged.expandIcon
   const headingTag = () => `h${merged.headingLevel}` as const
   const Heading = dynamic(headingTag)
   const [selectedValues, setSelectedValues] = createControllableValue<Array<string>>({
@@ -267,35 +256,33 @@ export function Accordion(props: AccordionProps): JSX.Element {
       const version = ++focusRecoveryVersion
 
       queueMicrotask(() => {
-        untrack(() => {
-          if (version !== focusRecoveryVersion || !lastFocusedValue || enabledItemCount === 0) {
-            return
-          }
+        if (version !== focusRecoveryVersion || !lastFocusedValue || enabledItemCount === 0) {
+          return
+        }
 
-          const currentTrigger = triggerRefs.get(lastFocusedValue)
-          const ownerDocument = currentTrigger?.ownerDocument ?? document
-          const activeElement = ownerDocument.activeElement
-          if (activeElement !== ownerDocument.body && activeElement !== currentTrigger) {
-            return
-          }
+        const currentTrigger = triggerRefs.get(lastFocusedValue)
+        const ownerDocument = currentTrigger?.ownerDocument ?? document
+        const activeElement = ownerDocument.activeElement
+        if (activeElement !== ownerDocument.body && activeElement !== currentTrigger) {
+          return
+        }
 
-          if (currentTrigger && !currentTrigger.disabled && currentTrigger.isConnected) {
-            currentTrigger.focus()
-            return
-          }
+        if (currentTrigger && !currentTrigger.disabled && currentTrigger.isConnected) {
+          currentTrigger.focus()
+          return
+        }
 
-          const enabled = getEnabledItems()
-          const targetIndex = Math.min(lastFocusedIndex, enabled.length - 1)
-          const target = enabled[Math.max(0, targetIndex)]
-          if (target !== undefined) {
-            triggerRefs.get(target)?.focus()
-          }
-        })
+        const enabled = getEnabledItems()
+        const targetIndex = Math.min(lastFocusedIndex, enabled.length - 1)
+        const target = enabled[Math.max(0, targetIndex)]
+        if (target !== undefined) {
+          triggerRefs.get(target)?.focus()
+        }
       })
     },
   )
 
-  onCleanup(() => {
+  onSettled(() => () => {
     focusRecoveryVersion += 1
   })
 
@@ -358,7 +345,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 {(value) => {
                   const [body, setBody] = createSignal<HTMLDivElement>()
                   // Measure natural content, independently of the shell's animated height.
-                  createRenderEffect(body, (node) => {
+                  createEffect(body, (node) => {
                     if (!node) {
                       return
                     }
@@ -424,7 +411,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           })
 
           const [triggerEl, setTriggerEl] = createSignal<HTMLButtonElement>()
-          createRenderEffect(
+          createEffect(
             () => [triggerEl(), itemValue()] as const,
             ([element, key]) => {
               if (!element) {
@@ -479,7 +466,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   </Show>
 
                   <Show when={expandIcon()}>
-                    <Icon name={expandIcon()} data-slot="accordion-trailing" {...trailingSlot} />
+                    {(name) => (
+                      <Icon name={name()} data-slot="accordion-trailing" {...trailingSlot} />
+                    )}
                   </Show>
                 </button>
               </Heading>

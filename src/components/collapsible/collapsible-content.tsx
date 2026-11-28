@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { dynamic } from '@solidjs/web'
-import { createSignal, Show, omit, createRenderEffect } from 'solid-js'
+import { createEffect, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -55,7 +55,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
 
   const shouldRenderContent = () => disclosure.shouldMount()
   const [wrapper, setWrapper] = createSignal<HTMLDivElement>()
-  createRenderEffect(wrapper, (element) => {
+  createEffect(wrapper, (element) => {
     if (!element) {
       return
     }

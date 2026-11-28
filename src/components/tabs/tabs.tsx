@@ -6,8 +6,8 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
   omit,
+  onSettled,
   untrack,
 } from 'solid-js'
 
@@ -109,14 +109,15 @@ export function Tabs(props: TabsProps): JSX.Element {
     value: () => merged.value,
     defaultValue: () => merged.defaultValue,
   })
-  let previousCache = new Map<string, NormalizedTabItem>()
   const warnedDuplicateValues = new Set<string>()
 
-  const normalizedItems = createMemo<Array<NormalizedTabItem>>(() => {
-    const nextCache = new Map<string, NormalizedTabItem>()
+  const normalizedItems = createMemo<Array<NormalizedTabItem>>((previous) => {
+    const previousCache = new Map<string, NormalizedTabItem>(
+      (previous ?? []).map((entry) => [entry.instanceKey, entry]),
+    )
     const occurrences = new Map<string, number>()
 
-    const result = (merged.items ?? []).map((item, index) => {
+    return (merged.items ?? []).map((item, index) => {
       const value = item.value ?? ''
       if (DEV) {
         if (item.value === undefined || item.value === null) {
@@ -140,11 +141,10 @@ export function Tabs(props: TabsProps): JSX.Element {
         cached.ariaLabel === item.ariaLabel &&
         cached.icon === item.icon
       ) {
-        nextCache.set(instanceKey, cached)
         return cached
       }
 
-      const normalized: NormalizedTabItem = {
+      return {
         rawItem: item,
         value,
         instanceKey,
@@ -156,11 +156,7 @@ export function Tabs(props: TabsProps): JSX.Element {
           return item.content
         },
       }
-      nextCache.set(instanceKey, normalized)
-      return normalized
     })
-    previousCache = nextCache
-    return result
   })
   const firstEnabledItem = createMemo(() => normalizedItems().find((item) => !item.disabled))
   const selectedItem = createMemo(() => {
@@ -189,7 +185,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   let disposed = false
   let focusRecoveryGeneration = 0
 
-  onCleanup(() => {
+  onSettled(() => () => {
     disposed = true
   })
   const effectiveHighlighted = createMemo<string | undefined>(() => {
@@ -405,30 +401,37 @@ export function Tabs(props: TabsProps): JSX.Element {
                 disabled: () => Boolean(merged.disabled || item.disabled),
               }),
             })
-            let trigger: HTMLButtonElement | undefined
+            const [trigger, setTrigger] = createSignal<HTMLButtonElement>()
 
-            onCleanup(() => {
-              const wasFocused =
-                trigger !== undefined &&
-                (trigger.ownerDocument.activeElement === trigger || lastFocusedTrigger === trigger)
-              if (trigger !== undefined && triggerRefs.get(item.instanceKey) === trigger) {
-                triggerRefs.delete(item.instanceKey)
+            createEffect(
+              () => [trigger(), item.instanceKey] as const,
+              ([element, key]) => {
+                if (!element) {
+                  return
+                }
+                triggerRefs.set(key, element)
                 setTriggerVersion((v) => v + 1)
-              }
 
-              if (wasFocused) {
-                recoverFocus(untrack(effectiveHighlighted))
-              }
-            })
+                return () => {
+                  const wasFocused =
+                    element.ownerDocument.activeElement === element ||
+                    lastFocusedTrigger === element
+                  if (triggerRefs.get(key) === element) {
+                    triggerRefs.delete(key)
+                    setTriggerVersion((v) => v + 1)
+                  }
+
+                  if (wasFocused) {
+                    recoverFocus(untrack(effectiveHighlighted))
+                  }
+                }
+              },
+            )
 
             return (
               <button
                 id={getTriggerId(item.instanceKey)}
-                ref={(element) => {
-                  trigger = element
-                  triggerRefs.set(item.instanceKey, element)
-                  setTriggerVersion((v) => v + 1)
-                }}
+                ref={setTrigger}
                 type="button"
                 role="tab"
                 tabindex={highlighted() ? 0 : -1}
