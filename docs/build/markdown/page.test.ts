@@ -233,7 +233,6 @@ describe('createDocsMdxOptions', () => {
         ].join('\n\n'),
         frontmatter: FRONTMATTER,
         routeConfig: {},
-        data: {},
       },
       {
         path: 'components/button/index.tsx',
@@ -242,21 +241,19 @@ describe('createDocsMdxOptions', () => {
     )
 
     expect(routeExtension).toEqual({
-      routeConfig: {
-        info: expect.objectContaining({
-          key: 'button',
-          sections: [
-            { id: 'usage', label: 'Usage', level: 1 },
-            { id: 'with-icon', label: 'With icon', level: 2 },
-            { id: 'usage-2', label: 'Usage', level: 1 },
-            { id: 'api-reference', label: 'API Reference', level: 1 },
-            { id: 'api-props', label: 'Props', level: 2 },
-          ],
-        }),
-        metadata: expect.objectContaining({
-          title: 'Button | Moraine',
-        }),
-      },
+      info: expect.objectContaining({
+        key: 'button',
+        sections: [
+          { id: 'usage', label: 'Usage', level: 1 },
+          { id: 'with-icon', label: 'With icon', level: 2 },
+          { id: 'usage-2', label: 'Usage', level: 1 },
+          { id: 'api-reference', label: 'API Reference', level: 1 },
+          { id: 'api-props', label: 'Props', level: 2 },
+        ],
+      }),
+      metadata: expect.objectContaining({
+        title: 'Button | Moraine',
+      }),
     })
   })
 })

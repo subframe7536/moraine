@@ -330,8 +330,8 @@ importers:
         specifier: ^4.4.3
         version: 4.6.0
       solid-file-router:
-        specifier: ^1.0.0-beta.4
-        version: 1.0.0-beta.4(@solidjs/router@2.0.1(@solidjs/web@2.0.3(solid-js@2.0.3))(solid-js@2.0.3))(@solidjs/web@2.0.3(solid-js@2.0.3))(satteri@0.11.7)(solid-js@2.0.3)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1)
+        specifier: ^1.0.0-beta.5
+        version: 1.0.0-beta.5(@solidjs/router@2.0.1(@solidjs/web@2.0.3(solid-js@2.0.3))(solid-js@2.0.3))(@solidjs/web@2.0.3(solid-js@2.0.3))(satteri@0.11.7)(solid-js@2.0.3)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1)
       solid-js:
         specifier: 'catalog:'
         version: 2.0.3
@@ -1936,8 +1936,8 @@ packages:
     resolution: {integrity: sha512-imjLsVHgPuWhvpU3P+zOekvMYqnel7QmKsFC4Sn0fCuAvaaalBsxwKEsrU8Ko5BdFnZA6Go/8a0RzahS634UgA==}
     engines: {node: '>=20'}
 
-  solid-file-router@1.0.0-beta.4:
-    resolution: {integrity: sha512-qQtNgkTZmGyMa2zu8GexrxRltdPkN1Z8uolZLti2LeCKvqUZ9VXpb5vdq8TDSOkDWwz9xCF2n5fbsZKQADjPrQ==}
+  solid-file-router@1.0.0-beta.5:
+    resolution: {integrity: sha512-PY5yWm9PJ1SzjrNDy0PkrAOvbg340ffD4NpV+1TmsYacs6th7a3hGHmwLhtLM+6Cf0OIvQoyNoYUdNdutM+/Zw==}
     peerDependencies:
       '@solidjs/router': ^2
       '@solidjs/web': ^2
@@ -3688,7 +3688,7 @@ snapshots:
       '@shikijs/vscode-textmate': 10.1.0
       '@types/hast': 3.0.5
 
-  solid-file-router@1.0.0-beta.4(@solidjs/router@2.0.1(@solidjs/web@2.0.3(solid-js@2.0.3))(solid-js@2.0.3))(@solidjs/web@2.0.3(solid-js@2.0.3))(satteri@0.11.7)(solid-js@2.0.3)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1):
+  solid-file-router@1.0.0-beta.5(@solidjs/router@2.0.1(@solidjs/web@2.0.3(solid-js@2.0.3))(solid-js@2.0.3))(@solidjs/web@2.0.3(solid-js@2.0.3))(satteri@0.11.7)(solid-js@2.0.3)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1):
     dependencies:
       '@solidjs/router': 2.0.1(@solidjs/web@2.0.3(solid-js@2.0.3))(solid-js@2.0.3)
       '@solidjs/web': 2.0.3(solid-js@2.0.3)

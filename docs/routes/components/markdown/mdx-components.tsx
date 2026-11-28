@@ -42,7 +42,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
 
   Preview(props: MdxProps) {
     return (
-      <Show when={props.preview as Component | undefined}>
+      <Show when={props.component as Component | undefined}>
         {(PreviewComponent) => createComponent(PreviewComponent(), {})}
       </Show>
     )

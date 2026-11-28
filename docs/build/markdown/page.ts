@@ -78,23 +78,6 @@ export interface CreateDocsMdxOptionsConfig {
   lazyApiDoc?: boolean
 }
 
-export interface DocsMdxRouteInput {
-  source: string
-  frontmatter: Record<string, unknown>
-  routeConfig: Record<string, unknown>
-  data: Record<string, unknown>
-}
-
-export interface DocsMdxOptions extends MdxOptions {
-  extendRoute?: (
-    document: DocsMdxRouteInput,
-    context: Parameters<NonNullable<MdxOptions['extendLoad']>>[1],
-  ) =>
-    | Promise<{ routeConfig?: Record<string, unknown> } | void>
-    | { routeConfig?: Record<string, unknown> }
-    | void
-}
-
 function createDocsMdxProviderPlugin() {
   return defineMdastPlugin({
     name: 'moraine-docs-mdx-provider',
@@ -143,7 +126,7 @@ function createDocsApiDocPlugin() {
 export function createDocsMdxOptions(
   projectRoot: string,
   config: CreateDocsMdxOptionsConfig = {},
-): DocsMdxOptions {
+): MdxOptions {
   const lazyApiDoc = config.lazyApiDoc === true
   let cachedComponentKeys: Set<string> | undefined
 
@@ -202,9 +185,7 @@ export function createDocsMdxOptions(
     extendRoute(document, context) {
       const { page, frontmatter, sourceApiDoc } = resolveRouteInputs(document.frontmatter, context)
       const onThisPageEntries = extractOnThisPageEntries(document.source)
-      return {
-        routeConfig: buildRouteConfig(page, frontmatter, onThisPageEntries, sourceApiDoc),
-      }
+      return buildRouteConfig(page, frontmatter, onThisPageEntries, sourceApiDoc)
     },
     async extendLoad(document, context) {
       const { sourcePath, page, frontmatter, sourceApiDoc } = resolveRouteInputs(
